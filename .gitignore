@@ -38,6 +38,7 @@ sites/simpletest
 */files
 */private
 
+
 # Ignore multi-site test environment.
 # simpletest
 /.editorconfig

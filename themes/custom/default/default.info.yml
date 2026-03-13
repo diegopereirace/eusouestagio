@@ -1,12 +1,12 @@
 name: Default
 type: theme
-description: 'Bario Subtheme'
+description: 'Barrio Subtheme'
 core_version_requirement: ^10.3 || ^11
 base theme: bootstrap_barrio
 
 libraries:
-  - bootstrap_barrio_subtheme/bootstrap
-  - bootstrap_barrio_subtheme/global-styling
+  - default/bootstrap
+  - default/global-styling
 
 regions:
   top_header: 'Top header'

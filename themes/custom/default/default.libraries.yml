@@ -8,11 +8,11 @@ global-styling:
       assets/css/colors.css: {}
 bootstrap:
   js:
-    /libraries/popperjs/dist/umd/popper.min.js: { weight: -19 }
-    /libraries/bootstrap/dist/js/bootstrap.min.js: { weight: -20 }
+    /libraries/popper/popper.min.js: { weight: -19 }
+    /libraries/bootstrap/js/bootstrap.min.js: { weight: -20 }
   css:
     component:
-      /libraries/bootstrap/dist/css/bootstrap.min.css: {}
+      /libraries/bootstrap/css/bootstrap.min.css: {}
   dependencies:
     - core/popperjs
 color.preview:

@@ -1,0 +1,41 @@
+services:
+  drupal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eusouestagio-drupal
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${DRUPAL_HTTP_PORT}:80"
+    environment:
+      DRUPAL_DB_HOST: postgres
+      DRUPAL_DB_PORT: 5432
+      DRUPAL_DB_NAME: ${POSTGRES_DB}
+      DRUPAL_DB_USER: ${POSTGRES_USER}
+      DRUPAL_DB_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./:/var/www/html
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: eusouestagio-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

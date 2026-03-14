@@ -48,21 +48,26 @@
         <div class="col-md-3 col-12">
           {{ content.field_text_simple_long }}
         </div>
-        <div class="col-md-3' col-12">
-          Links Rápidos
-          <div class="footer-menu-vertical">
+        <div class="col-md-3 col-12 footer-menu-section">
+          <h3 class="footer-menu-title">Links Rápidos</h3>
+          <div class="footer-links-menu">
             {{ drupal_menu('links-rapidos') }}
           </div>
         </div>
-        <div class="col-md-3 col-12">
-          Para Empresas
-          <div class="footer-menu-vertical">
+        <div class="col-md-3 col-12 footer-menu-section">
+          <h3 class="footer-menu-title">Para Empresas</h3>
+          <div class="footer-links-menu">
             {{ drupal_menu('para-empresas') }}
           </div>
         </div>
         <div class="col-md-3 col-12">
-          Contato
-          {{ content.field_email }}
+          <h3 class="footer-menu-title">Contato</h3>
+          <div class="footer-links-menu">
+            <a href="mailto:{{ content.field_email.value }}">{{ content.field_email }}</a>
+
+            {{ content.field_phone_wpp }}
+            {{ content.field_text_simple_2 }}
+          </div>
         </div>
       </div>
     </div>

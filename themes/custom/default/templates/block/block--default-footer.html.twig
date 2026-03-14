@@ -65,7 +65,8 @@
         <div class="col-md-3 col-12">
           <h3 class="footer-menu-title">Contato</h3>
           <div class="footer-links-menu">
-            <a href="mailto:{{ content.field_email.value }}" target="_blank">{{ content.field_email }}</a>
+            <a href="mailto:{{ content.field_email.value }}" target="_blank">{{ content.field_email }}</a><br>
+            <a href="{{ content.field_instagram[0]['#url'] }}" target="_blank">Instagram</a><br>
             <a href="{{ content.field_linkedin[0]['#url'] }}" target="_blank">Linkedin</a><br>
             {% set phone_raw = content.field_phone_wpp|render|striptags|trim|replace({'(': '', ')': '', ' ': '', '-': '', '.': '', '+': ''}) %}
             <a href="https://wa.me/{{ phone_raw }}" target="_blank">Whatsapp</a>

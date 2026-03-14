@@ -63,7 +63,7 @@
 
 <div id="page-wrapper">
   <div id="page">
-    <header id="header" class="header container" role="banner" aria-label="{{ 'Site header'|t}}">
+    <header id="header" class="header" role="banner" aria-label="{{ 'Site header'|t}}">
       {% block head %}
         {% if page.header %}
           <nav{{ navbar_attributes }}>
@@ -136,12 +136,14 @@
     {% endif %}
     <footer class="site-footer-custom">
       {% block footer %}
-        <div class="{{ container }}">
-          {% if page.footer_first %}
-            <div class="site-footer__top clearfix">
-              {{ page.footer_first }}
-            </div>
-          {% endif %}
+        <div class="container">
+          <div class="row">
+            {% if page.footer_first %}
+              <div class="site-footer__top clearfix">
+                {{ page.footer_first }}
+              </div>
+            {% endif %}
+          </div>
         </div>
       {% endblock %}
     </footer>

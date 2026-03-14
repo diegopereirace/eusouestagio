@@ -36,6 +36,7 @@
     'block-' ~ plugin_id|clean_class,
   ]
 %}
+{% set site_slogan = drupal_config('system.site', 'slogan') %}
 <div{{ attributes.addClass(classes) }}>
   {{ title_prefix }}
   {% if label %}
@@ -46,6 +47,7 @@
     <div{{ content_attributes.addClass('content') }}>
       <div class="row">
         <div class="col-md-3 col-12">
+          <h3 class="footer-menu-title">Eu Sou Estágio</h3>
           {{ content.field_text_simple_long }}
         </div>
         <div class="col-md-3 col-12 footer-menu-section">
@@ -70,6 +72,15 @@
           </div>
         </div>
       </div>
-    </div>
+      <hr>
+      <div class="row">
+        <div class="col-md-8 col-12">
+          <span>© {{ "now"|date("Y") }} Eu Sou Estágio. Todos os direitos reservados.</span>
+        </div>
+        <div class="col-md-4 col-12 text-md-end">
+          <a href="#">Política de Privacidade</a>
+          <a href="#">Termos de Uso</a>
+        </div>
+      </div>
   {% endblock %}
 </div>

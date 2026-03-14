@@ -2,3 +2,25 @@
  * @file
  * Subtheme specific CSS.
  */
+
+.footer-links-menu .menu,
+.footer-links-menu .nav,
+.footer-links-menu .navbar-nav {
+	display: block;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.footer-links-menu .menu-item,
+.footer-links-menu .nav-item,
+.footer-links-menu li {
+	display: block;
+	margin: 0 0 0.5rem 0;
+}
+
+.footer-links-menu a,
+.footer-links-menu .nav-link {
+	display: inline-block;
+	padding: 0;
+}

@@ -65,10 +65,10 @@
         <div class="col-md-3 col-12">
           <h3 class="footer-menu-title">Contato</h3>
           <div class="footer-links-menu">
-            <a href="mailto:{{ content.field_email.value }}">{{ content.field_email }}</a>
-            <a href="#">Linkedin</a><br>
-            <a href="#">Whatsapp</a>
-            {{ content.field_phone_wpp }}
+            <a href="mailto:{{ content.field_email.value }}" target="_blank">{{ content.field_email }}</a>
+            <a href="{{ content.field_linkedin[0]['#url'] }}" target="_blank">Linkedin</a><br>
+            {% set phone_raw = content.field_phone_wpp|render|striptags|trim|replace({'(': '', ')': '', ' ': '', '-': '', '.': '', '+': ''}) %}
+            <a href="https://wa.me/{{ phone_raw }}" target="_blank">Whatsapp</a>
             {{ content.field_text_simple_2 }}
           </div>
         </div>

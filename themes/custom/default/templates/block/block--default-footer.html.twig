@@ -44,8 +44,27 @@
   {{ title_suffix }}
   {% block content %}
     <div{{ content_attributes.addClass('content') }}>
-      {{ content }}
+      <div class="row">
+        <div class="col-md-3 col-12">
+          {{ content.field_text_simple_long }}
+        </div>
+        <div class="col-md-3' col-12">
+          Links Rápidos
+          <div class="footer-menu-vertical">
+            {{ drupal_menu('links-rapidos') }}
+          </div>
+        </div>
+        <div class="col-md-3 col-12">
+          Para Empresas
+          <div class="footer-menu-vertical">
+            {{ drupal_menu('para-empresas') }}
+          </div>
+        </div>
+        <div class="col-md-3 col-12">
+          Contato
+          {{ content.field_email }}
+        </div>
+      </div>
     </div>
   {% endblock %}
 </div>
-tezste

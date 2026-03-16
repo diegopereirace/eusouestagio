@@ -61,16 +61,16 @@ h6 {
 }
 
 .banner-title {
-	font-size: 4rem;
+	font-size: 3.5rem;
 	font-weight: 700;
-	line-height: 1.15;
-	margin-bottom: 1.5rem;
+	line-height: 1.1;
+	margin-bottom: 1.25rem;
 }
 
 .banner-body {
-	font-size: 2rem;
-	line-height: 1.45;
-	max-width: 900px;
+	font-size: 1.125rem;
+	line-height: 1.6;
+	max-width: 600px;
 	margin-bottom: 2rem;
 }
 
@@ -89,8 +89,9 @@ h6 {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	padding: 0.9rem 2rem;
-	border-radius: 12px;
+	padding: 0.75rem 1.75rem;
+	border-radius: 6px;
+	font-size: 1rem;
 	font-weight: 600;
 	text-decoration: none;
 	transition: filter 0.2s ease;
@@ -104,6 +105,7 @@ h6 {
 .banner-action-secondary a {
 	background-color: #fff;
 	color: #023c62;
+	border: 2px solid #fff;
 }
 
 .banner-action-primary a:hover,

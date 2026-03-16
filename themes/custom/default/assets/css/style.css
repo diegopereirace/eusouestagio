@@ -3,6 +3,12 @@
  * Subtheme specific CSS.
  */
 
+.site-footer-custom {
+	background-color: #023c62;
+	color: #fff;
+	padding: 40px 0;
+}
+
 .footer-links-menu .menu,
 .footer-links-menu .nav,
 .footer-links-menu .navbar-nav {
@@ -16,13 +22,29 @@
 .footer-links-menu .nav-item,
 .footer-links-menu li {
 	display: block;
-	margin: 0 0 0.5rem 0;
+	margin: 0 0 0.25rem 0;
+	border: 0 !important;
 }
 
 .footer-links-menu a,
 .footer-links-menu .nav-link {
 	display: inline-block;
 	padding: 0;
+	color: #fff;
+	border: 0 !important;
+	box-shadow: none !important;
+}
+
+.footer-links-menu a:hover,
+.footer-links-menu a:focus,
+.footer-links-menu .nav-link:hover,
+.footer-links-menu .nav-link:focus,
+.footer-links-menu .nav-link.active,
+.footer-links-menu .nav-link.is-active {
+	color: #fff;
+	border: 0 !important;
+	box-shadow: none !important;
+	outline: 0;
 }
 
 .footer-social-links .social-link {

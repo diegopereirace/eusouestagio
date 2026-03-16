@@ -14,3 +14,9 @@ bootstrap:
       /libraries/bootstrap/css/bootstrap.min.css: {}
   dependencies:
     - core/popperjs
+fontawesome:
+  css:
+    component:
+      /libraries/fontawesome/css/all.min.css: {}
+  js:
+    /libraries/fontawesome/js/all.min.js: {}

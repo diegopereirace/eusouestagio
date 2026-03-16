@@ -6,6 +6,7 @@ base theme: bootstrap_barrio
 
 libraries:
   - default/bootstrap
+  - default/fontawesome
   - default/global-styling
 
 regions:

@@ -63,7 +63,7 @@
 
 <div id="page-wrapper">
   <div id="page">
-    <header id="header" class="header container" role="banner" aria-label="{{ 'Site header'|t}}">
+    <header id="header" class="header container" aria-label="{{ 'Site header'|t}}">
       <div class="row">
         {% block head %}
           {% if page.header %}
@@ -84,7 +84,7 @@
       </div>
     </header>
     {% if page.banner %}
-      <div class="banner">
+      <div class="banner" role="banner">
         {{ page.banner }}
       </div>
     {% endif %}
@@ -96,13 +96,10 @@
       </div>
     {% endif %}
     {% if page.featured_top %}
-      {% block featured %}
-        <div class="featured-top">
-          <aside class="featured-top__inner section {{ container }} clearfix" role="complementary">
-            {{ page.featured_top }}
-          </aside>
-        </div>
-      {% endblock %}
+      <div class="featured-top">
+        {{ dump(page.featured_top) }}
+        {{ page.featured_top }}
+      </div>
     {% endif %}
     <div id="main-wrapper" class="layout-main-wrapper clearfix">
       {% block content %}

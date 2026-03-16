@@ -41,6 +41,78 @@ h6 {
 	display: none;
 }
 
+.banner-image {
+	position: relative;
+	min-height: 640px;
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-position: center;
+	display: flex;
+	align-items: center;
+	padding: 80px;
+	overflow: hidden;
+}
+
+.banner-overlay-content {
+	max-width: 760px;
+	color: #fff;
+	position: relative;
+	z-index: 1;
+}
+
+.banner-title {
+	font-size: 4rem;
+	font-weight: 700;
+	line-height: 1.15;
+	margin-bottom: 1.5rem;
+}
+
+.banner-body {
+	font-size: 2rem;
+	line-height: 1.45;
+	max-width: 900px;
+	margin-bottom: 2rem;
+}
+
+.banner-body p {
+	margin-bottom: 0;
+}
+
+.banner-actions {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+
+.banner-actions a {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.9rem 2rem;
+	border-radius: 12px;
+	font-weight: 600;
+	text-decoration: none;
+	transition: filter 0.2s ease;
+}
+
+.banner-action-primary a {
+	background-color: #ff6e3a;
+	color: #fff;
+}
+
+.banner-action-secondary a {
+	background-color: #fff;
+	color: #023c62;
+}
+
+.banner-action-primary a:hover,
+.banner-action-primary a:focus,
+.banner-action-secondary a:hover,
+.banner-action-secondary a:focus {
+	filter: brightness(0.95);
+}
+
 @media (min-width: 768px) {
 	.banner-content-desktop {
 		display: block;
@@ -50,6 +122,30 @@ h6 {
 @media (max-width: 767.98px) {
 	.banner-content-mobile {
 		display: block;
+	}
+
+	.banner-image {
+		min-height: 460px;
+		padding: 32px 24px;
+	}
+
+	.banner-title {
+		font-size: 2rem;
+		margin-bottom: 1rem;
+	}
+
+	.banner-body {
+		font-size: 1.125rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.banner-actions {
+		gap: 0.75rem;
+	}
+
+	.banner-actions a {
+		width: 100%;
+		padding: 0.8rem 1rem;
 	}
 }
 

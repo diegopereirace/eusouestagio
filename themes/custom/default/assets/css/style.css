@@ -46,6 +46,44 @@ h6 {
 	display: block;
 }
 
+.block-destaque-content {
+	background-color: #fff	;
+	padding: 44px 16px;
+}
+
+.block-destaque-title {
+	max-width: 1200px;
+	margin: 0 auto;
+	text-align: center;
+	color: #003f69;
+	font-size: 3.75rem;
+	font-weight: 700;
+	line-height: 1.15;
+}
+
+.block-destaque-title .field,
+.block-destaque-title .field__item,
+.block-destaque-title p {
+	margin: 0;
+	color: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	line-height: inherit;
+}
+
+.block-destaque-subtitle,
+.block-destaque-subtitle .field--name-field-text-simple-2,
+.block-destaque-subtitle .field--name-field-text-simple-2 .field__item,
+.block-destaque-subtitle .field--name-field-text-simple-2 p {
+	margin: 1rem auto 0;
+	max-width: 980px;
+	color: #3f5872;
+	font-size: 1rem;
+	line-height: 1.4;
+	text-align: center;
+	font-weight: 100;
+}
+
 .banner-content-desktop,
 .banner-content-mobile {
 	display: none;
@@ -158,6 +196,24 @@ h6 {
 	.banner-actions a {
 		width: 100%;
 		padding: 0.8rem 1rem;
+	}
+
+	.block-destaque-content {
+		padding: 30px 16px;
+	}
+
+	.block-destaque-title {
+		font-size: 2rem;
+		line-height: 1.25;
+	}
+
+	.block-destaque-subtitle,
+	.block-destaque-subtitle .field--name-field-text-simple-2,
+	.block-destaque-subtitle .field--name-field-text-simple-2 .field__item,
+	.block-destaque-subtitle .field--name-field-text-simple-2 p {
+		margin-top: 0.75rem;
+		font-size: 1.125rem;
+		line-height: 1.45;
 	}
 }
 

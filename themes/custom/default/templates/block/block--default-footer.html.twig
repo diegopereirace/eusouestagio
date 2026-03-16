@@ -65,12 +65,12 @@
         <div class="col-md-3 col-12">
           <h3 class="footer-menu-title">Contato</h3>
           <div class="footer-links-menu">
-            <div class="mb-2">
+            <div class="mb-2 footer-social-links d-flex align-items-center gap-2 flex-wrap">
               {% set phone_raw = content.field_phone_wpp|render|striptags|trim|replace({'(': '', ')': '', ' ': '', '-': '', '.': '', '+': ''}) %}
-              <a href="mailto:{{ content.field_email[0]['#context']['value'] }}" target="_blank"><i class="fa-regular fa-envelope fa-2"></i></a>
-              <a href="{{ content.field_instagram[0]['#url'] }}" target="_blank"><i class="fa-brands fa-instagram"></i></a>
-              <a href="{{ content.field_linkedin[0]['#url'] }}" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
-              <a href="https://wa.me/{{ phone_raw }}" target="_blank"><i class="fa-brands fa-whatsapp"></i></a>              
+              <a href="mailto:{{ content.field_email[0]['#context']['value'] }}" target="_blank" class="social-link social-link--mail d-inline-flex align-items-center justify-content-center rounded-circle text-decoration-none"><i class="fa-regular fa-envelope"></i></a>
+              <a href="{{ content.field_instagram[0]['#url'] }}" target="_blank" class="social-link social-link--instagram d-inline-flex align-items-center justify-content-center rounded-circle text-decoration-none"><i class="fa-brands fa-instagram"></i></a>
+              <a href="{{ content.field_linkedin[0]['#url'] }}" target="_blank" class="social-link social-link--linkedin d-inline-flex align-items-center justify-content-center rounded-circle text-decoration-none"><i class="fa-brands fa-linkedin-in"></i></a>
+              <a href="https://wa.me/{{ phone_raw }}" target="_blank" class="social-link social-link--whatsapp d-inline-flex align-items-center justify-content-center rounded-circle text-decoration-none"><i class="fa-brands fa-whatsapp"></i></a>
             </div>
         
           </div>

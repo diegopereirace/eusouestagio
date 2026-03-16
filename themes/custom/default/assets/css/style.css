@@ -25,6 +25,38 @@
 	padding: 0;
 }
 
+.footer-social-links .social-link {
+	width: 36px;
+	height: 36px;
+	font-size: 1rem;
+	line-height: 1;
+	color: #fff;
+	transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.footer-social-links .social-link:hover,
+.footer-social-links .social-link:focus {
+	color: #fff;
+	transform: translateY(-1px);
+	filter: brightness(1.05);
+}
+
+.footer-social-links .social-link--mail {
+	background-color: #0f4a7a;
+}
+
+.footer-social-links .social-link--instagram {
+	background-color: #f08a1e;
+}
+
+.footer-social-links .social-link--linkedin {
+	background-color: #0a66c2;
+}
+
+.footer-social-links .social-link--whatsapp {
+	background-color: #2f9b3a;
+}
+
 .whatsapp-float-block {
 	position: fixed;
 	right: 24px;

@@ -46,9 +46,13 @@
   {% endif %}
   {{ title_suffix }}
   {% block content %}
+    {% set background_image = content.field_image|render|striptags|trim %}
     <div{{ content_attributes.addClass('content', 'banner-breakpoint-content') }}>
       <div class="banner-content-desktop" data-breakpoint="default.desktop">
-      teste
+        {% if background_image %}
+          <div class="banner-image" style="background-image: url('{{ background_image }}'); height: 750px;"></div>
+        {% endif %}
+        {{ content.field_text_simple_long }}
       </div>
 
       <div class="banner-content-mobile" data-breakpoint="default.mobile">

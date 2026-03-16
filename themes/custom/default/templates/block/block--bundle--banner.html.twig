@@ -46,17 +46,36 @@
   {% endif %}
   {{ title_suffix }}
   {% block content %}
-    {% set background_image = content.field_image|render|striptags|trim %}
+    {% set background_image = content.field_image|render|striptags|trim|replace({ '"': '', "'": '' }) %}
     <div{{ content_attributes.addClass('content', 'banner-breakpoint-content') }}>
       <div class="banner-content-desktop" data-breakpoint="default.desktop">
         {% if background_image %}
-          <div class="banner-image" style="background-image: url('{{ background_image }}'); height: 750px;"></div>
+          <section class="banner-image" style="background-image: url('{{ background_image|e('html_attr') }}');">
+            <div class="banner-overlay-content">
+              <div class="banner-title">{{ content.field_text_simple }}</div>
+              <div class="banner-body">{{ content.body }}</div>
+              <div class="banner-actions">
+                <div class="banner-action-primary">{{ content.field_link }}</div>
+                <div class="banner-action-secondary">{{ content.field_link_2 is defined ? content.field_link_2 : '' }}</div>
+              </div>
+            </div>
+          </section>
         {% endif %}
-        {{ content.field_text_simple_long }}
       </div>
 
       <div class="banner-content-mobile" data-breakpoint="default.mobile">
-        testemobile
+        {% if background_image %}
+          <section class="banner-image" style="background-image: url('{{ background_image|e('html_attr') }}');">
+            <div class="banner-overlay-content">
+              <div class="banner-title">{{ content.field_text_simple }}</div>
+              <div class="banner-body">{{ content.body }}</div>
+              <div class="banner-actions">
+                <div class="banner-action-primary">{{ content.field_link }}</div>
+                <div class="banner-action-secondary">{{ content.field_link_2 is defined ? content.field_link_2 : '' }}</div>
+              </div>
+            </div>
+          </section>
+        {% endif %}
       </div>
     </div>
   {% endblock %}

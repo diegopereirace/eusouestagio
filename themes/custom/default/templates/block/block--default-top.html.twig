@@ -44,17 +44,19 @@
   {{ title_suffix }}
   {% block content %}
     <div{{ content_attributes.addClass('content').addClass('container') }}>
-      <div class="container container-top">
-        <div class="row row-top">
-          <div class="col-md-4 col-9 col-top col-top-1 p-0">
-            <div class="wrap-logo">
-              <a href="{{ path('<front>')|replace({'/en': '/en/'})|replace({'/pt-br': '/pt-br/'}) }}" title="Início">
-                <img src="{{ logopath }}" class="img-responsive" draggable="false" width="200" />
-              </a>
-            </div>
+      <div class="row row-top">
+        <div class="col-md-4 col-9 col-top col-top-1 p-0">
+          <div class="wrap-logo">
+            <a href="{{ path('<front>') }}" title="Início">
+              <img src="{{ logopath }}" class="img-responsive" draggable="false" width="200" />
+            </a>
           </div>
         </div>
-      </div>      
+        <div class="col-md-8 col-3 col-top col-top-2 p-0 d-flex align-items-center justify-content-end">
+          <div class="wrap-menu">
+            {{ drupal_menu('main') }}
+          </div>
+      </div>
     </div>
   {% endblock %}
 </div>

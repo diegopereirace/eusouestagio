@@ -20,6 +20,7 @@
         "drupal/devel": "5.5",
         "drupal/devel_php": "2.0",
         "drupal/metatag": "2.2",
+        "drupal/paragraphs": "1.20",
         "drupal/pathauto": "1.14",
         "drupal/twig_tweak": "^3.4",
         "drupal/webform": "6.3.0-beta8",

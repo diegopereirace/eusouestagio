@@ -83,6 +83,11 @@
         {% endblock %}
       </div>
     </header>
+    {% if page.banner %}
+      <div class="banner">
+        {{ page.banner }}
+      </div>
+    {% endif %}
     {% if page.highlighted %}
       <div class="highlighted">
         <aside class="{{ container }} section clearfix" role="complementary">

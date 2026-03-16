@@ -13,7 +13,6 @@ regions:
   header: Header
   banner: Banner
   page_top: 'Page top'
-  page_bottom: 'Page bottom'
   highlighted: Highlighted
   featured_top: 'Featured top'
   content: Content

@@ -27,6 +27,10 @@ h6 {
 	padding: 40px 0;
 }
 
+#navbar-main.navbar {
+	display: block;
+}
+
 .footer-links-menu .menu,
 .footer-links-menu .nav,
 .footer-links-menu .navbar-nav {
@@ -109,8 +113,8 @@ h6 {
 }
 
 .whatsapp-float-button {
-	width: 96px;
-	height: 96px;
+	width: 80px;
+	height: 80px;
 	background-color: #16c74a;
 	color: #fff;
 	font-size: 3rem;

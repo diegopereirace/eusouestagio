@@ -37,3 +37,17 @@ function default_preprocess(&$variables, $hook) {
   $variables['logopath'] = \Drupal::service('file_url_generator')->transformRelative(\Drupal::service('file_url_generator')->generateAbsoluteString(theme_get_setting('logo.url')));
   $variables['path_to_theme'] = \Drupal::theme()->getActiveTheme()->getPath();
 }
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter() for block templates.
+ */
+function default_theme_suggestions_block_alter(array &$suggestions, array $variables) {
+  if (!isset($variables['elements']['content']['#block_content'])) {
+    return;
+  }
+
+  $block_content = $variables['elements']['content']['#block_content'];
+  if ($block_content->bundle() === 'banner') {
+    array_splice($suggestions, 1, 0, 'block__bundle__banner');
+  }
+}

@@ -27,8 +27,39 @@ h6 {
 	padding: 40px 0;
 }
 
+.footer-menu-title {
+	font-size: 1.5rem;
+	font-weight: 600;
+}
+
 #navbar-main.navbar {
 	display: block;
+}
+
+.header-search-toggle {
+	color: #023c62;
+	font-size: 1.25rem;
+	line-height: 1;
+}
+
+.header-search-toggle:hover,
+.header-search-toggle:focus {
+	color: #023c62;
+}
+
+.header-search-form-wrap {
+	max-width: 360px;
+	width: 100%;
+}
+
+.header-search-form-wrap form {
+	margin-bottom: 0;
+}
+
+@media (max-width: 767.98px) {
+	.header-search-form-wrap {
+		max-width: 100%;
+	}
 }
 
 .footer-links-menu .menu,

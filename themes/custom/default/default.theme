@@ -32,3 +32,8 @@ function bootstrap_barrio_subtheme_form_system_theme_settings_alter(&$form, Form
     'bg-transparent' => t('Transparent'),
   ];
 }
+
+function default_preprocess(&$variables, $hook) {
+  $variables['logopath'] = \Drupal::service('file_url_generator')->transformRelative(\Drupal::service('file_url_generator')->generateAbsoluteString(theme_get_setting('logo.url')));
+  $variables['path_to_theme'] = \Drupal::theme()->getActiveTheme()->getPath();
+}

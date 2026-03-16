@@ -36,6 +36,9 @@
     'block-' ~ plugin_id|clean_class,
   ]
 %}
+
+{{ attach_library('block_breakpoint/block_breakpoint') }}
+
 <div{{ attributes.addClass(classes) }}>
   {{ title_prefix }}
   {% if label %}
@@ -43,9 +46,14 @@
   {% endif %}
   {{ title_suffix }}
   {% block content %}
-    <div{{ content_attributes.addClass('content') }}>
-      {{ content }}
+    <div{{ content_attributes.addClass('content', 'banner-breakpoint-content') }}>
+      <div class="banner-content-desktop" data-breakpoint="default.desktop">
+      teste
+      </div>
+
+      <div class="banner-content-mobile" data-breakpoint="default.mobile">
+        testemobile
+      </div>
     </div>
   {% endblock %}
 </div>
-teste

@@ -1,1 +1,36 @@
-teste
+<div class="item">
+    <div class="item-inner">
+        <div class="row-custom row-1 d-flex justify-content-between">
+            <div class="col-custom">
+                <h3 class="text-title-sm">{{ row._entity.title.value }}</h3>
+                {% if row._entity.field_text_simple_2.value is not empty %}
+                    <div class="dv-empresa">{{ row._entity.field_text_simple_2.value }}</div>
+                {% endif %}
+            </div>
+            <div class="col-custom">
+                {% if row._entity.field_regime_t is not empty %}
+                    {% set regime_labels = [] %}
+                    {% for item in row._entity.field_regime_t %}
+                        {% if item.entity %}
+                            {% set regime_labels = regime_labels|merge([item.entity.label]) %}
+                        {% endif %}
+                    {% endfor %}
+                    {% if regime_labels is not empty %}
+                        <div class="item-regime">{{ regime_labels|join(', ') }}</div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        <div class="row-custom row-2">
+            <div class="col-custom d-flex">
+                {% if row._entity.field_text_simple.value is not empty %}
+                    <i class="fa-solid fa-dollar-sign"></i>
+                    <div class="dv-salario">{{ row._entity.field_text_simple.value }}</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row-custom row-3">
+            <a href="{{ path('entity.node.canonical', {'node': row._entity.id}) }}" class="ui-btn ui-btn--primary w-100">Ver Detalhes</a>
+        </div>        
+    </div>
+</div>

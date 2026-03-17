@@ -142,6 +142,11 @@ h6 {
 	display: block;
 }
 
+.cto-content {
+	margin: 0;
+	padding: 0;
+}
+
 .cto-image {
 	position: relative;
 	min-height: 520px;
@@ -152,6 +157,15 @@ h6 {
 	align-items: center;
 	padding: 72px 16px;
 	overflow: hidden;
+	margin: 0;
+}
+
+.cto-image::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(90deg, rgba(0, 18, 48, 0.62) 0%, rgba(15, 20, 60, 0.48) 45%, rgba(40, 20, 10, 0.42) 100%);
+	pointer-events: none;
 }
 
 .cto-overlay-content {
@@ -243,6 +257,14 @@ h6 {
 	align-items: center;
 	padding: 80px;
 	overflow: hidden;
+}
+
+.banner-image::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(90deg, rgba(0, 18, 48, 0.62) 0%, rgba(15, 20, 60, 0.48) 45%, rgba(40, 20, 10, 0.42) 100%);
+	pointer-events: none;
 }
 
 .banner-overlay-content {

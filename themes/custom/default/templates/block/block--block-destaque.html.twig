@@ -45,7 +45,7 @@
   {% block content %}
     <div{{ content_attributes.addClass('content', 'block-destaque-content') }}>
       <div class="block-destaque-title">
-        <h2>{{ content.field_text_simple }}</h2>
+        <h2 class="text-title">{{ content.field_text_simple }}</h2>
         <div class="block-destaque-subtitle text-center">{{ content.field_text_simple_2.0['#context'].value }}</div>
         {% if content.field_icon_title_text_p['#items'] is not null %}
           <div class="block-items row">
@@ -55,7 +55,7 @@
                   <div class="icon">
                     <img src="{{ file_url(content.field_icon_title_text_p[key]['#paragraph'].field_image.entity.uri.value) }}" alt="{{ content.field_icon_title_text_p[key]['#paragraph'].field_text_simple.value }}">
                   </div>
-                  <div class="title"><h3>{{ content.field_icon_title_text_p[key]['#paragraph'].field_text_simple.value }}</h3></div>
+                  <div class="title"><h3 class="text-title-sm">{{ content.field_icon_title_text_p[key]['#paragraph'].field_text_simple.value }}</h3></div>
                   <div class="text">{{ content.field_icon_title_text_p[key]['#paragraph'].field_text_simple_long.value }}</div>
                 </div>
               </div>

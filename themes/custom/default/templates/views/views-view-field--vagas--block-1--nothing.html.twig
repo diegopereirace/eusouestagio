@@ -22,10 +22,21 @@
             </div>
         </div>
         <div class="row-custom row-2">
-            <div class="col-custom d-flex">
+            <div class="col-custom d-flex text-align-center">
                 {% if row._entity.field_text_simple.value is not empty %}
                     <i class="fa-solid fa-dollar-sign"></i>
                     <div class="dv-salario">{{ row._entity.field_text_simple.value }}</div>
+                {% endif %}
+            </div>
+            <div class="col-custom d-flex text-align-center">
+                {% if row._entity.field_tecnologias_t is not empty %}
+                    <div class="tag-list">
+                        {% for item in row._entity.field_tecnologias_t %}
+                            {% if item.entity %}
+                                <span class="tag-pill">{{ item.entity.label }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
                 {% endif %}
             </div>
         </div>

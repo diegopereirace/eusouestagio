@@ -144,6 +144,27 @@ h6 {
 	line-height: 1.4;
 }
 
+.tag-list {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	flex-wrap: wrap;
+}
+
+.tag-pill {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.38rem 0.9rem;
+	border-radius: 999px;
+	background-color: #dfe3e6;
+	color: #003f69;
+	font-size: 1.125rem;
+	font-weight: 500;
+	line-height: 1;
+	white-space: nowrap;
+}
+
 .cto-content-desktop {
 	display: block;
 }
@@ -402,6 +423,10 @@ h6 {
 
 	.block-item .text {
 		margin-top: 1rem;
+		font-size: 1rem;
+	}
+
+	.tag-pill {
 		font-size: 1rem;
 	}
 }

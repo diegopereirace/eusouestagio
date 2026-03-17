@@ -47,8 +47,7 @@ h6 {
 }
 
 .block-destaque-content {
-	background-color: #fff	;
-	padding: 44px 16px;
+	padding: 80px 16px;
 }
 
 .block-destaque-title {
@@ -56,9 +55,13 @@ h6 {
 	margin: 0 auto;
 	text-align: center;
 	color: #003f69;
-	font-size: 3.75rem;
+	font-size: 3rem;
 	font-weight: 700;
 	line-height: 1.15;
+}
+
+.block-destaque-title h2 {
+	margin: 0;
 }
 
 .block-destaque-title .field,
@@ -75,13 +78,64 @@ h6 {
 .block-destaque-subtitle .field--name-field-text-simple-2,
 .block-destaque-subtitle .field--name-field-text-simple-2 .field__item,
 .block-destaque-subtitle .field--name-field-text-simple-2 p {
-	margin: 1rem auto 0;
-	max-width: 980px;
+	margin: 1.25rem auto 0;
+	max-width: 840px;
 	color: #3f5872;
 	font-size: 1rem;
-	line-height: 1.4;
+	line-height: 1.35;
 	text-align: center;
-	font-weight: 100;
+	font-weight: 400;
+}
+
+.block-items {
+	margin-top: 4.5rem;
+	row-gap: 1.5rem;
+}
+
+.block-item {
+	text-align: left;
+}
+
+.block-item-inner {
+	height: 100%;
+	background-color: #fff;
+	border: 1px solid #e2e6ed;
+	border-radius: 20px;
+	padding: 2.5rem 2rem;
+	box-shadow: 0 2px 10px rgba(12, 34, 54, 0.06);
+	transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.block-item-inner:hover,
+.block-item-inner:focus-within {
+	box-shadow: 0 14px 28px rgba(12, 34, 54, 0.18);
+	transform: translateY(-2px);
+}
+
+.block-item .icon {
+	margin-bottom: 2.25rem;
+}
+
+.block-item .icon img {
+	width: 44px;
+	height: 44px;
+	object-fit: contain;
+}
+
+.block-item .title h3 {
+	margin: 0;
+	color: #003f69;
+	font-size: 1.625rem;
+	font-weight: 700;
+	line-height: 1.18;
+}
+
+.block-item .text {
+	margin-top: 1.75rem;
+	color: #3f5872;
+	font-size: 1rem;
+	font-weight: 400;
+	line-height: 1.4;
 }
 
 .banner-content-desktop,
@@ -199,11 +253,11 @@ h6 {
 	}
 
 	.block-destaque-content {
-		padding: 30px 16px;
+		padding: 48px 16px;
 	}
 
 	.block-destaque-title {
-		font-size: 2rem;
+		font-size: 2.25rem;
 		line-height: 1.25;
 	}
 
@@ -211,9 +265,31 @@ h6 {
 	.block-destaque-subtitle .field--name-field-text-simple-2,
 	.block-destaque-subtitle .field--name-field-text-simple-2 .field__item,
 	.block-destaque-subtitle .field--name-field-text-simple-2 p {
-		margin-top: 0.75rem;
-		font-size: 1.125rem;
+		margin-top: 1rem;
+		font-size: 1rem;
 		line-height: 1.45;
+	}
+
+	.block-items {
+		margin-top: 2.25rem;
+	}
+
+	.block-item-inner {
+		padding: 2rem 1.5rem;
+		border-radius: 16px;
+	}
+
+	.block-item .icon {
+		margin-bottom: 1.5rem;
+	}
+
+	.block-item .title h3 {
+		font-size: 1.5rem;
+	}
+
+	.block-item .text {
+		margin-top: 1rem;
+		font-size: 1rem;
 	}
 }
 

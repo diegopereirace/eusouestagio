@@ -16,6 +16,7 @@ regions:
   highlighted: Highlighted
   featured_top: 'Featured top'
   content: Content
+  content_full: Content Full
   sidebar_first: 'Sidebar first'
   sidebar_second: 'Sidebar second'
   featured_bottom_first: 'Featured bottom first'

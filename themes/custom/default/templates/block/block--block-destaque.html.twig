@@ -47,6 +47,21 @@
       <div class="block-destaque-title">
         <h2>{{ content.field_text_simple }}</h2>
         <div class="block-destaque-subtitle text-center">{{ content.field_text_simple_2.0['#context'].value }}</div>
+        {% if content.field_icon_title_text_p['#items'] is not null %}
+          <div class="block-items row">
+            {% for key, value in content.field_icon_title_text_p['#items'] %}
+              <div class="col-lg-4 col-md-6 col-12 block-item">
+                <div class="block-item-inner">
+                  <div class="icon">
+                    <img src="{{ file_url(content.field_icon_title_text_p[key]['#paragraph'].field_image.entity.uri.value) }}" alt="{{ content.field_icon_title_text_p[key]['#paragraph'].field_text_simple.value }}">
+                  </div>
+                  <div class="title"><h3>{{ content.field_icon_title_text_p[key]['#paragraph'].field_text_simple.value }}</h3></div>
+                  <div class="text">{{ content.field_icon_title_text_p[key]['#paragraph'].field_text_simple_long.value }}</div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
       </div>
     </div>
   {% endblock %}

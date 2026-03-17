@@ -54,14 +54,28 @@ h6 {
 	max-width: 1200px;
 	margin: 0 auto;
 	text-align: center;
-	color: #003f69;
-	font-size: 3rem;
-	font-weight: 700;
-	line-height: 1.15;
 }
 
 .block-destaque-title h2 {
 	margin: 0;
+}
+
+.text-title {
+	margin: 0;
+	color: #003f69;
+	font-size: 2.5rem;
+	font-weight: 700;
+	line-height: 1.12;
+	letter-spacing: -0.02em;
+}
+
+.text-title-sm {
+	margin: 0;
+	color: #003f69;
+	font-size: 1.3rem !important;
+	font-weight: 700;
+	line-height: 1.18;
+	letter-spacing: -0.01em;
 }
 
 .block-destaque-title .field,
@@ -120,14 +134,6 @@ h6 {
 	width: 44px;
 	height: 44px;
 	object-fit: contain;
-}
-
-.block-item .title h3 {
-	margin: 0;
-	color: #003f69;
-	font-size: 1.625rem;
-	font-weight: 700;
-	line-height: 1.18;
 }
 
 .block-item .text {
@@ -360,8 +366,12 @@ h6 {
 	}
 
 	.block-destaque-title {
-		font-size: 2.25rem;
 		line-height: 1.25;
+	}
+
+	.text-title {
+		font-size: 2.25rem;
+		line-height: 1.2;
 	}
 
 	.block-destaque-subtitle,
@@ -386,9 +396,9 @@ h6 {
 		margin-bottom: 1.5rem;
 	}
 
-	.block-item .title h3 {
-		font-size: 1.5rem;
-	}
+		.text-title-sm {
+			font-size: 1.2rem;
+		}
 
 	.block-item .text {
 		margin-top: 1rem;

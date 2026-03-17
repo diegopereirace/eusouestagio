@@ -78,6 +78,15 @@ h6 {
 	letter-spacing: -0.01em;
 }
 
+.text-title-xs {
+	margin: 0;
+	color: #003f69;
+	font-size: 1.2rem;
+	font-weight: 700;
+	line-height: 1.18;
+	letter-spacing: -0.01em;
+}
+
 .block-destaque-title .field,
 .block-destaque-title .field__item,
 .block-destaque-title p {
@@ -144,11 +153,129 @@ h6 {
 	line-height: 1.4;
 }
 
-.tag-list {
+.css-vagas-home {
+	padding: 5rem 0;
+}
+
+.css-vagas-home .view-header {
+	margin-bottom: 2rem;
+}
+
+.link--primary {
+	color: #e55a24;
+	font-weight: 600;
+	text-decoration: none;
+	transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.link--primary:hover,
+.link--primary:focus {
+	color: #c94b1b;
+	text-decoration: none;
+}
+
+/* ── Card de Vaga ─────────────────────────────────────── */
+
+.item-vaga {
+	height: 350px;
+	padding: 10px 0;
+}
+
+.item-vaga .item-inner {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	background-color: #fff;
+	border: 1px solid #e2e6ed;
+	border-radius: 20px;
+	padding: 1.75rem;
+	box-shadow: 0 2px 10px rgba(12, 34, 54, 0.06);
+	transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.item-vaga .item-inner:hover {
+	box-shadow: 0 10px 24px rgba(12, 34, 54, 0.14);
+	transform: translateY(-2px);
+}
+
+.item-vaga .row-custom {
+	display: flex;
+	width: 100%;
+}
+
+.item-vaga .row-1 {
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 0.75rem;
+	margin-bottom: 1.5rem;
+}
+
+.item-vaga .row-1 .col-custom:first-child {
+	flex: 1 1 0;
+	min-width: 0;
+}
+
+.item-vaga .row-1 .col-custom:last-child {
+	flex-shrink: 0;
+}
+
+.item-vaga .row-2 {
+	flex-direction: column;
+	gap: 0.5rem;
+	margin-bottom: 1.5rem;
+}
+
+.item-vaga .row-2 .col-custom {
+	align-items: center;
+	gap: 0.5rem;
+	color: #3f5872;
+	font-size: 0.9375rem;
+}
+
+.item-vaga .row-2 .col-custom i {
+	font-size: 0.9375rem;
+	color: #3f5872;
+	flex-shrink: 0;
+}
+
+.item-vaga .row-3 {
+	flex-direction: column;
+	margin-top: auto;
+	padding-top: 1.5rem;
+}
+
+.item-vaga .dv-empresa {
+	margin-top: 0.35rem;
+	color: #3f5872;
+	font-size: 0.9375rem;
+	font-weight: 400;
+}
+
+.item-vaga .dv-salario {
+	color: #003f69;
+	font-size: 0.9375rem;
+	font-weight: 400;
+}
+
+.item-vaga .tag-list {
 	display: flex;
 	align-items: center;
 	gap: 0.625rem;
 	flex-wrap: wrap;
+}
+
+.item-vaga .item-regime {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.42rem 1rem;
+	border-radius: 999px;
+	background-color: #4caf50;
+	color: #fff;
+	font-size: 0.875rem;
+	font-weight: 600;
+	line-height: 1;
+	white-space: nowrap;
 }
 
 .tag-pill {
@@ -243,7 +370,7 @@ h6 {
 .ui-btn--primary,
 .banner-action-primary a,
 .cto-action-primary a {
-	background-color: #ff6e3a;
+	background-color: #e55a24;
 	color: #fff;
 	border: 0;
 	min-width: 214px;
@@ -419,6 +546,10 @@ h6 {
 
 		.text-title-sm {
 			font-size: 1.2rem;
+		}
+
+		.text-title-xs {
+			font-size: 1.1rem;
 		}
 
 	.block-item .text {

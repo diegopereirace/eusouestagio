@@ -46,19 +46,6 @@ h6 {
 	display: block;
 }
 
-.block-destaque-content {
-	padding: 80px 16px;
-}
-
-.block-destaque-title {
-	max-width: 1200px;
-	margin: 0 auto;
-	text-align: center;
-}
-
-.block-destaque-title h2 {
-	margin: 0;
-}
 
 .text-title {
 	margin: 0;
@@ -85,6 +72,33 @@ h6 {
 	font-weight: 700;
 	line-height: 1.18;
 	letter-spacing: -0.01em;
+}
+
+.link--primary {
+	color: #e55a24;
+	font-weight: 600;
+	text-decoration: none;
+	transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.link--primary:hover,
+.link--primary:focus {
+	color: #c94b1b;
+	text-decoration: none;
+}
+
+.block-destaque-content {
+	padding: 80px 16px;
+}
+
+.block-destaque-title {
+	max-width: 1200px;
+	margin: 0 auto;
+	text-align: center;
+}
+
+.block-destaque-title h2 {
+	margin: 0;
 }
 
 .block-destaque-title .field,
@@ -159,19 +173,6 @@ h6 {
 
 .css-vagas-home .view-header {
 	margin-bottom: 2rem;
-}
-
-.link--primary {
-	color: #e55a24;
-	font-weight: 600;
-	text-decoration: none;
-	transition: color 0.2s ease, transform 0.2s ease;
-}
-
-.link--primary:hover,
-.link--primary:focus {
-	color: #c94b1b;
-	text-decoration: none;
 }
 
 /* ── Card de Vaga ─────────────────────────────────────── */

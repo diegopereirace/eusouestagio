@@ -29,6 +29,9 @@
  * @ingroup themeable
  */
 #}
+
+{{ attach_library('default/block_breakpoint') }}
+
 {%
   set classes = [
     'block',
@@ -38,37 +41,40 @@
 %}
 <div{{ attributes.addClass(classes) }}>
   {% block content %}
-    <div{{ content_attributes.addClass('content').addClass('container') }}>
-      <div class="row row-top">
-        <div class="col-md-4 col-9 col-top col-top-1 p-0">
-          <div class="wrap-logo">
-            <a href="{{ path('<front>') }}" title="Início">
-              <img src="{{ logopath }}" class="img-responsive" draggable="false" width="350" />
-            </a>
-          </div>
-        </div>
-        <div class="col-md-8 col-3 col-top col-top-2 p-0 d-flex align-items-center justify-content-end">
-          <div class="wrap-menu">
-            {{ drupal_menu('main') }}
-          </div>
-          <button
-            class="header-search-toggle btn btn-link p-0 ms-3 text-decoration-none"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#header-search-collapse"
-            aria-expanded="false"
-            aria-controls="header-search-collapse"
-            aria-label="Abrir pesquisa"
-          >
-            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-          </button>
-        </div>
-        <div class="col-12">
-          <div class="collapse" id="header-search-collapse">
-            <div class="header-search-form-wrap ms-md-auto">
-              {{ drupal_block('search_form_block') }}
+    <div{{ content_attributes.addClass('content', 'container') }}>
+      <div class="top-content-desktop" data-breakpoint="default.desktop">
+        <div class="row row-top">
+          <div class="col-md-4 col-9 col-top col-top-1 p-0">
+            <div class="wrap-logo">
+              <a href="{{ path('<front>') }}" title="Início">
+                <img src="{{ logopath }}" class="img-responsive" draggable="false" width="350" />
+              </a>
             </div>
           </div>
+          <div class="col-md-8 col-3 col-top col-top-2 p-0 d-flex align-items-center justify-content-end">
+            <div class="wrap-menu">
+              {{ drupal_menu('main') }}
+            </div>
+            <button
+              class="header-search-toggle btn btn-link p-0 ms-3 text-decoration-none"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#header-search-collapse"
+              aria-expanded="false"
+              aria-controls="header-search-collapse"
+              aria-label="Abrir pesquisa"
+            >
+              <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div class="col-12">
+            <div class="collapse" id="header-search-collapse">
+              <div class="header-search-form-wrap ms-md-auto">
+                {{ drupal_block('search_form_block') }}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   {% endblock %}

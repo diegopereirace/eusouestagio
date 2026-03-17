@@ -20,3 +20,11 @@ fontawesome:
       /libraries/fontawesome/css/all.min.css: {}
   js:
     /libraries/fontawesome/js/all.min.js: {}
+
+block_breakpoint:
+  js:
+    assets/js/block_breakpoint.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
+    - core/once

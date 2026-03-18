@@ -79,6 +79,8 @@
     </div>
 
     <div class="top-content-mobile" data-breakpoint="default.mobile">
+      <input id="mobile-menu-toggle" class="mobile-menu-toggle" type="checkbox" />
+
       <div class="row-top">
         <div class="col-12 px-4 d-flex align-items-center justify-content-between">
           <div class="wrap-logo">
@@ -87,13 +89,23 @@
             </a>
           </div>
           <div class="wrap-icon">
-            <i class="fa-solid fa-bars fa-2x"></i>
+            <label id="dv-button-menu" class="button-menu" for="mobile-menu-toggle" aria-label="Abrir menu">
+              <i class="fa-solid fa-bars fa-2x"></i>
+            </label>
           </div>
         </div>
       </div>
 
-      <div class="wrap-menu-mobile">
-        {{ drupal_menu('main') }}
+      <div id="wrap-menu-mobile">
+        <label class="menu-mobile-overlay" for="mobile-menu-toggle" aria-label="Fechar menu"></label>
+        <div class="menu-mobile-panel">
+          <div class="menu-mobile-header d-flex justify-content-end p-3">
+            <label class="menu-mobile-close" for="mobile-menu-toggle" aria-label="Fechar menu">
+              <i class="fa-solid fa-xmark fa-2x"></i>
+            </label>
+          </div>
+          {{ drupal_menu('main') }}
+        </div>
       </div>
     </div>
   {% endblock %}

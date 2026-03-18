@@ -101,6 +101,11 @@
         {{ page.featured_top }}
       </div>
     {% endif %}
+    {% if page.featured_full %}
+      <div class="featured-full">
+        {{ page.featured_full }}
+      </div>
+    {% endif %}
     <div id="main-wrapper" class="layout-main-wrapper clearfix">
       {% block content %}
         <div id="main" class="{{ container }}">

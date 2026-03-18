@@ -113,7 +113,8 @@
           <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fechar"></button>
         </div>
         <div class="offcanvas-body">
-          {{ drupal_menu('main') }}
+          <div class="inner-menu-mobile">{{ drupal_menu('main') }}</div>
+          <div class="inner-search-mobile">{{ drupal_block('search_form_block') }}</div>
         </div>
       </div>
     </div>

@@ -79,8 +79,6 @@
     </div>
 
     <div class="top-content-mobile" data-breakpoint="default.mobile">
-      <input id="mobile-menu-toggle" class="mobile-menu-toggle" type="checkbox" />
-
       <div class="row-top">
         <div class="col-12 px-4 d-flex align-items-center justify-content-between">
           <div class="wrap-logo">
@@ -89,21 +87,32 @@
             </a>
           </div>
           <div class="wrap-icon">
-            <label id="dv-button-menu" class="button-menu" for="mobile-menu-toggle" aria-label="Abrir menu">
+            <button
+              id="dv-button-menu"
+              class="button-menu navbar-toggler p-0 border-0 bg-transparent"
+              type="button"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#wrap-menu-mobile"
+              aria-controls="wrap-menu-mobile"
+              aria-label="Menu mobile"
+            >
               <i class="fa-solid fa-bars fa-2x"></i>
-            </label>
+            </button>
           </div>
         </div>
       </div>
 
-      <div id="wrap-menu-mobile">
-        <label class="menu-mobile-overlay" for="mobile-menu-toggle" aria-label="Fechar menu"></label>
-        <div class="menu-mobile-panel">
-          <div class="menu-mobile-header d-flex justify-content-end p-3">
-            <label class="menu-mobile-close" for="mobile-menu-toggle" aria-label="Fechar menu">
-              <i class="fa-solid fa-xmark fa-2x"></i>
-            </label>
-          </div>
+      <div
+        id="wrap-menu-mobile"
+        class="offcanvas offcanvas-end"
+        tabindex="-1"
+        aria-labelledby="wrap-menu-mobile-title"
+      >
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="wrap-menu-mobile-title">Menu</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fechar"></button>
+        </div>
+        <div class="offcanvas-body">
           {{ drupal_menu('main') }}
         </div>
       </div>

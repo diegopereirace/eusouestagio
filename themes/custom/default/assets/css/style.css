@@ -583,6 +583,54 @@ h6 {
 	margin-bottom: 0;
 }
 
+.top-content-mobile {
+	position: relative;
+}
+
+.top-content-mobile .button-menu {
+	cursor: pointer;
+	margin: 0;
+	color: #023c62;
+}
+
+.top-content-mobile #wrap-menu-mobile {
+	max-width: min(340px, 88vw);
+}
+
+.top-content-mobile #wrap-menu-mobile .offcanvas-title {
+	color: #023c62;
+	font-weight: 600;
+}
+
+.top-content-mobile #wrap-menu-mobile .offcanvas-body {
+	padding-top: 0;
+}
+
+.top-content-mobile #wrap-menu-mobile .menu,
+.top-content-mobile #wrap-menu-mobile .nav,
+.top-content-mobile #wrap-menu-mobile .navbar-nav {
+	display: block;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.top-content-mobile #wrap-menu-mobile .menu-item,
+.top-content-mobile #wrap-menu-mobile .nav-item {
+	display: block;
+	margin: 0;
+	padding: 0;
+	border-bottom: 1px solid #e5e8ec;
+}
+
+.top-content-mobile #wrap-menu-mobile .menu-item a,
+.top-content-mobile #wrap-menu-mobile .nav-link {
+	display: block;
+	padding: 14px 4px;
+	color: #023c62;
+	text-decoration: none;
+}
+
 @media (max-width: 767.98px) {
 	.header-search-form-wrap {
 		max-width: 100%;

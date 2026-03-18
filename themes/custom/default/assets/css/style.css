@@ -728,6 +728,39 @@ h6 {
 	background-color: #2f9b3a;
 }
 
+@media (max-width: 767.98px) {
+	.site-footer-custom {
+		padding-top: 48px;
+		padding-bottom: 28px;
+	}
+
+	.site-footer-custom .content > .row:first-child > [class*='col-'] + [class*='col-'] {
+		margin-top: 2.25rem;
+	}
+
+	.site-footer-custom .footer-menu-title {
+		margin-bottom: 1.25rem !important;
+	}
+
+	.site-footer-custom .footer-links-menu .menu-item,
+	.site-footer-custom .footer-links-menu .nav-item,
+	.site-footer-custom .footer-links-menu li {
+		margin: 0 0 0.6rem 0;
+	}
+
+	.site-footer-custom .content > .row:first-child {
+		margin-bottom: 2rem;
+	}
+
+	.site-footer-custom .content > .row.mb-4 {
+		margin-bottom: 0 !important;
+	}
+
+	.site-footer-custom .content > .row.mb-4 .col-md-4 {
+		margin-top: 1rem;
+	}
+}
+
 .whatsapp-float-block {
 	position: fixed;
 	right: 24px;

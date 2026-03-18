@@ -74,3 +74,13 @@ function default_theme_suggestions_block_alter(array &$suggestions, array $varia
     array_splice($suggestions, 1, 0, 'block__bundle__banner');
   }
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter() for search_block_form.
+ */
+function default_form_search_block_form_alter(array &$form, FormStateInterface $form_state) {
+  if (isset($form['keys'])) {
+    $form['keys']['#attributes']['placeholder'] = 'Buscar Vagas';
+    $form['keys']['#attributes']['aria-label'] = 'Buscar Vagas';
+  }
+}

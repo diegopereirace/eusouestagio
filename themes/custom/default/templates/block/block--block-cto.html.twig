@@ -43,7 +43,14 @@
   {% block content %}
     <div{{ content_attributes.addClass('content', 'cto-content') }}>
       <div class="cto-content-desktop" data-breakpoint="default.desktop">
-        {% set background_image = content.field_image|render|striptags|trim|replace({ '"': '', "'": '' }) %}
+        {% set background_image_original = '' %}
+        {% set background_image = '' %}
+        {% if content.field_image['#items'] is defined and content.field_image['#items'][0] is defined and content.field_image['#items'][0].entity.uri.value is defined %}
+          {% set background_image_original = content.field_image['#items'][0].entity.uri.value %}
+          {% set background_image = background_image_original|image_style('cto') %}
+        {% elseif content.field_image[0]['#markup'] is defined %}
+          {% set background_image = content.field_image[0]['#markup'] %}
+        {% endif %}
         <section class="cto-image" style="background-image: url('{{ background_image|e('html_attr') }}');">
           <div class="cto-overlay-content container text-center">
             <div class="cto-title"><h3 class="text-white">{{ content.field_text_simple|render|striptags|trim }}</h3></div>
@@ -54,6 +61,26 @@
           </div>
         </section>
       </div>
+    </div>
+
+    <div class="cto-content-mobile" data-breakpoint="default.mobile">
+      {% set background_image_original_mobile = '' %}
+      {% set background_image_mobile = '' %}
+      {% if content.field_image['#items'] is defined and content.field_image['#items'][0] is defined and content.field_image['#items'][0].entity.uri.value is defined %}
+        {% set background_image_original_mobile = content.field_image['#items'][0].entity.uri.value %}
+        {% set background_image_mobile = background_image_original_mobile|image_style('cto_mobile') %}
+      {% elseif content.field_image[0]['#markup'] is defined %}
+        {% set background_image_mobile = content.field_image[0]['#markup'] %}
+      {% endif %}
+      <section class="cto-image" style="background-image: url('{{ background_image_mobile|e('html_attr') }}');">
+        <div class="cto-overlay-content container text-center">
+          <div class="cto-title"><h3 class="text-white">{{ content.field_text_simple|render|striptags|trim }}</h3></div>
+          <div class="cto-body text-white">{{ content.field_text_simple_long|render|striptags|trim }}</div>
+          <div class="cto-actions">
+            <div class="cto-action-primary">{{ content.field_link }}</div>
+          </div>
+        </div>
+      </section>
     </div>
   {% endblock %}
 </div>

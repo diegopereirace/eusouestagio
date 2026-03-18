@@ -77,5 +77,24 @@
         </div>
       </div>
     </div>
+
+    <div class="top-content-mobile" data-breakpoint="default.mobile">
+      <div class="row-top">
+        <div class="col-12 px-4 d-flex align-items-center justify-content-between">
+          <div class="wrap-logo">
+            <a href="{{ path('<front>') }}" title="Início">
+              <img src="{{ logopath }}" class="img-responsive" draggable="false" width="220" />
+            </a>
+          </div>
+          <div class="wrap-icon">
+            <i class="fa-solid fa-bars fa-2x"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="wrap-menu-mobile">
+        {{ drupal_menu('main') }}
+      </div>
+    </div>
   {% endblock %}
 </div>

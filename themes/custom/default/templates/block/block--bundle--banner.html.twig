@@ -46,11 +46,21 @@
   {% endif %}
   {{ title_suffix }}
   {% block content %}
-    {% set background_image = content.field_image|render|striptags|trim|replace({ '"': '', "'": '' }) %}
+    {% set background_image_original = '' %}
+    {% set background_image_desktop = '' %}
+    {% set background_image_mobile = '' %}
+    {% if content.field_image['#items'] is defined and content.field_image['#items'][0] is defined and content.field_image['#items'][0].entity.uri.value is defined %}
+      {% set background_image_original = content.field_image['#items'][0].entity.uri.value %}
+      {% set background_image_desktop = background_image_original|image_style('banner') %}
+      {% set background_image_mobile = background_image_original|image_style('cto_mobile') %}
+    {% elseif content.field_image[0]['#markup'] is defined %}
+      {% set background_image_desktop = content.field_image[0]['#markup'] %}
+      {% set background_image_mobile = content.field_image[0]['#markup'] %}
+    {% endif %}
     <div{{ content_attributes.addClass('content', 'banner-breakpoint-content') }}>
       <div class="banner-content-desktop" data-breakpoint="default.desktop">
-        {% if background_image %}
-          <section class="banner-image" style="background-image: url('{{ background_image|e('html_attr') }}');">
+        {% if background_image_desktop %}
+          <section class="banner-image" style="background-image: url('{{ background_image_desktop|e('html_attr') }}');">
             <div class="banner-overlay-content">
               <div class="banner-title">{{ content.field_text_simple }}</div>
               <div class="banner-body">{{ content.body }}</div>
@@ -64,8 +74,8 @@
       </div>
 
       <div class="banner-content-mobile" data-breakpoint="default.mobile">
-        {% if background_image %}
-          <section class="banner-image" style="background-image: url('{{ background_image|e('html_attr') }}');">
+        {% if background_image_mobile %}
+          <section class="banner-image" style="background-image: url('{{ background_image_mobile|e('html_attr') }}');">
             <div class="banner-overlay-content">
               <div class="banner-title">{{ content.field_text_simple }}</div>
               <div class="banner-body">{{ content.body }}</div>

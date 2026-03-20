@@ -2,9 +2,12 @@
 
 namespace Drupal\custom_configs_users\Form;
 
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\user\Entity\User;
 
 class CandidatoRegistrationForm extends FormBase {
@@ -14,10 +17,10 @@ class CandidatoRegistrationForm extends FormBase {
     }
 
     /**
-     * Carrega as opções de um campo list_string do usuário.
+     * Carrega as opções de um campo list_string.
      */
-    private function getListOptions(string $field_name): array {
-        $storage = FieldStorageConfig::loadByName('user', $field_name);
+    private function getListOptions(string $field_name, string $entity_type = 'user'): array {
+        $storage = FieldStorageConfig::loadByName($entity_type, $field_name);
         if (!$storage) {
             return [];
         }
@@ -25,7 +28,6 @@ class CandidatoRegistrationForm extends FormBase {
         if (!is_array($allowed) || empty($allowed)) {
             return [];
         }
-        // Formato já é chave => valor no Drupal.
         return $allowed;
     }
 
@@ -380,6 +382,350 @@ class CandidatoRegistrationForm extends FormBase {
             ],
         ];
 
+        // ── Seção 6 — Instituição de Ensino (Paragraphs) ──────────
+        $form['section_instituicao'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['mb-4']],
+        ];
+        $form['section_instituicao']['heading'] = [
+            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-university me-2"></i>' . $this->t('Instituição de Ensino') . '</h4>',
+        ];
+
+        $form['section_instituicao']['instituicoes_wrapper'] = [
+            '#type' => 'container',
+            '#attributes' => ['id' => 'instituicoes-wrapper'],
+        ];
+
+        $num_instituicoes = $form_state->get('num_instituicoes') ?? 1;
+        $form_state->set('num_instituicoes', $num_instituicoes);
+
+        for ($i = 0; $i < $num_instituicoes; $i++) {
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['card', 'mb-3']],
+            ];
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['card-body']],
+            ];
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['title'] = [
+                '#markup' => '<h6 class="card-title text-muted">' . $this->t('Instituição @num', ['@num' => $i + 1]) . '</h6>',
+            ];
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['row', 'g-3']],
+            ];
+
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_nome'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12']],
+            ];
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_nome']['inst_nome_' . $i] = [
+                '#type' => 'textfield',
+                '#title' => $this->t('Instituição de Ensino'),
+                '#maxlength' => 255,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_endereco'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-6']],
+            ];
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_endereco']['inst_endereco_' . $i] = [
+                '#type' => 'textfield',
+                '#title' => $this->t('Endereço'),
+                '#maxlength' => 255,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_bairro'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-3']],
+            ];
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_bairro']['inst_bairro_' . $i] = [
+                '#type' => 'textfield',
+                '#title' => $this->t('Bairro'),
+                '#maxlength' => 100,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_cidade'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-3']],
+            ];
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_cidade']['inst_cidade_' . $i] = [
+                '#type' => 'textfield',
+                '#title' => $this->t('Cidade'),
+                '#maxlength' => 100,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+        }
+
+        $form['section_instituicao']['instituicoes_wrapper']['add_instituicao'] = [
+            '#type' => 'submit',
+            '#value' => $this->t('Incluir Instituição'),
+            '#submit' => ['::addInstituicaoCallback'],
+            '#ajax' => [
+                'callback' => '::ajaxRefreshInstituicoes',
+                'wrapper' => 'instituicoes-wrapper',
+            ],
+            '#attributes' => ['class' => ['btn', 'btn-outline-secondary', 'btn-sm']],
+            '#limit_validation_errors' => [],
+        ];
+
+        if ($num_instituicoes > 1) {
+            $form['section_instituicao']['instituicoes_wrapper']['remove_instituicao'] = [
+                '#type' => 'submit',
+                '#value' => $this->t('Remover última instituição'),
+                '#submit' => ['::removeInstituicaoCallback'],
+                '#ajax' => [
+                    'callback' => '::ajaxRefreshInstituicoes',
+                    'wrapper' => 'instituicoes-wrapper',
+                ],
+                '#attributes' => ['class' => ['btn', 'btn-outline-danger', 'btn-sm', 'ms-2']],
+                '#limit_validation_errors' => [],
+            ];
+        }
+
+        // ── Seção 7 — Informações Acadêmicas ───────────────────────
+        $form['section_academico'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['mb-4']],
+        ];
+        $form['section_academico']['heading'] = [
+            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-graduation-cap me-2"></i>' . $this->t('Informações Acadêmicas') . '</h4>',
+        ];
+        $form['section_academico']['row'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['row', 'g-3']],
+        ];
+
+        $form['section_academico']['row']['col_nivel_atual'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_academico']['row']['col_nivel_atual']['field_nivel_atual'] = [
+            '#type' => 'select',
+            '#title' => $this->t('Nível atual'),
+            '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_nivel_atual'),
+            '#attributes' => ['class' => ['form-select']],
+        ];
+
+        $form['section_academico']['row']['col_periodo_letivo'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_academico']['row']['col_periodo_letivo']['field_periodo_letivo'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Período letivo'),
+            '#maxlength' => 60,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        $form['section_academico']['row']['col_nome_curso'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_academico']['row']['col_nome_curso']['field_nome_curso'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Nome do curso'),
+            '#maxlength' => 255,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        $form['section_academico']['row']['col_tipo_curso'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_academico']['row']['col_tipo_curso']['field_tipo_curso'] = [
+            '#type' => 'select',
+            '#title' => $this->t('Tipo de curso'),
+            '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_tipo_curso'),
+            '#attributes' => ['class' => ['form-select']],
+        ];
+
+        $form['section_academico']['row']['col_periodo_matriculado'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_academico']['row']['col_periodo_matriculado']['field_periodo_matriculado'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Período em que está matriculado'),
+            '#maxlength' => 60,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        $form['section_academico']['row']['col_horario_curso'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_academico']['row']['col_horario_curso']['field_horario_curso'] = [
+            '#type' => 'select',
+            '#title' => $this->t('Horário do curso'),
+            '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_horario_curso'),
+            '#attributes' => ['class' => ['form-select']],
+        ];
+
+        $form['section_academico']['row']['col_duracao_curso'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_academico']['row']['col_duracao_curso']['field_duracao_curso'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Duração do curso (semestres)'),
+            '#maxlength' => 10,
+            '#attributes' => [
+                'class' => ['form-control'],
+                'placeholder' => 'Ex: 8',
+            ],
+        ];
+
+        $form['section_academico']['row']['col_previsao_formatura'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_academico']['row']['col_previsao_formatura']['field_previsao_formatura'] = [
+            '#type' => 'date',
+            '#title' => $this->t('Previsão de formatura'),
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        $form['section_academico']['row']['col_disponibilidade'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_academico']['row']['col_disponibilidade']['field_disponibilidade_estagio'] = [
+            '#type' => 'select',
+            '#title' => $this->t('Disponibilidade para estágio'),
+            '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_disponibilidade_estagio'),
+            '#attributes' => ['class' => ['form-select']],
+        ];
+
+        $form['section_academico']['row']['col_numero_matricula'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_academico']['row']['col_numero_matricula']['field_numero_matricula'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Número de matrícula'),
+            '#maxlength' => 60,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        // ── Seção 8 — Cursos Extracurriculares (Paragraphs) ────────
+        $form['section_extracurricular'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['mb-4']],
+        ];
+        $form['section_extracurricular']['heading'] = [
+            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-award me-2"></i>' . $this->t('Cursos Extracurriculares') . ' <small class="text-muted">(' . $this->t('Opcional') . ')</small></h4>',
+        ];
+
+        $form['section_extracurricular']['cursos_wrapper'] = [
+            '#type' => 'container',
+            '#attributes' => ['id' => 'cursos-extracurriculares-wrapper'],
+        ];
+
+        $num_cursos = $form_state->get('num_cursos') ?? 0;
+        $form_state->set('num_cursos', $num_cursos);
+
+        $nivel_options = $this->getListOptions('field_nivel', 'paragraph');
+        if (empty($nivel_options)) {
+            $nivel_options = [
+                'basico' => $this->t('Básico'),
+                'intermediario' => $this->t('Intermediário'),
+                'avancado' => $this->t('Avançado'),
+            ];
+        }
+
+        for ($i = 0; $i < $num_cursos; $i++) {
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['card', 'mb-3']],
+            ];
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['card-body']],
+            ];
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['title'] = [
+                '#markup' => '<h6 class="card-title text-muted">' . $this->t('Curso @num', ['@num' => $i + 1]) . '</h6>',
+            ];
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['row'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['row', 'g-3']],
+            ];
+
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['row']['col_tipo'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-3']],
+            ];
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['row']['col_tipo']['curso_tipo_' . $i] = [
+                '#type' => 'textfield',
+                '#title' => $this->t('Tipo de habilidade'),
+                '#maxlength' => 255,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['row']['col_habilidade'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-3']],
+            ];
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['row']['col_habilidade']['curso_habilidade_' . $i] = [
+                '#type' => 'textfield',
+                '#title' => $this->t('Habilidade'),
+                '#maxlength' => 255,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['row']['col_nivel'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-3']],
+            ];
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['row']['col_nivel']['curso_nivel_' . $i] = [
+                '#type' => 'select',
+                '#title' => $this->t('Nível'),
+                '#options' => ['' => $this->t('- Selecione -')] + $nivel_options,
+                '#attributes' => ['class' => ['form-select']],
+            ];
+
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['row']['col_carga'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-3']],
+            ];
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['row']['col_carga']['curso_carga_' . $i] = [
+                '#type' => 'textfield',
+                '#title' => $this->t('Carga horária'),
+                '#maxlength' => 20,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+        }
+
+        $form['section_extracurricular']['cursos_wrapper']['add_curso'] = [
+            '#type' => 'submit',
+            '#value' => $this->t('Incluir Curso Extracurricular'),
+            '#submit' => ['::addCursoCallback'],
+            '#ajax' => [
+                'callback' => '::ajaxRefreshCursos',
+                'wrapper' => 'cursos-extracurriculares-wrapper',
+            ],
+            '#attributes' => ['class' => ['btn', 'btn-outline-secondary', 'btn-sm']],
+            '#limit_validation_errors' => [],
+        ];
+
+        if ($num_cursos > 0) {
+            $form['section_extracurricular']['cursos_wrapper']['remove_curso'] = [
+                '#type' => 'submit',
+                '#value' => $this->t('Remover último curso'),
+                '#submit' => ['::removeCursoCallback'],
+                '#ajax' => [
+                    'callback' => '::ajaxRefreshCursos',
+                    'wrapper' => 'cursos-extracurriculares-wrapper',
+                ],
+                '#attributes' => ['class' => ['btn', 'btn-outline-danger', 'btn-sm', 'ms-2']],
+                '#limit_validation_errors' => [],
+            ];
+        }
+
         // ── Ações ──────────────────────────────────────────────────
         $form['actions'] = [
             '#type' => 'actions',
@@ -393,6 +739,60 @@ class CandidatoRegistrationForm extends FormBase {
         ];
 
         return $form;
+    }
+
+    /**
+     * AJAX: adiciona mais uma instituição de ensino.
+     */
+    public function addInstituicaoCallback(array &$form, FormStateInterface $form_state) {
+        $num = $form_state->get('num_instituicoes') ?? 1;
+        $form_state->set('num_instituicoes', $num + 1);
+        $form_state->setRebuild();
+    }
+
+    /**
+     * AJAX: remove a última instituição de ensino.
+     */
+    public function removeInstituicaoCallback(array &$form, FormStateInterface $form_state) {
+        $num = $form_state->get('num_instituicoes') ?? 1;
+        if ($num > 1) {
+            $form_state->set('num_instituicoes', $num - 1);
+        }
+        $form_state->setRebuild();
+    }
+
+    /**
+     * AJAX: retorna o wrapper atualizado das instituições.
+     */
+    public function ajaxRefreshInstituicoes(array &$form, FormStateInterface $form_state) {
+        return $form['section_instituicao']['instituicoes_wrapper'];
+    }
+
+    /**
+     * AJAX: adiciona mais um curso extracurricular.
+     */
+    public function addCursoCallback(array &$form, FormStateInterface $form_state) {
+        $num = $form_state->get('num_cursos') ?? 0;
+        $form_state->set('num_cursos', $num + 1);
+        $form_state->setRebuild();
+    }
+
+    /**
+     * AJAX: remove o último curso extracurricular.
+     */
+    public function removeCursoCallback(array &$form, FormStateInterface $form_state) {
+        $num = $form_state->get('num_cursos') ?? 0;
+        if ($num > 0) {
+            $form_state->set('num_cursos', $num - 1);
+        }
+        $form_state->setRebuild();
+    }
+
+    /**
+     * AJAX: retorna o wrapper atualizado dos cursos.
+     */
+    public function ajaxRefreshCursos(array &$form, FormStateInterface $form_state) {
+        return $form['section_extracurricular']['cursos_wrapper'];
     }
 
     public function validateForm(array &$form, FormStateInterface $form_state) {
@@ -440,7 +840,7 @@ class CandidatoRegistrationForm extends FormBase {
     }
 
     public function submitForm(array &$form, FormStateInterface $form_state) {
-        // Campos customizados a salvar na entidade.
+        // Campos simples (texto/select/data) no User.
         $custom_fields = [
             'field_nome_completo',
             'field_cpf',
@@ -462,6 +862,17 @@ class CandidatoRegistrationForm extends FormBase {
             'field_telefone',
             'field_instagram',
             'field_linkedin',
+            // Informações Acadêmicas.
+            'field_nivel_atual',
+            'field_periodo_letivo',
+            'field_nome_curso',
+            'field_tipo_curso',
+            'field_periodo_matriculado',
+            'field_horario_curso',
+            'field_duracao_curso',
+            'field_previsao_formatura',
+            'field_disponibilidade_estagio',
+            'field_numero_matricula',
         ];
 
         $values = [
@@ -476,6 +887,79 @@ class CandidatoRegistrationForm extends FormBase {
             if ($value !== NULL && $value !== '') {
                 $values[$field] = $value;
             }
+        }
+
+        // Paragraphs — Instituições de Ensino.
+        $num_instituicoes = $form_state->get('num_instituicoes') ?? 1;
+        $inst_paragraphs = [];
+        for ($i = 0; $i < $num_instituicoes; $i++) {
+            $nome = $form_state->getValue('inst_nome_' . $i);
+            $endereco = $form_state->getValue('inst_endereco_' . $i);
+            $bairro = $form_state->getValue('inst_bairro_' . $i);
+            $cidade = $form_state->getValue('inst_cidade_' . $i);
+
+            if (!empty($nome) || !empty($endereco) || !empty($bairro) || !empty($cidade)) {
+                $p_values = ['type' => 'instituicao_ensino'];
+                if (!empty($nome)) {
+                    $p_values['field_nome_instituicao'] = $nome;
+                }
+                if (!empty($endereco)) {
+                    $p_values['field_endereco'] = $endereco;
+                }
+                if (!empty($bairro)) {
+                    $p_values['field_bairro'] = $bairro;
+                }
+                if (!empty($cidade)) {
+                    $p_values['field_cidade'] = $cidade;
+                }
+                $paragraph = Paragraph::create($p_values);
+                $paragraph->save();
+                $inst_paragraphs[] = [
+                    'target_id' => $paragraph->id(),
+                    'target_revision_id' => $paragraph->getRevisionId(),
+                ];
+            }
+        }
+
+        if (!empty($inst_paragraphs)) {
+            $values['field_instituicao_ensino'] = $inst_paragraphs;
+        }
+
+        // Paragraphs — Cursos Extracurriculares.
+        $num_cursos = $form_state->get('num_cursos') ?? 0;
+        $paragraphs = [];
+        for ($i = 0; $i < $num_cursos; $i++) {
+            $tipo = $form_state->getValue('curso_tipo_' . $i);
+            $habilidade = $form_state->getValue('curso_habilidade_' . $i);
+            $nivel = $form_state->getValue('curso_nivel_' . $i);
+            $carga = $form_state->getValue('curso_carga_' . $i);
+
+            // Só cria o Paragraph se ao menos um campo tiver valor.
+            if (!empty($tipo) || !empty($habilidade) || !empty($nivel) || !empty($carga)) {
+                $paragraph_values = ['type' => 'curso_extracurricular'];
+                if (!empty($tipo)) {
+                    $paragraph_values['field_tipo_habilidade'] = $tipo;
+                }
+                if (!empty($habilidade)) {
+                    $paragraph_values['field_habilidade'] = $habilidade;
+                }
+                if (!empty($nivel)) {
+                    $paragraph_values['field_nivel'] = $nivel;
+                }
+                if (!empty($carga)) {
+                    $paragraph_values['field_carga_horaria'] = $carga;
+                }
+                $paragraph = Paragraph::create($paragraph_values);
+                $paragraph->save();
+                $paragraphs[] = [
+                    'target_id' => $paragraph->id(),
+                    'target_revision_id' => $paragraph->getRevisionId(),
+                ];
+            }
+        }
+
+        if (!empty($paragraphs)) {
+            $values['field_cursos_extracurriculares'] = $paragraphs;
         }
 
         $user = User::create($values);

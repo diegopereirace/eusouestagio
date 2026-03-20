@@ -6,10 +6,10 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\Entity\User;
 
-class StudentRegistrationForm extends FormBase {
+class CandidatoRegistrationForm extends FormBase {
 
     public function getFormId() {
-        return 'custom_configs_users_student_registration_form';
+        return 'custom_configs_users_candidato_registration_form';
     }
 
     public function buildForm(array $form, FormStateInterface $form_state) {

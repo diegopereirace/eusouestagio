@@ -1,0 +1,7 @@
+custom_configs_users.student_registration:
+  path: '/cadastro/estudante'
+  defaults:
+    _title: 'Cadastro de estudante'
+    _form: '\Drupal\custom_configs_users\Form\StudentRegistrationForm'
+  requirements:
+    _user_is_logged_in: 'FALSE'

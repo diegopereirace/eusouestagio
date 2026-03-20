@@ -1,0 +1,9 @@
+name: Custom Configs
+description: 'Módulo de configurações personalizadas para o site'
+type: module
+core_version_requirement: ^10 || ^11
+
+configure: custom_configs.settings
+
+interface translation project: custom_configs
+interface translation server pattern: https://localize.drupal.org/files/translations/%core_version/%project/%language.po

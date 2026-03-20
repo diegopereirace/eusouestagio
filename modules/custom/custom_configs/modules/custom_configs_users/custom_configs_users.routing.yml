@@ -1,5 +1,5 @@
 custom_configs_users.candidato_registration:
-  path: '/cadastro/estudante'
+  path: '/cadastro/candidato'
   defaults:
     _title: 'Cadastro de candidato'
     _form: '\Drupal\custom_configs_users\Form\CandidatoRegistrationForm'

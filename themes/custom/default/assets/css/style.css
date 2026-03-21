@@ -447,6 +447,141 @@ h6 {
 	margin-bottom: 0;
 }
 
+/* ── Banner Search ─────────────────────────────────────────── */
+.banner-search {
+	margin-bottom: 1.75rem;
+}
+
+.banner-search-card {
+	background: #fff;
+	border-radius: 16px;
+	padding: 1.25rem 1.5rem;
+	max-width: 700px;
+}
+
+.banner-search-form {
+	display: flex;
+	align-items: flex-end;
+	gap: 1rem;
+	flex-wrap: nowrap;
+}
+
+.banner-search-field {
+	flex: 1;
+	min-width: 0;
+}
+
+.banner-search-field .form-item {
+	margin: 0;
+}
+
+.banner-search-field label,
+.banner-search-field .form-item__label,
+.banner-search-field .control-label {
+	display: block;
+	font-size: 0.8125rem;
+	font-weight: 500;
+	color: #333;
+	margin-bottom: 0.35rem;
+}
+
+.banner-search-field input[type="text"],
+.banner-search-field input[type="search"] {
+	width: 100%;
+	border: 1.5px solid #d1d5db;
+	border-radius: 8px;
+	padding: 0.6rem 0.875rem;
+	font-size: 0.9375rem;
+	color: #111;
+	background: #fff;
+	outline: none;
+	transition: border-color 0.2s;
+}
+
+.banner-search-field input[type="text"]:focus,
+.banner-search-field input[type="search"]:focus {
+	border-color: #023c62;
+}
+
+.banner-search-submit {
+	flex-shrink: 0;
+}
+
+.banner-search-submit .form-actions,
+.banner-search-submit .js-form-actions {
+	margin: 0;
+}
+
+.banner-search-submit .form-submit,
+.banner-search-submit input[type="submit"],
+.banner-search-submit button[type="submit"] {
+	background-color: #e55a24;
+	color: #fff;
+	border: 0;
+	border-radius: 8px;
+	padding: 0.68rem 1.5rem;
+	font-size: 0.9375rem;
+	font-weight: 600;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: filter 0.2s ease;
+	min-width: 170px;
+}
+
+.banner-search-submit .form-submit:hover,
+.banner-search-submit .form-submit:focus,
+.banner-search-submit input[type="submit"]:hover,
+.banner-search-submit input[type="submit"]:focus,
+.banner-search-submit button[type="submit"]:hover,
+.banner-search-submit button[type="submit"]:focus {
+	filter: brightness(0.92);
+	outline: none;
+}
+
+.btn-buscar-vagas {
+	background-color: #e55a24;
+	color: #fff;
+	border: 0;
+	border-radius: 8px;
+	padding: 0.68rem 1.5rem;
+	font-size: 0.9375rem;
+	font-weight: 600;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: filter 0.2s ease;
+}
+
+.btn-buscar-vagas:hover,
+.btn-buscar-vagas:focus {
+	filter: brightness(0.92);
+	outline: none;
+}
+
+@media (max-width: 767.98px) {
+	.banner-search-card {
+		padding: 1rem;
+		border-radius: 12px;
+	}
+
+	.banner-search-form {
+		flex-wrap: wrap;
+	}
+
+	.banner-search-field {
+		flex: 1 1 100%;
+	}
+
+	.banner-search-submit {
+		flex: 1 1 100%;
+	}
+
+	.btn-buscar-vagas {
+		width: 100%;
+		padding: 0.8rem 1rem;
+	}
+}
+/* ── /Banner Search ─────────────────────────────────────────── */
+
 .banner-actions {
 	display: flex;
 	align-items: center;

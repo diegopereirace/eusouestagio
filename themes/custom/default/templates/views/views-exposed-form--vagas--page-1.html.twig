@@ -1,0 +1,35 @@
+{#
+{#
+/**
+ * @file
+ * Template do formulário de busca de vagas exibido no banner.
+ *
+ * Renderiza dinamicamente os filtros expostos visíveis da View.
+ * Isso evita acoplamento ao identifier configurado no admin.
+ */
+#}
+<div class="banner-search-card">
+  <form{{ form.attributes }}>
+    {{ form.form_build_id }}
+    {{ form.form_token }}
+    {{ form.form_id }}
+
+    <div class="banner-search-form">
+      {% for key, element in form %}
+        {% if key|first != '#' and key not in ['form_build_id', 'form_token', 'form_id', 'actions'] %}
+          <div class="banner-search-field">
+            {{ element }}
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      <div class="banner-search-submit">
+        {% if form.actions is defined %}
+          {{ form.actions }}
+        {% else %}
+          <button type="submit" class="btn-buscar-vagas">Buscar Vagas</button>
+        {% endif %}
+      </div>
+    </div>
+  </form>
+</div>

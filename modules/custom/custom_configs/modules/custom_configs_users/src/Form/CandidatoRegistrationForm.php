@@ -396,7 +396,7 @@ class CandidatoRegistrationForm extends FormBase {
             '#title' => $this->t('Telefone'),
             '#maxlength' => 15,
             '#attributes' => [
-                'class' => ['form-control'],
+                'class' => ['form-control', 'mask-phone'],
                 'placeholder' => '(00) 00000-0000',
             ],
         ];

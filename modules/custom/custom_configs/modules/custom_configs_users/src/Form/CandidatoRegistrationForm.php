@@ -127,7 +127,7 @@ class CandidatoRegistrationForm extends FormBase {
             '#required' => TRUE,
             '#maxlength' => 14,
             '#attributes' => [
-                'class' => ['form-control'],
+                'class' => ['form-control', 'mask-cpf'],
                 'placeholder' => '000.000.000-00',
             ],
         ];
@@ -363,10 +363,15 @@ class CandidatoRegistrationForm extends FormBase {
             '#title' => $this->t('Instagram'),
             '#maxlength' => 100,
             '#attributes' => [
-                'class' => ['form-control'],
-                'placeholder' => '@usuario',
+            'class' => ['form-control'],
+            'placeholder' => '@usuario',
             ],
         ];
+
+        // Attach jQuery Mask library
+        $form['#attached']['library'][] = 'core/jquery.ui.widget';
+        $form['#attached']['library'][] = 'default/jquery_mask';
+        $form['#attached']['library'][] = 'default/masks';
 
         $form['section_contato']['row']['col_linkedin'] = [
             '#type' => 'container',

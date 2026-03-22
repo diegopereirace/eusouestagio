@@ -8,6 +8,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\paragraphs\Entity\Paragraph;
+use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 
 class CandidatoRegistrationForm extends FormBase {
@@ -1270,6 +1271,9 @@ class CandidatoRegistrationForm extends FormBase {
         }
 
         $user = User::create($values);
+        if (Role::load('candidato')) {
+            $user->addRole('candidato');
+        }
         $user->save();
 
         if ($user->id()) {

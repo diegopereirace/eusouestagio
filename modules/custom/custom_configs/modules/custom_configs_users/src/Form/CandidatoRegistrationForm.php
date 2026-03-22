@@ -261,9 +261,11 @@ class CandidatoRegistrationForm extends FormBase {
             '#type' => 'container',
             '#attributes' => ['class' => ['mb-4']],
         ];
+        
         $form['section_endereco']['heading'] = [
             '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-map-marker-alt me-2"></i>' . $this->t('Endereço') . '</h4>',
         ];
+
         $form['section_endereco']['row'] = [
             '#type' => 'container',
             '#attributes' => ['class' => ['row', 'g-3']],
@@ -278,7 +280,7 @@ class CandidatoRegistrationForm extends FormBase {
             '#title' => $this->t('CEP'),
             '#maxlength' => 9,
             '#attributes' => [
-                'class' => ['form-control'],
+                'class' => ['form-control', 'mask-cep'],
                 'placeholder' => '00000-000',
             ],
         ];
@@ -287,9 +289,17 @@ class CandidatoRegistrationForm extends FormBase {
             '#type' => 'container',
             '#attributes' => ['class' => ['col-12', 'col-md-9']],
         ];
+
         $form['section_endereco']['row']['col_endereco']['field_endereco'] = [
             '#type' => 'textfield',
             '#title' => $this->t('Endereço'),
+            '#maxlength' => 255,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        $form['section_endereco']['row']['col_endereco']['field_complemento'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Complemento'),
             '#maxlength' => 255,
             '#attributes' => ['class' => ['form-control']],
         ];
@@ -298,6 +308,7 @@ class CandidatoRegistrationForm extends FormBase {
             '#type' => 'container',
             '#attributes' => ['class' => ['col-12', 'col-md-4']],
         ];
+
         $form['section_endereco']['row']['col_bairro']['field_bairro'] = [
             '#type' => 'textfield',
             '#title' => $this->t('Bairro'),
@@ -309,6 +320,7 @@ class CandidatoRegistrationForm extends FormBase {
             '#type' => 'container',
             '#attributes' => ['class' => ['col-12', 'col-md-4']],
         ];
+
         $form['section_endereco']['row']['col_cidade']['field_cidade'] = [
             '#type' => 'textfield',
             '#title' => $this->t('Cidade'),
@@ -320,6 +332,7 @@ class CandidatoRegistrationForm extends FormBase {
             '#type' => 'container',
             '#attributes' => ['class' => ['col-12', 'col-md-4']],
         ];
+
         $form['section_endereco']['row']['col_estado']['field_estado'] = [
             '#type' => 'select',
             '#title' => $this->t('Estado'),
@@ -372,6 +385,9 @@ class CandidatoRegistrationForm extends FormBase {
         $form['#attached']['library'][] = 'core/jquery.ui.widget';
         $form['#attached']['library'][] = 'default/jquery_mask';
         $form['#attached']['library'][] = 'default/masks';
+        $form['#attached']['drupalSettings']['defaultMasks']['cepApi'] = [
+            'lookupUrl' => '/api/cep',
+        ];
 
         $form['section_contato']['row']['col_linkedin'] = [
             '#type' => 'container',

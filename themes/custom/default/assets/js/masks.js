@@ -1,4 +1,4 @@
-(function ($) {
+(function ($, Drupal, drupalSettings, once) {
     Drupal.behaviors.masks = {
         attach: function (context) {
             $(function () {
@@ -35,6 +35,75 @@
                     cep.mask('99999-999', { 'translation': { 9: { pattern: /[0-9*]/ }, 0: { pattern: /[0]/ } } });
                 });
             }             
+
+            once('cep-autofill', '.mask-cep', context).forEach(function (element) {
+                $(element).on('blur', function () {
+                    var value = String($(this).val() || '');
+                    var cepDigits = value.replace(/\D/g, '');
+                    if (cepDigits.length !== 8) {
+                        return;
+                    }
+
+                    var apiSettings = (drupalSettings && drupalSettings.defaultMasks && drupalSettings.defaultMasks.cepApi) || {};
+                    var lookupUrlBase = apiSettings.lookupUrl || '/api/cep';
+
+                    fetch(lookupUrlBase + '/' + cepDigits, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        },
+                    })
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw new Error('CEP não encontrado');
+                            }
+                            return response.json();
+                        })
+                        .then(function (data) {
+                            if (!data || typeof data !== 'object') {
+                                return;
+                            }
+
+                            var endereco = data.endereco || '';
+                            var bairro = data.bairro || '';
+                            var cidade = data.cidade || '';
+                            var uf = (data.uf || '').toUpperCase();
+
+                            var $endereco = $('input[name="field_endereco"], input[name^="field_endereco["]', context).first();
+                            var $bairro = $('input[name="field_bairro"], input[name^="field_bairro["]', context).first();
+                            var $cidade = $('input[name="field_cidade"], input[name^="field_cidade["]', context).first();
+                            var $estado = $('select[name="field_estado"], select[name^="field_estado["]', context).first();
+
+                            if ($endereco.length && endereco && !$endereco.val()) {
+                                $endereco.val(endereco).trigger('change');
+                            }
+                            if ($bairro.length && bairro && !$bairro.val()) {
+                                $bairro.val(bairro).trigger('change');
+                            }
+                            if ($cidade.length && cidade && !$cidade.val()) {
+                                $cidade.val(cidade).trigger('change');
+                            }
+
+                            if ($estado.length && uf) {
+                                var hasExactOption = $estado.find('option[value="' + uf + '"]').length > 0;
+                                if (hasExactOption) {
+                                    $estado.val(uf).trigger('change');
+                                }
+                                else {
+                                    $estado.find('option').each(function () {
+                                        if ($(this).text().trim().toUpperCase() === uf) {
+                                            $estado.val($(this).val()).trigger('change');
+                                            return false;
+                                        }
+                                    });
+                                }
+                            }
+                        })
+                        .catch(function () {
+                            return;
+                        });
+                });
+            });
 
             var money = $(".mask-money", context);
             if (money.length != 0) {
@@ -74,4 +143,4 @@
             $('.mask-bank-agency').mask(MaskBankAgency, agencyOptions);
         }
     }
-})(jQuery);
+})(jQuery, Drupal, drupalSettings, once);

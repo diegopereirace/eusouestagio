@@ -37,8 +37,44 @@
             }             
 
             once('cep-autofill', '.mask-cep', context).forEach(function (element) {
-                $(element).on('blur', function () {
-                    var value = String($(this).val() || '');
+                var $cep = $(element);
+                var $endereco = $('input[name="field_endereco"], input[name^="field_endereco["]', context).first();
+                var $bairro = $('input[name="field_bairro"], input[name^="field_bairro["]', context).first();
+                var $cidade = $('input[name="field_cidade"], input[name^="field_cidade["]', context).first();
+                var $estado = $('select[name="field_estado"], select[name^="field_estado["]', context).first();
+                var $complemento = $('input[name="field_complemento"], input[name^="field_complemento["]', context).first();
+
+                var $feedback = $cep.siblings('.cep-loading-feedback').first();
+                if (!$feedback.length) {
+                    $feedback = $('<div class="form-text text-primary d-none cep-loading-feedback" aria-live="polite"><span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span><span>Consultando CEP...</span></div>');
+                    $cep.after($feedback);
+                }
+
+                var $lockFields = $()
+                    .add($cep)
+                    .add($endereco)
+                    .add($bairro)
+                    .add($cidade)
+                    .add($estado)
+                    .add($complemento);
+
+                var setCepLoadingState = function (isLoading) {
+                    $lockFields.prop('disabled', isLoading);
+                    $feedback.toggleClass('d-none', !isLoading);
+                    if (isLoading) {
+                        $cep.attr('aria-busy', 'true');
+                    }
+                    else {
+                        $cep.removeAttr('aria-busy');
+                    }
+                };
+
+                $cep.on('blur', function () {
+                    if ($cep.data('cepLookupInFlight')) {
+                        return;
+                    }
+
+                    var value = String($cep.val() || '');
                     var cepDigits = value.replace(/\D/g, '');
                     if (cepDigits.length !== 8) {
                         return;
@@ -46,6 +82,9 @@
 
                     var apiSettings = (drupalSettings && drupalSettings.defaultMasks && drupalSettings.defaultMasks.cepApi) || {};
                     var lookupUrlBase = apiSettings.lookupUrl || '/api/cep';
+
+                    setCepLoadingState(true);
+                    $cep.data('cepLookupInFlight', true);
 
                     fetch(lookupUrlBase + '/' + cepDigits, {
                         method: 'GET',
@@ -68,11 +107,6 @@
                             var bairro = data.bairro || '';
                             var cidade = data.cidade || '';
                             var uf = (data.uf || '').toUpperCase();
-
-                            var $endereco = $('input[name="field_endereco"], input[name^="field_endereco["]', context).first();
-                            var $bairro = $('input[name="field_bairro"], input[name^="field_bairro["]', context).first();
-                            var $cidade = $('input[name="field_cidade"], input[name^="field_cidade["]', context).first();
-                            var $estado = $('select[name="field_estado"], select[name^="field_estado["]', context).first();
 
                             if ($endereco.length && endereco && !$endereco.val()) {
                                 $endereco.val(endereco).trigger('change');
@@ -101,6 +135,10 @@
                         })
                         .catch(function () {
                             return;
+                        })
+                        .finally(function () {
+                            $cep.data('cepLookupInFlight', false);
+                            setCepLoadingState(false);
                         });
                 });
             });

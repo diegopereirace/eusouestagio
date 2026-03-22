@@ -28,3 +28,14 @@ block_breakpoint:
     - core/drupal
     - core/drupalSettings
     - core/once
+jquery_mask:
+  js:
+    /libraries/jquery-mask/jquery.mask.min.js: {}
+  dependencies:
+    - core/jquery
+masks:
+  js:
+    assets/js/masks.js: {}
+  dependencies:
+    - core/jquery
+    - default/jquery_mask

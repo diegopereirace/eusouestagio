@@ -27,7 +27,7 @@ class CandidatoRegistrationForm extends FormBase {
 
         $allowed = [];
         if (function_exists('options_allowed_values')) {
-            $allowed = options_allowed_values($storage);
+            $allowed = \options_allowed_values($storage);
         }
 
         if (!is_array($allowed) || empty($allowed)) {
@@ -781,6 +781,194 @@ class CandidatoRegistrationForm extends FormBase {
             ];
         }
 
+        // ── Seção 9 — Experiência Profissional (Paragraphs) ────────
+        $form['section_experiencia'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['mb-4']],
+        ];
+        $form['section_experiencia']['heading'] = [
+            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-briefcase me-2"></i>' . $this->t('Experiência Profissional') . ' <small class="text-muted">(' . $this->t('Opcional') . ')</small></h4>',
+        ];
+
+        $form['section_experiencia']['experiencias_wrapper'] = [
+            '#type' => 'container',
+            '#attributes' => ['id' => 'experiencias-wrapper'],
+        ];
+
+        $num_experiencias = $form_state->get('num_experiencias') ?? 0;
+        $form_state->set('num_experiencias', $num_experiencias);
+
+        $regime_options = $this->getListOptions('field_regime_contrato', 'paragraph');
+        if (empty($regime_options)) {
+            $regime_options = [
+                'clt'        => $this->t('CLT'),
+                'estagio'    => $this->t('Estágio'),
+                'pj'         => $this->t('Pessoa Jurídica (PJ)'),
+                'autonomo'   => $this->t('Autônomo'),
+                'temporario' => $this->t('Temporário'),
+                'outros'     => $this->t('Outros'),
+            ];
+        }
+
+        for ($i = 0; $i < $num_experiencias; $i++) {
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['card', 'mb-3']],
+            ];
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['card-body']],
+            ];
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['title'] = [
+                '#markup' => '<h6 class="card-title text-muted">' . $this->t('Experiência @num', ['@num' => $i + 1]) . '</h6>',
+            ];
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['row', 'g-3']],
+            ];
+
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_empresa'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-6']],
+            ];
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_empresa']['exp_nome_empresa_' . $i] = [
+                '#type' => 'textfield',
+                '#title' => $this->t('Nome da Empresa'),
+                '#maxlength' => 255,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_cargo'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-6']],
+            ];
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_cargo']['exp_cargo_' . $i] = [
+                '#type' => 'textfield',
+                '#title' => $this->t('Cargo'),
+                '#maxlength' => 255,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_data_inicio'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-3']],
+            ];
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_data_inicio']['exp_data_inicio_' . $i] = [
+                '#type' => 'date',
+                '#title' => $this->t('Data de Início'),
+                '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_data_termino'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-3']],
+            ];
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_data_termino']['exp_data_termino_' . $i] = [
+                '#type' => 'date',
+                '#title' => $this->t('Data de Término'),
+                '#description' => $this->t('Deixe em branco se ainda está neste emprego.'),
+                '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_regime'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-6']],
+            ];
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_regime']['exp_regime_' . $i] = [
+                '#type' => 'select',
+                '#title' => $this->t('Regime de Contrato'),
+                '#options' => ['' => $this->t('- Selecione -')] + $regime_options,
+                '#attributes' => ['class' => ['form-select']],
+            ];
+
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_atividades'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12']],
+            ];
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_atividades']['exp_atividades_' . $i] = [
+                '#type' => 'textarea',
+                '#title' => $this->t('Atividades'),
+                '#rows' => 3,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+        }
+
+        $form['section_experiencia']['experiencias_wrapper']['add_experiencia'] = [
+            '#type' => 'submit',
+            '#value' => $this->t('Incluir Experiência'),
+            '#submit' => ['::addExperienciaCallback'],
+            '#ajax' => [
+                'callback' => '::ajaxRefreshExperiencias',
+                'wrapper' => 'experiencias-wrapper',
+            ],
+            '#attributes' => ['class' => ['btn', 'btn-outline-secondary', 'btn-sm']],
+            '#limit_validation_errors' => [],
+        ];
+
+        if ($num_experiencias > 0) {
+            $form['section_experiencia']['experiencias_wrapper']['remove_experiencia'] = [
+                '#type' => 'submit',
+                '#value' => $this->t('Remover última experiência'),
+                '#submit' => ['::removeExperienciaCallback'],
+                '#ajax' => [
+                    'callback' => '::ajaxRefreshExperiencias',
+                    'wrapper' => 'experiencias-wrapper',
+                ],
+                '#attributes' => ['class' => ['btn', 'btn-outline-danger', 'btn-sm', 'ms-2']],
+                '#limit_validation_errors' => [],
+            ];
+        }
+
+        // ── Seção 10 — Informações Complementares ──────────────────
+        $form['section_complementar'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['mb-4']],
+        ];
+        $form['section_complementar']['heading'] = [
+            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-info-circle me-2"></i>' . $this->t('Informações Complementares') . '</h4>',
+        ];
+        $form['section_complementar']['row'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['row', 'g-3']],
+        ];
+
+        $form['section_complementar']['row']['col_deficiencia'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12']],
+        ];
+        $form['section_complementar']['row']['col_deficiencia']['field_possui_deficiencia'] = [
+            '#type' => 'radios',
+            '#title' => $this->t('Possui alguma deficiência?'),
+            '#options' => [
+                '0' => $this->t('Não'),
+                '1' => $this->t('Sim'),
+            ],
+            '#default_value' => '0',
+            '#attributes' => ['class' => ['d-flex', 'gap-4']],
+        ];
+
+        $form['section_complementar']['row']['col_cid'] = [
+            '#type' => 'container',
+            '#attributes' => [
+                'class' => ['col-12', 'col-md-4'],
+                'id'    => 'cid-wrapper',
+            ],
+            '#states' => [
+                'visible' => [
+                    ':input[name="field_possui_deficiencia"]' => ['value' => '1'],
+                ],
+            ],
+        ];
+        $form['section_complementar']['row']['col_cid']['field_numero_cid'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Número do CID'),
+            '#maxlength' => 20,
+            '#attributes' => [
+                'class'       => ['form-control'],
+                'placeholder' => $this->t('Ex: F84.0'),
+            ],
+        ];
+
         // ── Ações ──────────────────────────────────────────────────
         $form['actions'] = [
             '#type' => 'actions',
@@ -850,6 +1038,33 @@ class CandidatoRegistrationForm extends FormBase {
         return $form['section_extracurricular']['cursos_wrapper'];
     }
 
+    /**
+     * AJAX: adiciona mais uma experiência profissional.
+     */
+    public function addExperienciaCallback(array &$form, FormStateInterface $form_state) {
+        $num = $form_state->get('num_experiencias') ?? 0;
+        $form_state->set('num_experiencias', $num + 1);
+        $form_state->setRebuild();
+    }
+
+    /**
+     * AJAX: remove a última experiência profissional.
+     */
+    public function removeExperienciaCallback(array &$form, FormStateInterface $form_state) {
+        $num = $form_state->get('num_experiencias') ?? 0;
+        if ($num > 0) {
+            $form_state->set('num_experiencias', $num - 1);
+        }
+        $form_state->setRebuild();
+    }
+
+    /**
+     * AJAX: retorna o wrapper atualizado das experiências.
+     */
+    public function ajaxRefreshExperiencias(array &$form, FormStateInterface $form_state) {
+        return $form['section_experiencia']['experiencias_wrapper'];
+    }
+
     public function validateForm(array &$form, FormStateInterface $form_state) {
         $name = trim((string) $form_state->getValue('name'));
         $mail = trim((string) $form_state->getValue('mail'));
@@ -911,6 +1126,7 @@ class CandidatoRegistrationForm extends FormBase {
             'field_nome_pai',
             'field_cep',
             'field_endereco',
+            'field_complemento',
             'field_bairro',
             'field_cidade',
             'field_estado',
@@ -928,6 +1144,9 @@ class CandidatoRegistrationForm extends FormBase {
             'field_previsao_formatura',
             'field_disponibilidade_estagio',
             'field_numero_matricula',
+            // Informações Complementares.
+            'field_possui_deficiencia',
+            'field_numero_cid',
         ];
 
         $values = [
@@ -1017,6 +1236,39 @@ class CandidatoRegistrationForm extends FormBase {
             $values['field_cursos_extracurriculares'] = $paragraphs;
         }
 
+        // Paragraphs — Experiências Profissionais.
+        $num_experiencias = $form_state->get('num_experiencias') ?? 0;
+        $exp_paragraphs = [];
+        for ($i = 0; $i < $num_experiencias; $i++) {
+            $empresa    = $form_state->getValue('exp_nome_empresa_' . $i);
+            $cargo      = $form_state->getValue('exp_cargo_' . $i);
+            $data_ini   = $form_state->getValue('exp_data_inicio_' . $i);
+            $data_fim   = $form_state->getValue('exp_data_termino_' . $i);
+            $regime     = $form_state->getValue('exp_regime_' . $i);
+            $atividades = $form_state->getValue('exp_atividades_' . $i);
+
+            if (!empty($empresa) || !empty($cargo)) {
+                $p_values = ['type' => 'experiencia_profissional'];
+                if (!empty($empresa))    { $p_values['field_nome_empresa']     = $empresa; }
+                if (!empty($cargo))      { $p_values['field_cargo']             = $cargo; }
+                if (!empty($data_ini))   { $p_values['field_data_inicio']       = $data_ini; }
+                if (!empty($data_fim))   { $p_values['field_data_termino']      = $data_fim; }
+                if (!empty($regime))     { $p_values['field_regime_contrato']   = $regime; }
+                if (!empty($atividades)) { $p_values['field_atividades']        = $atividades; }
+
+                $paragraph = Paragraph::create($p_values);
+                $paragraph->save();
+                $exp_paragraphs[] = [
+                    'target_id'          => $paragraph->id(),
+                    'target_revision_id' => $paragraph->getRevisionId(),
+                ];
+            }
+        }
+
+        if (!empty($exp_paragraphs)) {
+            $values['field_experiencias_profissionais'] = $exp_paragraphs;
+        }
+
         $user = User::create($values);
         $user->save();
 
@@ -1030,7 +1282,7 @@ class CandidatoRegistrationForm extends FormBase {
         }
 
         $this->messenger()->addStatus($this->t('Cadastro realizado com sucesso.'));
-        $form_state->setRedirect('<front>');
+        $form_state->setRedirect('custom_configs_users.candidato_perfil');
     }
 
 }

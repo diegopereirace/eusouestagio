@@ -38,4 +38,7 @@ masks:
     assets/js/masks.js: {}
   dependencies:
     - core/jquery
+    - core/drupal
+    - core/once
+    - core/drupalSettings
     - default/jquery_mask

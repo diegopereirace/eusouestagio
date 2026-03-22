@@ -24,11 +24,45 @@ class CandidatoRegistrationForm extends FormBase {
         if (!$storage) {
             return [];
         }
-        $allowed = $storage->getSetting('allowed_values');
+
+        $allowed = [];
+        if (function_exists('options_allowed_values')) {
+            $allowed = options_allowed_values($storage);
+        }
+
+        if (!is_array($allowed) || empty($allowed)) {
+            $allowed = $storage->getSetting('allowed_values');
+        }
+
         if (!is_array($allowed) || empty($allowed)) {
             return [];
         }
-        return $allowed;
+
+        $options = [];
+        foreach ($allowed as $key => $item) {
+            if (is_array($item) && isset($item['value']) && isset($item['label'])) {
+                $options[(string) $item['value']] = (string) $item['label'];
+                continue;
+            }
+
+            if (is_array($item) && isset($item['value']) && !isset($item['label'])) {
+                $value = (string) $item['value'];
+                $options[$value] = $value;
+                continue;
+            }
+
+            if (!is_int($key) && (is_string($item) || is_numeric($item))) {
+                $options[(string) $key] = (string) $item;
+                continue;
+            }
+
+            if (is_int($key) && (is_string($item) || is_numeric($item))) {
+                $value = (string) $item;
+                $options[$value] = $value;
+            }
+        }
+
+        return $options;
     }
 
     public function buildForm(array $form, FormStateInterface $form_state) {

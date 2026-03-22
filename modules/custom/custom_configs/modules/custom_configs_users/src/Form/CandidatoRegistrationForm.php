@@ -68,6 +68,15 @@ class CandidatoRegistrationForm extends FormBase {
 
     public function buildForm(array $form, FormStateInterface $form_state) {
 
+        // Usa validação do Drupal (server-side) para garantir exibição de erros.
+        $form['#attributes']['novalidate'] = 'novalidate';
+
+        // Garante renderização das mensagens de validação no topo do formulário.
+        $form['messages'] = [
+            '#type' => 'status_messages',
+            '#weight' => -1000,
+        ];
+
         // ── Seção 1 — Dados de Acesso ──────────────────────────────
         $form['section_acesso'] = [
             '#type' => 'container',

@@ -1,0 +1,340 @@
+{#
+/**
+ * @file
+ * Template do perfil completo do candidato.
+ *
+ * Variáveis:
+ *   - dados: array com campos simples do usuário.
+ *   - instituicoes: array de paragraphs de Instituição de Ensino.
+ *   - cursos: array de paragraphs de Cursos Extracurriculares.
+ *   - experiencias: array de paragraphs de Experiência Profissional.
+ *   - user: entidade User.
+ */
+#}
+
+<div class="candidato-perfil container py-4">
+
+  {# ── Cabeçalho ──────────────────────────────────────────── #}
+  <div class="mb-4">
+    <h2 class="mb-0">{{ dados.nome_completo ?: user.name.value }}</h2>
+    <small class="text-muted">{{ user.mail.value }}</small>
+  </div>
+
+  {# ── Seção 1 — Dados Pessoais ────────────────────────────── #}
+  <div class="card mb-4">
+    <div class="card-header bg-light fw-semibold">
+      <i class="fas fa-user me-2"></i>{{ 'Dados Pessoais'|t }}
+    </div>
+    <div class="card-body">
+      <dl class="row mb-0">
+
+        {% if dados.nome_completo %}
+          <dt class="col-sm-4">{{ 'Nome completo'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.nome_completo }}</dd>
+        {% endif %}
+
+        {% if dados.cpf %}
+          <dt class="col-sm-4">{{ 'CPF'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.cpf }}</dd>
+        {% endif %}
+
+        {% if dados.orgao_emissor %}
+          <dt class="col-sm-4">{{ 'Órgão emissor'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.orgao_emissor }}</dd>
+        {% endif %}
+
+        {% if dados.data_nascimento %}
+          <dt class="col-sm-4">{{ 'Data de nascimento'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.data_nascimento|date('d/m/Y') }}</dd>
+        {% endif %}
+
+        {% if dados.sexo %}
+          <dt class="col-sm-4">{{ 'Sexo'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.sexo }}</dd>
+        {% endif %}
+
+        {% if dados.identidade_genero %}
+          <dt class="col-sm-4">{{ 'Identidade de gênero'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.identidade_genero }}</dd>
+        {% endif %}
+
+        {% if dados.estado_civil %}
+          <dt class="col-sm-4">{{ 'Estado civil'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.estado_civil }}</dd>
+        {% endif %}
+
+        {% if dados.quantidade_filhos is not empty %}
+          <dt class="col-sm-4">{{ 'Filhos'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.quantidade_filhos }}</dd>
+        {% endif %}
+
+        {% if dados.nacionalidade %}
+          <dt class="col-sm-4">{{ 'Nacionalidade'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.nacionalidade }}</dd>
+        {% endif %}
+
+        {% if dados.estado_natal %}
+          <dt class="col-sm-4">{{ 'Estado natal'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.estado_natal }}</dd>
+        {% endif %}
+
+        {% if dados.nome_mae %}
+          <dt class="col-sm-4">{{ 'Nome da mãe'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.nome_mae }}</dd>
+        {% endif %}
+
+        {% if dados.nome_pai %}
+          <dt class="col-sm-4">{{ 'Nome do pai'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.nome_pai }}</dd>
+        {% endif %}
+
+      </dl>
+    </div>
+  </div>
+
+  {# ── Seção 2 — Endereço ──────────────────────────────────── #}
+  {% if dados.cep or dados.endereco or dados.cidade %}
+  <div class="card mb-4">
+    <div class="card-header bg-light fw-semibold">
+      <i class="fas fa-map-marker-alt me-2"></i>{{ 'Endereço'|t }}
+    </div>
+    <div class="card-body">
+      <dl class="row mb-0">
+
+        {% if dados.cep %}
+          <dt class="col-sm-4">{{ 'CEP'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.cep }}</dd>
+        {% endif %}
+
+        {% if dados.endereco %}
+          <dt class="col-sm-4">{{ 'Endereço'|t }}</dt>
+          <dd class="col-sm-8">
+            {{ dados.endereco }}
+            {% if dados.complemento %} — {{ dados.complemento }}{% endif %}
+          </dd>
+        {% endif %}
+
+        {% if dados.bairro %}
+          <dt class="col-sm-4">{{ 'Bairro'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.bairro }}</dd>
+        {% endif %}
+
+        {% if dados.cidade %}
+          <dt class="col-sm-4">{{ 'Cidade / Estado'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.cidade }}{% if dados.estado %} — {{ dados.estado }}{% endif %}</dd>
+        {% endif %}
+
+      </dl>
+    </div>
+  </div>
+  {% endif %}
+
+  {# ── Seção 3 — Contato ───────────────────────────────────── #}
+  {% if dados.telefone or dados.instagram or dados.linkedin %}
+  <div class="card mb-4">
+    <div class="card-header bg-light fw-semibold">
+      <i class="fas fa-address-book me-2"></i>{{ 'Contato e Redes Sociais'|t }}
+    </div>
+    <div class="card-body">
+      <dl class="row mb-0">
+
+        {% if dados.telefone %}
+          <dt class="col-sm-4">{{ 'Telefone'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.telefone }}</dd>
+        {% endif %}
+
+        {% if dados.instagram %}
+          <dt class="col-sm-4">{{ 'Instagram'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.instagram }}</dd>
+        {% endif %}
+
+        {% if dados.linkedin %}
+          <dt class="col-sm-4">{{ 'LinkedIn'|t }}</dt>
+          <dd class="col-sm-8">
+            <a href="{{ dados.linkedin }}" target="_blank" rel="noopener noreferrer">{{ dados.linkedin }}</a>
+          </dd>
+        {% endif %}
+
+      </dl>
+    </div>
+  </div>
+  {% endif %}
+
+  {# ── Seção 4 — Instituições de Ensino ────────────────────── #}
+  {% if instituicoes is not empty %}
+  <div class="card mb-4">
+    <div class="card-header bg-light fw-semibold">
+      <i class="fas fa-university me-2"></i>{{ 'Instituição de Ensino'|t }}
+    </div>
+    <div class="card-body p-0">
+      {% for inst in instituicoes %}
+        <div class="px-3 py-3{% if not loop.last %} border-bottom{% endif %}">
+          <strong>{{ inst.nome }}</strong>
+          {% if inst.endereco %}
+            <div class="text-muted small mt-1">
+              {{ inst.endereco }}{% if inst.bairro %}, {{ inst.bairro }}{% endif %}{% if inst.cidade %} — {{ inst.cidade }}{% endif %}
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# ── Seção 5 — Informações Acadêmicas ────────────────────── #}
+  {% if dados.nome_curso or dados.nivel_atual or dados.tipo_curso %}
+  <div class="card mb-4">
+    <div class="card-header bg-light fw-semibold">
+      <i class="fas fa-graduation-cap me-2"></i>{{ 'Informações Acadêmicas'|t }}
+    </div>
+    <div class="card-body">
+      <dl class="row mb-0">
+
+        {% if dados.nivel_atual %}
+          <dt class="col-sm-4">{{ 'Nível atual'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.nivel_atual }}</dd>
+        {% endif %}
+
+        {% if dados.nome_curso %}
+          <dt class="col-sm-4">{{ 'Curso'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.nome_curso }}</dd>
+        {% endif %}
+
+        {% if dados.tipo_curso %}
+          <dt class="col-sm-4">{{ 'Tipo de curso'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.tipo_curso }}</dd>
+        {% endif %}
+
+        {% if dados.periodo_letivo %}
+          <dt class="col-sm-4">{{ 'Período letivo'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.periodo_letivo }}</dd>
+        {% endif %}
+
+        {% if dados.periodo_matriculado %}
+          <dt class="col-sm-4">{{ 'Período matriculado'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.periodo_matriculado }}</dd>
+        {% endif %}
+
+        {% if dados.horario_curso %}
+          <dt class="col-sm-4">{{ 'Horário'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.horario_curso }}</dd>
+        {% endif %}
+
+        {% if dados.duracao_curso %}
+          <dt class="col-sm-4">{{ 'Duração (semestres)'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.duracao_curso }}</dd>
+        {% endif %}
+
+        {% if dados.previsao_formatura %}
+          <dt class="col-sm-4">{{ 'Previsão de formatura'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.previsao_formatura|date('m/Y') }}</dd>
+        {% endif %}
+
+        {% if dados.disponibilidade_estagio %}
+          <dt class="col-sm-4">{{ 'Disponibilidade'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.disponibilidade_estagio }}</dd>
+        {% endif %}
+
+        {% if dados.numero_matricula %}
+          <dt class="col-sm-4">{{ 'Nº de matrícula'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.numero_matricula }}</dd>
+        {% endif %}
+
+      </dl>
+    </div>
+  </div>
+  {% endif %}
+
+  {# ── Seção 6 — Experiência Profissional ──────────────────── #}
+  {% if experiencias is not empty %}
+  <div class="card mb-4">
+    <div class="card-header bg-light fw-semibold">
+      <i class="fas fa-briefcase me-2"></i>{{ 'Experiência Profissional'|t }}
+    </div>
+    <div class="card-body p-0">
+      {% for exp in experiencias %}
+        <div class="px-3 py-3{% if not loop.last %} border-bottom{% endif %}">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <strong>{{ exp.cargo ?: '(cargo não informado)' }}</strong>
+              {% if exp.empresa %}
+                <div class="text-muted">{{ exp.empresa }}</div>
+              {% endif %}
+            </div>
+            {% if exp.regime %}
+              <span class="badge bg-secondary ms-2">{{ exp.regime }}</span>
+            {% endif %}
+          </div>
+          {% if exp.data_inicio or exp.data_termino %}
+            <div class="text-muted small mt-1">
+              {% if exp.data_inicio %}{{ exp.data_inicio|date('m/Y') }}{% endif %}
+              {% if exp.data_termino %}
+                &rarr; {{ exp.data_termino|date('m/Y') }}
+              {% else %}
+                &rarr; {{ 'Atual'|t }}
+              {% endif %}
+            </div>
+          {% endif %}
+          {% if exp.atividades %}
+            <p class="mt-2 mb-0 small">{{ exp.atividades }}</p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# ── Seção 7 — Cursos Extracurriculares ──────────────────── #}
+  {% if cursos is not empty %}
+  <div class="card mb-4">
+    <div class="card-header bg-light fw-semibold">
+      <i class="fas fa-award me-2"></i>{{ 'Cursos e Habilidades'|t }}
+    </div>
+    <div class="card-body p-0">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>{{ 'Habilidade'|t }}</th>
+            <th>{{ 'Tipo'|t }}</th>
+            <th>{{ 'Nível'|t }}</th>
+            <th>{{ 'Carga Horária'|t }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for curso in cursos %}
+            <tr>
+              <td>{{ curso.habilidade }}</td>
+              <td>{{ curso.tipo }}</td>
+              <td>{{ curso.nivel }}</td>
+              <td>{{ curso.carga }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  {# ── Seção 8 — Informações Complementares ────────────────── #}
+  <div class="card mb-4">
+    <div class="card-header bg-light fw-semibold">
+      <i class="fas fa-info-circle me-2"></i>{{ 'Informações Complementares'|t }}
+    </div>
+    <div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-sm-4">{{ 'Possui deficiência'|t }}</dt>
+        <dd class="col-sm-8">
+          {% if dados.possui_deficiencia == '1' or dados.possui_deficiencia == 1 %}
+            <span class="text-success fw-semibold">{{ 'Sim'|t }}</span>
+            {% if dados.numero_cid %}
+              <span class="ms-2 text-muted small">(CID: {{ dados.numero_cid }})</span>
+            {% endif %}
+          {% else %}
+            {{ 'Não'|t }}
+          {% endif %}
+        </dd>
+      </dl>
+    </div>
+  </div>
+
+</div>{# /.candidato-perfil #}

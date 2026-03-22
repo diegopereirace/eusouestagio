@@ -1,1 +1,18 @@
 <?php
+
+/**
+ * Implements hook_theme().
+ */
+function custom_configs_users_theme(): array {
+    return [
+        'candidato_perfil' => [
+            'variables' => [
+                'dados'        => [],
+                'instituicoes' => [],
+                'cursos'       => [],
+                'experiencias' => [],
+                'user'         => NULL,
+            ],
+        ],
+    ];
+}

@@ -9,5 +9,7 @@ dependencies:
   - custom_configs:custom_configs
   - drupal:user
   - drupal:system
+  - drupal:paragraphs
+  - drupal:options
 
 configure: custom_configs_users.settings

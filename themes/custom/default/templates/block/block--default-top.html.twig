@@ -55,11 +55,14 @@
             <div class="wrap-menu">
               {{ drupal_menu('main') }}
             </div>
-            {% if logged_in is defined and logged_in %}
-              <div class="ms-3">
-                <a href="{{ path('user.logout') }}" class="btn btn-outline-light btn-sm">Sair</a>
-              </div>
-            {% endif %}
+            <div class="ms-3 d-flex gap-2">
+              {% if logged_in is defined and logged_in %}
+                <a href="{{ path('user.logout') }}" class="btn btn-outline-primary btn-sm">Sair</a>
+              {% else %}
+                <a href="{{ path('user.login') }}" class="btn btn-outline-primary btn-sm">Entrar</a>
+                <a href="/cadastro/candidato" class="btn btn-primary btn-sm">Cadastro</a>
+              {% endif %}
+            </div>
           </div>
         </div>
       </div>
@@ -101,11 +104,15 @@
         </div>
         <div class="offcanvas-body">
           <div class="inner-menu-mobile">{{ drupal_menu('main') }}</div>
-          {% if logged_in is defined and logged_in %}
-            <div class="mt-3">
+          
+          <div class="mt-3 d-grid gap-2">
+            {% if logged_in is defined and logged_in %}
               <a href="{{ path('user.logout') }}" class="btn btn-outline-secondary w-100">Sair</a>
-            </div>
-          {% endif %}
+            {% else %}
+              <a href="{{ path('user.login') }}" class="btn btn-outline-secondary w-100">Entrar</a>
+              <a href="/cadastro/candidato" class="btn btn-primary w-100">Cadastro</a>
+            {% endif %}
+          </div>
         </div>
       </div>
     </div>

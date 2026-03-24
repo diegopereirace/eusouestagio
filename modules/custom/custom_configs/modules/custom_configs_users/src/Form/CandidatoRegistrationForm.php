@@ -10,6 +10,8 @@ use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
+use Drupal\user\UserInterface;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class CandidatoRegistrationForm extends FormBase {
 
@@ -67,6 +69,9 @@ class CandidatoRegistrationForm extends FormBase {
     }
 
     public function buildForm(array $form, FormStateInterface $form_state) {
+        if (\Drupal::config('user.settings')->get('register') === UserInterface::REGISTER_ADMINISTRATORS_ONLY) {
+            throw new AccessDeniedHttpException();
+        }
 
         // Usa validação do Drupal (server-side) para garantir exibição de erros.
         $form['#attributes']['novalidate'] = 'novalidate';
@@ -1120,6 +1125,15 @@ class CandidatoRegistrationForm extends FormBase {
     }
 
     public function submitForm(array &$form, FormStateInterface $form_state) {
+        $user_settings = \Drupal::config('user.settings');
+        $verify_mail = (bool) $user_settings->get('verify_mail');
+        $registration_policy = $user_settings->get('register');
+        $submitted_password = (string) $form_state->getValue('pass');
+        $account_password = $verify_mail
+            ? \Drupal::service('password_generator')->generate()
+            : $submitted_password;
+        $account_is_active = $registration_policy === UserInterface::REGISTER_VISITORS;
+
         // Campos simples (texto/select/data) no User.
         $custom_fields = [
             'field_nome_completo',
@@ -1162,8 +1176,9 @@ class CandidatoRegistrationForm extends FormBase {
         $values = [
             'name' => trim((string) $form_state->getValue('name')),
             'mail' => trim((string) $form_state->getValue('mail')),
-            'pass' => (string) $form_state->getValue('pass'),
-            'status' => 1,
+            'init' => trim((string) $form_state->getValue('mail')),
+            'pass' => $account_password,
+            'status' => $account_is_active ? 1 : 0,
         ];
 
         foreach ($custom_fields as $field) {
@@ -1284,18 +1299,31 @@ class CandidatoRegistrationForm extends FormBase {
             $user->addRole('candidato');
         }
         $user->save();
+        $user->password = $account_password;
 
-        if ($user->id()) {
-            \Drupal::currentUser()->setAccount($user);
-            $session = \Drupal::service('session');
-            $session->migrate();
-            $session->set('uid', $user->id());
-            $session->set('check_logged_in', TRUE);
-            \Drupal::moduleHandler()->invokeAll('user_login', [$user]);
+        if (!$user->id()) {
+            $this->messenger()->addError($this->t('Nao foi possivel concluir o cadastro. Tente novamente.'));
+            return;
         }
 
-        $this->messenger()->addStatus($this->t('Cadastro realizado com sucesso.'));
-        $form_state->setRedirect('custom_configs_users.candidato_perfil');
+        if (!$verify_mail && $user->isActive()) {
+            \_user_mail_notify('register_no_approval_required', $user);
+            \user_login_finalize($user);
+            $this->messenger()->addStatus($this->t('Cadastro realizado com sucesso.'));
+            $form_state->setRedirect('custom_configs_users.candidato_perfil');
+            return;
+        }
+
+        if ($user->isActive()) {
+            \_user_mail_notify('register_no_approval_required', $user);
+            $this->messenger()->addStatus($this->t('Cadastro realizado com sucesso. Enviamos um e-mail com instrucoes para acessar a conta.'));
+            $form_state->setRedirect('<front>');
+            return;
+        }
+
+        \_user_mail_notify('register_pending_approval', $user);
+        $this->messenger()->addStatus($this->t('Cadastro realizado. Sua conta aguarda aprovacao do administrador e voce recebera um e-mail com as proximas instrucoes.'));
+        $form_state->setRedirect('<front>');
     }
 
 }

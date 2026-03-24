@@ -19,6 +19,7 @@
         "drupal/core-recommended": "^11",
         "drupal/devel": "5.5",
         "drupal/devel_php": "2.0",
+        "drupal/field_group": "4.0",
         "drupal/metatag": "2.2",
         "drupal/mimemail": "^2.0",
         "drupal/paragraphs": "1.20",

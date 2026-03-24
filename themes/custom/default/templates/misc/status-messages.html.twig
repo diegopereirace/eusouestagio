@@ -1,71 +1,60 @@
-{#
+﻿{#
 /**
  * @file
  * Default theme implementation for status messages.
  *
- * Displays status, error, and warning messages, grouped by type.
- *
- * An invisible heading identifies the messages for assistive technology.
- * Sighted users see a colored box. See http://www.w3.org/TR/WCAG-TECHS/H69.html
- * for info.
- *
- * Add an ARIA label to the contentinfo area so that assistive technology
- * user agents will better describe this landmark.
- *
  * Available variables:
  * - message_list: List of messages to be displayed, grouped by type.
  * - status_headings: List of all status types.
- * - display: (optional) May have a value of 'status' or 'error' when only
- *   displaying messages of that specific type.
- * - attributes: HTML attributes for the element, including:
- *   - class: HTML classes.
+ * - display: (optional) May have a value of 'status' or 'error'.
  *
  * @see template_preprocess_status_messages()
- *
  * @ingroup themeable
  */
 #}
 
 {% if message_list %}
-  <div class="modal" id="modal-system-messages" tabindex="-1" role="dialog" aria-labelledby="system-messages">
+  <div class="modal fade" id="modal-system-messages" tabindex="-1" aria-labelledby="system-messagesModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title text-maroon" id="system-messagesModalLabel">{{ 'Message'|trans }}</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
         </div>
         <div class="modal-body text-center">
           {% for type, messages in message_list %}
-            {% set text_color = '' %}
-
-            {% if type == 'status' %}
-              {% set text_color = 'text-maroon' %}
-            {% elseif type == 'warning' %}
-              {% set text_color = 'text-danger' %}
-            {% elseif type == 'error' %}
-              {% set text_color = 'text-danger' %} 
-            {% endif %}
-
+            {% if type == 'status' %}{% set text_color = 'text-maroon' %}
+            {% elseif type == 'warning' %}{% set text_color = 'text-warning' %}
+            {% elseif type == 'error' %}{% set text_color = 'text-danger' %}
+            {% else %}{% set text_color = '' %}{% endif %}
             {% for message in messages %}
-              {% if loop.last %}
-                <div class="wrap-item">
-                  <h6 class="item {{ text_color }}">{{ message }}</h6>
-                </div>
-              {% else %}
-                <div class="wrap-item">
-                  <h6 class="item {{ text_color }}">{{ message }}</h6>
-                </div>
-                <hr>
-              {% endif %}
-            {% endfor %}          
+              <div class="wrap-item{% if not loop.last %} mb-2{% endif %}">
+                <h6 class="item {{ text_color }}">{{ message }}</h6>
+              </div>
+              {% if not loop.last %}<hr>{% endif %}
+            {% endfor %}
           {% endfor %}
         </div>
-        <div class="modal-footer d-block">
-          <button type="button" class="btn btn-primary mx-auto py-1 w-25" data-dismiss="modal">{{ 'Close'|trans }}</button>
+        <div class="modal-footer d-block text-center">
+          <button type="button" class="btn btn-primary mx-auto py-1 w-25" data-bs-dismiss="modal">{{ 'Close'|trans }}</button>
         </div>
       </div>
     </div>
   </div>
+  <script>
+  (function () {
+    function openMsg() {
+      var el = document.getElementById('modal-system-messages');
+      if (!el) return;
+      if (typeof bootstrap !== 'undefined') {
+        new bootstrap.Modal(el).show();
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', openMsg);
+    } else {
+      openMsg();
+    }
+  })();
+  </script>
 {% endif %}

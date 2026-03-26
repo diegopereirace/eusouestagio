@@ -1,0 +1,7 @@
+termo_validation:
+  version: 1.x
+  js:
+    js/termo-validation.js: {}
+  dependencies:
+    - core/drupal
+    - core/once

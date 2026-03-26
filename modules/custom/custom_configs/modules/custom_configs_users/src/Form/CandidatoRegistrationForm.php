@@ -6,6 +6,9 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Markup;
+use Drupal\Component\Utility\Xss;
+use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\user\Entity\Role;
@@ -984,6 +987,33 @@ class CandidatoRegistrationForm extends FormBase {
             ],
         ];
 
+        // ── Seção 11 — Termo de aceite ───────────────────────────
+        $form['section_termo'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['mb-4']],
+        ];
+
+        $termo_help_text = '';
+        $termo_field_config = FieldConfig::loadByName('user', 'user', 'field_termo');
+        if ($termo_field_config) {
+            $termo_help_text = trim((string) $termo_field_config->getDescription());
+        }
+
+        $termo_title = $termo_help_text !== ''
+            ? Markup::create(Xss::filter($termo_help_text, ['a', 'strong', 'em', 'span', 'br']))
+            : $this->t('Declaro que li e aceito os termos para cadastro.');
+
+        $form['section_termo']['field_termo'] = [
+            '#type' => 'checkbox',
+            '#title' => $termo_title,
+            '#default_value' => 0,
+            '#attributes' => [
+                'class' => ['js-field-termo'],
+            ],
+        ];
+
+        $form['#attached']['library'][] = 'custom_configs_users/termo_validation';
+
         // ── Ações ──────────────────────────────────────────────────
         $form['actions'] = [
             '#type' => 'actions',
@@ -993,7 +1023,7 @@ class CandidatoRegistrationForm extends FormBase {
             '#type' => 'submit',
             '#value' => $this->t('Cadastrar'),
             '#button_type' => 'primary',
-            '#attributes' => ['class' => ['btn', 'btn-primary', 'btn-lg', 'px-5']],
+            '#attributes' => ['class' => ['btn', 'btn-primary', 'btn-lg', 'px-5', 'js-candidato-submit']],
         ];
 
         return $form;
@@ -1121,6 +1151,10 @@ class CandidatoRegistrationForm extends FormBase {
         $cpf = preg_replace('/\D/', '', (string) $form_state->getValue('field_cpf'));
         if (mb_strlen($cpf) !== 11) {
             $form_state->setErrorByName('field_cpf', $this->t('O CPF deve conter 11 dígitos.'));
+        }
+
+        if (!(bool) $form_state->getValue('field_termo')) {
+            $form_state->setErrorByName('field_termo', $this->t('Você precisa aceitar o termo para concluir o cadastro.'));
         }
     }
 
@@ -1295,6 +1329,9 @@ class CandidatoRegistrationForm extends FormBase {
         }
 
         $user = User::create($values);
+        if ($user->hasField('field_termo')) {
+            $user->set('field_termo', (bool) $form_state->getValue('field_termo'));
+        }
         if (Role::load('candidato')) {
             $user->addRole('candidato');
         }

@@ -1,130 +1,166 @@
-(function (Drupal) {
-
+(function (Drupal, drupalSettings, once) {
   'use strict';
 
-  var CONSENT_KEY = 'default_lgpd_cookie_consent';
+  const CONSENT_COOKIE_NAME = 'lgpd_consent';
+  const CONSENT_REJECTED = 'rejected';
+  const CONSENT_ACCEPTED = 'accepted';
 
-  function setCookie(name, value, days) {
-    var expires = '';
-    if (days) {
-      var date = new Date();
-      date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-      expires = '; expires=' + date.toUTCString();
-    }
+  function setFunctionalCookie(name, value, days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    const expires = '; expires=' + date.toUTCString();
     document.cookie = name + '=' + encodeURIComponent(value) + expires + '; path=/; SameSite=Lax';
   }
 
   function getCookie(name) {
-    var nameEQ = name + '=';
-    var ca = document.cookie.split(';');
-    for (var i = 0; i < ca.length; i++) {
-      var c = ca[i];
-      while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-      if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length, c.length));
+    const nameEQ = name + '=';
+    const cookies = document.cookie.split(';');
+
+    for (let index = 0; index < cookies.length; index += 1) {
+      let cookieItem = cookies[index];
+      while (cookieItem.charAt(0) === ' ') {
+        cookieItem = cookieItem.substring(1, cookieItem.length);
+      }
+      if (cookieItem.indexOf(nameEQ) === 0) {
+        return decodeURIComponent(cookieItem.substring(nameEQ.length, cookieItem.length));
+      }
     }
+
     return null;
   }
 
+  function pushConsentDenied() {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'lgpd_consent_update',
+      analytics_storage: 'denied',
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+    });
+  }
+
   function hasDecision() {
-    try {
-      if (window.localStorage) {
-        var decision = window.localStorage.getItem(CONSENT_KEY);
-        if (decision === 'accepted' || decision === 'denied') {
-          return true;
-        }
-      }
-    }
-    catch (e) {}
-
-    var cookieDecision = getCookie(CONSENT_KEY);
-    return cookieDecision === 'accepted' || cookieDecision === 'denied';
+    const consentValue = getCookie(CONSENT_COOKIE_NAME);
+    return consentValue === CONSENT_REJECTED || consentValue === CONSENT_ACCEPTED;
   }
 
-  function persistDecision(decision) {
-    if (decision !== 'accepted' && decision !== 'denied') {
+  function hideBanner() {
+    const banner = document.querySelector('#lgpd-cookie-banner');
+    if (!banner) {
       return;
     }
 
-    try {
-      if (window.localStorage) {
-        window.localStorage.setItem(CONSENT_KEY, decision);
-      }
-    }
-    catch (e) {}
-
-    setCookie(CONSENT_KEY, decision, 365);
+    banner.classList.remove('is-visible');
+    banner.setAttribute('hidden', 'hidden');
   }
 
-  function hasConsent() {
-    try {
-      if (window.localStorage && window.localStorage.getItem(CONSENT_KEY) === 'accepted') {
-        return true;
-      }
-    }
-    catch (e) {}
-
-    return getCookie(CONSENT_KEY) === 'accepted';
-  }
-
-  function removeBanner() {
-    var banner = document.getElementById('lgpd-cookie-banner');
-    if (banner) {
-      banner.classList.remove('is-visible');
-      setTimeout(function () {
-        if (banner && banner.parentNode) {
-          banner.parentNode.removeChild(banner);
-        }
-      }, 200);
-    }
-  }
-
-  function createBanner() {
-    if (document.getElementById('lgpd-cookie-banner')) {
+  function showBanner() {
+    const banner = document.querySelector('#lgpd-cookie-banner');
+    if (!banner) {
       return;
     }
-
-    var banner = document.createElement('div');
-    banner.id = 'lgpd-cookie-banner';
-    banner.className = 'lgpd-cookie-banner';
-    banner.innerHTML = [
-      '<div class="lgpd-cookie-banner__content">',
-      '  <p class="lgpd-cookie-banner__text">Utilizamos cookies para melhorar sua experiência de navegação. Ao clicar em "Aceitar", você concorda com o uso de cookies.</p>',
-      '  <div class="lgpd-cookie-banner__actions">',
-      '    <button type="button" class="lgpd-cookie-banner__btn lgpd-cookie-banner__btn--ghost" id="lgpd-cookie-deny">Negar</button>',
-      '    <button type="button" class="lgpd-cookie-banner__btn" id="lgpd-cookie-accept">Aceitar</button>',
-      '  </div>',
-      '</div>'
-    ].join('');
-
-    document.body.appendChild(banner);
-
-    var acceptButton = document.getElementById('lgpd-cookie-accept');
-    if (acceptButton) {
-      acceptButton.addEventListener('click', function () {
-        persistDecision('accepted');
-        removeBanner();
-      });
-    }
-
-    var denyButton = document.getElementById('lgpd-cookie-deny');
-    if (denyButton) {
-      denyButton.addEventListener('click', function () {
-        persistDecision('denied');
-        removeBanner();
-      });
-    }
-
-    requestAnimationFrame(function () {
+    banner.removeAttribute('hidden');
+    requestAnimationFrame(() => {
       banner.classList.add('is-visible');
     });
   }
 
-  Drupal.behaviors.bootstrap_barrio_subtheme = {
-    attach: function () {
-      if (!hasDecision()) {
-        createBanner();
-      }
-    }
-  };
+  function writeAcceptedConsent() {
+    setFunctionalCookie(CONSENT_COOKIE_NAME, CONSENT_ACCEPTED, 365);
+    hideBanner();
+  }
 
-})(Drupal);
+  function writeRejectedConsent() {
+    setFunctionalCookie(CONSENT_COOKIE_NAME, CONSENT_REJECTED, 365);
+    pushConsentDenied();
+    hideBanner();
+  }
+
+  function ensureBannerMarkup() {
+    if (document.querySelector('#lgpd-cookie-banner')) {
+      return;
+    }
+
+    const bannerElement = document.createElement('div');
+    bannerElement.id = 'lgpd-cookie-banner';
+    bannerElement.className = 'lgpd-cookie-banner';
+    bannerElement.setAttribute('hidden', 'hidden');
+    bannerElement.innerHTML = [
+      '<div class="lgpd-cookie-banner__content">',
+      '  <p class="lgpd-cookie-banner__text">Utilizamos cookies para melhorar sua experiência de navegação. Você pode aceitar ou rejeitar cookies não essenciais.</p>',
+      '  <div class="lgpd-cookie-banner__actions">',
+      '    <button type="button" class="lgpd-cookie-banner__btn lgpd-cookie-banner__btn--ghost" id="btn-rejeitar-cookies">Negar</button>',
+      '    <button type="button" class="lgpd-cookie-banner__btn" id="btn-aceitar-cookies">Aceitar</button>',
+      '  </div>',
+      '</div>',
+    ].join('');
+
+    document.body.appendChild(bannerElement);
+  }
+
+  function blockEmbedsWithoutConsent(context) {
+    const consentValue = getCookie(CONSENT_COOKIE_NAME);
+    const mustBlock = !consentValue || consentValue === CONSENT_REJECTED;
+
+    if (!mustBlock) {
+      return;
+    }
+
+    once('lgpd-embed-consent-block', '.embed-requires-consent', context).forEach((iframeElement) => {
+      const currentSrc = iframeElement.getAttribute('src');
+      if (currentSrc) {
+        iframeElement.setAttribute('data-src', currentSrc);
+        iframeElement.removeAttribute('src');
+      }
+
+      iframeElement.setAttribute('data-consent-blocked', 'true');
+
+      const parentContainer = iframeElement.parentElement;
+      if (!parentContainer) {
+        return;
+      }
+
+      if (!parentContainer.querySelector('.embed-consent-warning')) {
+        const warningElement = document.createElement('div');
+        warningElement.className = 'embed-consent-warning';
+        warningElement.textContent = 'Para visualizar este conteúdo, aceite os cookies no banner de consentimento.';
+        parentContainer.insertBefore(warningElement, iframeElement);
+      }
+    });
+  }
+
+  function enforceDeniedConsentOnLoad() {
+    if (getCookie(CONSENT_COOKIE_NAME) === CONSENT_REJECTED) {
+      pushConsentDenied();
+      hideBanner();
+    }
+  }
+
+  Drupal.behaviors.defaultLgpdBanner = {
+    attach(context) {
+      ensureBannerMarkup();
+
+      once('lgpd-cookie-accept-handler', '#btn-aceitar-cookies', context).forEach((acceptButton) => {
+        acceptButton.addEventListener('click', (event) => {
+          event.preventDefault();
+          writeAcceptedConsent();
+        });
+      });
+
+      once('lgpd-cookie-reject-handler', '#btn-rejeitar-cookies', context).forEach((rejectButton) => {
+        rejectButton.addEventListener('click', (event) => {
+          event.preventDefault();
+          writeRejectedConsent();
+        });
+      });
+
+      enforceDeniedConsentOnLoad();
+      blockEmbedsWithoutConsent(context);
+
+      if (!hasDecision()) {
+        showBanner();
+      }
+    },
+  };
+})(Drupal, drupalSettings, once);

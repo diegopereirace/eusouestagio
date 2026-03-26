@@ -1159,6 +1159,11 @@ class CandidatoRegistrationForm extends FormBase {
     }
 
     public function submitForm(array &$form, FormStateInterface $form_state) {
+        if (!(bool) $form_state->getValue('field_termo')) {
+            $this->messenger()->addError($this->t('Você precisa aceitar o termo para concluir o cadastro.'));
+            return;
+        }
+
         $user_settings = \Drupal::config('user.settings');
         $verify_mail = (bool) $user_settings->get('verify_mail');
         $registration_policy = $user_settings->get('register');

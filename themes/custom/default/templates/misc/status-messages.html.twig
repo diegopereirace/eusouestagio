@@ -14,7 +14,7 @@
 #}
 
 {% if message_list %}
-  <div class="modal fade" id="modal-system-messages" tabindex="-1" aria-labelledby="system-messagesModalLabel" aria-hidden="true">
+  <div class="modal" id="modal-system-messages" tabindex="-1" aria-labelledby="system-messagesModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -43,13 +43,51 @@
   </div>
   <script>
   (function () {
+    function cleanupModalState() {
+      document.querySelectorAll('.modal-backdrop').forEach(function (backdrop) {
+        backdrop.remove();
+      });
+
+      document.body.classList.remove('modal-open');
+      document.body.style.removeProperty('overflow');
+      document.body.style.removeProperty('padding-right');
+    }
+
     function openMsg() {
       var el = document.getElementById('modal-system-messages');
-      if (!el) return;
+      if (!el || typeof bootstrap === 'undefined') {
+        cleanupModalState();
+        return;
+      }
+
+      cleanupModalState();
+
+      var modal = bootstrap.Modal.getOrCreateInstance(el, {
+        backdrop: true,
+        focus: true,
+        keyboard: true
+      });
+
+      el.addEventListener('hidden.bs.modal', function () {
+        cleanupModalState();
+
+        var invalidField = document.querySelector('.is-invalid, [aria-invalid="true"]');
+        if (invalidField && typeof invalidField.focus === 'function') {
+          invalidField.focus();
+        }
+      }, { once: true });
+
+      el.querySelectorAll('[data-bs-dismiss="modal"]').forEach(function (button) {
+        button.addEventListener('click', function () {
+          modal.hide();
+        }, { once: true });
+      });
+
       if (typeof bootstrap !== 'undefined') {
-        new bootstrap.Modal(el).show();
+        modal.show();
       }
     }
+
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', openMsg);
     } else {

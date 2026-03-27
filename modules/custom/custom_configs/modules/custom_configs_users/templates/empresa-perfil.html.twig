@@ -1,0 +1,146 @@
+{#
+/**
+ * @file
+ * Template do perfil da empresa.
+ *
+ * Variáveis:
+ *   - dados: array com campos da empresa.
+ *   - user: entidade User.
+ */
+#}
+
+<div class="empresa-perfil container py-4">
+
+  {# ── Cabeçalho ──────────────────────────────────────────── #}
+  <div class="mb-4">
+    <h2 class="mb-0">{{ dados.razao_social ?: user.name.value }}</h2>
+    {% if dados.nome_fantasia %}
+      <p class="text-muted mb-0">{{ dados.nome_fantasia }}</p>
+    {% endif %}
+    <small class="text-muted">{{ user.mail.value }}</small>
+  </div>
+
+  {# ── Seção 1 — Dados da Empresa ──────────────────────────── #}
+  <div class="card mb-4">
+    <div class="card-header bg-light fw-semibold">
+      <i class="fas fa-building me-2"></i>{{ 'Dados da Empresa'|t }}
+    </div>
+    <div class="card-body">
+      <dl class="row mb-0">
+
+        {% if dados.tipo_entidade %}
+          <dt class="col-sm-4">{{ 'Tipo de entidade'|t }}</dt>
+          <dd class="col-sm-8">
+            {% if dados.tipo_entidade == 'fisica' %}
+              {{ 'Pessoa Física'|t }}
+            {% else %}
+              {{ 'Pessoa Jurídica'|t }}
+            {% endif %}
+          </dd>
+        {% endif %}
+
+        {% if dados.cnpj %}
+          <dt class="col-sm-4">{{ 'CNPJ'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.cnpj }}</dd>
+        {% endif %}
+
+        {% if dados.cpf_empresa %}
+          <dt class="col-sm-4">{{ 'CPF'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.cpf_empresa }}</dd>
+        {% endif %}
+
+        {% if dados.razao_social %}
+          <dt class="col-sm-4">{{ 'Razão Social'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.razao_social }}</dd>
+        {% endif %}
+
+        {% if dados.nome_fantasia %}
+          <dt class="col-sm-4">{{ 'Nome Fantasia'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.nome_fantasia }}</dd>
+        {% endif %}
+
+        {% if dados.atividade_principal %}
+          <dt class="col-sm-4">{{ 'Atividade Principal'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.atividade_principal }}</dd>
+        {% endif %}
+
+        {% if dados.unidade %}
+          <dt class="col-sm-4">{{ 'Unidade'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.unidade }}</dd>
+        {% endif %}
+
+      </dl>
+    </div>
+  </div>
+
+  {# ── Seção 2 — Endereço ──────────────────────────────────── #}
+  {% if dados.cep or dados.endereco or dados.cidade %}
+    <div class="card mb-4">
+      <div class="card-header bg-light fw-semibold">
+        <i class="fas fa-map-marker-alt me-2"></i>{{ 'Endereço'|t }}
+      </div>
+      <div class="card-body">
+        <dl class="row mb-0">
+
+          {% if dados.cep %}
+            <dt class="col-sm-4">{{ 'CEP'|t }}</dt>
+            <dd class="col-sm-8">{{ dados.cep }}</dd>
+          {% endif %}
+
+          {% if dados.endereco %}
+            <dt class="col-sm-4">{{ 'Endereço'|t }}</dt>
+            <dd class="col-sm-8">
+              {{ dados.endereco }}
+              {% if dados.complemento %} — {{ dados.complemento }}{% endif %}
+            </dd>
+          {% endif %}
+
+          {% if dados.bairro %}
+            <dt class="col-sm-4">{{ 'Bairro'|t }}</dt>
+            <dd class="col-sm-8">{{ dados.bairro }}</dd>
+          {% endif %}
+
+          {% if dados.cidade or dados.estado %}
+            <dt class="col-sm-4">{{ 'Cidade / Estado'|t }}</dt>
+            <dd class="col-sm-8">
+              {{ dados.cidade }}{% if dados.cidade and dados.estado %} / {% endif %}{{ dados.estado }}
+            </dd>
+          {% endif %}
+
+        </dl>
+      </div>
+    </div>
+  {% endif %}
+
+  {# ── Seção 3 — Responsável pelo Cadastro ─────────────────── #}
+  {% if dados.responsavel_nome or dados.responsavel_telefone or dados.responsavel_email %}
+    <div class="card mb-4">
+      <div class="card-header bg-light fw-semibold">
+        <i class="fas fa-user-tie me-2"></i>{{ 'Responsável pelo Cadastro'|t }}
+      </div>
+      <div class="card-body">
+        <dl class="row mb-0">
+
+          {% if dados.responsavel_nome %}
+            <dt class="col-sm-4">{{ 'Nome'|t }}</dt>
+            <dd class="col-sm-8">{{ dados.responsavel_nome }}</dd>
+          {% endif %}
+
+          {% if dados.responsavel_telefone %}
+            <dt class="col-sm-4">{{ 'Telefone'|t }}</dt>
+            <dd class="col-sm-8">{{ dados.responsavel_telefone }}</dd>
+          {% endif %}
+
+          {% if dados.responsavel_email %}
+            <dt class="col-sm-4">{{ 'E-mail'|t }}</dt>
+            <dd class="col-sm-8">
+              <a href="mailto:{{ dados.responsavel_email }}">{{ dados.responsavel_email }}</a>
+            </dd>
+          {% endif %}
+
+        </dl>
+      </div>
+    </div>
+  {% endif %}
+
+</div>

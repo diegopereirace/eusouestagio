@@ -14,5 +14,11 @@ function custom_configs_users_theme(): array {
                 'user'         => NULL,
             ],
         ],
+        'empresa_perfil' => [
+            'variables' => [
+                'dados' => [],
+                'user'  => NULL,
+            ],
+        ],
     ];
 }

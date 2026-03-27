@@ -76,6 +76,8 @@ class CandidatoRegistrationForm extends FormBase {
             throw new AccessDeniedHttpException();
         }
 
+        $verify_mail = (bool) \Drupal::config('user.settings')->get('verify_mail');
+
         // Usa validação do Drupal (server-side) para garantir exibição de erros.
         $form['#attributes']['novalidate'] = 'novalidate';
 
@@ -128,28 +130,38 @@ class CandidatoRegistrationForm extends FormBase {
             '#attributes' => ['class' => ['form-control']],
         ];
 
-        $form['section_acesso']['row']['col_pass'] = [
-            '#type' => 'container',
-            '#attributes' => ['class' => ['col-12', 'col-md-6']],
-        ];
-        $form['section_acesso']['row']['col_pass']['pass'] = [
-            '#type' => 'password',
-            '#title' => $this->t('Senha'),
-            '#required' => TRUE,
-            '#description' => $this->t('Mínimo de 8 caracteres.'),
-            '#attributes' => ['class' => ['form-control']],
-        ];
+        if (!$verify_mail) {
+            $form['section_acesso']['row']['col_pass'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-6']],
+            ];
+            $form['section_acesso']['row']['col_pass']['pass'] = [
+                '#type' => 'password',
+                '#title' => $this->t('Senha'),
+                '#required' => TRUE,
+                '#description' => $this->t('Mínimo de 8 caracteres.'),
+                '#attributes' => ['class' => ['form-control']],
+            ];
 
-        $form['section_acesso']['row']['col_pass_confirm'] = [
-            '#type' => 'container',
-            '#attributes' => ['class' => ['col-12', 'col-md-6']],
-        ];
-        $form['section_acesso']['row']['col_pass_confirm']['pass_confirm'] = [
-            '#type' => 'password',
-            '#title' => $this->t('Confirmar senha'),
-            '#required' => TRUE,
-            '#attributes' => ['class' => ['form-control']],
-        ];
+            $form['section_acesso']['row']['col_pass_confirm'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-6']],
+            ];
+            $form['section_acesso']['row']['col_pass_confirm']['pass_confirm'] = [
+                '#type' => 'password',
+                '#title' => $this->t('Confirmar senha'),
+                '#required' => TRUE,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+        }
+        else {
+            $form['section_acesso']['verify_mail_message'] = [
+                '#type' => 'markup',
+                '#markup' => '<div class="alert alert-info mt-3 mb-0">'
+                    . $this->t('Após o cadastro, você receberá um e-mail com um link para definir sua senha.')
+                    . '</div>',
+            ];
+        }
 
         // ── Seção 2 — Dados Pessoais ───────────────────────────────
         $form['section_pessoal'] = [
@@ -1122,6 +1134,7 @@ class CandidatoRegistrationForm extends FormBase {
         $mail = trim((string) $form_state->getValue('mail'));
         $pass = (string) $form_state->getValue('pass');
         $pass_confirm = (string) $form_state->getValue('pass_confirm');
+        $verify_mail = (bool) \Drupal::config('user.settings')->get('verify_mail');
 
         // Acesso.
         if (mb_strlen($name) < 3) {
@@ -1146,12 +1159,14 @@ class CandidatoRegistrationForm extends FormBase {
             $form_state->setErrorByName('mail', $this->t('Este e-mail já está em uso.'));
         }
 
-        if (mb_strlen($pass) < 8) {
-            $form_state->setErrorByName('pass', $this->t('A senha deve ter no mínimo 8 caracteres.'));
-        }
+        if (!$verify_mail) {
+            if (mb_strlen($pass) < 8) {
+                $form_state->setErrorByName('pass', $this->t('A senha deve ter no mínimo 8 caracteres.'));
+            }
 
-        if ($pass !== $pass_confirm) {
-            $form_state->setErrorByName('pass_confirm', $this->t('A confirmação de senha não confere.'));
+            if ($pass !== $pass_confirm) {
+                $form_state->setErrorByName('pass_confirm', $this->t('A confirmação de senha não confere.'));
+            }
         }
 
         // CPF — apenas dígitos, 11 caracteres.

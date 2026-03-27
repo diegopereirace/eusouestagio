@@ -177,6 +177,11 @@ class EmpresaRegistrationForm extends FormBase {
                 'class' => ['form-control', 'mask-cpf'],
                 'placeholder' => '000.000.000-00',
             ],
+            '#states' => [
+                'enabled' => [
+                    ':input[name="field_tipo_entidade"]' => ['value' => 'fisica'],
+                ],
+            ],
         ];
 
         $form['section_empresa']['row']['col_cnpj'] = [
@@ -190,6 +195,11 @@ class EmpresaRegistrationForm extends FormBase {
             '#attributes' => [
                 'class' => ['form-control', 'mask-cnpj'],
                 'placeholder' => '00.000.000/0000-00',
+            ],
+            '#states' => [
+                'enabled' => [
+                    ':input[name="field_tipo_entidade"]' => ['value' => 'juridica'],
+                ],
             ],
         ];
 
@@ -399,6 +409,7 @@ class EmpresaRegistrationForm extends FormBase {
         $mail = trim((string) $form_state->getValue('mail'));
         $pass = (string) $form_state->getValue('pass');
         $pass_confirm = (string) $form_state->getValue('pass_confirm');
+        $tipo = (string) $form_state->getValue('field_tipo_entidade');
 
         // ── Dados de Acesso ────────────────────────────────────────
         if (mb_strlen($name) < 3) {
@@ -432,8 +443,6 @@ class EmpresaRegistrationForm extends FormBase {
         }
 
         // ── Documento (CPF / CNPJ) ─────────────────────────────────
-        $tipo = (string) $form_state->getValue('field_tipo_entidade');
-
         if ($tipo === 'fisica') {
             $cpf = preg_replace('/\D/', '', (string) $form_state->getValue('field_cpf_empresa'));
             if (empty($cpf)) {
@@ -448,6 +457,8 @@ class EmpresaRegistrationForm extends FormBase {
             } elseif (mb_strlen($cnpj) !== 14 || !$this->validarCnpj($cnpj)) {
                 $form_state->setErrorByName('field_cnpj', $this->t('O CNPJ informado é inválido.'));
             }
+        } else {
+            $form_state->setErrorByName('field_tipo_entidade', $this->t('Selecione o tipo de entidade para informar o documento correto.'));
         }
 
         // ── Termo ──────────────────────────────────────────────────
@@ -470,6 +481,7 @@ class EmpresaRegistrationForm extends FormBase {
             ? \Drupal::service('password_generator')->generate()
             : $submitted_password;
         $account_is_active = $registration_policy === UserInterface::REGISTER_VISITORS;
+        $tipo = (string) $form_state->getValue('field_tipo_entidade');
 
         $custom_fields = [
             'field_tipo_entidade',
@@ -505,6 +517,14 @@ class EmpresaRegistrationForm extends FormBase {
             if ($value !== NULL && $value !== '') {
                 $values[$field] = $value;
             }
+        }
+
+        if ($tipo === 'fisica') {
+            unset($values['field_cnpj']);
+        }
+
+        if ($tipo === 'juridica') {
+            unset($values['field_cpf_empresa']);
         }
 
         $user = User::create($values);

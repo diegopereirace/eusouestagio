@@ -1019,7 +1019,7 @@ class CandidatoRegistrationForm extends FormBase {
             ],
         ];
 
-        $form['#attached']['library'][] = 'custom_configs_users/termo_validation';
+        $form['#attached']['library'][] = 'custom_configs_users/registration_forms_validation';
 
         // ── Ações ──────────────────────────────────────────────────
         $form['actions'] = [

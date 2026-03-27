@@ -397,6 +397,7 @@ class EmpresaRegistrationForm extends FormBase {
         $form['#attached']['library'][] = 'core/jquery.ui.widget';
         $form['#attached']['library'][] = 'default/jquery_mask';
         $form['#attached']['library'][] = 'default/masks';
+        $form['#attached']['library'][] = 'custom_configs_users/registration_forms_validation';
         $form['#attached']['drupalSettings']['defaultMasks']['cepApi'] = [
             'lookupUrl' => '/api/cep',
         ];

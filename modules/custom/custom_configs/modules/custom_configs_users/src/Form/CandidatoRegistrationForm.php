@@ -86,6 +86,13 @@ class CandidatoRegistrationForm extends FormBase {
         ];
 
         // ── Seção 1 — Dados de Acesso ──────────────────────────────
+
+        $form['page_title'] = [
+            '#markup' => '<div class="mb-4 mt-2">'
+                . '<h2 class="mb-1"><i class="fas fa-user-graduate me-2"></i>' . $this->t('Cadastro de Candidato') . '</h2>'
+                . '<p class="text-muted mb-0">' . $this->t('Preencha os dados abaixo para criar sua conta como candidato a estágio.') . '</p>'
+                . '</div>',
+        ];
         $form['section_acesso'] = [
             '#type' => 'container',
             '#attributes' => ['class' => ['mb-4']],

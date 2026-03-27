@@ -76,8 +76,12 @@ class EmpresaRegistrationForm extends FormBase {
             '#type' => 'status_messages',
             '#weight' => -1000,
         ];
-
-        // ── Seção 1 — Dados de Acesso ──────────────────────────────
+        $form['page_title'] = [
+            '#markup' => '<div class="mb-4 mt-2">'
+                . '<h2 class="mb-1"><i class="fas fa-building me-2"></i>' . $this->t('Cadastro de Empresa') . '</h2>'
+                . '<p class="text-muted mb-0">' . $this->t('Preencha os dados abaixo para cadastrar sua empresa na plataforma.') . '</p>'
+                . '</div>',
+        ];
         $form['section_acesso'] = [
             '#type' => 'container',
             '#attributes' => ['class' => ['mb-4']],
@@ -89,7 +93,6 @@ class EmpresaRegistrationForm extends FormBase {
             '#type' => 'container',
             '#attributes' => ['class' => ['row', 'g-3']],
         ];
-
         $form['section_acesso']['row']['col_name'] = [
             '#type' => 'container',
             '#attributes' => ['class' => ['col-12', 'col-md-6']],
@@ -101,7 +104,6 @@ class EmpresaRegistrationForm extends FormBase {
             '#maxlength' => 60,
             '#attributes' => ['class' => ['form-control']],
         ];
-
         $form['section_acesso']['row']['col_mail'] = [
             '#type' => 'container',
             '#attributes' => ['class' => ['col-12', 'col-md-6']],
@@ -112,7 +114,6 @@ class EmpresaRegistrationForm extends FormBase {
             '#required' => TRUE,
             '#attributes' => ['class' => ['form-control']],
         ];
-
         $form['section_acesso']['row']['col_pass'] = [
             '#type' => 'container',
             '#attributes' => ['class' => ['col-12', 'col-md-6']],
@@ -124,7 +125,6 @@ class EmpresaRegistrationForm extends FormBase {
             '#description' => $this->t('Mínimo de 8 caracteres.'),
             '#attributes' => ['class' => ['form-control']],
         ];
-
         $form['section_acesso']['row']['col_pass_confirm'] = [
             '#type' => 'container',
             '#attributes' => ['class' => ['col-12', 'col-md-6']],

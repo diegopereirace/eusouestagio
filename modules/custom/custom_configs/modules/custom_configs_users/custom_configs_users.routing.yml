@@ -13,3 +13,19 @@ custom_configs_users.candidato_perfil:
     _controller: '\Drupal\custom_configs_users\Controller\CandidatoPerfilController::view'
   requirements:
     _user_is_logged_in: 'TRUE'
+
+custom_configs_users.empresa_registration:
+  path: '/cadastro/empresa'
+  defaults:
+    _title: 'Cadastro de empresa'
+    _form: '\Drupal\custom_configs_users\Form\EmpresaRegistrationForm'
+  requirements:
+    _user_is_logged_in: 'FALSE'
+
+custom_configs_users.empresa_perfil:
+  path: '/admin/perfil/empresa'
+  defaults:
+    _title: 'Perfil da Empresa'
+    _controller: '\Drupal\custom_configs_users\Controller\EmpresaPerfilController::view'
+  requirements:
+    _role: 'empresa'

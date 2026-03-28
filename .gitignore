@@ -44,3 +44,5 @@ sites/simpletest
 /.editorconfig
 /.gitattributes
 /example.gitignore
+
+_arquivos/*

@@ -63,8 +63,10 @@ AddType image/webp .webp
 <IfModule mod_rewrite.c>
   RewriteEngine on
 
-  # Redirect all HTTP traffic to HTTPS.
-  RewriteCond %{HTTPS} off
+  # Redirect HTTP traffic to HTTPS.
+  # Also respect X-Forwarded-Proto when behind a reverse proxy.
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
+  RewriteCond %{HTTPS} !=on
   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
   # Set "protossl" to "s" if we were accessed via https://.  This is used later
@@ -72,6 +74,8 @@ AddType image/webp .webp
   # you don't bounce between http and https.
   RewriteRule ^ - [E=protossl]
   RewriteCond %{HTTPS} on
+  RewriteRule ^ - [E=protossl:s]
+  RewriteCond %{HTTP:X-Forwarded-Proto} https [NC]
   RewriteRule ^ - [E=protossl:s]
 
   # Make sure Authorization HTTP header is available to PHP

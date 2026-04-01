@@ -47,3 +47,5 @@ sites/simpletest
 
 _arquivos/*
 .deploy-backups/
+
+.github/*

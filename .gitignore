@@ -46,3 +46,4 @@ sites/simpletest
 /example.gitignore
 
 _arquivos/*
+.deploy-backups/

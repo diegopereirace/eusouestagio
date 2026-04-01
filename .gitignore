@@ -49,3 +49,5 @@ _arquivos/*
 .deploy-backups/
 
 .github/*
+
+docker/*

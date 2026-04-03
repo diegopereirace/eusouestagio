@@ -538,6 +538,44 @@ h6 {
 	outline: none;
 }
 
+/* ── Banner Interno (páginas internas) ─────────────────────── */
+.banner-image--interna {
+	min-height: 320px;
+	padding: 60px 80px;
+	align-items: flex-end;
+}
+
+.banner-image--interna::before {
+	background: linear-gradient(
+		180deg,
+		rgba(0, 0, 0, 0.08) 0%,
+		rgba(0, 18, 48, 0.65) 100%
+	);
+}
+
+.banner-title--interna {
+	font-size: 2.25rem;
+	font-weight: 700;
+	line-height: 1.2;
+	margin-bottom: 0;
+	text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.banner-title--interna p {
+	margin: 0;
+}
+
+@media (max-width: 767px) {
+	.banner-image--interna {
+		min-height: 200px;
+		padding: 40px 24px;
+	}
+
+	.banner-title--interna {
+		font-size: 1.5rem;
+	}
+}
+
 .btn-buscar-vagas {
 	background-color: #e55a24;
 	color: #fff;

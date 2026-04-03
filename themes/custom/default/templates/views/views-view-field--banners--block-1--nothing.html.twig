@@ -1,0 +1,36 @@
+{#
+/**
+ * @file
+ * Banner de páginas internas.
+ *
+ * View: banners | Display: block_1 | Field: nothing
+ *
+ * Campos usados:
+ *  - field_imagem           → imagem de fundo (image style: banner_internas)
+ *  - field_text_simple_long → texto de destaque sobreposto
+ */
+#}
+
+{% set entity = row._entity %}
+{% set image_url = '' %}
+
+{% if entity.field_imagem is not empty
+    and entity.field_imagem.entity is defined
+    and entity.field_imagem.entity.uri.value is defined %}
+  {% set image_url = entity.field_imagem.entity.uri.value|image_style('banner_internas') %}
+{% endif %}
+
+{% if image_url %}
+  <section
+    class="banner-image banner-image--interna"
+    style="background-image: url('{{ image_url|e('html_attr') }}');"
+  >
+    <div class="banner-overlay-content">
+      {% if entity.field_text_simple_long is not empty %}
+        <div class="banner-title banner-title--interna">
+          {{ entity.field_text_simple_long.value }}
+        </div>
+      {% endif %}
+    </div>
+  </section>
+{% endif %}

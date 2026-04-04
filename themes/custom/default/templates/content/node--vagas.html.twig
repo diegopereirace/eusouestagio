@@ -171,6 +171,14 @@
             </ul>
           </section>
         {% endif %}
+
+        {% set sobre_empresa = node.field_empresa_u.entity.field_sobre_empresa.value ?? '' %}
+        {% if sobre_empresa %}
+          <section class="vaga-section">
+            <h2 class="vaga-section-title">{{ 'Sobre a Empresa'|t }}</h2>
+            <div class="vaga-section-body">{{ sobre_empresa }}</div>
+          </section>
+        {% endif %}
       </div>
 
       {# Sidebar #}

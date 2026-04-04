@@ -6,7 +6,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
 :root {
-	--header-h: 80px;
+	--header-h: 100px;
 }
 
 html,
@@ -44,7 +44,6 @@ h6 {
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 	max-width: 100%;
 	width: 100%;
-	height: var(--header-h);
 }
 
 #navbar-main.navbar {

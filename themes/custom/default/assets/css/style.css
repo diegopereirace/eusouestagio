@@ -917,6 +917,66 @@ h6 {
 	background-color: #f08a1e;
 }
 
+/* ── Node Vagas — Header ─────────────────────────────── */
+.vaga-header {
+	padding: 1.5rem 0 1rem;
+	border-bottom: 1px solid #e5e7eb;
+	margin-bottom: 1.5rem;
+}
+
+.vaga-titulo {
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: #1a1a2e;
+	margin-bottom: 0.25rem;
+}
+
+.vaga-empresa {
+	font-size: 1rem;
+	color: #4b5563;
+	margin-bottom: 0.75rem;
+}
+
+.vaga-meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem 1.25rem;
+	font-size: 0.875rem;
+	color: #6b7280;
+}
+
+.vaga-meta-item {
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+}
+
+.vaga-meta-item i {
+	font-size: 0.8rem;
+	color: #9ca3af;
+}
+
+.vaga-badge--regime {
+	display: inline-block;
+	background-color: #22c55e;
+	color: #fff;
+	font-size: 0.75rem;
+	font-weight: 600;
+	padding: 0.2rem 0.65rem;
+	border-radius: 999px;
+}
+
+@media (max-width: 767.98px) {
+	.vaga-titulo {
+		font-size: 1.2rem;
+	}
+	.vaga-meta {
+		gap: 0.4rem 1rem;
+	}
+}
+}
+
 .footer-social-links .social-link--linkedin {
 	background-color: #0a66c2;
 }

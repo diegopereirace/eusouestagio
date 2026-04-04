@@ -975,7 +975,101 @@ h6 {
 		gap: 0.4rem 1rem;
 	}
 }
+
+/* ── Node Vagas — Body ─────────────────────────────── */
+.vaga-body {
+	margin-top: 1.5rem;
 }
+
+.vaga-section {
+	margin-bottom: 2rem;
+}
+
+.vaga-section-title {
+	font-size: 1.1rem;
+	font-weight: 700;
+	color: #1a1a2e;
+	margin-bottom: 0.75rem;
+}
+
+.vaga-section-body {
+	font-size: 0.9375rem;
+	color: #374151;
+	line-height: 1.7;
+}
+
+.vaga-section-body p {
+	margin-bottom: 0.75rem;
+}
+
+.vaga-section-body ul,
+.vaga-section-body ol {
+	padding-left: 1.25rem;
+	margin-bottom: 0.75rem;
+}
+
+/* ── Node Vagas — Sidebar ─────────────────────────── */
+.vaga-sidebar {
+	position: sticky;
+	top: 5rem;
+	background: #fff;
+	border: 1px solid #e5e7eb;
+	border-radius: 12px;
+	padding: 1.25rem;
+}
+
+.vaga-compartilhar-label {
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: #374151;
+	margin-bottom: 0.5rem;
+}
+
+.ui-btn--outline {
+	display: block;
+	width: 100%;
+	text-align: center;
+	padding: 0.55rem 1rem;
+	border: 1.5px solid #d1d5db;
+	border-radius: 8px;
+	background: transparent;
+	color: #374151;
+	font-weight: 600;
+	font-size: 0.9rem;
+	cursor: pointer;
+	transition: border-color 0.2s, color 0.2s;
+	text-decoration: none;
+}
+
+.ui-btn--outline:hover {
+	border-color: #f08a1e;
+	color: #f08a1e;
+}
+
+.ui-btn--share {
+	display: inline-block;
+	padding: 0.4rem 1rem;
+	border: 1.5px solid #d1d5db;
+	border-radius: 8px;
+	font-size: 0.8rem;
+	font-weight: 600;
+	color: #374151;
+	text-decoration: none;
+	transition: border-color 0.2s, color 0.2s;
+}
+
+.ui-btn--share:hover {
+	border-color: #f08a1e;
+	color: #f08a1e;
+}
+
+@media (max-width: 991.98px) {
+	.vaga-sidebar {
+		position: static;
+		margin-top: 1.5rem;
+	}
+}
+
 
 .footer-social-links .social-link--linkedin {
 	background-color: #0a66c2;

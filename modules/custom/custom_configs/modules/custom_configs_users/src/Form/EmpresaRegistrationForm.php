@@ -239,6 +239,17 @@ class EmpresaRegistrationForm extends FormBase {
             '#attributes' => ['class' => ['form-control']],
         ];
 
+        $form['section_empresa']['row']['col_sobre_empresa'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12']],
+        ];
+        $form['section_empresa']['row']['col_sobre_empresa']['field_sobre_empresa'] = [
+            '#type' => 'textarea',
+            '#title' => $this->t('Sobre a Empresa'),
+            '#rows' => 5,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
         $form['section_empresa']['row']['col_atividade_principal'] = [
             '#type' => 'container',
             '#attributes' => ['class' => ['col-12', 'col-md-8']],
@@ -506,6 +517,7 @@ class EmpresaRegistrationForm extends FormBase {
             'field_cnpj',
             'field_razao_social',
             'field_nome_fantasia',
+            'field_sobre_empresa',
             'field_atividade_principal',
             'field_unidade',
             // Endereço (campos compartilhados com candidato).

@@ -158,6 +158,19 @@
             </ul>
           </section>
         {% endif %}
+
+        {% if node.field_text_simple_multiple_2 is not empty %}
+          <section class="vaga-section">
+            <h2 class="vaga-section-title">{{ 'Benefícios'|t }}</h2>
+            <ul class="vaga-lista-beneficios">
+              {% for item in node.field_text_simple_multiple_2 %}
+                {% if item.value %}
+                  <li>{{ item.value }}</li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </section>
+        {% endif %}
       </div>
 
       {# Sidebar #}

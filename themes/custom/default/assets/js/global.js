@@ -1,6 +1,16 @@
 (function (Drupal, drupalSettings, once) {
   'use strict';
 
+  // Mede a altura do header fixo e expõe como CSS var para o sidebar sticky.
+  function updateHeaderHeight() {
+    const header = document.getElementById('header');
+    if (header) {
+      document.documentElement.style.setProperty('--header-height', header.getBoundingClientRect().height + 'px');
+    }
+  }
+  updateHeaderHeight();
+  window.addEventListener('resize', updateHeaderHeight);
+
   const CONSENT_COOKIE_NAME = 'lgpd_consent';
   const CONSENT_REJECTED = 'rejected';
   const CONSENT_ACCEPTED = 'accepted';

@@ -179,6 +179,19 @@
             <div class="vaga-section-body">{{ sobre_empresa }}</div>
           </section>
         {% endif %}
+
+        {% if node.field_tecnologias_t is not empty %}
+          <section class="vaga-section">
+            <h2 class="vaga-section-title">{{ 'Tecnologias'|t }}</h2>
+            <div class="vaga-tag-list">
+              {% for item in node.field_tecnologias_t %}
+                {% if item.entity %}
+                  <span class="vaga-tag-pill">{{ item.entity.label }}</span>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </section>
+        {% endif %}
       </div>
 
       {# Sidebar #}

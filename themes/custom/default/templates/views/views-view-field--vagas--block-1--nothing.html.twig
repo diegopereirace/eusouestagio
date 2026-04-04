@@ -28,6 +28,22 @@
                     <div class="dv-salario">{{ row._entity.field_text_simple.value }}</div>
                 {% endif %}
             </div>
+            {% set cidade = row._entity.field_cidade.value %}
+            {% set estado = row._entity.field_estados.value %}
+            {% if cidade or estado %}
+            <div class="col-custom d-flex align-items-center gap-1 pb-3 text-muted small">
+                <i class="fa-solid fa-location-dot"></i>
+                <span class="dv-localizacao">
+                    {%- if cidade and estado -%}
+                        {{ cidade }} – {{ estado }}
+                    {%- elseif cidade -%}
+                        {{ cidade }}
+                    {%- else -%}
+                        {{ estado }}
+                    {%- endif -%}
+                </span>
+            </div>
+            {% endif %}
             <div class="col-custom d-flex text-align-center">
                 {% if row._entity.field_tecnologias_t is not empty %}
                     <div class="tag-list">

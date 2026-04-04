@@ -73,21 +73,65 @@
   ]
 %}
 <article{{ attributes.addClass(classes) }}>
-  <header>
-    <div class="dv-title">
-      {% if label %}
-        <h3{{ title_attributes.addClass('text-title') }}>{{ label }}</h3>
-      {% endif %}
-    </div>
-    <div class="dv-empresa-nome">
-      {% if node.field_empresa_u is not empty and node.field_empresa_u.entity and node.field_empresa_u.entity.field_nome_fantasia is not empty and node.field_empresa_u.entity.field_nome_fantasia.value %}
-        {{ node.field_empresa_u.entity.field_nome_fantasia.value }}
+  <header class="vaga-header">
+
+    {# Título #}
+    <h1{{ title_attributes.addClass('vaga-titulo') }}>{{ label }}</h1>
+
+    {# Nome Fantasia da empresa #}
+    {% if node.field_empresa_u.entity and node.field_empresa_u.entity.field_nome_fantasia.value %}
+      <div class="vaga-empresa">{{ node.field_empresa_u.entity.field_nome_fantasia.value }}</div>
+    {% endif %}
+
+    {# Linha de metadados: regime — localização — salário — data #}
+    <div class="vaga-meta">
+
+      {% if node.field_regime_t is not empty %}
+        {% for item in node.field_regime_t %}
+          {% if item.entity %}
+            <span class="vaga-badge vaga-badge--regime">{{ item.entity.label }}</span>
+          {% endif %}
+        {% endfor %}
       {% endif %}
 
-      teste
+      {% set cidade = node.field_cidade.value %}
+      {% set estado = node.field_estados.value %}
+      {% if cidade or estado %}
+        <span class="vaga-meta-item">
+          <i class="fa-solid fa-location-dot"></i>
+          {% if cidade and estado %}{{ cidade }}, {{ estado }}
+          {% elseif cidade %}{{ cidade }}
+          {% else %}{{ estado }}
+          {% endif %}
+        </span>
+      {% endif %}
+
+      {% if node.field_text_simple.value %}
+        <span class="vaga-meta-item">
+          <i class="fa-solid fa-dollar-sign"></i>
+          {{ node.field_text_simple.value }}
+        </span>
+      {% endif %}
+
+      <span class="vaga-meta-item">
+        <i class="fa-regular fa-clock"></i>
+        {% set diff_days = (("now"|date("U") - node.getCreatedTime()) / 86400)|round(0, 'floor') %}
+        {% if diff_days == 0 %}
+          Hoje
+        {% elseif diff_days == 1 %}
+          1 dia atrás
+        {% elseif diff_days < 30 %}
+          {{ diff_days }} dias atrás
+        {% elseif diff_days < 60 %}
+          1 mês atrás
+        {% else %}
+          {{ (diff_days / 30)|round(0, 'floor') }} meses atrás
+        {% endif %}
+      </span>
+
     </div>
   </header>
+
   <div{{ content_attributes.addClass('node__content', 'clearfix') }}>
-    
   </div>
 </article>

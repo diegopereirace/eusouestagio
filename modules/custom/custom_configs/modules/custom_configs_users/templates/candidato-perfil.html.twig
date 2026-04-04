@@ -182,7 +182,7 @@
   {% endif %}
 
   {# ── Seção 5 — Informações Acadêmicas ────────────────────── #}
-  {% if dados.nome_curso or dados.nivel_atual or dados.tipo_curso %}
+  {% if dados.nome_curso or dados.escolaridade or dados.tipo_curso %}
   <div class="card mb-4">
     <div class="card-header bg-light fw-semibold">
       <i class="fas fa-graduation-cap me-2"></i>{{ 'Informações Acadêmicas'|t }}
@@ -190,9 +190,9 @@
     <div class="card-body">
       <dl class="row mb-0">
 
-        {% if dados.nivel_atual %}
-          <dt class="col-sm-4">{{ 'Nível atual'|t }}</dt>
-          <dd class="col-sm-8">{{ dados.nivel_atual }}</dd>
+        {% if dados.escolaridade %}
+          <dt class="col-sm-4">{{ 'Escolaridade'|t }}</dt>
+          <dd class="col-sm-8">{{ dados.escolaridade }}</dd>
         {% endif %}
 
         {% if dados.nome_curso %}

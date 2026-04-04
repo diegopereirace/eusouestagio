@@ -46,7 +46,7 @@ class CandidatoPerfilController extends ControllerBase {
             'instagram'                => $this->fieldVal($user, 'field_instagram'),
             'linkedin'                 => $this->fieldVal($user, 'field_linkedin'),
             // Acadêmico.
-            'nivel_atual'              => $this->fieldVal($user, 'field_nivel_atual'),
+            'escolaridade'             => $this->fieldVal($user, 'field_escolaridade'),
             'periodo_letivo'           => $this->fieldVal($user, 'field_periodo_letivo'),
             'nome_curso'               => $this->fieldVal($user, 'field_nome_curso'),
             'tipo_curso'               => $this->fieldVal($user, 'field_tipo_curso'),

@@ -592,14 +592,14 @@ class CandidatoRegistrationForm extends FormBase {
             '#attributes' => ['class' => ['row', 'g-3']],
         ];
 
-        $form['section_academico']['row']['col_nivel_atual'] = [
+        $form['section_academico']['row']['col_escolaridade'] = [
             '#type' => 'container',
             '#attributes' => ['class' => ['col-12', 'col-md-4']],
         ];
-        $form['section_academico']['row']['col_nivel_atual']['field_nivel_atual'] = [
+        $form['section_academico']['row']['col_escolaridade']['field_escolaridade'] = [
             '#type' => 'select',
-            '#title' => $this->t('Nível atual'),
-            '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_nivel_atual'),
+            '#title' => $this->t('Escolaridade'),
+            '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_escolaridade'),
             '#attributes' => ['class' => ['form-select']],
         ];
 
@@ -1219,7 +1219,7 @@ class CandidatoRegistrationForm extends FormBase {
             'field_instagram',
             'field_linkedin',
             // Informações Acadêmicas.
-            'field_nivel_atual',
+            'field_escolaridade',
             'field_periodo_letivo',
             'field_nome_curso',
             'field_tipo_curso',

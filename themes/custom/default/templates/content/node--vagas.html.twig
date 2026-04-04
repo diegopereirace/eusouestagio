@@ -133,5 +133,50 @@
   </header>
 
   <div{{ content_attributes.addClass('node__content', 'clearfix') }}>
+    <div class="vaga-body row">
+
+      {# Coluna principal #}
+      <div class="col-12 col-lg-8">
+        {% if node.field_text_long_formatted.value %}
+          <section class="vaga-section">
+            <h2 class="vaga-section-title">{{ 'Sobre a Vaga'|t }}</h2>
+            <div class="vaga-section-body">
+              {{ node.field_text_long_formatted.value|raw }}
+            </div>
+          </section>
+        {% endif %}
+      </div>
+
+      {# Sidebar #}
+      <div class="col-12 col-lg-4">
+        <aside class="vaga-sidebar">
+
+          <a href="{{ path('entity.node.canonical', {'node': node.id}) }}#candidatar"
+             class="ui-btn ui-btn--primary w-100 mb-3">
+            {{ 'Candidatar-se'|t }}
+          </a>
+
+          <button type="button" class="ui-btn ui-btn--outline w-100 mb-4">
+            {{ 'Salvar Vaga'|t }}
+          </button>
+
+          <div class="vaga-compartilhar">
+            <p class="vaga-compartilhar-label">{{ 'Compartilhar'|t }}</p>
+            <div class="d-flex gap-2">
+              <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ url('entity.node.canonical', {'node': node.id})|url_encode }}"
+                 target="_blank" rel="noopener" class="ui-btn ui-btn--share">
+                LinkedIn
+              </a>
+              <a href="https://twitter.com/intent/tweet?url={{ url('entity.node.canonical', {'node': node.id})|url_encode }}&text={{ node.label|url_encode }}"
+                 target="_blank" rel="noopener" class="ui-btn ui-btn--share">
+                Twitter
+              </a>
+            </div>
+          </div>
+
+        </aside>
+      </div>
+
+    </div>
   </div>
 </article>

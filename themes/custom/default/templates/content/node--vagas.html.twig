@@ -145,6 +145,19 @@
             </div>
           </section>
         {% endif %}
+
+        {% if node.field_text_simple_multiple is not empty %}
+          <section class="vaga-section">
+            <h2 class="vaga-section-title">{{ 'Requisitos'|t }}</h2>
+            <ul class="vaga-lista-requisitos">
+              {% for item in node.field_text_simple_multiple %}
+                {% if item.value %}
+                  <li>{{ item.value }}</li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </section>
+        {% endif %}
       </div>
 
       {# Sidebar #}
@@ -152,7 +165,7 @@
         <aside class="vaga-sidebar">
 
           <a href="{{ path('entity.node.canonical', {'node': node.id}) }}#candidatar"
-             class="ui-btn ui-btn--primary w-100 mb-3">
+            class="ui-btn ui-btn--primary w-100 mb-3">
             {{ 'Candidatar-se'|t }}
           </a>
 

@@ -938,6 +938,11 @@ h6 {
 	list-style: none;
 }
 
+/* garante que o container não colapse quando contém os botões sociais */
+.footer-links-menu {
+	overflow: visible !important;
+}
+
 .footer-links-menu .menu-item,
 .footer-links-menu .nav-item,
 .footer-links-menu li {
@@ -967,36 +972,52 @@ h6 {
 	outline: 0;
 }
 
+.footer-social-links {
+	display: flex !important;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: .5rem;
+	min-height: 36px;
+}
+
 .footer-social-links .social-link {
-	width: 36px;
-	height: 36px;
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	width: 36px !important;
+	height: 36px !important;
+	min-width: 36px;
+	min-height: 36px;
 	font-size: 1rem;
 	line-height: 1;
-	color: #fff;
+	color: #fff !important;
+	border-radius: 50% !important;
+	text-decoration: none !important;
 	transition: transform 0.2s ease, filter 0.2s ease;
+	padding: 0 !important;
 }
 
 .footer-social-links .social-link:hover,
 .footer-social-links .social-link:focus {
-	color: #fff;
+	color: #fff !important;
 	transform: translateY(-1px);
 	filter: brightness(1.05);
 }
 
 .footer-social-links .social-link--mail {
-	background-color: #0f4a7a;
+	background-color: #0f4a7a !important;
 }
 
 .footer-social-links .social-link--instagram {
-	background-color: #f08a1e;
+	background-color: #f08a1e !important;
 }
 
 .footer-social-links .social-link--linkedin {
-	background-color: #0a66c2;
+	background-color: #0a66c2 !important;
 }
 
 .footer-social-links .social-link--whatsapp {
-	background-color: #25d366;
+	background-color: #25d366 !important;
 }
 
 /* ── Node Vagas — Header ─────────────────────────────── */

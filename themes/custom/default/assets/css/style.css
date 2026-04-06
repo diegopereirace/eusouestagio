@@ -991,6 +991,14 @@ h6 {
 	background-color: #f08a1e;
 }
 
+.footer-social-links .social-link--linkedin {
+	background-color: #0a66c2;
+}
+
+.footer-social-links .social-link--whatsapp {
+	background-color: #25d366;
+}
+
 /* ── Node Vagas — Header ─────────────────────────────── */
 .vaga-header {
 	padding: 1.5rem 0 1rem;

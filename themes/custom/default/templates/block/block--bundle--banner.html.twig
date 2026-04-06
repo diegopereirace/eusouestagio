@@ -68,7 +68,6 @@
                 {{ drupal_block('views_exposed_filter_block:vagas-page_1') }}
               </div>
               <div class="banner-actions">
-                <div class="banner-action-primary">{{ content.field_link }}</div>
                 {% if not logged_in %}
                   <div class="banner-action-secondary">{{ content.field_link_2 is defined ? content.field_link_2 : '' }}</div>
                 {% endif %}

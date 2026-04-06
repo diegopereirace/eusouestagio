@@ -64,7 +64,7 @@
         </div>
         <div class="col-md-3 col-12">
           <h3 class="footer-menu-title mb-5">Contato</h3>
-          <div class="footer-links-menu">
+          <div class="footer-links-menu"> teste
             <div class="mb-2 footer-social-links d-flex align-items-center gap-2 flex-wrap">
               {% set phone_raw = content.field_phone_wpp|render|striptags|trim|replace({'(': '', ')': '', ' ': '', '-': '', '.': '', '+': ''}) %}
               <a href="mailto:{{ content.field_email[0]['#context']['value'] }}" target="_blank" class="social-link social-link--mail d-inline-flex align-items-center justify-content-center rounded-circle text-decoration-none"><i class="fa-regular fa-envelope"></i></a>

@@ -198,14 +198,20 @@
       <div class="col-12 col-lg-4">
         <aside class="vaga-sidebar">
 
-          <a href="{{ path('entity.node.canonical', {'node': node.id}) }}#candidatar"
-            class="ui-btn ui-btn--primary w-100 mb-3">
-            {{ 'Candidatar-se'|t }}
-          </a>
+          {% if logged_in and user.hasRole('candidato') %}
+            <a href="{{ path('entity.node.canonical', {'node': node.id}) }}#candidatar"
+              class="ui-btn ui-btn--primary w-100 mb-3">
+              {{ 'Candidatar-se'|t }}
+            </a>
 
-          <button type="button" class="ui-btn ui-btn--outline w-100 mb-4">
-            {{ 'Salvar Vaga'|t }}
-          </button>
+            <button type="button" class="ui-btn ui-btn--outline w-100 mb-4">
+              {{ 'Salvar Vaga'|t }}
+            </button>
+          {% elseif not logged_in %}
+            <a href="/cadastro/candidato" class="ui-btn ui-btn--primary w-100 mb-4">
+              {{ 'Cadastrar Agora'|t }}
+            </a>
+          {% endif %}
 
           <div class="vaga-compartilhar">
             <p class="vaga-compartilhar-label">{{ 'Compartilhar'|t }}</p>

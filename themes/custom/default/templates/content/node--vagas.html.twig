@@ -209,14 +209,27 @@
 
           <div class="vaga-compartilhar">
             <p class="vaga-compartilhar-label">{{ 'Compartilhar'|t }}</p>
-            <div class="d-flex gap-2">
-              <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ url('entity.node.canonical', {'node': node.id})|url_encode }}"
-                 target="_blank" rel="noopener" class="ui-btn ui-btn--share">
-                LinkedIn
+            <div class="vaga-compartilhar-btns">
+              <a href="#"
+                 onclick="event.preventDefault(); window.open('https://wa.me/?text=' + encodeURIComponent(window.location.href), '_blank', 'noopener,noreferrer');"
+                 class="vaga-share-btn"
+                 title="{{ 'Compartilhar no WhatsApp'|t }}"
+                 aria-label="{{ 'Compartilhar no WhatsApp'|t }}">
+                <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
               </a>
-              <a href="https://twitter.com/intent/tweet?url={{ url('entity.node.canonical', {'node': node.id})|url_encode }}&text={{ node.label|url_encode }}"
-                 target="_blank" rel="noopener" class="ui-btn ui-btn--share">
-                Twitter
+              <a href="#"
+                 onclick="event.preventDefault(); window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href), '_blank', 'noopener,noreferrer');"
+                 class="vaga-share-btn"
+                 title="{{ 'Compartilhar no Facebook'|t }}"
+                 aria-label="{{ 'Compartilhar no Facebook'|t }}">
+                <i class="fa-brands fa-facebook-f" aria-hidden="true"></i>
+              </a>
+              <a href="#"
+                 onclick="event.preventDefault(); window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(window.location.href), '_blank', 'noopener,noreferrer');"
+                 class="vaga-share-btn"
+                 title="{{ 'Compartilhar no LinkedIn'|t }}"
+                 aria-label="{{ 'Compartilhar no LinkedIn'|t }}">
+                <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
               </a>
             </div>
           </div>

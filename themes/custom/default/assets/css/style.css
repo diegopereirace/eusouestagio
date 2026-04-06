@@ -225,9 +225,10 @@ h6 {
 }
 
 .item-vaga .row-2 {
+	flex: 1;
 	flex-direction: column;
 	gap: 0.5rem;
-	margin-bottom: 1.5rem;
+	margin-bottom: 0;
 }
 
 .item-vaga .row-2 .col-custom {
@@ -235,6 +236,11 @@ h6 {
 	gap: 0.5rem;
 	color: #3f5872;
 	font-size: 0.9375rem;
+}
+
+.item-vaga .row-2 .col-custom:last-child {
+	margin-top: auto;
+	padding-top: 0.5rem;
 }
 
 .item-vaga .row-2 .col-custom i {
@@ -245,7 +251,6 @@ h6 {
 
 .item-vaga .row-3 {
 	flex-direction: column;
-	margin-top: auto;
 	padding-top: 1.5rem;
 }
 

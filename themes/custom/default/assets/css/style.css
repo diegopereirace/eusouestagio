@@ -190,6 +190,11 @@ h6 {
 	align-items: stretch;
 }
 
+.css-vagas-home .views-row {
+	display: flex;
+	flex-direction: column;
+}
+
 .item-vaga .item-inner {
 	height: 100%;
 	display: flex;

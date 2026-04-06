@@ -441,10 +441,18 @@ h6 {
 }
 
 .banner-overlay-content {
-	max-width: 760px;
+	width: 100%;
+	max-width: none;
 	color: #fff;
 	position: relative;
 	z-index: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.banner-overlay-text {
+	max-width: 760px;
+	margin-bottom: 0;
 }
 
 .banner-title {
@@ -467,14 +475,17 @@ h6 {
 
 /* ── Banner Search ─────────────────────────────────────────── */
 .banner-search {
+	margin-top: 1.75rem;
 	margin-bottom: 1.75rem;
+	width: 100%;
 }
 
 .banner-search-card {
-	background: #fff;
+	background: rgba(255, 255, 255, 0.97);
 	border-radius: 16px;
-	padding: 1.25rem 1.5rem;
+	padding: 1.5rem 1.75rem;
 	width: 100%;
+	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
 }
 
 .banner-search-form {
@@ -497,18 +508,19 @@ h6 {
 .banner-search-field .form-item__label,
 .banner-search-field .control-label {
 	display: block;
-	font-size: 0.8125rem;
-	font-weight: 500;
-	color: #333;
-	margin-bottom: 0.35rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: #003f69;
+	margin-bottom: 0.4rem;
+	letter-spacing: 0.01em;
 }
 
 .banner-search-field input[type="text"],
 .banner-search-field input[type="search"] {
 	width: 100%;
-	border: 1.5px solid #d1d5db;
+	border: 2px solid #b0bec5;
 	border-radius: 8px;
-	padding: 0.6rem 0.875rem;
+	padding: 0.65rem 0.875rem;
 	font-size: 0.9375rem;
 	color: #111;
 	background: #fff;
@@ -516,9 +528,31 @@ h6 {
 	transition: border-color 0.2s;
 }
 
+.banner-search-field input[type="text"]::placeholder,
+.banner-search-field input[type="search"]::placeholder {
+	color: #78909c;
+	font-size: 0.9rem;
+}
+
+.banner-search-field select {
+	width: 100%;
+	border: 2px solid #b0bec5;
+	border-radius: 8px;
+	padding: 0.65rem 0.875rem;
+	font-size: 0.9375rem;
+	color: #111;
+	background: #fff;
+	outline: none;
+	appearance: auto;
+	cursor: pointer;
+	transition: border-color 0.2s;
+}
+
 .banner-search-field input[type="text"]:focus,
-.banner-search-field input[type="search"]:focus {
+.banner-search-field input[type="search"]:focus,
+.banner-search-field select:focus {
 	border-color: #023c62;
+	box-shadow: 0 0 0 3px rgba(2, 60, 98, 0.12);
 }
 
 .banner-search-submit {
@@ -615,25 +649,47 @@ h6 {
 
 @media (max-width: 767.98px) {
 	.banner-search-card {
-		padding: 1rem;
+		padding: 1.25rem;
 		border-radius: 12px;
 	}
 
 	.banner-search-form {
 		flex-wrap: wrap;
+		gap: 0.75rem;
 	}
 
 	.banner-search-field {
+		flex: 1 1 calc(50% - 0.375rem);
+	}
+
+	.banner-search-field:first-child {
 		flex: 1 1 100%;
+	}
+
+	.banner-search-field label,
+	.banner-search-field .form-item__label,
+	.banner-search-field .control-label {
+		font-size: 0.9rem;
+	}
+
+	.banner-search-field input[type="text"],
+	.banner-search-field input[type="search"],
+	.banner-search-field select {
+		padding: 0.75rem 0.875rem;
+		font-size: 1rem;
 	}
 
 	.banner-search-submit {
 		flex: 1 1 100%;
 	}
 
+	.banner-search-submit .form-submit,
+	.banner-search-submit input[type="submit"],
+	.banner-search-submit button[type="submit"],
 	.btn-buscar-vagas {
 		width: 100%;
-		padding: 0.8rem 1rem;
+		padding: 0.9rem 1rem;
+		font-size: 1rem;
 	}
 }
 /* ── /Banner Search ─────────────────────────────────────────── */

@@ -69,7 +69,9 @@
               </div>
               <div class="banner-actions">
                 <div class="banner-action-primary">{{ content.field_link }}</div>
-                <div class="banner-action-secondary">{{ content.field_link_2 is defined ? content.field_link_2 : '' }}</div>
+                {% if not logged_in %}
+                  <div class="banner-action-secondary">{{ content.field_link_2 is defined ? content.field_link_2 : '' }}</div>
+                {% endif %}
               </div>
             </div>
           </section>
@@ -87,7 +89,9 @@
               </div>
               <div class="banner-actions">
                 <div class="banner-action-primary">{{ content.field_link }}</div>
-                <div class="banner-action-secondary">{{ content.field_link_2 is defined ? content.field_link_2 : '' }}</div>
+                {% if not logged_in %}
+                  <div class="banner-action-secondary">{{ content.field_link_2 is defined ? content.field_link_2 : '' }}</div>
+                {% endif %}
               </div>
             </div>
           </section>

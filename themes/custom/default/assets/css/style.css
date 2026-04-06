@@ -182,8 +182,12 @@ h6 {
 /* ── Card de Vaga ─────────────────────────────────────── */
 
 .item-vaga {
-	height: 350px;
+	height: 100%;
 	padding: 10px 0;
+}
+
+.css-vagas-home .view-content {
+	align-items: stretch;
 }
 
 .item-vaga .item-inner {

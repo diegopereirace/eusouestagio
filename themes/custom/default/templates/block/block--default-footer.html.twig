@@ -66,11 +66,41 @@
           <h3 class="footer-menu-title mb-5">Contato</h3>
           <div class="footer-links-menu">
             <div class="mb-2 footer-social-links d-flex align-items-center gap-2 flex-wrap">
+              {% set email_val = content.field_email['#items'] is defined ? content.field_email['#items'][0].value : '' %}
+              {% if not email_val %}
+                {% set email_val = content.field_email[0]['#context']['value'] ?? '' %}
+              {% endif %}
+              {% set instagram_val = content.field_instagram[0]['#url'] ?? '' %}
+              {% set linkedin_val  = content.field_linkedin[0]['#url']  ?? '' %}
               {% set phone_raw = content.field_phone_wpp|render|striptags|trim|replace({'(': '', ')': '', ' ': '', '-': '', '.': '', '+': ''}) %}
-              <a href="mailto:{{ content.field_email[0]['#context']['value'] }}" target="_blank" class="social-link social-link--mail d-inline-flex align-items-center justify-content-center rounded-circle text-decoration-none"><i class="fa-regular fa-envelope"></i></a>
-              <a href="{{ content.field_instagram[0]['#url'] }}" target="_blank" class="social-link social-link--instagram d-inline-flex align-items-center justify-content-center rounded-circle text-decoration-none"><i class="fa-brands fa-instagram"></i></a>
-              <a href="{{ content.field_linkedin[0]['#url'] }}" target="_blank" class="social-link social-link--linkedin d-inline-flex align-items-center justify-content-center rounded-circle text-decoration-none"><i class="fa-brands fa-linkedin-in"></i></a>
-              <a href="https://wa.me/{{ phone_raw }}" target="_blank" class="social-link social-link--whatsapp d-inline-flex align-items-center justify-content-center rounded-circle text-decoration-none"><i class="fa-brands fa-whatsapp"></i></a>
+              {% if email_val %}
+                <a href="mailto:{{ email_val }}" target="_blank"
+                   class="social-link social-link--mail d-inline-flex align-items-center justify-content-center rounded-circle text-decoration-none"
+                   title="{{ 'E-mail'|t }}">
+                  <i class="fa-regular fa-envelope" aria-hidden="true"></i>
+                </a>
+              {% endif %}
+              {% if instagram_val %}
+                <a href="{{ instagram_val }}" target="_blank" rel="noopener noreferrer"
+                   class="social-link social-link--instagram d-inline-flex align-items-center justify-content-center rounded-circle text-decoration-none"
+                   title="{{ 'Instagram'|t }}">
+                  <i class="fa-brands fa-instagram" aria-hidden="true"></i>
+                </a>
+              {% endif %}
+              {% if linkedin_val %}
+                <a href="{{ linkedin_val }}" target="_blank" rel="noopener noreferrer"
+                   class="social-link social-link--linkedin d-inline-flex align-items-center justify-content-center rounded-circle text-decoration-none"
+                   title="{{ 'LinkedIn'|t }}">
+                  <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
+                </a>
+              {% endif %}
+              {% if phone_raw %}
+                <a href="https://wa.me/{{ phone_raw }}" target="_blank" rel="noopener noreferrer"
+                   class="social-link social-link--whatsapp d-inline-flex align-items-center justify-content-center rounded-circle text-decoration-none"
+                   title="{{ 'WhatsApp'|t }}">
+                  <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+                </a>
+              {% endif %}
             </div>
           </div>
         </div>

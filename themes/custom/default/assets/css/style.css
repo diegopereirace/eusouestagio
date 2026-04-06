@@ -1208,6 +1208,36 @@ h6 {
 	color: #f08a1e;
 }
 
+.vaga-compartilhar-btns {
+	display: flex;
+	gap: 0.5rem;
+}
+
+a.vaga-share-btn {
+	display: inline-flex !important;
+	align-items: center;
+	justify-content: center;
+	width: 2.25rem;
+	height: 2.25rem;
+	min-width: 2.25rem;
+	min-height: 2.25rem;
+	flex-shrink: 0;
+	border-radius: 50%;
+	background-color: #4b5563 !important;
+	color: #fff !important;
+	font-size: 1rem;
+	text-decoration: none !important;
+	border: none;
+	cursor: pointer;
+	transition: background-color 0.18s, transform 0.15s;
+}
+
+a.vaga-share-btn:hover {
+	background-color: #374151 !important;
+	color: #fff !important;
+	transform: scale(1.1);
+}
+
 @media (max-width: 991.98px) {
 	.vaga-sidebar {
 		position: static;

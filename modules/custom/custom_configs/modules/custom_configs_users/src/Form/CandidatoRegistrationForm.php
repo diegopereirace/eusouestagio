@@ -1037,7 +1037,7 @@ class CandidatoRegistrationForm extends FormBase {
 
         $form['captcha'] = [
             '#type' => 'captcha',
-            '#captcha_type' => 'recaptcha/reCaptcha',
+            '#captcha_type' => 'recaptcha/reCAPTCHA',
         ];
 
         $form['actions'] = [

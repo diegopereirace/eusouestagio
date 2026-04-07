@@ -109,5 +109,21 @@
       <div class="col-12">
         <div class="dv-wraper text-wrapper pb-3"><h3 class="text-title-sm">{{ content.field_text_simple }}</h3></div>
       </div>
-  </div>
+
+      {% if content.field_itens_p['#items'] is not null %}
+        <div class="row row-itens-p">
+          {% for key, value in content.field_itens_p['#items'] %}
+            <div class="col-lg-4 col-md-6 col-12 mb-3">
+              <div class="item-p-card d-flex align-items-center">
+                <div class="item-p-icon">
+                  <img src="{{ file_url(content.field_itens_p[key]['#paragraph'].field_image.entity.uri.value) }}" alt="{{ content.field_itens_p[key]['#paragraph'].field_text_simple.value }}">
+                </div>
+                <div class="item-p-text">{{ content.field_itens_p[key]['#paragraph'].field_text_simple.value }}</div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>  
 </article>

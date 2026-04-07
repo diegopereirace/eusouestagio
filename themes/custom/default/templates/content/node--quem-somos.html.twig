@@ -93,13 +93,31 @@
       </div>
     {% endif %}
   </header>
-  <div{{ content_attributes.addClass('node__content', 'clearfix') }}>
-    <div class="row">
-      <div class="col-12 col-sm-6">
-        {{ content.field_text_long_formatted }}
+  <div{{ content_attributes.addClass('node__content', 'clearfix', 'container') }}>
+    <div class="row row-custom-1 pb-5">
+      <div class="col-md-7 col-12">
+        <h3 class="text-title-sm pb-3">{{ content.field_titulo }}</h3>
+        <div class="dv-wraper text-wrapper">{{ content.field_text_long_formatted }}</div>
       </div>
-      <div class="col-12 col-sm-6">
-        {{ content.field_imagem }}
+      <div class="col-md-5 col-12">
+        <div class="dv-wraper image-wrapper text-center">
+          {% if node.field_imagem.entity %}
+            <img loading="lazy" src="{{ file_url(node.field_imagem.entity.uri.value) }}" alt="{{ node.field_imagem.alt }}" class="img-fluid">
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="row row-custom-2 py-5">
+      <div class="col-md-5 col-12">
+        <div class="dv-wraper image-wrapper text-center">
+          {% if node.field_imagem_2.entity %}
+            <img loading="lazy" src="{{ file_url(node.field_imagem_2.entity.uri.value) }}" alt="{{ node.field_imagem_2.alt }}" class="img-fluid">
+          {% endif %}
+        </div>
+      </div>
+      <div class="col-md-7 col-12">
+        <h3 class="text-title-sm pb-3">{{ content.field_titulo_2 }}</h3>
+        <div class="dv-wraper text-wrapper">{{ content.field_text_long_formatted_2 }}</div>
       </div>
     </div>
   </div>

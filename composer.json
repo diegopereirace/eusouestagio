@@ -25,6 +25,7 @@
         "drupal/mimemail": "^2.0",
         "drupal/paragraphs": "1.20",
         "drupal/pathauto": "1.14",
+        "drupal/recaptcha": "3.4",
         "drupal/recaptcha_v3": "2.0.4",
         "drupal/smtp": "1.4",
         "drupal/twig_tweak": "^3.4",

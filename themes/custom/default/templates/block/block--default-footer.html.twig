@@ -65,25 +65,25 @@
         <div class="col-md-3 col-12">
           <h3 class="footer-menu-title mb-5">Contato</h3>
           <div class="footer-social-links">
-            {% set email = content.field_email[0]['#context'].value %}
+            {% set email = content.field_email['#items'] is not empty ? content.field_email['#items'][0].value : '' %}
             {% if email %}
               <a href="mailto:{{ email }}" target="_blank" class="social-link social-link--mail" title="{{ 'E-mail'|t }}">
                 <i class="fa-regular fa-envelope" aria-hidden="true"></i>
               </a>
             {% endif %}
-            {% set instagram_url = content.field_instagram[0]['#url'] ? content.field_instagram[0]['#url'].toString() : '' %}
+            {% set instagram_url = content.field_instagram['#items'] is not empty ? content.field_instagram['#items'][0].uri : '' %}
             {% if instagram_url %}
               <a href="{{ instagram_url }}" target="_blank" rel="noopener noreferrer" class="social-link social-link--instagram" title="{{ 'Instagram'|t }}">
                 <i class="fa-brands fa-instagram" aria-hidden="true"></i>
               </a>
             {% endif %}
-            {% set linkedin_url = content.field_linkedin[0]['#url'] ? content.field_linkedin[0]['#url'].toString() : '' %}
+            {% set linkedin_url = content.field_linkedin['#items'] is not empty ? content.field_linkedin['#items'][0].uri : '' %}
             {% if linkedin_url %}
               <a href="{{ linkedin_url }}" target="_blank" rel="noopener noreferrer" class="social-link social-link--linkedin" title="{{ 'LinkedIn'|t }}">
                 <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
               </a>
             {% endif %}
-            {% set phone = content.field_phone_wpp[0]['#context'].value|replace({' ': '', '(': '', ')': '', '-': '', '+': ''}) %}
+            {% set phone = content.field_phone_wpp['#items'] is not empty ? content.field_phone_wpp['#items'][0].value|replace({' ': '', '(': '', ')': '', '-': '', '+': ''}) : '' %}
             {% if phone %}
               <a href="https://wa.me/{{ phone }}" target="_blank" rel="noopener noreferrer" class="social-link social-link--whatsapp" title="{{ 'WhatsApp'|t }}">
                 <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>

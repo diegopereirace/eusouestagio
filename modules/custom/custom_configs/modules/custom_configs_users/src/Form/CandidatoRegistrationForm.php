@@ -956,14 +956,15 @@ class CandidatoRegistrationForm extends FormBase {
             ];
         }
 
-        // ── Seção 10 — Informações Complementares ──────────────────
         $form['section_complementar'] = [
             '#type' => 'container',
             '#attributes' => ['class' => ['mb-4']],
         ];
+
         $form['section_complementar']['heading'] = [
             '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-info-circle me-2"></i>' . $this->t('Informações Complementares') . '</h4>',
         ];
+
         $form['section_complementar']['row'] = [
             '#type' => 'container',
             '#attributes' => ['class' => ['row', 'g-3']],
@@ -973,6 +974,7 @@ class CandidatoRegistrationForm extends FormBase {
             '#type' => 'container',
             '#attributes' => ['class' => ['col-12']],
         ];
+
         $form['section_complementar']['row']['col_deficiencia']['field_possui_deficiencia'] = [
             '#type' => 'radios',
             '#title' => $this->t('Possui alguma deficiência?'),
@@ -996,6 +998,7 @@ class CandidatoRegistrationForm extends FormBase {
                 ],
             ],
         ];
+
         $form['section_complementar']['row']['col_cid']['field_numero_cid'] = [
             '#type' => 'textfield',
             '#title' => $this->t('Número do CID'),
@@ -1006,7 +1009,6 @@ class CandidatoRegistrationForm extends FormBase {
             ],
         ];
 
-        // ── Seção 11 — Termo de aceite ───────────────────────────
         $form['section_termo'] = [
             '#type' => 'container',
             '#attributes' => ['class' => ['mb-4']],
@@ -1033,11 +1035,16 @@ class CandidatoRegistrationForm extends FormBase {
 
         $form['#attached']['library'][] = 'custom_configs_users/registration_forms_validation';
 
-        // ── Ações ──────────────────────────────────────────────────
+        $form['captcha'] = [
+            '#type' => 'captcha',
+            '#captcha_type' => 'recaptcha/reCaptcha',
+        ];
+
         $form['actions'] = [
             '#type' => 'actions',
             '#attributes' => ['class' => ['mt-4', 'd-grid', 'gap-2', 'd-md-flex', 'justify-content-md-end']],
         ];
+
         $form['actions']['submit'] = [
             '#type' => 'submit',
             '#value' => $this->t('Cadastrar'),

@@ -399,7 +399,6 @@ class EmpresaRegistrationForm extends FormBase {
             '#attributes' => ['class' => ['form-control']],
         ];
 
-        // ── Seção 5 — Política de Privacidade ─────────────────────
         $form['section_termo'] = [
             '#type' => 'container',
             '#attributes' => ['class' => ['mb-4']],
@@ -409,6 +408,11 @@ class EmpresaRegistrationForm extends FormBase {
             '#title' => $this->t('Li e concordo com a <a href="/politica-de-privacidade" target="_blank">Política de Privacidade</a>'),
             '#required' => FALSE,
             '#attributes' => ['class' => ['form-check-input']],
+        ];
+
+        $form['captcha'] = [
+            '#type' => 'captcha',
+            '#captcha_type' => 'recaptcha/reCaptcha',
         ];
 
         $form['submit'] = [

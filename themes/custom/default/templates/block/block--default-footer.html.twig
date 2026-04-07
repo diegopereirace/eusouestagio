@@ -64,26 +64,26 @@
         </div>
         <div class="col-md-3 col-12">
           <h3 class="footer-menu-title mb-5">Contato</h3>
-          <div class="footer-social-links footer-contact-icons">
+          <div class="footer-cta-links">
             {% set footer_entity = content['#block_content'] %}
             {% if footer_entity %}
               {% if footer_entity.field_email.value %}
                 <a href="mailto:{{ footer_entity.field_email.value }}" target="_blank"
-                   class="social-link social-link--mail"
+                   class="footer-cta-link footer-cta-link--mail"
                    title="{{ 'E-mail'|t }}">
                   <i class="fa-regular fa-envelope" aria-hidden="true"></i>
                 </a>
               {% endif %}
               {% if footer_entity.field_instagram.uri %}
                 <a href="{{ footer_entity.field_instagram.uri }}" target="_blank" rel="noopener noreferrer"
-                   class="social-link social-link--instagram"
+                   class="footer-cta-link footer-cta-link--instagram"
                    title="{{ 'Instagram'|t }}">
                   <i class="fa-brands fa-instagram" aria-hidden="true"></i>
                 </a>
               {% endif %}
               {% if footer_entity.field_linkedin.uri %}
                 <a href="{{ footer_entity.field_linkedin.uri }}" target="_blank" rel="noopener noreferrer"
-                   class="social-link social-link--linkedin"
+                   class="footer-cta-link footer-cta-link--linkedin"
                    title="{{ 'LinkedIn'|t }}">
                   <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
                 </a>
@@ -91,7 +91,7 @@
               {% if footer_entity.field_phone_wpp.value %}
                 {% set phone = footer_entity.field_phone_wpp.value|replace({' ': '', '(': '', ')': '', '-': '', '+': ''}) %}
                 <a href="https://wa.me/{{ phone }}" target="_blank" rel="noopener noreferrer"
-                   class="social-link social-link--whatsapp"
+                   class="footer-cta-link footer-cta-link--whatsapp"
                    title="{{ 'WhatsApp'|t }}">
                   <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
                 </a>

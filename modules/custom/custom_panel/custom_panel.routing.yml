@@ -1,7 +1,23 @@
 custom_panel.painel:
   path: '/painel'
   defaults:
-    _title: 'Meu Painel'
     _controller: '\Drupal\custom_panel\Controller\PanelController::index'
+    _title: 'Painel'
   requirements:
     _user_is_logged_in: 'TRUE'
+
+custom_panel.painel_estudante_perfil:
+  path: '/painel/estudante/perfil'
+  defaults:
+    _title: 'Estudante - Perfil'
+    _controller: '\Drupal\custom_panel\Controller\PanelController::estudantePerfil'
+  requirements:
+    _role: 'candidato'
+
+custom_panel.painel_empresa_perfil:
+  path: '/painel/empresa/perfil'
+  defaults:
+    _title: 'Empresa - Perfil'
+    _controller: '\Drupal\custom_panel\Controller\PanelController::empresaPerfil'
+  requirements:
+    _role: 'empresa'

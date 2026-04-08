@@ -27,8 +27,10 @@ function _custom_panel_login_redirect(array &$form, FormStateInterface $form_sta
     }
 
     // Redireciona apenas candidatos e empresas.
-    if ($user->hasRole('candidato') || $user->hasRole('empresa')) {
-        $form_state->setRedirect('custom_panel.painel');
+    if ($user->hasRole('candidato')) {
+        $form_state->setRedirect('custom_panel.painel_estudante_perfil');
+    } elseif ($user->hasRole('empresa')) {
+        $form_state->setRedirect('custom_panel.painel_empresa_perfil');
     }
 }
 

@@ -1349,6 +1349,23 @@ a.vaga-share-btn:hover {
 	border-bottom: 1px solid #e2e6ed;
 }
 
+/* ── Botão primário do projeto (reutilizável) ──────────────────────────── */
+.btn-primario {
+	background-color: #023c62;
+	color: #fff;
+	border: 1px solid #023c62;
+	border-radius: 6px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.15s, border-color 0.15s;
+}
+.btn-primario:hover,
+.btn-primario:focus {
+	background-color: #012d4a;
+	border-color: #012d4a;
+	color: #fff;
+}
+
 /* ── Botão outline laranja (reutilizável) ───────────────────────────────── */
 .btn-outline-laranja {
 	background-color: transparent;
@@ -1417,6 +1434,53 @@ a.vaga-share-btn:hover {
 #custom-panel-candidato-edit-form .painel-paragraph-actions .btn-outline-azul-escuro:focus {
 	background-color: #0f3e5d !important;
 	color: #fff !important;
+}
+
+/* ── Botão Salvar — override Bootstrap Barrio no form do painel ────────── */
+#custom-panel-candidato-edit-form .btn-primario {
+	width: auto !important;
+	min-width: 220px;
+	background-color: #023c62 !important;
+	border-color: #023c62 !important;
+	color: #fff !important;
+	padding-left: 2.5rem;
+	padding-right: 2.5rem;
+}
+#custom-panel-candidato-edit-form .btn-primario:hover,
+#custom-panel-candidato-edit-form .btn-primario:focus {
+	background-color: #012d4a !important;
+	border-color: #012d4a !important;
+}
+
+/* ── Radios Sim/Não inline no form do painel ────────────────────────────── */
+#edit-field-possui-deficiencia--wrapper {
+	display: block !important;
+}
+#edit-field-possui-deficiencia {
+	display: flex !important;
+	flex-direction: row !important;
+	flex-wrap: wrap !important;
+	gap: 1.5rem !important;
+	align-items: center !important;
+}
+#edit-field-possui-deficiencia > div {
+	flex: 0 0 auto !important;
+	width: auto !important;
+	display: flex !important;
+	align-items: center !important;
+	gap: 0.35rem !important;
+	padding-left: 0 !important;
+	margin-bottom: 0 !important;
+}
+#edit-field-possui-deficiencia > div input {
+	position: static !important;
+	margin: 0 !important;
+	flex-shrink: 0 !important;
+}
+#edit-field-possui-deficiencia > div label {
+	margin: 0 !important;
+	padding: 0 !important;
+	cursor: pointer;
 }
 
 /* ── Sidebar Painel (fora do container, fixa lateralmente) ──────────────── */

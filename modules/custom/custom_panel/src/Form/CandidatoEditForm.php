@@ -1003,7 +1003,6 @@ class CandidatoEditForm extends FormBase {
         '1' => $this->t('Sim'),
       ],
       '#default_value' => $this->getFieldValue($user, 'field_possui_deficiencia') ?: '0',
-      '#attributes' => ['class' => ['d-flex', 'gap-4']],
     ];
 
     $form['section_complementar']['row']['col_cid'] = [
@@ -1032,13 +1031,12 @@ class CandidatoEditForm extends FormBase {
     // ── Ações ──────────────────────────────────────────────────
     $form['actions'] = [
       '#type' => 'actions',
-      '#attributes' => ['class' => ['mt-4', 'd-grid', 'gap-2', 'd-md-flex', 'justify-content-md-end']],
+      '#attributes' => ['class' => ['mt-4', 'mb-5', 'd-flex', 'justify-content-center']],
     ];
     $form['actions']['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Salvar Alterações'),
-      '#button_type' => 'primary',
-      '#attributes' => ['class' => ['btn', 'btn-primary', 'btn-lg', 'px-5']],
+      '#attributes' => ['class' => ['btn', 'btn-primario', 'btn-lg']],
     ];
 
     // Bibliotecas de máscaras.

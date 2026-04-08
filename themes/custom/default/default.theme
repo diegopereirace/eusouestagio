@@ -39,6 +39,26 @@ function default_preprocess(&$variables, $hook) {
 }
 
 /**
+ * Implements hook_preprocess_block() for the painel page header block.
+ *
+ * Exposes the current page title so the template can render it.
+ * Individual pages can override the title by implementing
+ * hook_preprocess_block__default_painelpageheader() in a module,
+ * or by setting the route's _title or _title_callback.
+ */
+function default_preprocess_block__default_painelpageheader(&$variables) {
+  $request = \Drupal::request();
+  $route_match = \Drupal::routeMatch();
+  $title = \Drupal::service('title_resolver')->getTitle($request, $route_match->getRouteObject());
+  if (is_array($title)) {
+    $variables['painel_page_title'] = \Drupal\Core\Render\Markup::create(\Drupal::service('renderer')->renderInIsolation($title));
+  }
+  else {
+    $variables['painel_page_title'] = $title;
+  }
+}
+
+/**
  * Implements hook_page_attachments_alter().
  *
  * Injects breakpoint media queries from the active theme into drupalSettings

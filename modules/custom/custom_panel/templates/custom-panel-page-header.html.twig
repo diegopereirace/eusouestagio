@@ -1,0 +1,16 @@
+{#
+/**
+ * @file
+ * Template for the custom panel page header.
+ *
+ * Variables:
+ * - title: The current page title (string or render array).
+ *
+ * To override the title per route, set _title or _title_callback in routing.yml.
+ */
+#}
+<div class="painel-page-header">
+  {% if title %}
+    <h1 class="painel-page-header__title">{{ title }}</h1>
+  {% endif %}
+</div>

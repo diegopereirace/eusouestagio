@@ -1267,6 +1267,72 @@ a.vaga-share-btn:hover {
 	transform: scale(1.1);
 }
 
+/* ── Sidebar Painel (fora do container, fixa lateralmente) ──────────────── */
+
+:root {
+	--painel-sidebar-w: 220px;
+}
+
+#sidebar-painel {
+	position: fixed;
+	left: 0;
+	top: 100px; /* atualizado pelo JS com base na altura real do #header */
+	width: var(--painel-sidebar-w, 220px);
+	max-height: 80vh; /* fallback; atualizado pelo JS */
+	overflow-y: auto;
+	overflow-x: hidden;
+	z-index: 500;
+	background-color: #fff;
+	padding: 1rem 0;
+	transition: top 0.1s ease, max-height 0.1s ease, left 0.1s ease;
+}
+
+#sidebar-painel .block-menu .nav {
+	flex-direction: column;
+}
+
+#sidebar-painel .nav-link {
+	padding: 0.55rem 1.25rem;
+	color: #023c62;
+	font-size: 0.9rem;
+	font-weight: 500;
+	border-left: 3px solid transparent;
+	transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+#sidebar-painel .nav-link:hover,
+#sidebar-painel .nav-link:focus {
+	background-color: #f0f4f8;
+	border-left-color: #e55a24;
+	color: #e55a24;
+}
+
+#sidebar-painel .nav-link.is-active {
+	background-color: #e8f0f8;
+	border-left-color: #023c62;
+	color: #023c62;
+	font-weight: 600;
+}
+
+/* Offset do conteúdo — apenas no container principal, sem deslocar o header */
+#page-wrapper.has-painel-sidebar #main {
+	padding-left: calc(var(--painel-sidebar-w, 220px) + 15px);
+}
+
+/* Responsivo: oculta em telas pequenas */
+@media (max-width: 991.98px) {
+	#sidebar-painel {
+		display: none;
+	}
+
+	#page-wrapper.has-painel-sidebar #main {
+		padding-left: 15px;
+	}
+}
+
 @media (max-width: 991.98px) {
 	.vaga-sidebar {
 		position: static;

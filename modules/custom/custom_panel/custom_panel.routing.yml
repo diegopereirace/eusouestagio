@@ -1,0 +1,7 @@
+custom_panel.painel:
+  path: '/painel'
+  defaults:
+    _title: 'Meu Painel'
+    _controller: '\Drupal\custom_panel\Controller\PanelController::index'
+  requirements:
+    _user_is_logged_in: 'TRUE'

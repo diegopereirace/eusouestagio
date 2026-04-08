@@ -137,6 +137,35 @@
     }
   }
 
+  // ── Sidebar Painel: limita altura ao topo do rodapé ──────────────────────
+  Drupal.behaviors.painelSidebarBounds = {
+    attach(context) {
+      once('painelSidebarBounds', '#sidebar-painel', context).forEach((sidebar) => {
+        const header = document.querySelector('#header');
+        const footer = document.querySelector('.site-footer-custom');
+        if (!header || !footer) return;
+
+        function update() {
+          const headerRect = header.getBoundingClientRect();
+          const footerRect = footer.getBoundingClientRect();
+          const mainEl = document.querySelector('#main');
+          const sidebarTop = Math.max(0, headerRect.bottom);
+          const sidebarBottom = Math.min(window.innerHeight, footerRect.top);
+          const maxH = Math.max(0, sidebarBottom - sidebarTop);
+          sidebar.style.top = sidebarTop + 'px';
+          sidebar.style.maxHeight = maxH + 'px';
+          if (mainEl) {
+            sidebar.style.left = mainEl.getBoundingClientRect().left + 'px';
+          }
+        }
+
+        window.addEventListener('scroll', update, { passive: true });
+        window.addEventListener('resize', update, { passive: true });
+        update();
+      });
+    },
+  };
+
   Drupal.behaviors.defaultLgpdBanner = {
     attach(context) {
       ensureBannerMarkup();

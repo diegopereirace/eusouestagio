@@ -60,8 +60,9 @@
 {# see https://www.drupal.org/project/drupal/issues/953034#comment-14192130 #}
 {% set sidebar_first_exists = page.sidebar_first|render|striptags('<img><video><audio><drupal-render-placeholder>')|trim is not empty %}
 {% set sidebar_second_exists = page.sidebar_second|render|striptags('<img><video><audio><drupal-render-placeholder>')|trim is not empty %}
+{% set sidebar_painel_exists = page.sidebar_painel|render|striptags('<img><video><audio><drupal-render-placeholder>')|trim is not empty %}
 
-<div id="page-wrapper">
+<div id="page-wrapper" {% if sidebar_painel_exists %}class="has-painel-sidebar"{% endif %}>
   <div id="page">
     <header id="header" class="header container" aria-label="{{ 'Site header'|t}}">
       <div class="row">
@@ -83,6 +84,11 @@
         {% endblock %}
       </div>
     </header>
+    {% if sidebar_painel_exists %}
+      <div id="sidebar-painel" class="sidebar-painel-region" role="complementary" aria-label="{{ 'Painel'|t }}">
+        {{ page.sidebar_painel }}
+      </div>
+    {% endif %}
     {% if page.banner %}
       <div class="banner" role="banner">
         {{ page.banner }}

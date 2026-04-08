@@ -1282,9 +1282,141 @@ a.vaga-share-btn:hover {
 .painel-page-header__title {
 	margin: 0;
 	color: #fff;
+	font-size: 1.6rem;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+/* ── Tipografia dos formulários do painel ───────────────────────────────── */
+
+/* H2: título da seção de formulário (ex: "Editar Informações Pessoais") */
+#custom-panel-candidato-edit-form h2,
+#custom-panel-empresa-edit-form h2 {
 	font-size: 1.35rem;
 	font-weight: 600;
-	line-height: 1.2;
+	color: #023c62;
+	line-height: 1.25;
+}
+
+/* H3: títulos de grupo de campos (ex: "Dados de Acesso", "Dados Pessoais") */
+#custom-panel-candidato-edit-form h3,
+#custom-panel-empresa-edit-form h3 {
+	font-size: 1rem;
+	font-weight: 600;
+	color: #374151;
+	line-height: 1.3;
+}
+
+/* H4: sub-itens dentro de grupos (ex: "Instituição 1", "Curso 1") */
+#custom-panel-candidato-edit-form h4,
+#custom-panel-empresa-edit-form h4 {
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: #6b7280;
+	line-height: 1.3;
+}
+
+/* Labels de campo */
+#custom-panel-candidato-edit-form label,
+#custom-panel-empresa-edit-form label {
+	font-size: 0.85rem;
+	font-weight: 500;
+	color: #374151;
+	margin-bottom: 0.25rem;
+}
+
+/* ── Cards de itens dinâmicos do painel (Instituição, Curso, Experiência) ── */
+
+#custom-panel-candidato-edit-form .card {
+	border: 1px solid #e2e6ed;
+	border-radius: 6px;
+	background-color: #f8fafc;
+	box-shadow: none;
+}
+
+#custom-panel-candidato-edit-form .card-body {
+	padding: 1.25rem 1.5rem;
+}
+
+#custom-panel-candidato-edit-form .card-title {
+	font-size: 0.8rem;
+	font-weight: 600;
+	color: #023c62;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin-bottom: 1rem;
+	padding-bottom: 0.5rem;
+	border-bottom: 1px solid #e2e6ed;
+}
+
+/* ── Botão outline laranja (reutilizável) ───────────────────────────────── */
+.btn-outline-laranja {
+	background-color: transparent;
+	color: #de7420;
+	border: 1px solid #de7420;
+	border-radius: 4px;
+	font-size: 0.8rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background-color 0.15s, color 0.15s;
+}
+.btn-outline-laranja:hover,
+.btn-outline-laranja:focus {
+	background-color: #de7420;
+	color: #fff;
+}
+
+/* ── Botão outline azul-escuro (reutilizável) ───────────────────────────── */
+.btn-outline-azul-escuro {
+	background-color: transparent;
+	color: #0f3e5d;
+	border: 1px solid #0f3e5d;
+	border-radius: 4px;
+	font-size: 0.8rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background-color 0.15s, color 0.15s;
+}
+.btn-outline-azul-escuro:hover,
+.btn-outline-azul-escuro:focus {
+	background-color: #0f3e5d;
+	color: #fff;
+}
+
+/* Wrapper flex dos botões de adicionar/remover item (paragraph) */
+#custom-panel-candidato-edit-form .painel-paragraph-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-top: 1rem;
+}
+
+/* Botão "Incluir" — override do btn-primary + form-control adicionados pelo Bootstrap Barrio */
+#custom-panel-candidato-edit-form .painel-paragraph-actions .btn-outline-laranja {
+	width: auto !important;
+	background-color: transparent !important;
+	color: #de7420 !important;
+	border-color: #de7420 !important;
+}
+
+#custom-panel-candidato-edit-form .painel-paragraph-actions .btn-outline-laranja:hover,
+#custom-panel-candidato-edit-form .painel-paragraph-actions .btn-outline-laranja:focus {
+	background-color: #de7420 !important;
+	color: #fff !important;
+}
+
+/* Botão "Remover" — override do btn-primary + form-control adicionados pelo Bootstrap Barrio */
+#custom-panel-candidato-edit-form .painel-paragraph-actions .btn-outline-azul-escuro {
+	width: auto !important;
+	background-color: transparent !important;
+	color: #0f3e5d !important;
+	border-color: #0f3e5d !important;
+}
+
+#custom-panel-candidato-edit-form .painel-paragraph-actions .btn-outline-azul-escuro:hover,
+#custom-panel-candidato-edit-form .painel-paragraph-actions .btn-outline-azul-escuro:focus {
+	background-color: #0f3e5d !important;
+	color: #fff !important;
 }
 
 /* ── Sidebar Painel (fora do container, fixa lateralmente) ──────────────── */

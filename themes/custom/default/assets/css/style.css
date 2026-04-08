@@ -1267,6 +1267,26 @@ a.vaga-share-btn:hover {
 	transform: scale(1.1);
 }
 
+/* ── Painel Page Header ─────────────────────────────────────────────────── */
+
+.painel-page-header-wrapper {
+	margin-bottom: 1.5rem;
+}
+
+.painel-page-header {
+	background-color: #023c62;
+	border-radius: 10px;
+	padding: 1.25rem 1.75rem;
+}
+
+.painel-page-header__title {
+	margin: 0;
+	color: #fff;
+	font-size: 1.35rem;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
 /* ── Sidebar Painel (fora do container, fixa lateralmente) ──────────────── */
 
 :root {

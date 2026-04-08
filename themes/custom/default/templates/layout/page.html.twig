@@ -61,6 +61,7 @@
 {% set sidebar_first_exists = page.sidebar_first|render|striptags('<img><video><audio><drupal-render-placeholder>')|trim is not empty %}
 {% set sidebar_second_exists = page.sidebar_second|render|striptags('<img><video><audio><drupal-render-placeholder>')|trim is not empty %}
 {% set sidebar_painel_exists = page.sidebar_painel|render|striptags('<img><video><audio><drupal-render-placeholder>')|trim is not empty %}
+{% set painel_page_header_exists = page.painel_page_header|render|striptags('<img><video><audio><drupal-render-placeholder>')|trim is not empty %}
 
 <div id="page-wrapper" {% if sidebar_painel_exists %}class="has-painel-sidebar"{% endif %}>
   <div id="page">
@@ -115,6 +116,11 @@
     <div id="main-wrapper" class="layout-main-wrapper clearfix">
       {% block content %}
         <div id="main" class="{{ container }}">
+          {% if painel_page_header_exists %}
+            <div class="painel-page-header-wrapper">
+              {{ page.painel_page_header }}
+            </div>
+          {% endif %}
           <div class="row row-offcanvas row-offcanvas-left clearfix">
               <main{{ content_attributes }}>
                 <section class="section">

@@ -38,11 +38,11 @@ function _custom_panel_login_redirect(array &$form, FormStateInterface $form_sta
  * Implements hook_theme().
  */
 function custom_panel_theme(): array {
-  return [
-    'custom_panel_page_header' => [
-      'variables' => [
-        'title' => NULL,
-      ],
-    ],
-  ];
+    return [
+        'custom_panel_page_header' => [
+        'variables' => [
+            'title' => NULL,
+        ],
+        ],
+    ];
 }

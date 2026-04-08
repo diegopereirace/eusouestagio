@@ -157,11 +157,14 @@
           if (mainEl) {
             sidebar.style.left = mainEl.getBoundingClientRect().left + 'px';
           }
+          sidebar.style.visibility = 'visible';
         }
 
         window.addEventListener('scroll', update, { passive: true });
         window.addEventListener('resize', update, { passive: true });
-        update();
+        // Garante cálculo após layout completo no carregamento inicial
+        requestAnimationFrame(() => requestAnimationFrame(update));
+        window.addEventListener('load', update, { once: true });
       });
     },
   };

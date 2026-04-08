@@ -1304,6 +1304,7 @@ a.vaga-share-btn:hover {
 	z-index: 500;
 	background-color: #fff;
 	padding: 1rem 0;
+	visibility: hidden; /* JS define visible após calcular posição */
 	transition: top 0.1s ease, max-height 0.1s ease, left 0.1s ease;
 }
 

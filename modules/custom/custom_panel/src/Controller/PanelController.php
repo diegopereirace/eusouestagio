@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 class PanelController extends ControllerBase {
 
   /**
-   * Página principal do painel: despacha para o formulário correto conforme a role.
+   * Página /painel: redireciona para a rota correta conforme a role.
    */
   public function index(): array|RedirectResponse {
     $user = $this->entityTypeManager()->getStorage('user')->load($this->currentUser()->id());
@@ -21,15 +21,29 @@ class PanelController extends ControllerBase {
     }
 
     if ($user->hasRole('empresa')) {
-      return $this->formBuilder()->getForm(EmpresaEditForm::class);
+      return new RedirectResponse(Url::fromRoute('custom_panel.painel_empresa_perfil')->toString());
     }
 
     if ($user->hasRole('candidato')) {
-      return $this->formBuilder()->getForm(CandidatoEditForm::class);
+      return new RedirectResponse(Url::fromRoute('custom_panel.painel_estudante_perfil')->toString());
     }
 
     // Usuários sem role candidato/empresa (ex: admin) vão para o perfil padrão.
     return new RedirectResponse(Url::fromRoute('user.page')->toString());
+  }
+
+  /**
+   * Página /painel/estudante/perfil.
+   */
+  public function estudantePerfil(): array {
+    return $this->formBuilder()->getForm(CandidatoEditForm::class);
+  }
+
+  /**
+   * Página /painel/empresa/perfil.
+   */
+  public function empresaPerfil(): array {
+    return $this->formBuilder()->getForm(EmpresaEditForm::class);
   }
 
 }

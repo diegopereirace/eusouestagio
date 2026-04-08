@@ -85,7 +85,7 @@ class EmpresaEditForm extends FormBase {
       '#attributes' => ['class' => ['mb-4']],
     ];
     $form['section_acesso']['heading'] = [
-      '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-lock me-2"></i>' . $this->t('Dados de Acesso') . '</h4>',
+      '#markup' => '<h3 class="mb-3 pb-2 border-bottom"><i class="fas fa-lock me-2"></i>' . $this->t('Dados de Acesso') . '</h3>',
     ];
     $form['section_acesso']['row'] = [
       '#type' => 'container',
@@ -109,7 +109,7 @@ class EmpresaEditForm extends FormBase {
       '#attributes' => ['class' => ['mb-4']],
     ];
     $form['section_empresa']['heading'] = [
-      '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-building me-2"></i>' . $this->t('Dados da Empresa') . '</h4>',
+      '#markup' => '<h3 class="mb-3 pb-2 border-bottom"><i class="fas fa-building me-2"></i>' . $this->t('Dados da Empresa') . '</h3>',
     ];
     $form['section_empresa']['row'] = [
       '#type' => 'container',
@@ -240,7 +240,7 @@ class EmpresaEditForm extends FormBase {
       '#attributes' => ['class' => ['mb-4']],
     ];
     $form['section_endereco']['heading'] = [
-      '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-map-marker-alt me-2"></i>' . $this->t('Endereço') . '</h4>',
+      '#markup' => '<h3 class="mb-3 pb-2 border-bottom"><i class="fas fa-map-marker-alt me-2"></i>' . $this->t('Endereço') . '</h3>',
     ];
     $form['section_endereco']['row'] = [
       '#type' => 'container',
@@ -323,7 +323,7 @@ class EmpresaEditForm extends FormBase {
       '#attributes' => ['class' => ['mb-4']],
     ];
     $form['section_responsavel']['heading'] = [
-      '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-user-tie me-2"></i>' . $this->t('Responsável pelo Cadastro') . '</h4>',
+      '#markup' => '<h3 class="mb-3 pb-2 border-bottom"><i class="fas fa-user-tie me-2"></i>' . $this->t('Responsável pelo Cadastro') . '</h3>',
     ];
     $form['section_responsavel']['row'] = [
       '#type' => 'container',
@@ -556,3 +556,4 @@ class EmpresaEditForm extends FormBase {
   }
 
 }
+

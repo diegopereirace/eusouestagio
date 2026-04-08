@@ -107,7 +107,7 @@ class CandidatoEditForm extends FormBase {
       '#attributes' => ['class' => ['mb-4']],
     ];
     $form['section_acesso']['heading'] = [
-      '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-lock me-2"></i>' . $this->t('Dados de Acesso') . '</h4>',
+      '#markup' => '<h3 class="mb-3 pb-2 border-bottom"><i class="fas fa-lock me-2"></i>' . $this->t('Dados de Acesso') . '</h3>',
     ];
     $form['section_acesso']['row'] = [
       '#type' => 'container',
@@ -131,7 +131,7 @@ class CandidatoEditForm extends FormBase {
       '#attributes' => ['class' => ['mb-4']],
     ];
     $form['section_pessoal']['heading'] = [
-      '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-user me-2"></i>' . $this->t('Dados Pessoais') . '</h4>',
+      '#markup' => '<h3 class="mb-3 pb-2 border-bottom"><i class="fas fa-user me-2"></i>' . $this->t('Dados Pessoais') . '</h3>',
     ];
     $form['section_pessoal']['row'] = [
       '#type' => 'container',
@@ -270,7 +270,7 @@ class CandidatoEditForm extends FormBase {
       '#attributes' => ['class' => ['mb-4']],
     ];
     $form['section_filiacao']['heading'] = [
-      '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-people-arrows me-2"></i>' . $this->t('Filiação') . '</h4>',
+      '#markup' => '<h3 class="mb-3 pb-2 border-bottom"><i class="fas fa-people-arrows me-2"></i>' . $this->t('Filiação') . '</h3>',
     ];
     $form['section_filiacao']['row'] = [
       '#type' => 'container',
@@ -307,7 +307,7 @@ class CandidatoEditForm extends FormBase {
       '#attributes' => ['class' => ['mb-4']],
     ];
     $form['section_endereco']['heading'] = [
-      '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-map-marker-alt me-2"></i>' . $this->t('Endereço') . '</h4>',
+      '#markup' => '<h3 class="mb-3 pb-2 border-bottom"><i class="fas fa-map-marker-alt me-2"></i>' . $this->t('Endereço') . '</h3>',
     ];
     $form['section_endereco']['row'] = [
       '#type' => 'container',
@@ -390,7 +390,7 @@ class CandidatoEditForm extends FormBase {
       '#attributes' => ['class' => ['mb-4']],
     ];
     $form['section_contato']['heading'] = [
-      '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-address-book me-2"></i>' . $this->t('Contato e Redes Sociais') . '</h4>',
+      '#markup' => '<h3 class="mb-3 pb-2 border-bottom"><i class="fas fa-address-book me-2"></i>' . $this->t('Contato e Redes Sociais') . '</h3>',
     ];
     $form['section_contato']['row'] = [
       '#type' => 'container',
@@ -448,7 +448,7 @@ class CandidatoEditForm extends FormBase {
       '#attributes' => ['class' => ['mb-4']],
     ];
     $form['section_instituicao']['heading'] = [
-      '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-university me-2"></i>' . $this->t('Instituição de Ensino') . '</h4>',
+      '#markup' => '<h3 class="mb-3 pb-2 border-bottom"><i class="fas fa-university me-2"></i>' . $this->t('Instituição de Ensino') . '</h3>',
     ];
     $form['section_instituicao']['instituicoes_wrapper'] = [
       '#type' => 'container',
@@ -475,7 +475,7 @@ class CandidatoEditForm extends FormBase {
         '#attributes' => ['class' => ['card-body']],
       ];
       $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['title'] = [
-        '#markup' => '<h6 class="card-title text-muted">' . $this->t('Instituição @num', ['@num' => $i + 1]) . '</h6>',
+        '#markup' => '<h4 class="card-title text-muted">' . $this->t('Instituição @num', ['@num' => $i + 1]) . '</h4>',
       ];
       $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row'] = [
         '#type' => 'container',
@@ -531,7 +531,11 @@ class CandidatoEditForm extends FormBase {
       ];
     }
 
-    $form['section_instituicao']['instituicoes_wrapper']['add_instituicao'] = [
+    $form['section_instituicao']['instituicoes_wrapper']['paragraph_actions'] = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['painel-paragraph-actions']],
+    ];
+    $form['section_instituicao']['instituicoes_wrapper']['paragraph_actions']['add_instituicao'] = [
       '#type' => 'submit',
       '#value' => $this->t('Incluir Instituição'),
       '#submit' => ['::addInstituicaoCallback'],
@@ -539,12 +543,12 @@ class CandidatoEditForm extends FormBase {
         'callback' => '::ajaxRefreshInstituicoes',
         'wrapper' => 'instituicoes-wrapper',
       ],
-      '#attributes' => ['class' => ['btn', 'btn-outline-secondary', 'btn-sm']],
+      '#attributes' => ['class' => ['btn', 'btn-outline-laranja', 'btn-sm']],
       '#limit_validation_errors' => [],
     ];
 
     if ($num_instituicoes > 1) {
-      $form['section_instituicao']['instituicoes_wrapper']['remove_instituicao'] = [
+      $form['section_instituicao']['instituicoes_wrapper']['paragraph_actions']['remove_instituicao'] = [
         '#type' => 'submit',
         '#value' => $this->t('Remover última instituição'),
         '#submit' => ['::removeInstituicaoCallback'],
@@ -552,7 +556,7 @@ class CandidatoEditForm extends FormBase {
           'callback' => '::ajaxRefreshInstituicoes',
           'wrapper' => 'instituicoes-wrapper',
         ],
-        '#attributes' => ['class' => ['btn', 'btn-outline-danger', 'btn-sm', 'ms-2']],
+        '#attributes' => ['class' => ['btn', 'btn-outline-azul-escuro', 'btn-sm']],
         '#limit_validation_errors' => [],
       ];
     }
@@ -563,7 +567,7 @@ class CandidatoEditForm extends FormBase {
       '#attributes' => ['class' => ['mb-4']],
     ];
     $form['section_academico']['heading'] = [
-      '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-graduation-cap me-2"></i>' . $this->t('Informações Acadêmicas') . '</h4>',
+      '#markup' => '<h3 class="mb-3 pb-2 border-bottom"><i class="fas fa-graduation-cap me-2"></i>' . $this->t('Informações Acadêmicas') . '</h3>',
     ];
     $form['section_academico']['row'] = [
       '#type' => 'container',
@@ -698,7 +702,7 @@ class CandidatoEditForm extends FormBase {
       '#attributes' => ['class' => ['mb-4']],
     ];
     $form['section_extracurricular']['heading'] = [
-      '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-award me-2"></i>' . $this->t('Cursos Extracurriculares') . ' <small class="text-muted">(' . $this->t('Opcional') . ')</small></h4>',
+      '#markup' => '<h3 class="mb-3 pb-2 border-bottom"><i class="fas fa-award me-2"></i>' . $this->t('Cursos Extracurriculares') . ' <small class="text-muted">(' . $this->t('Opcional') . ')</small></h3>',
     ];
     $form['section_extracurricular']['cursos_wrapper'] = [
       '#type' => 'container',
@@ -734,7 +738,7 @@ class CandidatoEditForm extends FormBase {
         '#attributes' => ['class' => ['card-body']],
       ];
       $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['title'] = [
-        '#markup' => '<h6 class="card-title text-muted">' . $this->t('Curso @num', ['@num' => $i + 1]) . '</h6>',
+        '#markup' => '<h4 class="card-title text-muted">' . $this->t('Curso @num', ['@num' => $i + 1]) . '</h4>',
       ];
       $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['row'] = [
         '#type' => 'container',
@@ -790,7 +794,11 @@ class CandidatoEditForm extends FormBase {
       ];
     }
 
-    $form['section_extracurricular']['cursos_wrapper']['add_curso'] = [
+    $form['section_extracurricular']['cursos_wrapper']['paragraph_actions'] = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['painel-paragraph-actions']],
+    ];
+    $form['section_extracurricular']['cursos_wrapper']['paragraph_actions']['add_curso'] = [
       '#type' => 'submit',
       '#value' => $this->t('Incluir Curso Extracurricular'),
       '#submit' => ['::addCursoCallback'],
@@ -798,12 +806,12 @@ class CandidatoEditForm extends FormBase {
         'callback' => '::ajaxRefreshCursos',
         'wrapper' => 'cursos-extracurriculares-wrapper',
       ],
-      '#attributes' => ['class' => ['btn', 'btn-outline-secondary', 'btn-sm']],
+      '#attributes' => ['class' => ['btn', 'btn-outline-laranja', 'btn-sm']],
       '#limit_validation_errors' => [],
     ];
 
     if ($num_cursos > 0) {
-      $form['section_extracurricular']['cursos_wrapper']['remove_curso'] = [
+      $form['section_extracurricular']['cursos_wrapper']['paragraph_actions']['remove_curso'] = [
         '#type' => 'submit',
         '#value' => $this->t('Remover último curso'),
         '#submit' => ['::removeCursoCallback'],
@@ -811,7 +819,7 @@ class CandidatoEditForm extends FormBase {
           'callback' => '::ajaxRefreshCursos',
           'wrapper' => 'cursos-extracurriculares-wrapper',
         ],
-        '#attributes' => ['class' => ['btn', 'btn-outline-danger', 'btn-sm', 'ms-2']],
+        '#attributes' => ['class' => ['btn', 'btn-outline-azul-escuro', 'btn-sm']],
         '#limit_validation_errors' => [],
       ];
     }
@@ -822,7 +830,7 @@ class CandidatoEditForm extends FormBase {
       '#attributes' => ['class' => ['mb-4']],
     ];
     $form['section_experiencia']['heading'] = [
-      '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-briefcase me-2"></i>' . $this->t('Experiência Profissional') . ' <small class="text-muted">(' . $this->t('Opcional') . ')</small></h4>',
+      '#markup' => '<h3 class="mb-3 pb-2 border-bottom"><i class="fas fa-briefcase me-2"></i>' . $this->t('Experiência Profissional') . ' <small class="text-muted">(' . $this->t('Opcional') . ')</small></h3>',
     ];
     $form['section_experiencia']['experiencias_wrapper'] = [
       '#type' => 'container',
@@ -861,7 +869,7 @@ class CandidatoEditForm extends FormBase {
         '#attributes' => ['class' => ['card-body']],
       ];
       $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['title'] = [
-        '#markup' => '<h6 class="card-title text-muted">' . $this->t('Experiência @num', ['@num' => $i + 1]) . '</h6>',
+        '#markup' => '<h4 class="card-title text-muted">' . $this->t('Experiência @num', ['@num' => $i + 1]) . '</h4>',
       ];
       $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row'] = [
         '#type' => 'container',
@@ -940,7 +948,11 @@ class CandidatoEditForm extends FormBase {
       ];
     }
 
-    $form['section_experiencia']['experiencias_wrapper']['add_experiencia'] = [
+    $form['section_experiencia']['experiencias_wrapper']['paragraph_actions'] = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['painel-paragraph-actions']],
+    ];
+    $form['section_experiencia']['experiencias_wrapper']['paragraph_actions']['add_experiencia'] = [
       '#type' => 'submit',
       '#value' => $this->t('Incluir Experiência'),
       '#submit' => ['::addExperienciaCallback'],
@@ -948,12 +960,12 @@ class CandidatoEditForm extends FormBase {
         'callback' => '::ajaxRefreshExperiencias',
         'wrapper' => 'experiencias-wrapper',
       ],
-      '#attributes' => ['class' => ['btn', 'btn-outline-secondary', 'btn-sm']],
+      '#attributes' => ['class' => ['btn', 'btn-outline-laranja', 'btn-sm']],
       '#limit_validation_errors' => [],
     ];
 
     if ($num_experiencias > 0) {
-      $form['section_experiencia']['experiencias_wrapper']['remove_experiencia'] = [
+      $form['section_experiencia']['experiencias_wrapper']['paragraph_actions']['remove_experiencia'] = [
         '#type' => 'submit',
         '#value' => $this->t('Remover última experiência'),
         '#submit' => ['::removeExperienciaCallback'],
@@ -961,7 +973,7 @@ class CandidatoEditForm extends FormBase {
           'callback' => '::ajaxRefreshExperiencias',
           'wrapper' => 'experiencias-wrapper',
         ],
-        '#attributes' => ['class' => ['btn', 'btn-outline-danger', 'btn-sm', 'ms-2']],
+        '#attributes' => ['class' => ['btn', 'btn-outline-azul-escuro', 'btn-sm']],
         '#limit_validation_errors' => [],
       ];
     }
@@ -972,7 +984,7 @@ class CandidatoEditForm extends FormBase {
       '#attributes' => ['class' => ['mb-4']],
     ];
     $form['section_complementar']['heading'] = [
-      '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-info-circle me-2"></i>' . $this->t('Informações Complementares') . '</h4>',
+      '#markup' => '<h3 class="mb-3 pb-2 border-bottom"><i class="fas fa-info-circle me-2"></i>' . $this->t('Informações Complementares') . '</h3>',
     ];
     $form['section_complementar']['row'] = [
       '#type' => 'container',
@@ -1347,3 +1359,4 @@ class CandidatoEditForm extends FormBase {
   }
 
 }
+

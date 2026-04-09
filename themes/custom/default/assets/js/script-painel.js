@@ -21,13 +21,18 @@
             Drupal.t('Salvando…');
 
           // Chamada AJAX real ao endpoint de toggle.
-          fetch(Drupal.url('painel/estudante/vagas-salvas/toggle'), {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'nid=' + encodeURIComponent(nodeId),
-          })
+          fetch(Drupal.url('session/token'))
+            .then(function (res) { return res.text(); })
+            .then(function (csrfToken) {
+              return fetch(Drupal.url('painel/estudante/vagas-salvas/toggle'), {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+                  'X-CSRF-Token': csrfToken,
+                },
+                body: 'nid=' + encodeURIComponent(nodeId),
+              });
+            })
             .then(function (response) {
               return response.json();
             })
@@ -35,7 +40,7 @@
               button.disabled = false;
 
               if (data.status === 'saved') {
-                button.textContent = Drupal.t('Vaga Salva');
+                button.textContent = Drupal.t('Remover dos Salvos');
                 button.classList.add('ui-btn--saved');
               }
               else if (data.status === 'removed') {

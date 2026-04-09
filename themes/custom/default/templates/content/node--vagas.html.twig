@@ -206,7 +206,7 @@
             </a>
 
             <button type="button" class="ui-btn ui-btn--outline w-100 mb-4 js-salvar-vaga{{ vaga_salva ? ' ui-btn--saved' : '' }}" data-node-id="{{ node.id }}">
-              {{ vaga_salva ? 'Vaga Salva'|t : 'Salvar Vaga'|t }}
+              {{ vaga_salva ? 'Remover dos Salvos'|t : 'Salvar Vaga'|t }}
             </button>
           {% elseif not logged_in %}
             <a href="/cadastro/candidato" class="ui-btn ui-btn--primary w-100 mb-4">

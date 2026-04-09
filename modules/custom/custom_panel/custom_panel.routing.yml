@@ -21,3 +21,19 @@ custom_panel.painel_empresa_perfil:
     _controller: '\Drupal\custom_panel\Controller\PanelController::empresaPerfil'
   requirements:
     _role: 'empresa'
+
+custom_panel.vagas_salvas_toggle:
+  path: '/painel/estudante/vagas-salvas/toggle'
+  defaults:
+    _controller: '\Drupal\custom_panel\Controller\VagasSalvasController::toggle'
+  requirements:
+    _role: 'candidato'
+  methods: [POST]
+
+custom_panel.vagas_salvas_listagem:
+  path: '/painel/estudante/vagas-salvas'
+  defaults:
+    _title: 'Vagas Salvas'
+    _controller: '\Drupal\custom_panel\Controller\VagasSalvasController::listagem'
+  requirements:
+    _role: 'candidato'

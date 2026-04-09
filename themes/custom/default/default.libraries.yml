@@ -54,4 +54,5 @@ script-painel:
       assets/css/css-painel.css: {}
   dependencies:
     - core/drupal
+    - core/drupalSettings
     - core/once

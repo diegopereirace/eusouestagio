@@ -46,3 +46,12 @@ masks:
     - core/once
     - core/drupalSettings
     - default/jquery_mask
+script-painel:
+  js:
+    assets/js/script-painel.js: {}
+  css:
+    component:
+      assets/css/css-painel.css: {}
+  dependencies:
+    - core/drupal
+    - core/once

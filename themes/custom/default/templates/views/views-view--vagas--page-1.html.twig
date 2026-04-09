@@ -39,7 +39,7 @@
     dom_id ? 'js-view-dom-id-' ~ dom_id,
   ]
 %}
-<div{{ attributes.addClass(classes) }}>
+<div{{ attributes.addClass(classes).addClass('css-vagas-page container') }}>
   {{ title_prefix }}
   {% if title %}
     {{ title }}
@@ -62,7 +62,7 @@
   {% endif %}
 
   {% if rows %}
-    <div class="view-content">
+    <div class="view-content row g-4">
       {{ rows }}
     </div>
   {% elseif empty %}

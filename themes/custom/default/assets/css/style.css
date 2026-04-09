@@ -179,6 +179,17 @@ h6 {
 	margin-bottom: 2rem;
 }
 
+/* ── Listing page /para-estudantes ───────────────────── */
+
+.css-vagas-page {
+	padding-top: 2rem;
+	padding-bottom: 4rem;
+}
+
+.css-vagas-page .view-filters {
+	margin-bottom: 2rem;
+}
+
 /* ── Card de Vaga ─────────────────────────────────────── */
 
 .item-vaga {

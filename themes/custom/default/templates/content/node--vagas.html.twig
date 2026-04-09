@@ -60,6 +60,7 @@
  */
 #}
 {{ attach_library('bootstrap_barrio/node') }}
+{{ attach_library('default/script-painel') }}
 
 {%
   set classes = [
@@ -204,7 +205,7 @@
               {{ 'Candidatar-se'|t }}
             </a>
 
-            <button type="button" class="ui-btn ui-btn--outline w-100 mb-4">
+            <button type="button" class="ui-btn ui-btn--outline w-100 mb-4 js-salvar-vaga" data-node-id="{{ node.id }}">
               {{ 'Salvar Vaga'|t }}
             </button>
           {% elseif not logged_in %}

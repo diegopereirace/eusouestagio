@@ -57,6 +57,11 @@
             </div>
             <div class="ms-3 d-flex gap-2">
               {% if logged_in is defined and logged_in %}
+                {% if is_candidato %}
+                  <a href="/painel/estudante/perfil" class="btn btn-primary btn-sm">Acessar Painel</a>
+                {% elseif is_empresa %}
+                  <a href="/painel/empresa/perfil" class="btn btn-primary btn-sm">Acessar Painel</a>
+                {% endif %}
                 <a href="{{ path('user.logout') }}" class="btn btn-outline-primary btn-sm">Sair</a>
               {% else %}
                 <a href="{{ path('user.login') }}" class="btn btn-outline-primary btn-sm">Entrar</a>
@@ -107,6 +112,11 @@
           
           <div class="mt-3 d-grid gap-2">
             {% if logged_in is defined and logged_in %}
+              {% if is_candidato %}
+                <a href="/painel/estudante/perfil" class="btn btn-primary w-100">Acessar Painel</a>
+              {% elseif is_empresa %}
+                <a href="/painel/empresa/perfil" class="btn btn-primary w-100">Acessar Painel</a>
+              {% endif %}
               <a href="{{ path('user.logout') }}" class="btn btn-outline-secondary w-100">Sair</a>
             {% else %}
               <a href="{{ path('user.login') }}" class="btn btn-outline-secondary w-100">Entrar</a>

@@ -14,7 +14,8 @@ use Drupal\Core\Form\FormStateInterface;
  *
  * Example on how to alter theme settings form
  */
-function bootstrap_barrio_subtheme_form_system_theme_settings_alter(&$form, FormStateInterface $form_state) {
+function default_form_system_theme_settings_alter(&$form, FormStateInterface $form_state)
+{
   $form['components']['navbar']['bootstrap_barrio_navbar_top_background']['#options'] = [
     'bg-primary' => t('Primary'),
     'bg-secondary' => t('Secondary'),
@@ -33,9 +34,46 @@ function bootstrap_barrio_subtheme_form_system_theme_settings_alter(&$form, Form
   ];
 }
 
-function default_preprocess(&$variables, $hook) {
+function default_preprocess(&$variables, $hook)
+{
   $variables['logopath'] = \Drupal::service('file_url_generator')->transformRelative(\Drupal::service('file_url_generator')->generateAbsoluteString(theme_get_setting('logo.url')));
   $variables['path_to_theme'] = \Drupal::theme()->getActiveTheme()->getPath();
+}
+
+/**
+ * Implements hook_preprocess_node() for vagas nodes.
+ *
+ * Verifica se a vaga já está salva pelo estudante logado.
+ */
+function default_preprocess_node__vagas(&$variables)
+{
+  $user = \Drupal::currentUser();
+  $variables['vaga_salva'] = FALSE;
+
+  if ($user->isAuthenticated() && in_array('candidato', $user->getRoles())) {
+    $nid = $variables['node']->id();
+    $uid = $user->id();
+    $exists = \Drupal::database()->select('vagas_salvas', 'vs')
+      ->fields('vs', ['id'])
+      ->condition('uid', $uid)
+      ->condition('nid', $nid)
+      ->execute()
+      ->fetchField();
+
+    $variables['vaga_salva'] = !empty($exists);
+  }
+}
+
+/**
+ * Implements hook_preprocess_block() for the top block.
+ *
+ * Expõe as variáveis de role do usuário logado para o template do topo.
+ */
+function default_preprocess_block__default_top(&$variables)
+{
+  $user = \Drupal::currentUser();
+  $variables['is_candidato'] = $user->isAuthenticated() && $user->hasPermission('access content') && in_array('candidato', $user->getRoles());
+  $variables['is_empresa'] = $user->isAuthenticated() && in_array('empresa', $user->getRoles());
 }
 
 /**
@@ -46,14 +84,14 @@ function default_preprocess(&$variables, $hook) {
  * hook_preprocess_block__default_painelpageheader() in a module,
  * or by setting the route's _title or _title_callback.
  */
-function default_preprocess_block__default_painelpageheader(&$variables) {
+function default_preprocess_block__default_painelpageheader(&$variables)
+{
   $request = \Drupal::request();
   $route_match = \Drupal::routeMatch();
   $title = \Drupal::service('title_resolver')->getTitle($request, $route_match->getRouteObject());
   if (is_array($title)) {
     $variables['painel_page_title'] = \Drupal\Core\Render\Markup::create(\Drupal::service('renderer')->renderInIsolation($title));
-  }
-  else {
+  } else {
     $variables['painel_page_title'] = $title;
   }
 }
@@ -64,7 +102,8 @@ function default_preprocess_block__default_painelpageheader(&$variables) {
  * Injects breakpoint media queries from the active theme into drupalSettings
  * so block_breakpoint JS can evaluate data-breakpoint attributes.
  */
-function default_page_attachments_alter(array &$attachments) {
+function default_page_attachments_alter(array &$attachments)
+{
   $active_theme = \Drupal::theme()->getActiveTheme()->getName();
 
   /** @var \Drupal\breakpoint\BreakpointManagerInterface $manager */
@@ -84,7 +123,8 @@ function default_page_attachments_alter(array &$attachments) {
 /**
  * Implements hook_theme_suggestions_HOOK_alter() for block templates.
  */
-function default_theme_suggestions_block_alter(array &$suggestions, array $variables) {
+function default_theme_suggestions_block_alter(array &$suggestions, array $variables)
+{
   if (!isset($variables['elements']['content']['#block_content'])) {
     return;
   }
@@ -98,7 +138,8 @@ function default_theme_suggestions_block_alter(array &$suggestions, array $varia
 /**
  * Implements hook_form_FORM_ID_alter() for search_block_form.
  */
-function default_form_search_block_form_alter(array &$form, FormStateInterface $form_state) {
+function default_form_search_block_form_alter(array &$form, FormStateInterface $form_state)
+{
   if (isset($form['keys'])) {
     $form['keys']['#attributes']['placeholder'] = 'Buscar Vagas';
     $form['keys']['#attributes']['aria-label'] = 'Buscar Vagas';

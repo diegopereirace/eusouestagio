@@ -1,6 +1,6 @@
 /**
  * @file
- * Spinner do botão "Salvar Vaga".
+ * Estilos do script-painel (botão "Salvar Vaga").
  */
 
 .salvar-vaga-spinner {
@@ -18,4 +18,16 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.ui-btn--saved {
+  background-color: var(--bs-success, #198754);
+  border-color: var(--bs-success, #198754);
+  color: #fff;
+}
+
+.ui-btn--saved:hover {
+  background-color: var(--bs-danger, #dc3545);
+  border-color: var(--bs-danger, #dc3545);
+  color: #fff;
 }

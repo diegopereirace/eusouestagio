@@ -1,0 +1,36 @@
+{#
+/**
+ * @file
+ * Listagem de vagas salvas pelo estudante.
+ *
+ * Variables:
+ * - rows: Array de vagas salvas, cada uma com 'title', 'url' e 'date'.
+ * - empty: Mensagem exibida quando não há vagas salvas.
+ */
+#}
+<div class="vagas-salvas">
+  {% if rows is not empty %}
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th>{{ 'Vaga'|t }}</th>
+            <th>{{ 'Data de Salvamento'|t }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+            <tr>
+              <td>
+                <a href="{{ row.url }}">{{ row.title }}</a>
+              </td>
+              <td>{{ row.date }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="alert alert-info">{{ empty }}</div>
+  {% endif %}
+</div>

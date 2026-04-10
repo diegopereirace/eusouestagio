@@ -145,3 +145,42 @@ function default_form_search_block_form_alter(array &$form, FormStateInterface $
     $form['keys']['#attributes']['aria-label'] = 'Buscar Vagas';
   }
 }
+
+/**
+ * Implements hook_preprocess_menu().
+ *
+ * Adiciona a classe 'is-active' nos links do menu do painel com base
+ * na rota atual, ignorando parâmetros de query string (ex.: ?page=1).
+ */
+function default_preprocess_menu(array &$variables): void
+{
+  $current_route = \Drupal::routeMatch()->getRouteName();
+  if (empty($current_route)) {
+    return;
+  }
+
+  foreach ($variables['items'] as &$item) {
+    /** @var \Drupal\Core\Url $url */
+    $url = $item['url'] ?? NULL;
+    if (!$url instanceof \Drupal\Core\Url) {
+      continue;
+    }
+
+    if (!$url->isRouted()) {
+      continue;
+    }
+
+    if ($url->getRouteName() === $current_route) {
+      $item['in_active_trail'] = TRUE;
+
+      // Adiciona 'is-active' ao <a> via URL options (usado pelo template do menu).
+      $attrs = $url->getOption('attributes') ?? [];
+      $classes = $attrs['class'] ?? [];
+      if (!in_array('is-active', $classes)) {
+        $classes[] = 'is-active';
+      }
+      $attrs['class'] = $classes;
+      $url->setOption('attributes', $attrs);
+    }
+  }
+}

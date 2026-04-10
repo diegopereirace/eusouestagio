@@ -85,9 +85,11 @@
             .then(function (response) { return response.json(); })
             .then(function (data) {
               if (data.status === 'candidatado' || data.status === 'already') {
-                // Oculta o botão: candidatura registrada.
-                button.closest('.js-candidatar-vaga') || button;
-                button.style.display = 'none';
+                // Substitui o botão por texto informativo.
+                var label = document.createElement('p');
+                label.className = 'vaga-ja-aplicada';
+                label.textContent = Drupal.t('Vaga já aplicada');
+                button.parentNode.replaceChild(label, button);
               } else {
                 button.disabled = false;
                 button.textContent = Drupal.t('Candidatar-se');

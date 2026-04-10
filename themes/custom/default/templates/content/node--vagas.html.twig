@@ -200,7 +200,9 @@
         <aside class="vaga-sidebar">
 
           {% if logged_in and user.hasRole('candidato') %}
-            {% if not vaga_candidatada %}
+            {% if vaga_candidatada %}
+              <p class="vaga-ja-aplicada mb-3">{{ 'Vaga já aplicada'|t }}</p>
+            {% else %}
               <button type="button"
                 class="ui-btn ui-btn--primary w-100 mb-3 js-candidatar-vaga"
                 data-node-id="{{ node.id }}">

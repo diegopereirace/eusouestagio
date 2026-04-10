@@ -200,10 +200,13 @@
         <aside class="vaga-sidebar">
 
           {% if logged_in and user.hasRole('candidato') %}
-            <a href="{{ path('entity.node.canonical', {'node': node.id}) }}#candidatar"
-              class="ui-btn ui-btn--primary w-100 mb-3">
-              {{ 'Candidatar-se'|t }}
-            </a>
+            {% if not vaga_candidatada %}
+              <button type="button"
+                class="ui-btn ui-btn--primary w-100 mb-3 js-candidatar-vaga"
+                data-node-id="{{ node.id }}">
+                {{ 'Candidatar-se'|t }}
+              </button>
+            {% endif %}
 
             <button type="button" class="ui-btn ui-btn--outline w-100 mb-4 js-salvar-vaga{{ vaga_salva ? ' ui-btn--saved' : '' }}" data-node-id="{{ node.id }}">
               {{ vaga_salva ? 'Remover dos Salvos'|t : 'Salvar Vaga'|t }}

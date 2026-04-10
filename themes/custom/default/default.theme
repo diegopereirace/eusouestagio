@@ -49,18 +49,27 @@ function default_preprocess_node__vagas(&$variables)
 {
   $user = \Drupal::currentUser();
   $variables['vaga_salva'] = FALSE;
+  $variables['vaga_candidatada'] = FALSE;
 
   if ($user->isAuthenticated() && in_array('candidato', $user->getRoles())) {
     $nid = $variables['node']->id();
     $uid = $user->id();
-    $exists = \Drupal::database()->select('vagas_salvas', 'vs')
+
+    $exists_salva = \Drupal::database()->select('vagas_salvas', 'vs')
       ->fields('vs', ['id'])
       ->condition('uid', $uid)
       ->condition('nid', $nid)
       ->execute()
       ->fetchField();
+    $variables['vaga_salva'] = !empty($exists_salva);
 
-    $variables['vaga_salva'] = !empty($exists);
+    $exists_candidatura = \Drupal::database()->select('vagas_candidaturas', 'vc')
+      ->fields('vc', ['id'])
+      ->condition('uid', $uid)
+      ->condition('nid', $nid)
+      ->execute()
+      ->fetchField();
+    $variables['vaga_candidatada'] = !empty($exists_candidatura);
   }
 }
 

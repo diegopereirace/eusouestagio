@@ -91,13 +91,18 @@ class VagasSalvasController extends ControllerBase
   public function listagem(): array
   {
     $uid = (int) $this->currentUser()->id();
+    $items_per_page = 20;
 
     $query = $this->database->select('vagas_salvas', 'vs')
       ->fields('vs', ['nid', 'created'])
       ->condition('vs.uid', $uid)
       ->orderBy('vs.created', 'DESC');
 
-    $results = $query->execute()->fetchAll();
+    /** @var \Drupal\Core\Database\Query\PagerSelectExtender $pager_query */
+    $pager_query = $query->extend('Drupal\Core\Database\Query\PagerSelectExtender')
+      ->limit($items_per_page);
+
+    $results = $pager_query->execute()->fetchAll();
 
     $rows = [];
     $node_storage = $this->entityTypeManager()->getStorage('node');
@@ -119,9 +124,10 @@ class VagasSalvasController extends ControllerBase
       '#theme' => 'custom_panel_vagas_salvas',
       '#rows' => $rows,
       '#empty' => $this->t('Nenhuma vaga salva.'),
+      '#pager' => ['#type' => 'pager'],
       '#cache' => [
         'tags' => ['vagas_salvas:' . $uid],
-        'contexts' => ['user'],
+        'contexts' => ['user', 'url.query_args'],
       ],
     ];
   }

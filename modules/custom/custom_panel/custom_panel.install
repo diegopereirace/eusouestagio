@@ -74,3 +74,49 @@ function custom_panel_update_10001(): void
     $schema->createTable('vagas_salvas', $spec['vagas_salvas']);
   }
 }
+
+/**
+ * Cria a tabela vagas_candidaturas.
+ */
+function custom_panel_update_10002(): void
+{
+  $schema = \Drupal::database()->schema();
+  if (!$schema->tableExists('vagas_candidaturas')) {
+    $spec = [
+      'description' => 'Candidaturas dos estudantes às vagas.',
+      'fields' => [
+        'id' => [
+          'type' => 'serial',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ],
+        'uid' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+        'nid' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+        'created' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+      ],
+      'primary key' => ['id'],
+      'unique keys' => [
+        'uid_nid' => ['uid', 'nid'],
+      ],
+      'indexes' => [
+        'uid' => ['uid'],
+        'nid' => ['nid'],
+      ],
+    ];
+    $schema->createTable('vagas_candidaturas', $spec);
+  }
+}

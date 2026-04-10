@@ -57,6 +57,48 @@
             });
         });
       });
+
+      // ── Botão "Candidatar-se" ──────────────────────────────────────────
+      once('candidatar-vaga', '.js-candidatar-vaga', context).forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var button = this;
+          var nodeId = button.getAttribute('data-node-id');
+
+          // Trava o botão e exibe spinner (mockup de loading).
+          button.disabled = true;
+          button.innerHTML =
+            '<span class="salvar-vaga-spinner"></span> ' +
+            Drupal.t('Enviando…');
+
+          fetch(Drupal.url('session/token'))
+            .then(function (res) { return res.text(); })
+            .then(function (csrfToken) {
+              return fetch(Drupal.url('painel/estudante/vagas/candidatar'), {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+                  'X-CSRF-Token': csrfToken,
+                },
+                body: 'nid=' + encodeURIComponent(nodeId),
+              });
+            })
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+              if (data.status === 'candidatado' || data.status === 'already') {
+                // Oculta o botão: candidatura registrada.
+                button.closest('.js-candidatar-vaga') || button;
+                button.style.display = 'none';
+              } else {
+                button.disabled = false;
+                button.textContent = Drupal.t('Candidatar-se');
+              }
+            })
+            .catch(function () {
+              button.disabled = false;
+              button.textContent = Drupal.t('Candidatar-se');
+            });
+        });
+      });
     },
   };
 })(Drupal, drupalSettings, once);

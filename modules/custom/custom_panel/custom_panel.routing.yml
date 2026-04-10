@@ -37,3 +37,11 @@ custom_panel.vagas_salvas_listagem:
     _controller: '\Drupal\custom_panel\Controller\VagasSalvasController::listagem'
   requirements:
     _role: 'candidato'
+
+custom_panel.vagas_candidatar:
+  path: '/painel/estudante/vagas/candidatar'
+  defaults:
+    _controller: '\Drupal\custom_panel\Controller\CandidaturaController::candidatar'
+  requirements:
+    _role: 'candidato'
+  methods: [POST]

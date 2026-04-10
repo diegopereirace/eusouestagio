@@ -32,9 +32,24 @@
   color: #fff;
 }
 
+/* Mensagem pós-candidatura */
+.vaga-ja-aplicada {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 0 0 0.75rem;
+  padding: 0.75rem 1.75rem;
+  border-radius: 12px;
+  background-color: var(--bs-success, #198754);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+}
+
 /* Vagas Salvas — listagem no painel */
-.vagas-salvas {
-  padding: 2rem 2rem 3rem;
+.vagas-salvas {  padding: 2rem 2rem 3rem;
   min-height: calc(100vh - 180px);
 }
 

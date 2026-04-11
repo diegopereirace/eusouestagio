@@ -61,3 +61,18 @@
 .vagas-salvas .table > :not(caption) > * > * {
   vertical-align: middle;
 }
+
+/* Vagas Aplicadas — listagem no painel */
+.vagas-aplicadas {
+  padding: 2rem 2rem 3rem;
+  min-height: calc(100vh - 180px);
+}
+
+.vagas-aplicadas .card {
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+}
+
+.vagas-aplicadas .table > :not(caption) > * > * {
+  vertical-align: middle;
+}

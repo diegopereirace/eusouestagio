@@ -54,6 +54,13 @@ function custom_panel_theme(): array
                 'pager' => NULL,
             ],
         ],
+        'custom_panel_vagas_aplicadas' => [
+            'variables' => [
+                'rows' => [],
+                'empty' => NULL,
+                'pager' => NULL,
+            ],
+        ],
     ];
 }
 
@@ -65,7 +72,7 @@ function custom_panel_theme(): array
 function custom_panel_preprocess_pager(array &$variables): void
 {
     $route = \Drupal::routeMatch()->getRouteName();
-    if ($route === 'custom_panel.vagas_salvas_listagem') {
+    if (in_array($route, ['custom_panel.vagas_salvas_listagem', 'custom_panel.vagas_aplicadas_listagem'])) {
         unset($variables['items']['first']);
         unset($variables['items']['last']);
     }

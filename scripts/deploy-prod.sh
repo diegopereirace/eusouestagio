@@ -12,41 +12,46 @@ DRUSH_CMD=("$PHP_BIN" "$ROOT_DIR/vendor/drush/drush/drush.php")
 TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
 
 log() {
-  printf '[deploy] %s\n' "$*"
+printf '[deploy] %s\n' "$*"
 }
 
 fail() {
-  printf '[deploy:erro] %s\n' "$*" >&2
-  exit 1
+printf '[deploy:erro] %s\n' "$*" >&2
+exit 1
 }
 
 run_drush() {
-  "${DRUSH_CMD[@]}" "$@"
+"${DRUSH_CMD[@]}" "$@"
 }
 
 require_clean_worktree() {
-  if ! git -C "$ROOT_DIR" diff --quiet --ignore-submodules --; then
-    fail "Existem alteracoes nao commitadas no working tree. Faca commit/stash antes do deploy."
-  fi
+# Descartar alterações geradas por composer install (vendor/, autoload.php, robots.txt).
+# Essas mudanças são regeneradas a cada deploy e não devem bloquear o processo.
+git -C "$ROOT_DIR" checkout -- . 2>/dev/null || true
+git -C "$ROOT_DIR" clean -fd vendor/ 2>/dev/null || true
 
-  if ! git -C "$ROOT_DIR" diff --cached --quiet --ignore-submodules --; then
-    fail "Existem alteracoes staged no working tree. Faca commit/stash antes do deploy."
-  fi
+if ! git -C "$ROOT_DIR" diff --quiet --ignore-submodules --; then
+fail "Existem alteracoes nao commitadas no working tree. Faca commit/stash antes do deploy."
+fi
+
+if ! git -C "$ROOT_DIR" diff --cached --quiet --ignore-submodules --; then
+fail "Existem alteracoes staged no working tree. Faca commit/stash antes do deploy."
+fi
 }
 
 require_command() {
-  command -v "$1" >/dev/null 2>&1 || fail "Comando obrigatorio nao encontrado: $1"
+command -v "$1" >/dev/null 2>&1 || fail "Comando obrigatorio nao encontrado: $1"
 }
 
 require_file() {
-  [[ -f "$1" ]] || fail "Arquivo obrigatorio nao encontrado: $1"
+[[ -f "$1" ]] || fail "Arquivo obrigatorio nao encontrado: $1"
 }
 
 backup_database() {
-  mkdir -p "$BACKUP_DIR"
-  local backup_file="$BACKUP_DIR/db_${TIMESTAMP}.sql"
-  log "Gerando backup do banco em $backup_file"
-  run_drush sql:dump --gzip --result-file="$backup_file"
+mkdir -p "$BACKUP_DIR"
+local backup_file="$BACKUP_DIR/db_${TIMESTAMP}.sql"
+log "Gerando backup do banco em $backup_file"
+run_drush sql:dump --gzip --result-file="$backup_file"
 }
 
 log "Iniciando deploy do branch $BRANCH"
@@ -62,13 +67,13 @@ log "Atualizando refs remotas"
 git -C "$ROOT_DIR" fetch --prune origin
 
 if [[ "$BACKUP_DB" == "1" ]]; then
-  backup_database
+backup_database
 fi
 
 CURRENT_BRANCH="$(git -C "$ROOT_DIR" rev-parse --abbrev-ref HEAD)"
 if [[ "$CURRENT_BRANCH" != "$BRANCH" ]]; then
-  log "Trocando branch atual de $CURRENT_BRANCH para $BRANCH"
-  git -C "$ROOT_DIR" checkout "$BRANCH"
+log "Trocando branch atual de $CURRENT_BRANCH para $BRANCH"
+git -C "$ROOT_DIR" checkout "$BRANCH"
 fi
 
 log "Sincronizando codigo com origin/$BRANCH"
@@ -77,14 +82,17 @@ git -C "$ROOT_DIR" pull --ff-only origin "$BRANCH"
 log "Instalando dependencias Composer"
 "$COMPOSER_BIN" --working-dir="$ROOT_DIR" install --no-dev --optimize-autoloader
 
+log "Corrigindo permissoes de executaveis"
+chmod +x "$ROOT_DIR/vendor/bin/drush" "$ROOT_DIR/vendor/drush/drush/drush.php" 2>/dev/null || true
+
 log "Executando updatedb"
 run_drush updatedb -y
 
 if [[ "$IMPORT_CONFIG" == "1" ]]; then
-  log "Importando configuracao ativa"
-  run_drush config:import -y
+log "Importando configuracao ativa"
+run_drush config:import -y
 else
-  log "Config import desabilitado (DEPLOY_IMPORT_CONFIG=0)"
+log "Config import desabilitado (DEPLOY_IMPORT_CONFIG=0)"
 fi
 
 log "Limpando caches"

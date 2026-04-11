@@ -47,7 +47,9 @@ function custom_panel_theme(): array
     return [
         'custom_panel_page_header' => [
             'variables' => [
-                'title' => NULL,
+                'title'      => NULL,
+                'role_label' => NULL,
+                'painel_url' => NULL,
             ],
         ],
         'custom_panel_vagas_salvas' => [

@@ -83,29 +83,26 @@ log "Instalando dependencias Composer"
 "$COMPOSER_BIN" --working-dir="$ROOT_DIR" install --no-dev --optimize-autoloader
 
 log "Corrigindo wrapper do drush para ambientes noexec"
-# Reescreve vendor/bin/drush para chamar php explicitamente.
-# Necessario em servidores com filesystem montado com noexec.
-cat > "$ROOT_DIR/vendor/bin/drush" << 'DRUSH_WRAPPER'
-  #!/usr/bin/env sh
-  dir=$(d=$(dirname -- "$0" ); cd "$d" && pwd)
-  exec php "$dir/drush/drush/drush.php" "$@"
-  DRUSH_WRAPPER
-  chmod +x "$ROOT_DIR/vendor/bin/drush" "$ROOT_DIR/vendor/drush/drush/drush.php" 2>/dev/null || true
+# Reescreve vendor/bin/drush usando caminho absoluto para evitar problemas
+# de resolucao de path em filesystems noexec.
+printf '#!/usr/bin/env sh\nexec php "%s/vendor/drush/drush/drush.php" "$@"\n' "$ROOT_DIR" \
+> "$ROOT_DIR/vendor/bin/drush"
+chmod +x "$ROOT_DIR/vendor/bin/drush" "$ROOT_DIR/vendor/drush/drush/drush.php" 2>/dev/null || true
 
-  log "Executando updatedb"
-  run_drush updatedb -y
+log "Executando updatedb"
+run_drush updatedb -y
 
-  if [[ "$IMPORT_CONFIG" == "1" ]]; then
-  log "Importando configuracao ativa"
-  run_drush config:import -y
-  else
-  log "Config import desabilitado (DEPLOY_IMPORT_CONFIG=0)"
-  fi
+if [[ "$IMPORT_CONFIG" == "1" ]]; then
+log "Importando configuracao ativa"
+run_drush config:import -y
+else
+log "Config import desabilitado (DEPLOY_IMPORT_CONFIG=0)"
+fi
 
-  log "Limpando caches"
-  run_drush cache:rebuild
+log "Limpando caches"
+run_drush cache:rebuild
 
-  log "Verificando status final"
-  run_drush status --fields=bootstrap,database,drupal-version,drush-version,php
+log "Verificando status final"
+run_drush status --fields=bootstrap,database,drupal-version,drush-version,php
 
-  log "Deploy concluido"
+log "Deploy concluido"

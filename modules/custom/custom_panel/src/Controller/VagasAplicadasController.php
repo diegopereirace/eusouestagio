@@ -3,9 +3,6 @@
 namespace Drupal\custom_panel\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Database\Connection;
-use Drupal\Core\Url;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
@@ -14,22 +11,16 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 class VagasAplicadasController extends ControllerBase
 {
 
-  protected Connection $database;
-
-  public function __construct(Connection $database)
-  {
-    $this->database = $database;
-  }
-
-  public static function create(ContainerInterface $container): static
-  {
-    return new static(
-      $container->get('database'),
-    );
-  }
+  private const STATUS_LABELS = [
+    'em_triagem'          => 'Em Triagem',
+    'aprovado'            => 'Aprovado',
+    'reprovado'           => 'Reprovado',
+    'lista_espera'        => 'Lista de Espera',
+    'entrevista_agendada' => 'Entrevista Agendada',
+  ];
 
   /**
-   * Página /painel/estudantes/vagas-aplicadas: listagem de candidaturas.
+   * Página /painel/estudante/vagas-aplicadas: listagem de candidaturas.
    */
   public function listagem(): array
   {
@@ -40,41 +31,54 @@ class VagasAplicadasController extends ControllerBase
     }
 
     $items_per_page = 20;
+    $storage        = $this->entityTypeManager()->getStorage('node');
 
-    $query = $this->database->select('vagas_candidaturas', 'vc')
-      ->fields('vc', ['nid', 'created'])
-      ->condition('vc.uid', $uid)
-      ->orderBy('vc.created', 'DESC');
+    // Total para o pager.
+    $total = (int) $storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('type', 'candidatura')
+      ->condition('field_candidatura_candidato', $uid)
+      ->count()
+      ->execute();
 
-    /** @var \Drupal\Core\Database\Query\PagerSelectExtender $pager_query */
-    $pager_query = $query->extend('Drupal\Core\Database\Query\PagerSelectExtender')
-      ->limit($items_per_page);
+    $pager = \Drupal::service('pager.manager')->createPager($total, $items_per_page);
+    $page  = $pager->getCurrentPage();
 
-    $results = $pager_query->execute()->fetchAll();
+    $nids = $storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('type', 'candidatura')
+      ->condition('field_candidatura_candidato', $uid)
+      ->sort('created', 'DESC')
+      ->range($page * $items_per_page, $items_per_page)
+      ->execute();
 
     $rows = [];
-    $node_storage = $this->entityTypeManager()->getStorage('node');
-
-    foreach ($results as $record) {
-      $node = $node_storage->load($record->nid);
-      if (!$node) {
+    foreach ($storage->loadMultiple($nids) as $candidatura) {
+      $vagas = $candidatura->get('field_candidatura_vaga')->referencedEntities();
+      /** @var \Drupal\node\NodeInterface|null $vaga */
+      $vaga = !empty($vagas) ? $vagas[0] : NULL;
+      if (!$vaga) {
         continue;
       }
 
+      $status_key = $candidatura->get('field_candidatura_status')->value ?? 'em_triagem';
+
       $rows[] = [
-        'title' => $node->label(),
-        'url'   => Url::fromRoute('entity.node.canonical', ['node' => $record->nid])->toString(),
-        'date'  => \Drupal::service('date.formatter')->format($record->created, 'short'),
+        'title'      => $vaga->label(),
+        'url'        => $vaga->toUrl('canonical')->toString(),
+        'date'       => \Drupal::service('date.formatter')->format($candidatura->getCreatedTime(), 'short'),
+        'status'     => $this->t(self::STATUS_LABELS[$status_key] ?? $status_key),
+        'status_key' => $status_key,
       ];
     }
 
     return [
       'listing' => [
-        '#theme' => 'custom_panel_vagas_aplicadas',
-        '#rows'  => $rows,
-        '#empty' => $this->t('Você ainda não se candidatou a nenhuma vaga.'),
-        '#cache' => [
-          'tags'     => ['vagas_candidaturas:' . $uid],
+        '#theme'  => 'custom_panel_vagas_aplicadas',
+        '#rows'   => $rows,
+        '#empty'  => $this->t('Você ainda não se candidatou a nenhuma vaga.'),
+        '#cache'  => [
+          'tags'     => ['node_list:candidatura'],
           'contexts' => ['user', 'url.query_args'],
         ],
       ],

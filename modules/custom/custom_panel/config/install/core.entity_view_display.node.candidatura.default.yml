@@ -1,0 +1,41 @@
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.node.candidatura.field_candidatura_candidato
+    - field.field.node.candidatura.field_candidatura_status
+    - field.field.node.candidatura.field_candidatura_vaga
+    - node.type.candidatura
+  module:
+    - node
+    - options
+    - user
+id: node.candidatura.default
+targetEntityType: node
+bundle: candidatura
+mode: default
+content:
+  field_candidatura_vaga:
+    label: above
+    type: entity_reference_label
+    settings:
+      link: true
+    weight: 1
+    region: content
+    third_party_settings: {  }
+  field_candidatura_candidato:
+    label: above
+    type: entity_reference_label
+    settings:
+      link: false
+    weight: 2
+    region: content
+    third_party_settings: {  }
+  field_candidatura_status:
+    label: above
+    type: list_default
+    settings: {  }
+    weight: 3
+    region: content
+    third_party_settings: {  }
+hidden: {  }

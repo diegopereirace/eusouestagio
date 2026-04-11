@@ -53,3 +53,36 @@ custom_panel.vagas_candidatar:
   requirements:
     _role: 'candidato'
   methods: [POST]
+
+custom_panel.debug_roles:
+  path: '/debug/meus-roles'
+  defaults:
+    _controller: '\Drupal\custom_panel\Controller\ModeradorCandidaturasController::debugRoles'
+    _title: 'Debug Roles'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+
+custom_panel.moderador_candidaturas_listagem:
+  path: '/painel/moderador/candidaturas'
+  defaults:
+    _title: 'Candidaturas'
+    _controller: '\Drupal\custom_panel\Controller\ModeradorCandidaturasController::listagem'
+  requirements:
+    _role: 'moderador+administrator'
+
+custom_panel.moderador_candidaturas_status:
+  path: '/painel/moderador/candidaturas/status'
+  defaults:
+    _controller: '\Drupal\custom_panel\Controller\ModeradorCandidaturasController::atualizarStatus'
+  requirements:
+    _role: 'moderador+administrator'
+  methods: [POST]
+
+custom_panel.empresa_candidaturas_listagem:
+  path: '/painel/empresa/candidaturas'
+  defaults:
+    _title: 'Candidaturas Recebidas'
+    _controller: '\Drupal\custom_panel\Controller\EmpresaCandidaturasController::listagem'
+  requirements:
+    _role: 'empresa'
+

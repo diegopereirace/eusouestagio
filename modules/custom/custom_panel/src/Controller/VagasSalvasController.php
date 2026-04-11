@@ -91,7 +91,7 @@ class VagasSalvasController extends ControllerBase
   public function listagem(): array
   {
     $uid = (int) $this->currentUser()->id();
-    $items_per_page = 20;
+    $items_per_page = 10;
 
     $query = $this->database->select('vagas_salvas', 'vs')
       ->fields('vs', ['nid', 'created'])

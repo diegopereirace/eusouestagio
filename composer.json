@@ -74,7 +74,8 @@
             "web-root": "./"
         },
         "file-mapping": {
-            "[web-root]/autoload.php": false
+            "[web-root]/autoload.php": false,
+            "[web-root]/robots.txt": false
         }
         }
     }

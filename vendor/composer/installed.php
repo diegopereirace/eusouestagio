@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'drupal/project',
-        'pretty_version' => 'dev-main',
-        'version' => 'dev-main',
-        'reference' => 'd134914345334f113bbea3463d574e96d3f4e229',
+        'pretty_version' => '1.0.0+no-version-set',
+        'version' => '1.0.0.0',
+        'reference' => null,
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -470,9 +470,9 @@
             'dev_requirement' => false,
         ),
         'drupal/project' => array(
-            'pretty_version' => 'dev-main',
-            'version' => 'dev-main',
-            'reference' => 'd134914345334f113bbea3463d574e96d3f4e229',
+            'pretty_version' => '1.0.0+no-version-set',
+            'version' => '1.0.0.0',
+            'reference' => null,
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -551,9 +551,9 @@
             'dev_requirement' => false,
         ),
         'google/recaptcha' => array(
-            'pretty_version' => '1.4.2',
-            'version' => '1.4.2.0',
-            'reference' => '8c021a6df19c49f1ddfae3ee0c28ccffe381db25',
+            'pretty_version' => '1.3.1',
+            'version' => '1.3.1.0',
+            'reference' => '56522c261d2e8c58ba416c90f81a4cd9f2ed89b9',
             'type' => 'library',
             'install_path' => __DIR__ . '/../google/recaptcha',
             'aliases' => array(),

@@ -22,35 +22,6 @@ class ModeradorCandidaturasController extends ControllerBase
   ];
 
   /**
-   * DEBUG TEMPORÁRIO: exibe roles e uid do usuário atual.
-   */
-  public function debugRoles(): array
-  {
-    $account = $this->currentUser();
-    $user    = $this->entityTypeManager()->getStorage('user')->load($account->id());
-
-    $info = [
-      'UID'        => $account->id(),
-      'Nome'       => $account->getDisplayName(),
-      'Roles (currentUser)' => implode(', ', $account->getRoles()),
-      'Roles (User entity)' => $user ? implode(', ', $user->getRoles()) : '—',
-      'isAuthenticated'     => $account->isAuthenticated() ? 'sim' : 'não',
-      'hasRole moderador (currentUser)' => $account->hasRole('moderador') ? 'SIM' : 'NÃO',
-      'hasRole moderador (entity)'      => $user && $user->hasRole('moderador') ? 'SIM' : 'NÃO',
-    ];
-
-    $items = [];
-    foreach ($info as $label => $value) {
-      $items[] = "<strong>{$label}:</strong> {$value}";
-    }
-
-    return [
-      '#markup' => '<pre style="padding:20px;background:#f5f5f5">' . implode("\n", $items) . '</pre>',
-      '#cache'  => ['max-age' => 0],
-    ];
-  }
-
-  /**
    * Listagem de todas as candidaturas para o moderador.
    */
   public function listagem(): array

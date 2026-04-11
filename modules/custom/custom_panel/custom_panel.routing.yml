@@ -54,14 +54,6 @@ custom_panel.vagas_candidatar:
     _role: 'candidato'
   methods: [POST]
 
-custom_panel.debug_roles:
-  path: '/debug/meus-roles'
-  defaults:
-    _controller: '\Drupal\custom_panel\Controller\ModeradorCandidaturasController::debugRoles'
-    _title: 'Debug Roles'
-  requirements:
-    _user_is_logged_in: 'TRUE'
-
 custom_panel.moderador_candidaturas_listagem:
   path: '/painel/moderador/candidaturas'
   defaults:

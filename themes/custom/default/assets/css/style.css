@@ -1298,6 +1298,57 @@ a.vaga-share-btn:hover {
 	line-height: 1.2;
 }
 
+/* ── Painel Breadcrumb ───────────────────────────────────────────────────── */
+
+.painel-breadcrumb {
+	margin-bottom: 0.75rem;
+}
+
+.painel-breadcrumb__list {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0 0.4rem;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.painel-breadcrumb__item,
+.painel-breadcrumb__sep {
+	display: flex;
+	align-items: center;
+	font-size: 0.8rem;
+	color: rgba(255, 255, 255, 0.75);
+	line-height: 1;
+}
+
+.painel-breadcrumb__sep {
+	font-size: 0.6rem;
+	color: rgba(255, 255, 255, 0.5);
+}
+
+.painel-breadcrumb__link {
+	color: rgba(255, 255, 255, 0.75);
+	text-decoration: none;
+	transition: color 0.18s;
+}
+
+.painel-breadcrumb__link:hover,
+.painel-breadcrumb__link:focus {
+	color: #fff;
+	text-decoration: none;
+}
+
+.painel-breadcrumb__text {
+	color: rgba(255, 255, 255, 0.75);
+}
+
+.painel-breadcrumb__item--current .painel-breadcrumb__text {
+	color: #fff;
+	font-weight: 600;
+}
+
 /* ── Tipografia dos formulários do painel ───────────────────────────────── */
 
 /* H2: título da seção de formulário (ex: "Editar Informações Pessoais") */

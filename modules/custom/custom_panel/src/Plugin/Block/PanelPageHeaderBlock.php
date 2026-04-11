@@ -6,6 +6,8 @@ use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Controller\TitleResolverInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -22,7 +24,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
  *   category = @Translation("Custom Panel"),
  * )
  */
-class PanelPageHeaderBlock extends BlockBase implements ContainerFactoryPluginInterface {
+class PanelPageHeaderBlock extends BlockBase implements ContainerFactoryPluginInterface
+{
 
   /**
    * @var \Drupal\Core\Controller\TitleResolverInterface
@@ -39,6 +42,11 @@ class PanelPageHeaderBlock extends BlockBase implements ContainerFactoryPluginIn
    */
   protected RequestStack $requestStack;
 
+  /**
+   * @var \Drupal\Core\Session\AccountInterface
+   */
+  protected AccountInterface $currentUser;
+
   public function __construct(
     array $configuration,
     $plugin_id,
@@ -46,14 +54,17 @@ class PanelPageHeaderBlock extends BlockBase implements ContainerFactoryPluginIn
     TitleResolverInterface $title_resolver,
     RouteMatchInterface $route_match,
     RequestStack $request_stack,
+    AccountInterface $current_user,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->titleResolver = $title_resolver;
     $this->routeMatch = $route_match;
     $this->requestStack = $request_stack;
+    $this->currentUser = $current_user;
   }
 
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): static {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): static
+  {
     return new static(
       $configuration,
       $plugin_id,
@@ -61,13 +72,36 @@ class PanelPageHeaderBlock extends BlockBase implements ContainerFactoryPluginIn
       $container->get('title_resolver'),
       $container->get('current_route_match'),
       $container->get('request_stack'),
+      $container->get('current_user'),
     );
+  }
+
+  /**
+   * Resolve the display label for the current user's primary role.
+   */
+  protected function resolveRoleLabel(): string
+  {
+    $roles = $this->currentUser->getRoles(TRUE);
+    if (in_array('administrator', $roles)) {
+      return (string) t('Administrador');
+    }
+    if (in_array('moderador', $roles)) {
+      return (string) t('Moderador');
+    }
+    if (in_array('empresa', $roles)) {
+      return (string) t('Empresa');
+    }
+    if (in_array('candidato', $roles)) {
+      return (string) t('Estudante');
+    }
+    return (string) t('Usuário');
   }
 
   /**
    * {@inheritdoc}
    */
-  public function build(): array {
+  public function build(): array
+  {
     $route = $this->routeMatch->getRouteObject();
     if (!$route) {
       return [];
@@ -75,14 +109,16 @@ class PanelPageHeaderBlock extends BlockBase implements ContainerFactoryPluginIn
 
     $request = $this->requestStack->getCurrentRequest();
     $title = $this->titleResolver->getTitle($request, $route);
+    $painel_url = Url::fromRoute('custom_panel.painel')->toString();
 
     return [
       '#theme' => 'custom_panel_page_header',
       '#title' => $title,
+      '#role_label' => $this->resolveRoleLabel(),
+      '#painel_url' => $painel_url,
       '#cache' => [
-        'contexts' => ['url.path', 'user'],
+        'contexts' => ['url.path', 'user.roles'],
       ],
     ];
   }
-
 }

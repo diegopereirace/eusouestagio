@@ -76,3 +76,16 @@
 .vagas-aplicadas .table > :not(caption) > * > * {
   vertical-align: middle;
 }
+
+/* Pager nas listagens do painel */
+.vagas-salvas + nav.pager,
+.vagas-aplicadas + nav.pager {
+  margin-top: 1rem;
+  padding: 0 2rem;
+  text-align: center;
+}
+
+.vagas-salvas + nav.pager .pager__items,
+.vagas-aplicadas + nav.pager .pager__items {
+  justify-content: center;
+}

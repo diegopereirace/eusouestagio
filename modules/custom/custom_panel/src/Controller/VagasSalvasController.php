@@ -121,13 +121,17 @@ class VagasSalvasController extends ControllerBase
     }
 
     return [
-      '#theme' => 'custom_panel_vagas_salvas',
-      '#rows' => $rows,
-      '#empty' => $this->t('Nenhuma vaga salva.'),
-      '#pager' => ['#type' => 'pager'],
-      '#cache' => [
-        'tags' => ['vagas_salvas:' . $uid],
-        'contexts' => ['user', 'url.query_args'],
+      'listing' => [
+        '#theme' => 'custom_panel_vagas_salvas',
+        '#rows' => $rows,
+        '#empty' => $this->t('Nenhuma vaga salva.'),
+        '#cache' => [
+          'tags' => ['vagas_salvas:' . $uid],
+          'contexts' => ['user', 'url.query_args'],
+        ],
+      ],
+      'pager' => [
+        '#type' => 'pager',
       ],
     ];
   }

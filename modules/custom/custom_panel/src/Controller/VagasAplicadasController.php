@@ -69,13 +69,17 @@ class VagasAplicadasController extends ControllerBase
     }
 
     return [
-      '#theme' => 'custom_panel_vagas_aplicadas',
-      '#rows'  => $rows,
-      '#empty' => $this->t('Você ainda não se candidatou a nenhuma vaga.'),
-      '#pager' => ['#type' => 'pager'],
-      '#cache' => [
-        'tags'     => ['vagas_candidaturas:' . $uid],
-        'contexts' => ['user', 'url.query_args'],
+      'listing' => [
+        '#theme' => 'custom_panel_vagas_aplicadas',
+        '#rows'  => $rows,
+        '#empty' => $this->t('Você ainda não se candidatou a nenhuma vaga.'),
+        '#cache' => [
+          'tags'     => ['vagas_candidaturas:' . $uid],
+          'contexts' => ['user', 'url.query_args'],
+        ],
+      ],
+      'pager' => [
+        '#type' => 'pager',
       ],
     ];
   }

@@ -4,9 +4,8 @@
  * Listagem de vagas às quais o estudante se candidatou.
  *
  * Variables:
- * - rows: Array de candidaturas, cada uma com 'title', 'url' e 'date'.
+ * - rows: Array de candidaturas, cada uma com 'title', 'url', 'date', 'status' e 'status_key'.
  * - empty: Mensagem exibida quando não há candidaturas.
- * - pager: Elemento de paginação.
  */
 #}
 <div class="vagas-aplicadas pt-3 pb-5">
@@ -19,6 +18,7 @@
               <tr>
                 <th class="px-4 py-3 text-muted text-nowrap" style="width:1%">#</th>
                 <th class="px-4 py-3">{{ 'Vaga'|t }}</th>
+                <th class="px-4 py-3 text-nowrap">{{ 'Status'|t }}</th>
                 <th class="px-4 py-3 text-nowrap">{{ 'Data de Candidatura'|t }}</th>
               </tr>
             </thead>
@@ -26,8 +26,11 @@
               {% for row in rows %}
                 <tr>
                   <td class="px-4 py-2 text-muted small text-nowrap align-middle">{{ loop.index }}</td>
-                  <td class="px-4 py-2">
+                  <td class="px-4 py-2 align-middle">
                     <a href="{{ row.url }}" target="_blank">{{ row.title }}</a>
+                  </td>
+                  <td class="px-4 py-2 align-middle text-nowrap">
+                    <span class="badge candidatura-status--{{ row.status_key }}">{{ row.status }}</span>
                   </td>
                   <td class="px-4 py-2 text-nowrap text-muted small align-middle">{{ row.date }}</td>
                 </tr>
@@ -47,3 +50,4 @@
     </div>
   {% endif %}
 </div>
+

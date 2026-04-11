@@ -120,3 +120,57 @@ function custom_panel_update_10002(): void
     $schema->createTable('vagas_candidaturas', $spec);
   }
 }
+
+/**
+ * Migra registros de vagas_candidaturas para nodes do tipo candidatura.
+ */
+function custom_panel_update_10003(): void
+{
+  $db_schema = \Drupal::database()->schema();
+  if (!$db_schema->tableExists('vagas_candidaturas')) {
+    return;
+  }
+
+  $records = \Drupal::database()
+    ->select('vagas_candidaturas', 'vc')
+    ->fields('vc', ['uid', 'nid', 'created'])
+    ->execute()
+    ->fetchAll();
+
+  if (empty($records)) {
+    return;
+  }
+
+  $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+
+  foreach ($records as $record) {
+    $uid = (int) $record->uid;
+    $nid = (int) $record->nid;
+
+    // Evita duplicata.
+    $existing = $node_storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('type', 'candidatura')
+      ->condition('field_candidatura_vaga', $nid)
+      ->condition('field_candidatura_candidato', $uid)
+      ->count()
+      ->execute();
+
+    if ($existing > 0) {
+      continue;
+    }
+
+    $candidatura = \Drupal\node\Entity\Node::create([
+      'type'                        => 'candidatura',
+      'title'                       => 'Candidatura #' . $nid . ' — UID ' . $uid,
+      'uid'                         => $uid,
+      'status'                      => 0,
+      'created'                     => (int) $record->created,
+      'changed'                     => (int) $record->created,
+      'field_candidatura_vaga'      => ['target_id' => $nid],
+      'field_candidatura_candidato' => ['target_id' => $uid],
+      'field_candidatura_status'    => 'em_triagem',
+    ]);
+    $candidatura->save();
+  }
+}

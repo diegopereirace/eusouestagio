@@ -7,5 +7,6 @@ core_version_requirement: ^10 || ^11
 
 dependencies:
   - custom_configs:custom_configs_users
+  - drupal:node
   - drupal:user
   - drupal:options

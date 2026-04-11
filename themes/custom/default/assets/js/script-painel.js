@@ -101,6 +101,52 @@
             });
         });
       });
+
+      // ── Painel Moderador: Atualizar Status de Candidatura ─────────────
+      once('salvar-status-candidatura', '.js-salvar-status', context).forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var button    = this;
+          var nid       = button.getAttribute('data-nid');
+          var row       = button.closest('tr');
+          var select    = row.querySelector('.js-status-select');
+          var newStatus = select.value;
+          var table     = button.closest('table');
+          var updateUrl = table.getAttribute('data-update-url');
+          var badge     = row.querySelector('.candidatura-status-badge');
+
+          button.disabled = true;
+          button.textContent = Drupal.t('Salvando…');
+
+          fetch(Drupal.url('session/token'))
+            .then(function (res) { return res.text(); })
+            .then(function (csrfToken) {
+              return fetch(updateUrl, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+                  'X-CSRF-Token': csrfToken,
+                },
+                body: 'nid=' + encodeURIComponent(nid) + '&status=' + encodeURIComponent(newStatus),
+              });
+            })
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+              button.disabled = false;
+              button.textContent = Drupal.t('Salvar');
+              if (data.status === 'ok' && badge) {
+                badge.className = badge.className
+                  .replace(/candidatura-status--\S+/g, '')
+                  .trim();
+                badge.classList.add('candidatura-status--' + newStatus);
+                badge.textContent = select.options[select.selectedIndex].text.trim();
+              }
+            })
+            .catch(function () {
+              button.disabled = false;
+              button.textContent = Drupal.t('Salvar');
+            });
+        });
+      });
     },
   };
 })(Drupal, drupalSettings, once);

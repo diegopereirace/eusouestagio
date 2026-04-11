@@ -1,5 +1,6 @@
 <?php
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -28,11 +29,13 @@ function _custom_panel_login_redirect(array &$form, FormStateInterface $form_sta
         return;
     }
 
-    // Redireciona apenas candidatos e empresas.
+    // Redireciona conforme o papel do usuário.
     if ($user->hasRole('candidato')) {
         $form_state->setRedirect('custom_panel.painel_estudante_perfil');
     } elseif ($user->hasRole('empresa')) {
         $form_state->setRedirect('custom_panel.painel_empresa_perfil');
+    } elseif ($user->hasRole('moderador')) {
+        $form_state->setRedirect('custom_panel.moderador_candidaturas_listagem');
     }
 }
 
@@ -59,6 +62,20 @@ function custom_panel_theme(): array
                 'empty' => NULL,
             ],
         ],
+        'custom_panel_moderador_candidaturas' => [
+            'variables' => [
+                'rows'           => [],
+                'empty'          => NULL,
+                'status_options' => [],
+                'update_url'     => NULL,
+            ],
+        ],
+        'custom_panel_empresa_candidaturas' => [
+            'variables' => [
+                'rows'  => [],
+                'empty' => NULL,
+            ],
+        ],
     ];
 }
 
@@ -70,8 +87,100 @@ function custom_panel_theme(): array
 function custom_panel_preprocess_pager(array &$variables): void
 {
     $route = \Drupal::routeMatch()->getRouteName();
-    if (in_array($route, ['custom_panel.vagas_salvas_listagem', 'custom_panel.vagas_aplicadas_listagem'])) {
+    if (in_array($route, [
+        'custom_panel.vagas_salvas_listagem',
+        'custom_panel.vagas_aplicadas_listagem',
+        'custom_panel.moderador_candidaturas_listagem',
+        'custom_panel.empresa_candidaturas_listagem',
+    ])) {
         unset($variables['items']['first']);
         unset($variables['items']['last']);
     }
+}
+
+/**
+ * Implements hook_mail().
+ *
+ * Define os e-mails enviados pelo módulo custom_panel.
+ */
+function custom_panel_mail(string $key, array &$message, array $params): void
+{
+    $site_name = \Drupal::config('system.site')->get('name');
+
+    switch ($key) {
+        case 'candidatura_confirmacao':
+            $message['subject'] = t('@site — Sua candidatura foi recebida!', ['@site' => $site_name]);
+            $message['body'][]  = t('Olá, @nome!', ['@nome' => $params['candidato_nome']]);
+            $message['body'][]  = t(
+                'Recebemos sua candidatura para a vaga "@vaga". Sua inscrição está em triagem e nossa equipe irá analisar seu perfil em breve.',
+                ['@vaga' => $params['vaga_titulo']]
+            );
+            $message['body'][]  = t('Você pode acompanhar o andamento acessando seu painel em: @url', ['@url' => $params['vaga_url']]);
+            $message['body'][]  = t('Atenciosamente,') . "\n" . $site_name;
+            break;
+
+        case 'candidatura_status_alterado':
+            $message['subject'] = t('@site — Atualização na sua candidatura', ['@site' => $site_name]);
+            $message['body'][]  = t('Olá, @nome!', ['@nome' => $params['candidato_nome']]);
+            $message['body'][]  = t(
+                'O status da sua candidatura para a vaga "@vaga" foi atualizado para: @status.',
+                ['@vaga' => $params['vaga_titulo'], '@status' => $params['status_label']]
+            );
+            $message['body'][]  = t('Acesse a vaga para mais detalhes: @url', ['@url' => $params['vaga_url']]);
+            $message['body'][]  = t('Atenciosamente,') . "\n" . $site_name;
+            break;
+    }
+}
+
+/**
+ * Implements hook_node_update().
+ *
+ * Envia e-mail ao candidato quando o status da candidatura for alterado.
+ */
+function custom_panel_node_update(EntityInterface $node): void
+{
+    if ($node->bundle() !== 'candidatura') {
+        return;
+    }
+
+    $new_status = $node->get('field_candidatura_status')->value;
+    $old_status = $node->original->get('field_candidatura_status')->value;
+
+    if ($new_status === $old_status) {
+        return;
+    }
+
+    $status_labels = [
+        'em_triagem'          => t('Em Triagem'),
+        'aprovado'            => t('Aprovado'),
+        'reprovado'           => t('Reprovado'),
+        'lista_espera'        => t('Lista de Espera'),
+        'entrevista_agendada' => t('Entrevista Agendada'),
+    ];
+
+    $candidatos = $node->get('field_candidatura_candidato')->referencedEntities();
+    $vagas      = $node->get('field_candidatura_vaga')->referencedEntities();
+
+    /** @var \Drupal\user\UserInterface|null $candidato */
+    $candidato = !empty($candidatos) ? $candidatos[0] : NULL;
+    $vaga      = !empty($vagas) ? $vagas[0] : NULL;
+
+    if (!$candidato || !$vaga || empty($candidato->getEmail())) {
+        return;
+    }
+
+    $params = [
+        'candidato_nome' => $candidato->getDisplayName(),
+        'vaga_titulo'    => $vaga->label(),
+        'vaga_url'       => $vaga->toUrl('canonical', ['absolute' => TRUE])->toString(),
+        'status_label'   => $status_labels[$new_status] ?? $new_status,
+    ];
+
+    \Drupal::service('plugin.manager.mail')->mail(
+        'custom_panel',
+        'candidatura_status_alterado',
+        $candidato->getEmail(),
+        $candidato->getPreferredLangcode(),
+        $params
+    );
 }

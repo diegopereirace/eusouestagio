@@ -51,14 +51,12 @@ function custom_panel_theme(): array
             'variables' => [
                 'rows' => [],
                 'empty' => NULL,
-                'pager' => NULL,
             ],
         ],
         'custom_panel_vagas_aplicadas' => [
             'variables' => [
                 'rows' => [],
                 'empty' => NULL,
-                'pager' => NULL,
             ],
         ],
     ];

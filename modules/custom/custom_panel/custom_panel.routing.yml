@@ -38,6 +38,14 @@ custom_panel.vagas_salvas_listagem:
   requirements:
     _role: 'candidato'
 
+custom_panel.vagas_aplicadas_listagem:
+  path: '/painel/estudante/vagas-aplicadas'
+  defaults:
+    _title: 'Vagas Aplicadas'
+    _controller: '\Drupal\custom_panel\Controller\VagasAplicadasController::listagem'
+  requirements:
+    _role: 'candidato'
+
 custom_panel.vagas_candidatar:
   path: '/painel/estudante/vagas/candidatar'
   defaults:

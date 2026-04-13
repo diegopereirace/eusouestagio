@@ -28,12 +28,32 @@ h6 {
 .site-footer-custom {
 	background-color: #023c62;
 	color: #fff;
-	padding: 40px 0;
+	padding-top: 28px;
+	padding-bottom: 28px;
 }
 
 .footer-menu-title {
 	font-size: 1.5rem;
 	font-weight: 600;
+}
+
+.site-footer-custom .footer-menu-title {
+	margin-bottom: 2.1rem !important;
+}
+
+.site-footer-custom .footer-links-menu .menu-item,
+.site-footer-custom .footer-links-menu .nav-item,
+.site-footer-custom .footer-links-menu li {
+	margin-top: 0;
+	margin-bottom: 0.18rem;
+}
+
+.site-footer-custom .wraper-footer-cta-links {
+	padding-top: 1.05rem !important;
+}
+
+.site-footer-custom .footer-logo {
+	margin-bottom: 0.84rem !important;
 }
 
 #header {
@@ -958,7 +978,8 @@ h6 {
 .footer-links-menu .nav-item,
 .footer-links-menu li {
 	display: block;
-	margin: 0 0 0.25rem 0;
+	margin-top: 0;
+	margin-bottom: 0.18rem;
 	border: 0 !important;
 }
 
@@ -1632,26 +1653,27 @@ a.vaga-share-btn:hover {
 
 @media (max-width: 767.98px) {
 	.site-footer-custom {
-		padding-top: 48px;
-		padding-bottom: 28px;
+		padding-top: 34px;
+		padding-bottom: 20px;
 	}
 
 	.site-footer-custom .content > .row:first-child > [class*='col-'] + [class*='col-'] {
-		margin-top: 2.25rem;
+		margin-top: 1.58rem;
 	}
 
 	.site-footer-custom .footer-menu-title {
-		margin-bottom: 1.25rem !important;
+		margin-bottom: 0.88rem !important;
 	}
 
 	.site-footer-custom .footer-links-menu .menu-item,
 	.site-footer-custom .footer-links-menu .nav-item,
 	.site-footer-custom .footer-links-menu li {
-		margin: 0 0 0.6rem 0;
+		margin-top: 0;
+		margin-bottom: 0.42rem;
 	}
 
 	.site-footer-custom .content > .row:first-child {
-		margin-bottom: 2rem;
+		margin-bottom: 1.4rem;
 	}
 
 	.site-footer-custom .content > .row.mb-4 {
@@ -1659,7 +1681,7 @@ a.vaga-share-btn:hover {
 	}
 
 	.site-footer-custom .content > .row.mb-4 .col-md-4 {
-		margin-top: 1rem;
+		margin-top: 0.7rem;
 	}
 }
 

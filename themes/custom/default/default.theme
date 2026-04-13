@@ -55,20 +55,25 @@ function default_preprocess_node__vagas(&$variables)
     $nid = $variables['node']->id();
     $uid = $user->id();
 
-    $exists_salva = \Drupal::database()->select('vagas_salvas', 'vs')
-      ->fields('vs', ['id'])
-      ->condition('uid', $uid)
-      ->condition('nid', $nid)
-      ->execute()
-      ->fetchField();
-    $variables['vaga_salva'] = !empty($exists_salva);
+    $database = \Drupal::database();
+    if ($database->schema()->tableExists('vagas_salvas')) {
+      $exists_salva = $database->select('vagas_salvas', 'vs')
+        ->fields('vs', ['id'])
+        ->condition('uid', $uid)
+        ->condition('nid', $nid)
+        ->execute()
+        ->fetchField();
+      $variables['vaga_salva'] = !empty($exists_salva);
+    }
 
-    $exists_candidatura = \Drupal::database()->select('vagas_candidaturas', 'vc')
-      ->fields('vc', ['id'])
-      ->condition('uid', $uid)
-      ->condition('nid', $nid)
-      ->execute()
-      ->fetchField();
+    // Candidatura agora é armazenada como node do tipo 'candidatura'.
+    $exists_candidatura = \Drupal::entityQuery('node')
+      ->accessCheck(FALSE)
+      ->condition('type', 'candidatura')
+      ->condition('field_candidatura_vaga', $nid)
+      ->condition('field_candidatura_candidato', $uid)
+      ->range(0, 1)
+      ->execute();
     $variables['vaga_candidatada'] = !empty($exists_candidatura);
   }
 }

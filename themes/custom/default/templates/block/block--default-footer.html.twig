@@ -47,7 +47,12 @@
     <div{{ content_attributes.addClass('content') }}>
       <div class="row">
         <div class="col-md-3 col-12">
-          <h3 class="footer-menu-title mb-5">Eu Sou Estágio</h3>
+          <div class="footer-logo mb-4">
+            <a href="{{ path('<front>') }}" title="Eu Sou Estágio" class="d-flex text-decoration-none">
+              <div class="pe-2"><img src="{{ path('<front>') }}{{ directory }}/assets/images/logo-rodape.png" alt="Eu Sou Estágio logo" width="50px"></div>
+              <div><h3 class="footer-menu-title mb-5 text-white">Eu Sou Estágio</h3></div>
+            </a>
+          </div>
           {{ content.field_text_simple_long }}
         </div>
         <div class="col-md-3 col-12 footer-menu-section">

@@ -10,16 +10,19 @@ use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
-class EmpresaRegistrationForm extends FormBase {
+class EmpresaRegistrationForm extends FormBase
+{
 
-    public function getFormId() {
+    public function getFormId()
+    {
         return 'custom_configs_users_empresa_registration_form';
     }
 
     /**
      * Carrega as opções de um campo list_string.
      */
-    private function getListOptions(string $field_name, string $entity_type = 'user'): array {
+    private function getListOptions(string $field_name, string $entity_type = 'user'): array
+    {
         $storage = FieldStorageConfig::loadByName($entity_type, $field_name);
         if (!$storage) {
             return [];
@@ -65,7 +68,8 @@ class EmpresaRegistrationForm extends FormBase {
         return $options;
     }
 
-    public function buildForm(array $form, FormStateInterface $form_state) {
+    public function buildForm(array $form, FormStateInterface $form_state)
+    {
         if (\Drupal::config('user.settings')->get('register') === UserInterface::REGISTER_ADMINISTRATORS_ONLY) {
             throw new AccessDeniedHttpException();
         }
@@ -79,8 +83,7 @@ class EmpresaRegistrationForm extends FormBase {
             '#weight' => -1000,
         ];
         $form['page_title'] = [
-            '#markup' => '<div class="mb-4 mt-2">'
-                . '<h2 class="mb-1"><i class="fas fa-building me-2"></i>' . $this->t('Cadastro de Empresa') . '</h2>'
+            '#markup' => '<div class="mb-4 mt-5">'
                 . '<p class="text-muted mb-0">' . $this->t('Preencha os dados abaixo para cadastrar sua empresa na plataforma.') . '</p>'
                 . '</div>',
         ];
@@ -139,8 +142,7 @@ class EmpresaRegistrationForm extends FormBase {
                 '#required' => TRUE,
                 '#attributes' => ['class' => ['form-control']],
             ];
-        }
-        else {
+        } else {
             $form['section_acesso']['verify_mail_message'] = [
                 '#type' => 'markup',
                 '#markup' => '<div class="alert alert-info mt-3 mb-0">'
@@ -433,7 +435,8 @@ class EmpresaRegistrationForm extends FormBase {
         return $form;
     }
 
-    public function validateForm(array &$form, FormStateInterface $form_state) {
+    public function validateForm(array &$form, FormStateInterface $form_state)
+    {
         $name = trim((string) $form_state->getValue('name'));
         $mail = trim((string) $form_state->getValue('mail'));
         $pass = (string) $form_state->getValue('pass');
@@ -499,7 +502,8 @@ class EmpresaRegistrationForm extends FormBase {
         }
     }
 
-    public function submitForm(array &$form, FormStateInterface $form_state) {
+    public function submitForm(array &$form, FormStateInterface $form_state)
+    {
         if (!(bool) $form_state->getValue('field_termo')) {
             $this->messenger()->addError($this->t('Você precisa aceitar a Política de Privacidade para concluir o cadastro.'));
             return;
@@ -601,7 +605,8 @@ class EmpresaRegistrationForm extends FormBase {
     /**
      * Valida o CPF pelo dígito verificador.
      */
-    private function validarCpf(string $cpf): bool {
+    private function validarCpf(string $cpf): bool
+    {
         if (preg_match('/^(\d)\1{10}$/', $cpf)) {
             return FALSE;
         }
@@ -626,7 +631,8 @@ class EmpresaRegistrationForm extends FormBase {
     /**
      * Valida o CNPJ pelo dígito verificador.
      */
-    private function validarCnpj(string $cnpj): bool {
+    private function validarCnpj(string $cnpj): bool
+    {
         if (preg_match('/^(\d)\1{13}$/', $cnpj)) {
             return FALSE;
         }
@@ -654,5 +660,4 @@ class EmpresaRegistrationForm extends FormBase {
 
         return (int) $cnpj[13] === $digit2;
     }
-
 }

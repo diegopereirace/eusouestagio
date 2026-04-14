@@ -57,11 +57,7 @@
             </div>
         </div>
         <div class="row-custom row-3">
-            {% if not logged_in %}
-                <a href="/cadastro/candidato" class="ui-btn ui-btn--primary w-100">{{ 'Cadastre-se'|t }}</a>
-            {% elseif user.hasRole('candidato') %}
-                <a href="{{ path('entity.node.canonical', {'node': row._entity.id}) }}" class="ui-btn ui-btn--primary w-100">{{ 'Ver Detalhes'|t }}</a>
-            {% endif %}
+            <a href="{{ path('entity.node.canonical', {'node': row._entity.id}) }}" class="ui-btn ui-btn--primary w-100">{{ 'Ver Detalhes'|t }}</a>
         </div>
     </div>
 </div>

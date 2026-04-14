@@ -16,16 +16,19 @@ use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
-class CandidatoRegistrationForm extends FormBase {
+class CandidatoRegistrationForm extends FormBase
+{
 
-    public function getFormId() {
+    public function getFormId()
+    {
         return 'custom_configs_users_candidato_registration_form';
     }
 
     /**
      * Carrega as opções de um campo list_string.
      */
-    private function getListOptions(string $field_name, string $entity_type = 'user'): array {
+    private function getListOptions(string $field_name, string $entity_type = 'user'): array
+    {
         $storage = FieldStorageConfig::loadByName($entity_type, $field_name);
         if (!$storage) {
             return [];
@@ -71,7 +74,8 @@ class CandidatoRegistrationForm extends FormBase {
         return $options;
     }
 
-    public function buildForm(array $form, FormStateInterface $form_state) {
+    public function buildForm(array $form, FormStateInterface $form_state)
+    {
         if (\Drupal::config('user.settings')->get('register') === UserInterface::REGISTER_ADMINISTRATORS_ONLY) {
             throw new AccessDeniedHttpException();
         }
@@ -90,8 +94,7 @@ class CandidatoRegistrationForm extends FormBase {
         // ── Seção 1 — Dados de Acesso ──────────────────────────────
 
         $form['page_title'] = [
-            '#markup' => '<div class="mb-4 mt-2">'
-                . '<h2 class="mb-1"><i class="fas fa-user-graduate me-2"></i>' . $this->t('Cadastro de Candidato') . '</h2>'
+            '#markup' => '<div class="mb-4 mt-5">'
                 . '<p class="text-muted mb-0">' . $this->t('Preencha os dados abaixo para criar sua conta como candidato a estágio.') . '</p>'
                 . '</div>',
         ];
@@ -153,8 +156,7 @@ class CandidatoRegistrationForm extends FormBase {
                 '#required' => TRUE,
                 '#attributes' => ['class' => ['form-control']],
             ];
-        }
-        else {
+        } else {
             $form['section_acesso']['verify_mail_message'] = [
                 '#type' => 'markup',
                 '#markup' => '<div class="alert alert-info mt-3 mb-0">'
@@ -332,7 +334,7 @@ class CandidatoRegistrationForm extends FormBase {
             '#type' => 'container',
             '#attributes' => ['class' => ['mb-4']],
         ];
-        
+
         $form['section_endereco']['heading'] = [
             '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-map-marker-alt me-2"></i>' . $this->t('Endereço') . '</h4>',
         ];
@@ -447,8 +449,8 @@ class CandidatoRegistrationForm extends FormBase {
             '#title' => $this->t('Instagram'),
             '#maxlength' => 100,
             '#attributes' => [
-            'class' => ['form-control'],
-            'placeholder' => '@usuario',
+                'class' => ['form-control'],
+                'placeholder' => '@usuario',
             ],
         ];
 
@@ -1058,7 +1060,8 @@ class CandidatoRegistrationForm extends FormBase {
     /**
      * AJAX: adiciona mais uma instituição de ensino.
      */
-    public function addInstituicaoCallback(array &$form, FormStateInterface $form_state) {
+    public function addInstituicaoCallback(array &$form, FormStateInterface $form_state)
+    {
         $num = $form_state->get('num_instituicoes') ?? 1;
         $form_state->set('num_instituicoes', $num + 1);
         $form_state->setRebuild();
@@ -1067,7 +1070,8 @@ class CandidatoRegistrationForm extends FormBase {
     /**
      * AJAX: remove a última instituição de ensino.
      */
-    public function removeInstituicaoCallback(array &$form, FormStateInterface $form_state) {
+    public function removeInstituicaoCallback(array &$form, FormStateInterface $form_state)
+    {
         $num = $form_state->get('num_instituicoes') ?? 1;
         if ($num > 1) {
             $form_state->set('num_instituicoes', $num - 1);
@@ -1078,14 +1082,16 @@ class CandidatoRegistrationForm extends FormBase {
     /**
      * AJAX: retorna o wrapper atualizado das instituições.
      */
-    public function ajaxRefreshInstituicoes(array &$form, FormStateInterface $form_state) {
+    public function ajaxRefreshInstituicoes(array &$form, FormStateInterface $form_state)
+    {
         return $form['section_instituicao']['instituicoes_wrapper'];
     }
 
     /**
      * AJAX: adiciona mais um curso extracurricular.
      */
-    public function addCursoCallback(array &$form, FormStateInterface $form_state) {
+    public function addCursoCallback(array &$form, FormStateInterface $form_state)
+    {
         $num = $form_state->get('num_cursos') ?? 0;
         $form_state->set('num_cursos', $num + 1);
         $form_state->setRebuild();
@@ -1094,7 +1100,8 @@ class CandidatoRegistrationForm extends FormBase {
     /**
      * AJAX: remove o último curso extracurricular.
      */
-    public function removeCursoCallback(array &$form, FormStateInterface $form_state) {
+    public function removeCursoCallback(array &$form, FormStateInterface $form_state)
+    {
         $num = $form_state->get('num_cursos') ?? 0;
         if ($num > 0) {
             $form_state->set('num_cursos', $num - 1);
@@ -1105,14 +1112,16 @@ class CandidatoRegistrationForm extends FormBase {
     /**
      * AJAX: retorna o wrapper atualizado dos cursos.
      */
-    public function ajaxRefreshCursos(array &$form, FormStateInterface $form_state) {
+    public function ajaxRefreshCursos(array &$form, FormStateInterface $form_state)
+    {
         return $form['section_extracurricular']['cursos_wrapper'];
     }
 
     /**
      * AJAX: adiciona mais uma experiência profissional.
      */
-    public function addExperienciaCallback(array &$form, FormStateInterface $form_state) {
+    public function addExperienciaCallback(array &$form, FormStateInterface $form_state)
+    {
         $num = $form_state->get('num_experiencias') ?? 0;
         $form_state->set('num_experiencias', $num + 1);
         $form_state->setRebuild();
@@ -1121,7 +1130,8 @@ class CandidatoRegistrationForm extends FormBase {
     /**
      * AJAX: remove a última experiência profissional.
      */
-    public function removeExperienciaCallback(array &$form, FormStateInterface $form_state) {
+    public function removeExperienciaCallback(array &$form, FormStateInterface $form_state)
+    {
         $num = $form_state->get('num_experiencias') ?? 0;
         if ($num > 0) {
             $form_state->set('num_experiencias', $num - 1);
@@ -1132,11 +1142,13 @@ class CandidatoRegistrationForm extends FormBase {
     /**
      * AJAX: retorna o wrapper atualizado das experiências.
      */
-    public function ajaxRefreshExperiencias(array &$form, FormStateInterface $form_state) {
+    public function ajaxRefreshExperiencias(array &$form, FormStateInterface $form_state)
+    {
         return $form['section_experiencia']['experiencias_wrapper'];
     }
 
-    public function validateForm(array &$form, FormStateInterface $form_state) {
+    public function validateForm(array &$form, FormStateInterface $form_state)
+    {
         $name = trim((string) $form_state->getValue('name'));
         $mail = trim((string) $form_state->getValue('mail'));
         $pass = (string) $form_state->getValue('pass');
@@ -1187,7 +1199,8 @@ class CandidatoRegistrationForm extends FormBase {
         }
     }
 
-    public function submitForm(array &$form, FormStateInterface $form_state) {
+    public function submitForm(array &$form, FormStateInterface $form_state)
+    {
         if (!(bool) $form_state->getValue('field_termo')) {
             $this->messenger()->addError($this->t('Você precisa aceitar o termo para concluir o cadastro.'));
             return;
@@ -1342,12 +1355,24 @@ class CandidatoRegistrationForm extends FormBase {
 
             if (!empty($empresa) || !empty($cargo)) {
                 $p_values = ['type' => 'experiencia_profissional'];
-                if (!empty($empresa))    { $p_values['field_nome_empresa']     = $empresa; }
-                if (!empty($cargo))      { $p_values['field_cargo']             = $cargo; }
-                if (!empty($data_ini))   { $p_values['field_data_inicio']       = $data_ini; }
-                if (!empty($data_fim))   { $p_values['field_data_termino']      = $data_fim; }
-                if (!empty($regime))     { $p_values['field_regime_contrato']   = $regime; }
-                if (!empty($atividades)) { $p_values['field_atividades']        = $atividades; }
+                if (!empty($empresa)) {
+                    $p_values['field_nome_empresa']     = $empresa;
+                }
+                if (!empty($cargo)) {
+                    $p_values['field_cargo']             = $cargo;
+                }
+                if (!empty($data_ini)) {
+                    $p_values['field_data_inicio']       = $data_ini;
+                }
+                if (!empty($data_fim)) {
+                    $p_values['field_data_termino']      = $data_fim;
+                }
+                if (!empty($regime)) {
+                    $p_values['field_regime_contrato']   = $regime;
+                }
+                if (!empty($atividades)) {
+                    $p_values['field_atividades']        = $atividades;
+                }
 
                 $paragraph = Paragraph::create($p_values);
                 $paragraph->save();
@@ -1396,5 +1421,4 @@ class CandidatoRegistrationForm extends FormBase {
         $this->messenger()->addStatus($this->t('Cadastro realizado. Sua conta aguarda aprovacao do administrador e voce recebera um e-mail com as proximas instrucoes.'));
         $form_state->setRedirect('<front>');
     }
-
 }

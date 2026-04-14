@@ -168,6 +168,60 @@ function default_form_search_block_form_alter(array &$form, FormStateInterface $
  */
 function default_preprocess_menu(array &$variables): void
 {
+  // Oculta o item "Acessar" (user.login) no rodapé para usuários já logados
+  // com o papel adequado ao menu em questão:
+  // - candidato: menu "rodape---para-estudantes"
+  // - empresa:   menu "para-empresas"
+  $menu_name = $variables['menu_name'] ?? '';
+  $hide_login_for_roles = [
+    'rodape---para-estudantes' => 'candidato',
+    'para-empresas'            => 'empresa',
+  ];
+
+  $user = \Drupal::currentUser();
+  $user_roles = $user->getRoles();
+
+  // Oculta "Acessar" (user.login) no menu do próprio papel do usuário logado.
+  if (isset($hide_login_for_roles[$menu_name])) {
+    $required_role = $hide_login_for_roles[$menu_name];
+    if (in_array($required_role, $user_roles, TRUE)) {
+      foreach ($variables['items'] as $key => $item) {
+        /** @var \Drupal\Core\Url $url */
+        $url = $item['url'] ?? NULL;
+        if ($url instanceof \Drupal\Core\Url && $url->isRouted() && $url->getRouteName() === 'user.login') {
+          unset($variables['items'][$key]);
+        }
+      }
+    }
+  }
+
+  // Desabilita visualmente todos os links do menu oposto ao papel do usuário.
+  // - candidato logado → desabilita links de "para-empresas"
+  // - empresa logada   → desabilita links de "rodape---para-estudantes"
+  $disable_links_map = [
+    'candidato' => 'para-empresas',
+    'empresa'   => 'rodape---para-estudantes',
+  ];
+  foreach ($disable_links_map as $role => $target_menu) {
+    if ($menu_name === $target_menu && in_array($role, $user_roles, TRUE)) {
+      foreach ($variables['items'] as &$item) {
+        $url = $item['url'] ?? NULL;
+        if ($url instanceof \Drupal\Core\Url) {
+          // Substitui a URL por uma âncora vazia e marca o item como desabilitado.
+          $item['url'] = \Drupal\Core\Url::fromRoute('<nolink>');
+          $attrs = $item['url']->getOption('attributes') ?? [];
+          $classes = $attrs['class'] ?? [];
+          $classes[] = 'footer-link--disabled';
+          $attrs['class'] = $classes;
+          $attrs['aria-disabled'] = 'true';
+          $item['url']->setOption('attributes', $attrs);
+        }
+      }
+      unset($item);
+      break;
+    }
+  }
+
   $current_route = \Drupal::routeMatch()->getRouteName();
   if (empty($current_route)) {
     return;

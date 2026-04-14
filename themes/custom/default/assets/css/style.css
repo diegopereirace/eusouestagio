@@ -1004,6 +1004,15 @@ h6 {
 	outline: 0;
 }
 
+.footer-links-menu .footer-link--disabled,
+.footer-links-menu .footer-link--disabled:hover,
+.footer-links-menu .footer-link--disabled:focus {
+	color: rgba(255, 255, 255, 0.35) !important;
+	cursor: not-allowed !important;
+	pointer-events: none;
+	text-decoration: none !important;
+}
+
 .footer-cta-links {
 	display: flex !important;
 	flex-wrap: wrap;

@@ -70,6 +70,39 @@ h6 {
 	display: block;
 }
 
+.wrap-menu .nav-link {
+	position: relative;
+	color: #495057;
+	font-weight: 500;
+	transition: color 0.2s ease;
+}
+
+.wrap-menu .nav-link::after {
+	content: '';
+	position: absolute;
+	left: 0.75rem;
+	right: 0.75rem;
+	bottom: 0.35rem;
+	height: 2px;
+	background-color: #de7420;
+	transform: scaleX(0);
+	transform-origin: center;
+	transition: transform 0.2s ease;
+}
+
+.wrap-menu .nav-link:hover,
+.wrap-menu .nav-link:focus,
+.wrap-menu .nav-link.active,
+.wrap-menu .nav-link.is-active {
+	color: #de7420;
+}
+
+.wrap-menu .nav-link:hover::after,
+.wrap-menu .nav-link:focus::after,
+.wrap-menu .nav-link.active::after,
+.wrap-menu .nav-link.is-active::after {
+	transform: scaleX(1);
+}
 
 .text-title {
 	margin: 0;

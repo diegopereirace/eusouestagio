@@ -64,8 +64,7 @@
                 {% endif %}
                 <a href="{{ path('user.logout') }}" class="btn btn-outline-primary btn-sm">Sair</a>
               {% else %}
-                <a href="{{ path('user.login') }}" class="btn btn-outline-primary btn-sm">Entrar</a>
-                <a href="/cadastro/candidato" class="btn btn-primary btn-sm">Cadastro</a>
+                <a href="{{ path('user.login') }}" class="btn btn-outline-laranja btn-sm">Acesso</a>
               {% endif %}
             </div>
           </div>
@@ -119,8 +118,7 @@
               {% endif %}
               <a href="{{ path('user.logout') }}" class="btn btn-outline-secondary w-100">Sair</a>
             {% else %}
-              <a href="{{ path('user.login') }}" class="btn btn-outline-secondary w-100">Entrar</a>
-              <a href="/cadastro/candidato" class="btn btn-primary w-100">Cadastro</a>
+              <a href="{{ path('user.login') }}" class="btn btn-outline-laranja w-100">Acesso</a>
             {% endif %}
           </div>
         </div>

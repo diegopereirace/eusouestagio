@@ -59,11 +59,14 @@
                     : (row._entity.field_tecnologias_t is defined and row._entity.field_tecnologias_t is not empty ? row._entity.field_tecnologias_t : []) %}
                 {% if cursos_items is not empty %}
                     <div class="tag-list">
-                        {% for item in cursos_items %}
+                        {% for item in cursos_items|slice(0, 2) %}
                             {% if item.entity %}
                                 <span class="tag-pill">{{ item.entity.label }}</span>
                             {% endif %}
                         {% endfor %}
+                        {% if cursos_items|length > 2 %}
+                            <span class="tag-pill tag-pill--more">...</span>
+                        {% endif %}
                     </div>
                 {% endif %}
             </div>

@@ -626,6 +626,11 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 	min-width: 0;
 }
 
+.banner-search-field--serial {
+	flex: 0 0 180px;
+	max-width: 180px;
+}
+
 .banner-search-field .form-item {
 	margin: 0;
 }
@@ -652,6 +657,12 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 	background: #fff;
 	outline: none;
 	transition: border-color 0.2s;
+}
+
+.banner-search-field--serial input[type="text"],
+.banner-search-field--serial input[type="search"],
+.input-serial-curto {
+	text-align: left;
 }
 
 .banner-search-field input[type="text"]::placeholder,

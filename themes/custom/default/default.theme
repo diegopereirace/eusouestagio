@@ -161,6 +161,32 @@ function default_form_search_block_form_alter(array &$form, FormStateInterface $
 }
 
 /**
+ * Implements hook_form_views_exposed_form_alter().
+ */
+function default_form_views_exposed_form_alter(array &$form, FormStateInterface $form_state)
+{
+  $view = $form_state->get('view');
+  if (!$view || $view->id() !== 'vagas') {
+    return;
+  }
+
+  foreach ($form as $key => &$element) {
+    if (!is_array($element)) {
+      continue;
+    }
+
+    $title = (string) ($element['#title'] ?? '');
+    if ($key === 'nid' || stripos($title, 'Número da Vaga') !== FALSE || stripos($title, 'Numero da Vaga') !== FALSE) {
+      $element['#attributes']['placeholder'] = 'Ex.: 123';
+      $element['#attributes']['aria-label'] = 'Número da Vaga';
+      $element['#size'] = 12;
+      $element['#wrapper_attributes']['class'][] = 'banner-search-field--serial';
+      $element['#attributes']['class'][] = 'input-serial-curto';
+    }
+  }
+}
+
+/**
  * Implements hook_preprocess_menu().
  *
  * Adiciona a classe 'is-active' nos links do menu do painel com base

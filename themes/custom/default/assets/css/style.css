@@ -327,6 +327,16 @@ h6 {
 	padding-top: 1.5rem;
 }
 
+.item-vaga .vaga-numero {
+	margin-top: 0.9rem;
+	margin-bottom: 0.9rem;
+	color: #6b7280;
+	font-size: 0.76rem;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+}
+
 .item-vaga .dv-empresa {
 	margin-top: 0.35rem;
 	color: #3f5872;

@@ -68,6 +68,7 @@
                 {% endif %}
             </div>
         </div>
+        <div class="vaga-numero">{{ 'Número da Vaga:'|t }} {{ row._entity.id }}</div>
         <div class="row-custom row-3">
             {% if not logged_in %}
                 <a href="/cadastro/candidato" class="ui-btn ui-btn--primary w-100">{{ 'Cadastre-se'|t }}</a>

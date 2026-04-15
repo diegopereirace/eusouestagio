@@ -68,6 +68,7 @@
                 {% endif %}
             </div>
         </div>
+        <div class="vaga-numero">{{ 'Número da Vaga:'|t }} {{ row._entity.id }}</div>
         <div class="row-custom row-3">
             <a href="{{ path('entity.node.canonical', {'node': row._entity.id}) }}" class="ui-btn ui-btn--primary w-100">{{ 'Ver Detalhes'|t }}</a>
         </div>

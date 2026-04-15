@@ -40,6 +40,42 @@ function _custom_panel_login_redirect(array &$form, FormStateInterface $form_sta
 }
 
 /**
+ * Implements hook_form_node_form_alter().
+ *
+ * Exibe o número da vaga como campo somente leitura no formulário.
+ */
+function custom_panel_form_node_form_alter(array &$form, FormStateInterface $form_state, $form_id): void
+{
+    $form_object = $form_state->getFormObject();
+    if (!$form_object || !method_exists($form_object, 'getEntity')) {
+        return;
+    }
+
+    $node = $form_object->getEntity();
+    if (!$node || $node->bundle() !== 'vagas') {
+        return;
+    }
+
+    $is_new = $node->isNew();
+    $numero_vaga = $is_new ? (string) t('Será gerado ao salvar') : (string) $node->id();
+    $descricao = $is_new
+        ? t('Este número é criado automaticamente no momento do cadastro e não pode ser previsto antes do salvamento. Após salvar, ele ficará visível para consulta e busca.')
+        : t('Este é o identificador interno da vaga. O valor é gerado automaticamente e não pode ser alterado.');
+
+    $form['numero_vaga_info'] = [
+        '#type' => 'textfield',
+        '#title' => t('Número da Vaga'),
+        '#default_value' => $numero_vaga,
+        '#description' => $descricao,
+        '#disabled' => TRUE,
+        '#attributes' => [
+            'readonly' => 'readonly',
+        ],
+        '#weight' => -90,
+    ];
+}
+
+/**
  * Implements hook_theme().
  */
 function custom_panel_theme(): array
@@ -132,6 +168,22 @@ function custom_panel_mail(string $key, array &$message, array $params): void
             $message['body'][]  = t('Atenciosamente,') . "\n" . $site_name;
             break;
     }
+}
+
+/**
+ * Implements hook_node_insert().
+ *
+ * Exibe o número gerado da vaga após o cadastro.
+ */
+function custom_panel_node_insert(EntityInterface $node): void
+{
+    if ($node->bundle() !== 'vagas') {
+        return;
+    }
+
+    \Drupal::messenger()->addStatus(t('Número da Vaga gerado: @numero.', [
+        '@numero' => $node->id(),
+    ]));
 }
 
 /**

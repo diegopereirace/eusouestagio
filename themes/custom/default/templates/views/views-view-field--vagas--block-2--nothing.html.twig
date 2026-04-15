@@ -28,14 +28,23 @@
                     <div class="dv-salario">{{ row._entity.field_text_simple.value }}</div>
                 {% endif %}
             </div>
+            {% set bairro = row._entity.field_bairro.value ?? '' %}
             {% set cidade = row._entity.field_cidade.value %}
             {% set estado = row._entity.field_estados.value %}
-            {% if cidade or estado %}
+            {% if bairro or cidade or estado %}
             <div class="col-custom d-flex align-items-center gap-1 pb-3 text-muted small">
                 <i class="fa-solid fa-location-dot"></i>
                 <span class="dv-localizacao">
-                    {%- if cidade and estado -%}
+                    {%- if bairro and cidade and estado -%}
+                        {{ bairro }} – {{ cidade }} – {{ estado }}
+                    {%- elseif bairro and cidade -%}
+                        {{ bairro }} – {{ cidade }}
+                    {%- elseif bairro and estado -%}
+                        {{ bairro }} – {{ estado }}
+                    {%- elseif cidade and estado -%}
                         {{ cidade }} – {{ estado }}
+                    {%- elseif bairro -%}
+                        {{ bairro }}
                     {%- elseif cidade -%}
                         {{ cidade }}
                     {%- else -%}

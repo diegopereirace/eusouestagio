@@ -627,8 +627,8 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 }
 
 .banner-search-field--serial {
-	flex: 0 0 180px;
-	max-width: 180px;
+	flex: 0 0 140px;
+	max-width: 140px;
 }
 
 .banner-search-field .form-item {

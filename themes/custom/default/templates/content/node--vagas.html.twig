@@ -181,11 +181,14 @@
           </section>
         {% endif %}
 
-        {% if node.field_tecnologias_t is not empty %}
+        {% set cursos_items = node.field_cursos_t is defined and node.field_cursos_t is not empty
+          ? node.field_cursos_t
+          : (node.field_tecnologias_t is defined and node.field_tecnologias_t is not empty ? node.field_tecnologias_t : []) %}
+        {% if cursos_items is not empty %}
           <section class="vaga-section">
-            <h2 class="vaga-section-title">{{ 'Tecnologias'|t }}</h2>
+            <h2 class="vaga-section-title">{{ 'Cursos'|t }}</h2>
             <div class="vaga-tag-list">
-              {% for item in node.field_tecnologias_t %}
+              {% for item in cursos_items %}
                 {% if item.entity %}
                   <span class="vaga-tag-pill">{{ item.entity.label }}</span>
                 {% endif %}

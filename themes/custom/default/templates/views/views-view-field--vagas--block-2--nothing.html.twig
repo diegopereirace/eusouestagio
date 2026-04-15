@@ -45,9 +45,12 @@
             </div>
             {% endif %}
             <div class="col-custom d-flex text-align-center">
-                {% if row._entity.field_tecnologias_t is not empty %}
+                {% set cursos_items = row._entity.field_cursos_t is defined and row._entity.field_cursos_t is not empty
+                    ? row._entity.field_cursos_t
+                    : (row._entity.field_tecnologias_t is defined and row._entity.field_tecnologias_t is not empty ? row._entity.field_tecnologias_t : []) %}
+                {% if cursos_items is not empty %}
                     <div class="tag-list">
-                        {% for item in row._entity.field_tecnologias_t %}
+                        {% for item in cursos_items %}
                             {% if item.entity %}
                                 <span class="tag-pill">{{ item.entity.label }}</span>
                             {% endif %}

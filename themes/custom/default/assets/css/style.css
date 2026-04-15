@@ -243,6 +243,26 @@ h6 {
 	margin-bottom: 2rem;
 }
 
+.js input.form-autocomplete {
+	background-image: none !important;
+	background-repeat: no-repeat !important;
+	background-position: right 0.85rem center !important;
+	background-size: 1rem 1rem !important;
+	padding-right: 2.5rem !important;
+}
+
+.js input.form-autocomplete.ui-autocomplete-loading {
+	background-image: url('/core/misc/throbber-active.svg') !important;
+	background-repeat: no-repeat !important;
+	background-position: right 0.85rem center !important;
+	background-size: 1rem 1rem !important;
+}
+
+html[dir='rtl'] .js input.form-autocomplete,
+html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
+	background-position: left 0.85rem center !important;
+}
+
 /* ── Card de Vaga ─────────────────────────────────────── */
 
 .item-vaga {

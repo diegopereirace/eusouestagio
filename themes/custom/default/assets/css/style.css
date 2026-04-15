@@ -343,8 +343,13 @@ h6 {
 .item-vaga .tag-list {
 	display: flex;
 	align-items: center;
-	gap: 0.625rem;
+	gap: 0.45rem;
 	flex-wrap: wrap;
+	min-width: 0;
+}
+
+.item-vaga .col-custom.d-flex.text-align-center {
+	min-width: 0;
 }
 
 .item-vaga .item-regime {
@@ -365,14 +370,22 @@ h6 {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	padding: 0.38rem 0.9rem;
+	max-width: min(100%, 280px);
+	padding: 0.32rem 0.75rem;
 	border-radius: 999px;
-	background-color: #dfe3e6;
-	color: #003f69;
-	font-size: 1.125rem;
-	font-weight: 500;
-	line-height: 1;
+	background-color: rgba(222, 116, 32, 0.12);
+	border: 1px solid rgba(222, 116, 32, 0.25);
+	color: #0f3e5d;
+	font-size: 0.82rem;
+	font-weight: 600;
+	line-height: 1.1;
 	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.item-vaga .tag-pill {
+	flex: 0 1 auto;
 }
 
 .cto-content-desktop {
@@ -1242,16 +1255,24 @@ h6 {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.5rem;
+	min-width: 0;
 }
 
 .vaga-tag-pill {
-	display: inline-block;
-	padding: 0.3rem 0.85rem;
-	border: 1.5px solid #d1d5db;
+	display: inline-flex;
+	align-items: center;
+	max-width: min(100%, 320px);
+	padding: 0.32rem 0.8rem;
+	border: 1px solid rgba(222, 116, 32, 0.28);
 	border-radius: 999px;
-	font-size: 0.85rem;
-	color: #374151;
-	background: #fff;
+	font-size: 0.82rem;
+	font-weight: 600;
+	line-height: 1.1;
+	color: #0f3e5d;
+	background: rgba(222, 116, 32, 0.08);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 /* ── Node Vagas — Sidebar ─────────────────────────── */

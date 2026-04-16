@@ -84,8 +84,11 @@ function custom_panel_form_node_form_alter(array &$form, FormStateInterface $for
 function custom_panel_preprocess_page(array &$variables): void
 {
     $current_path = \Drupal::service('path.current')->getPath();
+    $is_painel_route = ($current_path === '/painel' || str_starts_with($current_path, '/painel/'));
 
-    if ($current_path === '/painel' || str_starts_with($current_path, '/painel/')) {
+    $variables['is_painel_route'] = $is_painel_route;
+
+    if ($is_painel_route) {
         $variables['container'] = 'container-full';
         $variables['#attached']['library'][] = 'default/script-painel';
     }

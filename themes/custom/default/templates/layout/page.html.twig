@@ -62,10 +62,10 @@
 {% set sidebar_second_exists = page.sidebar_second|render|striptags('<img><video><audio><drupal-render-placeholder>')|trim is not empty %}
 {% set sidebar_painel_exists = page.sidebar_painel|render|striptags('<img><video><audio><drupal-render-placeholder>')|trim is not empty %}
 {% set painel_page_header_exists = page.painel_page_header|render|striptags('<img><video><audio><drupal-render-placeholder>')|trim is not empty %}
-{% set is_painel_layout = sidebar_painel_exists or painel_page_header_exists %}
+{% set is_painel_layout = is_painel_route|default(false) %}
 {% set main_container = is_painel_layout ? 'container-full' : container %}
 
-<div id="page-wrapper" class="{% if sidebar_painel_exists %}has-painel-sidebar{% endif %}{% if is_painel_layout %} is-painel-page{% endif %}">
+<div id="page-wrapper" class="{% if is_painel_layout and sidebar_painel_exists %}has-painel-sidebar{% endif %}{% if is_painel_layout %} is-painel-page{% endif %}">
   <div id="page">
     <header id="header" class="header container" aria-label="{{ 'Site header'|t}}">
       <div class="row">
@@ -87,7 +87,7 @@
         {% endblock %}
       </div>
     </header>
-    {% if sidebar_painel_exists %}
+    {% if is_painel_layout and sidebar_painel_exists %}
       <div id="sidebar-painel" class="sidebar-painel-region" role="complementary" aria-label="{{ 'Painel'|t }}">
         {{ page.sidebar_painel }}
       </div>
@@ -118,7 +118,7 @@
     <div id="main-wrapper" class="layout-main-wrapper clearfix">
       {% block content %}
         <div id="main" class="{{ main_container }}">
-          {% if painel_page_header_exists %}
+          {% if is_painel_layout and painel_page_header_exists %}
             <div class="painel-page-header-wrapper">
               {{ page.painel_page_header }}
             </div>

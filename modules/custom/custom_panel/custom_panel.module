@@ -76,6 +76,21 @@ function custom_panel_form_node_form_alter(array &$form, FormStateInterface $for
 }
 
 /**
+ * Implements hook_preprocess_page().
+ *
+ * Usa um container em largura total apenas nas URLs do painel para ampliar
+ * a área útil das listagens.
+ */
+function custom_panel_preprocess_page(array &$variables): void
+{
+    $current_path = \Drupal::service('path.current')->getPath();
+
+    if ($current_path === '/painel' || str_starts_with($current_path, '/painel/')) {
+        $variables['container'] = 'container-full';
+    }
+}
+
+/**
  * Implements hook_theme().
  */
 function custom_panel_theme(): array

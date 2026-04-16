@@ -1713,7 +1713,7 @@ a.vaga-share-btn:hover {
 
 #sidebar-painel {
 	position: fixed;
-	left: 0;
+	left: 0 !important;
 	top: 100px; /* atualizado pelo JS com base na altura real do #header */
 	width: var(--painel-sidebar-w, 220px);
 	max-height: 80vh; /* fallback; atualizado pelo JS */
@@ -1756,9 +1756,25 @@ a.vaga-share-btn:hover {
 	font-weight: 600;
 }
 
-/* Offset do conteúdo — apenas no container principal, sem deslocar o header */
+/* Layout do painel — mantém a sidebar fixa sem gerar overflow horizontal */
+#page-wrapper.is-painel-page .row-offcanvas {
+	--bs-gutter-x: 0;
+	margin-left: 0;
+	margin-right: 0;
+}
+
 #page-wrapper.has-painel-sidebar #main {
-	padding-left: calc(var(--painel-sidebar-w, 220px) + 15px);
+	margin-left: var(--painel-sidebar-w, 220px);
+	width: calc(100% - var(--painel-sidebar-w, 220px));
+	padding-left: 0;
+	padding-right: 0;
+	box-sizing: border-box;
+}
+
+#page-wrapper.is-painel-page main.main-content {
+	max-width: 100%;
+	padding-left: 0;
+	padding-right: 0;
 }
 
 /* Responsivo: oculta em telas pequenas */
@@ -1768,7 +1784,8 @@ a.vaga-share-btn:hover {
 	}
 
 	#page-wrapper.has-painel-sidebar #main {
-		padding-left: 15px;
+		margin-left: 0;
+		width: 100%;
 	}
 }
 

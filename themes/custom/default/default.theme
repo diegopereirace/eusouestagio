@@ -343,6 +343,25 @@ function default_preprocess_menu(array &$variables): void
     return;
   }
 
+  $current_path = parse_url(\Drupal::request()->getRequestUri(), PHP_URL_PATH) ?: '/';
+  $current_path = rtrim($current_path, '/') ?: '/';
+
+  $normalize_params = static function (array $params): array {
+    return array_map(static function ($value): string {
+      if (is_object($value) && method_exists($value, 'id')) {
+        return (string) $value->id();
+      }
+
+      if (is_scalar($value) || $value === NULL) {
+        return (string) $value;
+      }
+
+      return '';
+    }, $params);
+  };
+
+  $current_params = $normalize_params(\Drupal::routeMatch()->getParameters()->all());
+
   foreach ($variables['items'] as &$item) {
     /** @var \Drupal\Core\Url $url */
     $url = $item['url'] ?? NULL;
@@ -354,17 +373,27 @@ function default_preprocess_menu(array &$variables): void
       continue;
     }
 
-    if ($url->getRouteName() === $current_route) {
-      $item['in_active_trail'] = TRUE;
-
-      // Adiciona 'is-active' ao <a> via URL options (usado pelo template do menu).
-      $attrs = $url->getOption('attributes') ?? [];
-      $classes = $attrs['class'] ?? [];
-      if (!in_array('is-active', $classes)) {
-        $classes[] = 'is-active';
-      }
-      $attrs['class'] = $classes;
-      $url->setOption('attributes', $attrs);
+    if ($url->getRouteName() !== $current_route) {
+      continue;
     }
+
+    $item_path = parse_url($url->toString(), PHP_URL_PATH) ?: '/';
+    $item_path = rtrim($item_path, '/') ?: '/';
+    $item_params = $normalize_params($url->getRouteParameters());
+
+    if ($item_path !== $current_path && $item_params !== $current_params) {
+      continue;
+    }
+
+    $item['in_active_trail'] = TRUE;
+
+    // Adiciona 'is-active' ao <a> via URL options (usado pelo template do menu).
+    $attrs = $url->getOption('attributes') ?? [];
+    $classes = $attrs['class'] ?? [];
+    if (!in_array('is-active', $classes, TRUE)) {
+      $classes[] = 'is-active';
+    }
+    $attrs['class'] = $classes;
+    $url->setOption('attributes', $attrs);
   }
 }

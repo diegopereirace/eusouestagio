@@ -3,18 +3,18 @@
  * Estilos do script-painel (botão "Salvar Vaga").
  */
 
+/* ── Painel: layout full-width ───────────────────────────────────────────── */
+
+body.path-painel {
+  overflow-x: hidden;
+}
+
 .container-full {
   width: 100%;
   max-width: 100%;
   padding-left: 0;
   padding-right: 0;
   box-sizing: border-box;
-}
-
-#page-wrapper.is-painel-page,
-#page-wrapper.is-painel-page #main-wrapper,
-#page-wrapper.is-painel-page #main {
-  overflow-x: hidden;
 }
 
 #page-wrapper.is-painel-page .row-offcanvas {
@@ -27,6 +27,7 @@
   padding-left: 0;
   padding-right: 0;
   max-width: 100%;
+  flex: 0 0 100%;
 }
 
 #page-wrapper.is-painel-page .table-responsive {

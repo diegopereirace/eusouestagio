@@ -1757,10 +1757,21 @@ a.vaga-share-btn:hover {
 }
 
 /* Layout do painel — mantém a sidebar fixa sem gerar overflow horizontal */
+body.path-painel {
+	overflow-x: hidden;
+}
+
 #page-wrapper.is-painel-page .row-offcanvas {
 	--bs-gutter-x: 0;
 	margin-left: 0;
 	margin-right: 0;
+}
+
+#page-wrapper.is-painel-page main.main-content {
+	max-width: 100%;
+	padding-left: 0;
+	padding-right: 0;
+	flex: 0 0 100%;
 }
 
 #page-wrapper.has-painel-sidebar #main {
@@ -1769,12 +1780,6 @@ a.vaga-share-btn:hover {
 	padding-left: 0;
 	padding-right: 0;
 	box-sizing: border-box;
-}
-
-#page-wrapper.is-painel-page main.main-content {
-	max-width: 100%;
-	padding-left: 0;
-	padding-right: 0;
 }
 
 /* Responsivo: oculta em telas pequenas */

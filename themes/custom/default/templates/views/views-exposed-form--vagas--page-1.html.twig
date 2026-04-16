@@ -17,21 +17,24 @@
         <div class="banner-search-form row g-3 align-items-end">
         {% for key, element in form %}
             {% if key|first != '#' and key not in ['form_build_id', 'form_token', 'form_id', 'actions'] %}
-            {% set field_class = 'col-12 col-md' %}
+            {% set field_class = 'col-12 col-sm-6 col-md-6 col-lg' %}
             {% set field_modifier = '' %}
 
             {% if key == 'nid' %}
-                {% set field_class = 'col-12 col-sm-6 col-md-1' %}
+                {% set field_class = 'col-12 col-sm-4 col-md-3 col-lg-1' %}
                 {% set field_modifier = 'banner-search-field--serial' %}
             {% elseif key == 'cursos' %}
-                {% set field_class = 'col-12 col-md-5' %}
+                {% set field_class = 'col-12 col-md-9 col-lg-3' %}
                 {% set field_modifier = 'banner-search-field--courses' %}
             {% elseif key == 'estados' %}
-                {% set field_class = 'col-12 col-sm-6 col-md-2' %}
+                {% set field_class = 'col-12 col-sm-6 col-md-4 col-lg-2' %}
                 {% set field_modifier = 'banner-search-field--state' %}
             {% elseif key == 'cidade' %}
-                {% set field_class = 'col-12 col-sm-6 col-md-2' %}
+                {% set field_class = 'col-12 col-sm-6 col-md-4 col-lg-2' %}
                 {% set field_modifier = 'banner-search-field--city' %}
+            {% elseif key == 'escolaridade' %}
+                {% set field_class = 'col-12 col-md-4 col-lg-2' %}
+                {% set field_modifier = 'banner-search-field--schooling' %}
             {% endif %}
 
             <div class="banner-search-field {{ field_class }} {{ field_modifier }}">
@@ -40,7 +43,7 @@
             {% endif %}
         {% endfor %}
 
-        <div class="banner-search-submit col-12 col-md-2">
+        <div class="banner-search-submit col-12 col-lg-2">
             {% if form.actions is defined %}
             {{ form.actions }}
             {% else %}

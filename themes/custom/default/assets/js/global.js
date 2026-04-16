@@ -169,6 +169,39 @@
     },
   };
 
+  Drupal.behaviors.defaultBannerSearchRedirect = {
+    attach(context) {
+      once('defaultBannerSearchRedirect', '.banner-search-card form[data-banner-search-redirect="true"]', context).forEach((form) => {
+        form.addEventListener('submit', (event) => {
+          const action = form.getAttribute('action') || '/para-estudantes';
+
+          event.preventDefault();
+          event.stopPropagation();
+          if (typeof event.stopImmediatePropagation === 'function') {
+            event.stopImmediatePropagation();
+          }
+
+          const formData = new FormData(form);
+          const params = new URLSearchParams();
+
+          formData.forEach((value, key) => {
+            if (['form_build_id', 'form_token', 'form_id', '_triggering_element_name', '_triggering_element_value', 'op'].includes(key)) {
+              return;
+            }
+
+            const normalizedValue = String(value).trim();
+            if (normalizedValue !== '') {
+              params.set(key, normalizedValue);
+            }
+          });
+
+          const targetUrl = params.toString() ? `${action}?${params.toString()}` : action;
+          window.location.assign(targetUrl);
+        }, true);
+      });
+    },
+  };
+
   Drupal.behaviors.defaultLgpdBanner = {
     attach(context) {
       ensureBannerMarkup();

@@ -9,7 +9,7 @@
  */
 #}
 <div class="banner-search-card">
-    <form{{ form.attributes }}>
+    <form{{ form_attributes|default(create_attribute()) }}>
         {{ form.form_build_id }}
         {{ form.form_token }}
         {{ form.form_id }}

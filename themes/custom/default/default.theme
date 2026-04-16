@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\views\ViewExecutable;
 
 /**
  * Implements hook_form_system_theme_settings_alter() for settings form.
@@ -170,6 +171,11 @@ function default_form_views_exposed_form_alter(array &$form, FormStateInterface 
     return;
   }
 
+  // Garante que a busca de vagas sempre abra a listagem principal.
+  $form['#method'] = 'get';
+  $form['#action'] = \Drupal\Core\Url::fromRoute('view.vagas.page_1')->toString();
+  $form['#attributes']['data-banner-search-redirect'] = 'true';
+
   foreach ($form as $key => &$element) {
     if (!is_array($element)) {
       continue;
@@ -189,6 +195,46 @@ function default_form_views_exposed_form_alter(array &$form, FormStateInterface 
       $element['#attributes']['aria-label'] = 'Pesquisar por curso';
     }
   }
+}
+
+/**
+ * Implements hook_views_pre_view().
+ *
+ * Desativa o AJAX da listagem principal de vagas para permitir
+ * navegação completa via URL /para-estudantes.
+ */
+function default_views_pre_view(ViewExecutable $view, $display_id, array &$args): void
+{
+  if ($view->id() === 'vagas' && $display_id === 'page_1' && $view->display_handler) {
+    $view->display_handler->setOption('use_ajax', FALSE);
+  }
+}
+
+/**
+ * Implements hook_preprocess_views_exposed_form() for vagas page_1.
+ *
+ * Extrai os atributos do form (#action, #method, #attributes) para uma
+ * variável Twig acessível, já que Twig não consegue ler chaves com '#'.
+ */
+function default_preprocess_views_exposed_form(array &$variables): void
+{
+  $form = $variables['form'] ?? [];
+  $view = $form['#view'] ?? NULL;
+  if (!$view || $view->id() !== 'vagas') {
+    return;
+  }
+
+  $attrs = $form['#attributes'] ?? [];
+  $attribute = new \Drupal\Core\Template\Attribute($attrs);
+
+  if (!empty($form['#action'])) {
+    $attribute->setAttribute('action', $form['#action']);
+  }
+  if (!empty($form['#method'])) {
+    $attribute->setAttribute('method', $form['#method']);
+  }
+
+  $variables['form_attributes'] = $attribute;
 }
 
 /**

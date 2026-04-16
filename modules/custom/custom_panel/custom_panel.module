@@ -87,6 +87,7 @@ function custom_panel_preprocess_page(array &$variables): void
 
     if ($current_path === '/painel' || str_starts_with($current_path, '/painel/')) {
         $variables['container'] = 'container-full';
+        $variables['#attached']['library'][] = 'default/script-painel';
     }
 }
 

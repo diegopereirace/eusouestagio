@@ -62,8 +62,10 @@
 {% set sidebar_second_exists = page.sidebar_second|render|striptags('<img><video><audio><drupal-render-placeholder>')|trim is not empty %}
 {% set sidebar_painel_exists = page.sidebar_painel|render|striptags('<img><video><audio><drupal-render-placeholder>')|trim is not empty %}
 {% set painel_page_header_exists = page.painel_page_header|render|striptags('<img><video><audio><drupal-render-placeholder>')|trim is not empty %}
+{% set is_painel_layout = sidebar_painel_exists or painel_page_header_exists %}
+{% set main_container = is_painel_layout ? 'container-full' : container %}
 
-<div id="page-wrapper" {% if sidebar_painel_exists %}class="has-painel-sidebar"{% endif %}>
+<div id="page-wrapper" class="{% if sidebar_painel_exists %}has-painel-sidebar{% endif %}{% if is_painel_layout %} is-painel-page{% endif %}">
   <div id="page">
     <header id="header" class="header container" aria-label="{{ 'Site header'|t}}">
       <div class="row">
@@ -115,7 +117,7 @@
     {% endif %}
     <div id="main-wrapper" class="layout-main-wrapper clearfix">
       {% block content %}
-        <div id="main" class="{{ container }}">
+        <div id="main" class="{{ main_container }}">
           {% if painel_page_header_exists %}
             <div class="painel-page-header-wrapper">
               {{ page.painel_page_header }}

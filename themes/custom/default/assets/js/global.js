@@ -155,7 +155,7 @@
           sidebar.style.top = sidebarTop + 'px';
           sidebar.style.maxHeight = maxH + 'px';
           if (mainEl) {
-            sidebar.style.left = mainEl.getBoundingClientRect().left + 'px';
+            sidebar.style.left = '0px';
           }
           sidebar.style.visibility = 'visible';
         }

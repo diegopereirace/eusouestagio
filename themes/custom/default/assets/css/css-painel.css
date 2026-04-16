@@ -3,6 +3,46 @@
  * Estilos do script-painel (botão "Salvar Vaga").
  */
 
+.container-full {
+  width: 100%;
+  max-width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+  box-sizing: border-box;
+}
+
+#page-wrapper.is-painel-page,
+#page-wrapper.is-painel-page #main-wrapper,
+#page-wrapper.is-painel-page #main {
+  overflow-x: hidden;
+}
+
+#page-wrapper.is-painel-page .row-offcanvas {
+  --bs-gutter-x: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+#page-wrapper.is-painel-page main.main-content {
+  padding-left: 0;
+  padding-right: 0;
+  max-width: 100%;
+}
+
+#page-wrapper.is-painel-page .table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+
+.moderador-candidaturas,
+.empresa-candidaturas,
+.vagas-salvas,
+.vagas-aplicadas {
+  padding: 2rem 5% 3rem;
+  min-height: calc(100vh - 180px);
+}
+
 .salvar-vaga-spinner {
   display: inline-block;
   width: 1em;

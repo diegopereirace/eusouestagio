@@ -183,6 +183,11 @@ function default_form_views_exposed_form_alter(array &$form, FormStateInterface 
       $element['#wrapper_attributes']['class'][] = 'banner-search-field--serial';
       $element['#attributes']['class'][] = 'input-serial-curto';
     }
+
+    if ($key === 'cursos' || stripos($title, 'Cursos') !== FALSE) {
+      $element['#attributes']['placeholder'] = 'Ex.: Marketing, React ou Power BI';
+      $element['#attributes']['aria-label'] = 'Pesquisar por curso';
+    }
   }
 }
 

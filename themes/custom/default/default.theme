@@ -90,6 +90,9 @@ function default_preprocess_block__default_top(&$variables)
   $user = \Drupal::currentUser();
   $variables['is_candidato'] = $user->isAuthenticated() && $user->hasPermission('access content') && in_array('candidato', $user->getRoles());
   $variables['is_empresa'] = $user->isAuthenticated() && in_array('empresa', $user->getRoles());
+
+  $current_path = \Drupal::service('path.current')->getPath();
+  $variables['is_painel'] = ($current_path === '/painel' || str_starts_with($current_path, '/painel/'));
 }
 
 /**

@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Markup;
 use Drupal\views\ViewExecutable;
 
 /**
@@ -235,6 +236,41 @@ function default_preprocess_views_exposed_form(array &$variables): void
   }
 
   $variables['form_attributes'] = $attribute;
+}
+
+/**
+ * Implements hook_preprocess_views_view().
+ *
+ * Ajusta o cabeçalho da listagem de vagas quando houver filtros ativos,
+ * indicando ao usuário que está vendo um resultado de pesquisa.
+ */
+function default_preprocess_views_view(array &$variables): void
+{
+  $view = $variables['view'] ?? NULL;
+  $display_id = $variables['display_id'] ?? NULL;
+  if (!$view instanceof ViewExecutable || $view->id() !== 'vagas' || $display_id !== 'page_1') {
+    return;
+  }
+
+  $query = \Drupal::request()->query;
+  $filter_keys = ['nid', 'cursos', 'estado', 'cidade', 'escolaridade'];
+  $has_active_filters = FALSE;
+
+  foreach ($filter_keys as $key) {
+    $value = $query->get($key);
+
+    if (is_array($value)) {
+      $value = array_filter($value, static fn($item) => $item !== '' && $item !== 'All');
+    }
+
+    if ((is_array($value) && !empty($value)) || (!is_array($value) && $value !== NULL && $value !== '' && $value !== 'All')) {
+      $has_active_filters = TRUE;
+      break;
+    }
+  }
+
+  $title = $has_active_filters ? 'Resultado - Vagas Disponíveis' : 'Vagas Disponíveis';
+  $variables['header'] = Markup::create('<div class="mt-3 mb-3"><h3 class="text-title-md">' . $title . '</h3></div>');
 }
 
 /**

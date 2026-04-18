@@ -74,6 +74,61 @@ class CandidatoRegistrationForm extends FormBase
         return $options;
     }
 
+    /**
+     * Opções de mês para previsão de formatura.
+     */
+    private function getMonthOptions(): array
+    {
+        return [
+            '01' => $this->t('01 - Janeiro'),
+            '02' => $this->t('02 - Fevereiro'),
+            '03' => $this->t('03 - Março'),
+            '04' => $this->t('04 - Abril'),
+            '05' => $this->t('05 - Maio'),
+            '06' => $this->t('06 - Junho'),
+            '07' => $this->t('07 - Julho'),
+            '08' => $this->t('08 - Agosto'),
+            '09' => $this->t('09 - Setembro'),
+            '10' => $this->t('10 - Outubro'),
+            '11' => $this->t('11 - Novembro'),
+            '12' => $this->t('12 - Dezembro'),
+        ];
+    }
+
+    /**
+     * Opções de ano para previsão de formatura.
+     */
+    private function getYearOptions(): array
+    {
+        $current_year = (int) date('Y');
+        $options = [];
+
+        for ($year = $current_year - 1; $year <= $current_year + 15; $year++) {
+            $options[(string) $year] = (string) $year;
+        }
+
+        return $options;
+    }
+
+    /**
+     * Converte mês/ano em uma data lógica para armazenamento.
+     */
+    private function normalizePrevisaoFormatura(?string $month, ?string $year): ?string
+    {
+        $month = trim((string) $month);
+        $year = trim((string) $year);
+
+        if ($month === '' || $year === '') {
+            return NULL;
+        }
+
+        if (!preg_match('/^(0[1-9]|1[0-2])$/', $month) || !preg_match('/^\d{4}$/', $year)) {
+            return NULL;
+        }
+
+        return sprintf('%04d-%02d-01', (int) $year, (int) $month);
+    }
+
     public function buildForm(array $form, FormStateInterface $form_state)
     {
         if (\Drupal::config('user.settings')->get('register') === UserInterface::REGISTER_ADMINISTRATORS_ONLY) {
@@ -676,12 +731,40 @@ class CandidatoRegistrationForm extends FormBase
 
         $form['section_academico']['row']['col_previsao_formatura'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+            '#attributes' => ['class' => ['col-12', 'col-md-6']],
         ];
-        $form['section_academico']['row']['col_previsao_formatura']['field_previsao_formatura'] = [
-            '#type' => 'date',
-            '#title' => $this->t('Previsão de formatura'),
-            '#attributes' => ['class' => ['form-control']],
+        $form['section_academico']['row']['col_previsao_formatura']['heading'] = [
+            '#markup' => '<label class="form-label d-block mb-2">' . $this->t('Previsão de formatura') . ' <span class="text-danger">*</span></label><div class="form-text mb-2">' . $this->t('Informe somente o mês e o ano previstos para a conclusão do curso.') . '</div>',
+        ];
+        $form['section_academico']['row']['col_previsao_formatura']['row'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['row', 'g-2']],
+        ];
+        $form['section_academico']['row']['col_previsao_formatura']['row']['col_mes'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-6']],
+        ];
+        $form['section_academico']['row']['col_previsao_formatura']['row']['col_mes']['field_previsao_formatura_month'] = [
+            '#type' => 'select',
+            '#title' => $this->t('Mês'),
+            '#title_display' => 'invisible',
+            '#required' => TRUE,
+            '#empty_option' => $this->t('- Selecione o mês -'),
+            '#options' => $this->getMonthOptions(),
+            '#attributes' => ['class' => ['form-select']],
+        ];
+        $form['section_academico']['row']['col_previsao_formatura']['row']['col_ano'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-6']],
+        ];
+        $form['section_academico']['row']['col_previsao_formatura']['row']['col_ano']['field_previsao_formatura_year'] = [
+            '#type' => 'select',
+            '#title' => $this->t('Ano'),
+            '#title_display' => 'invisible',
+            '#required' => TRUE,
+            '#empty_option' => $this->t('- Selecione o ano -'),
+            '#options' => $this->getYearOptions(),
+            '#attributes' => ['class' => ['form-select']],
         ];
 
         $form['section_academico']['row']['col_disponibilidade'] = [
@@ -1194,6 +1277,14 @@ class CandidatoRegistrationForm extends FormBase
             $form_state->setErrorByName('field_cpf', $this->t('O CPF deve conter 11 dígitos.'));
         }
 
+        $previsao_formatura = $this->normalizePrevisaoFormatura(
+            (string) $form_state->getValue('field_previsao_formatura_month'),
+            (string) $form_state->getValue('field_previsao_formatura_year')
+        );
+        if ($previsao_formatura === NULL) {
+            $form_state->setErrorByName('field_previsao_formatura_month', $this->t('Informe o mês e o ano da previsão de formatura.'));
+        }
+
         if (!(bool) $form_state->getValue('field_termo')) {
             $form_state->setErrorByName('field_termo', $this->t('Você precisa aceitar o termo para concluir o cadastro.'));
         }
@@ -1246,7 +1337,6 @@ class CandidatoRegistrationForm extends FormBase
             'field_periodo_matriculado',
             'field_horario_curso',
             'field_duracao_curso',
-            'field_previsao_formatura',
             'field_disponibilidade_estagio',
             'field_numero_matricula',
             // Informações Complementares.
@@ -1267,6 +1357,14 @@ class CandidatoRegistrationForm extends FormBase
             if ($value !== NULL && $value !== '') {
                 $values[$field] = $value;
             }
+        }
+
+        $previsao_formatura = $this->normalizePrevisaoFormatura(
+            (string) $form_state->getValue('field_previsao_formatura_month'),
+            (string) $form_state->getValue('field_previsao_formatura_year')
+        );
+        if ($previsao_formatura !== NULL) {
+            $values['field_previsao_formatura'] = $previsao_formatura;
         }
 
         // Paragraphs — Instituições de Ensino.

@@ -9,13 +9,16 @@ use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\user\Entity\User;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
-class CandidatoEditForm extends FormBase {
+class CandidatoEditForm extends FormBase
+{
 
-  public function getFormId() {
+  public function getFormId()
+  {
     return 'custom_panel_candidato_edit_form';
   }
 
-  private function getListOptions(string $field_name, string $entity_type = 'user'): array {
+  private function getListOptions(string $field_name, string $entity_type = 'user'): array
+  {
     $storage = FieldStorageConfig::loadByName($entity_type, $field_name);
     if (!$storage) {
       return [];
@@ -36,15 +39,12 @@ class CandidatoEditForm extends FormBase {
     foreach ($allowed as $key => $item) {
       if (is_array($item) && isset($item['value']) && isset($item['label'])) {
         $options[(string) $item['value']] = (string) $item['label'];
-      }
-      elseif (is_array($item) && isset($item['value'])) {
+      } elseif (is_array($item) && isset($item['value'])) {
         $value = (string) $item['value'];
         $options[$value] = $value;
-      }
-      elseif (!is_int($key) && (is_string($item) || is_numeric($item))) {
+      } elseif (!is_int($key) && (is_string($item) || is_numeric($item))) {
         $options[(string) $key] = (string) $item;
-      }
-      elseif (is_int($key) && (is_string($item) || is_numeric($item))) {
+      } elseif (is_int($key) && (is_string($item) || is_numeric($item))) {
         $value = (string) $item;
         $options[$value] = $value;
       }
@@ -53,10 +53,85 @@ class CandidatoEditForm extends FormBase {
     return $options;
   }
 
+  private function getMonthOptions(): array
+  {
+    return [
+      '01' => $this->t('01 - Janeiro'),
+      '02' => $this->t('02 - Fevereiro'),
+      '03' => $this->t('03 - Março'),
+      '04' => $this->t('04 - Abril'),
+      '05' => $this->t('05 - Maio'),
+      '06' => $this->t('06 - Junho'),
+      '07' => $this->t('07 - Julho'),
+      '08' => $this->t('08 - Agosto'),
+      '09' => $this->t('09 - Setembro'),
+      '10' => $this->t('10 - Outubro'),
+      '11' => $this->t('11 - Novembro'),
+      '12' => $this->t('12 - Dezembro'),
+    ];
+  }
+
+  private function getYearOptions(): array
+  {
+    $current_year = (int) date('Y');
+    $options = [];
+
+    for ($year = $current_year - 1; $year <= $current_year + 15; $year++) {
+      $options[(string) $year] = (string) $year;
+    }
+
+    return $options;
+  }
+
+  private function getPrevisaoFormaturaParts(User $user, FormStateInterface $form_state): array
+  {
+    $month = $form_state->getValue('field_previsao_formatura_month');
+    $year = $form_state->getValue('field_previsao_formatura_year');
+
+    if ($month !== NULL || $year !== NULL) {
+      return [
+        'month' => (string) ($month ?? ''),
+        'year' => (string) ($year ?? ''),
+      ];
+    }
+
+    $value = $this->getFieldValue($user, 'field_previsao_formatura');
+    if ($value === '') {
+      return ['month' => '', 'year' => ''];
+    }
+
+    try {
+      $date = new \DateTime($value);
+      return [
+        'month' => $date->format('m'),
+        'year' => $date->format('Y'),
+      ];
+    } catch (\Exception $exception) {
+      return ['month' => '', 'year' => ''];
+    }
+  }
+
+  private function normalizePrevisaoFormatura(?string $month, ?string $year): ?string
+  {
+    $month = trim((string) $month);
+    $year = trim((string) $year);
+
+    if ($month === '' || $year === '') {
+      return NULL;
+    }
+
+    if (!preg_match('/^(0[1-9]|1[0-2])$/', $month) || !preg_match('/^\d{4}$/', $year)) {
+      return NULL;
+    }
+
+    return sprintf('%04d-%02d-01', (int) $year, (int) $month);
+  }
+
   /**
    * Retorna o valor de um campo simples do User.
    */
-  private function getFieldValue(User $user, string $field_name): string {
+  private function getFieldValue(User $user, string $field_name): string
+  {
     if ($user->hasField($field_name) && !$user->get($field_name)->isEmpty()) {
       return (string) $user->get($field_name)->value;
     }
@@ -66,7 +141,8 @@ class CandidatoEditForm extends FormBase {
   /**
    * Carrega os paragraphs de um campo entity_reference_revisions.
    */
-  private function loadParagraphs(User $user, string $field_name): array {
+  private function loadParagraphs(User $user, string $field_name): array
+  {
     if (!$user->hasField($field_name) || $user->get($field_name)->isEmpty()) {
       return [];
     }
@@ -81,11 +157,14 @@ class CandidatoEditForm extends FormBase {
     return $paragraphs;
   }
 
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state)
+  {
     $user = User::load(\Drupal::currentUser()->id());
     if (!$user || !$user->hasRole('candidato')) {
       throw new AccessDeniedHttpException();
     }
+
+    $previsao_formatura = $this->getPrevisaoFormaturaParts($user, $form_state);
 
     $form['#attributes']['novalidate'] = 'novalidate';
 
@@ -663,13 +742,42 @@ class CandidatoEditForm extends FormBase {
 
     $form['section_academico']['row']['col_previsao_formatura'] = [
       '#type' => 'container',
-      '#attributes' => ['class' => ['col-12', 'col-md-4']],
+      '#attributes' => ['class' => ['col-12', 'col-md-6']],
     ];
-    $form['section_academico']['row']['col_previsao_formatura']['field_previsao_formatura'] = [
-      '#type' => 'date',
-      '#title' => $this->t('Previsão de formatura'),
-      '#default_value' => $this->getFieldValue($user, 'field_previsao_formatura'),
-      '#attributes' => ['class' => ['form-control']],
+    $form['section_academico']['row']['col_previsao_formatura']['heading'] = [
+      '#markup' => '<label class="form-label d-block mb-2">' . $this->t('Previsão de formatura') . ' <span class="text-danger">*</span></label><div class="form-text mb-2">' . $this->t('Informe somente o mês e o ano previstos para a conclusão do curso.') . '</div>',
+    ];
+    $form['section_academico']['row']['col_previsao_formatura']['row'] = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['row', 'g-2']],
+    ];
+    $form['section_academico']['row']['col_previsao_formatura']['row']['col_mes'] = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['col-12', 'col-md-6']],
+    ];
+    $form['section_academico']['row']['col_previsao_formatura']['row']['col_mes']['field_previsao_formatura_month'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Mês'),
+      '#title_display' => 'invisible',
+      '#required' => TRUE,
+      '#empty_option' => $this->t('- Selecione o mês -'),
+      '#options' => $this->getMonthOptions(),
+      '#default_value' => $previsao_formatura['month'],
+      '#attributes' => ['class' => ['form-select']],
+    ];
+    $form['section_academico']['row']['col_previsao_formatura']['row']['col_ano'] = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['col-12', 'col-md-6']],
+    ];
+    $form['section_academico']['row']['col_previsao_formatura']['row']['col_ano']['field_previsao_formatura_year'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Ano'),
+      '#title_display' => 'invisible',
+      '#required' => TRUE,
+      '#empty_option' => $this->t('- Selecione o ano -'),
+      '#options' => $this->getYearOptions(),
+      '#default_value' => $previsao_formatura['year'],
+      '#attributes' => ['class' => ['form-select']],
     ];
 
     $form['section_academico']['row']['col_disponibilidade'] = [
@@ -1052,12 +1160,14 @@ class CandidatoEditForm extends FormBase {
 
   // ── AJAX Callbacks ─────────────────────────────────────────────
 
-  public function addInstituicaoCallback(array &$form, FormStateInterface $form_state) {
+  public function addInstituicaoCallback(array &$form, FormStateInterface $form_state)
+  {
     $form_state->set('num_instituicoes', ($form_state->get('num_instituicoes') ?? 1) + 1);
     $form_state->setRebuild();
   }
 
-  public function removeInstituicaoCallback(array &$form, FormStateInterface $form_state) {
+  public function removeInstituicaoCallback(array &$form, FormStateInterface $form_state)
+  {
     $num = $form_state->get('num_instituicoes') ?? 1;
     if ($num > 1) {
       $form_state->set('num_instituicoes', $num - 1);
@@ -1065,16 +1175,19 @@ class CandidatoEditForm extends FormBase {
     $form_state->setRebuild();
   }
 
-  public function ajaxRefreshInstituicoes(array &$form, FormStateInterface $form_state) {
+  public function ajaxRefreshInstituicoes(array &$form, FormStateInterface $form_state)
+  {
     return $form['section_instituicao']['instituicoes_wrapper'];
   }
 
-  public function addCursoCallback(array &$form, FormStateInterface $form_state) {
+  public function addCursoCallback(array &$form, FormStateInterface $form_state)
+  {
     $form_state->set('num_cursos', ($form_state->get('num_cursos') ?? 0) + 1);
     $form_state->setRebuild();
   }
 
-  public function removeCursoCallback(array &$form, FormStateInterface $form_state) {
+  public function removeCursoCallback(array &$form, FormStateInterface $form_state)
+  {
     $num = $form_state->get('num_cursos') ?? 0;
     if ($num > 0) {
       $form_state->set('num_cursos', $num - 1);
@@ -1082,16 +1195,19 @@ class CandidatoEditForm extends FormBase {
     $form_state->setRebuild();
   }
 
-  public function ajaxRefreshCursos(array &$form, FormStateInterface $form_state) {
+  public function ajaxRefreshCursos(array &$form, FormStateInterface $form_state)
+  {
     return $form['section_extracurricular']['cursos_wrapper'];
   }
 
-  public function addExperienciaCallback(array &$form, FormStateInterface $form_state) {
+  public function addExperienciaCallback(array &$form, FormStateInterface $form_state)
+  {
     $form_state->set('num_experiencias', ($form_state->get('num_experiencias') ?? 0) + 1);
     $form_state->setRebuild();
   }
 
-  public function removeExperienciaCallback(array &$form, FormStateInterface $form_state) {
+  public function removeExperienciaCallback(array &$form, FormStateInterface $form_state)
+  {
     $num = $form_state->get('num_experiencias') ?? 0;
     if ($num > 0) {
       $form_state->set('num_experiencias', $num - 1);
@@ -1099,13 +1215,15 @@ class CandidatoEditForm extends FormBase {
     $form_state->setRebuild();
   }
 
-  public function ajaxRefreshExperiencias(array &$form, FormStateInterface $form_state) {
+  public function ajaxRefreshExperiencias(array &$form, FormStateInterface $form_state)
+  {
     return $form['section_experiencia']['experiencias_wrapper'];
   }
 
   // ── Validação ──────────────────────────────────────────────────
 
-  public function validateForm(array &$form, FormStateInterface $form_state) {
+  public function validateForm(array &$form, FormStateInterface $form_state)
+  {
     $user = User::load(\Drupal::currentUser()->id());
     $mail = trim((string) $form_state->getValue('mail'));
 
@@ -1129,8 +1247,7 @@ class CandidatoEditForm extends FormBase {
     $cpf = preg_replace('/\D/', '', (string) $form_state->getValue('field_cpf'));
     if (mb_strlen($cpf) !== 11) {
       $form_state->setErrorByName('field_cpf', $this->t('O CPF deve conter 11 dígitos.'));
-    }
-    elseif (!$this->validarCpf($cpf)) {
+    } elseif (!$this->validarCpf($cpf)) {
       $form_state->setErrorByName('field_cpf', $this->t('O CPF informado é inválido.'));
     }
 
@@ -1139,11 +1256,20 @@ class CandidatoEditForm extends FormBase {
     if (mb_strlen($nome) < 3) {
       $form_state->setErrorByName('field_nome_completo', $this->t('O nome completo deve ter pelo menos 3 caracteres.'));
     }
+
+    $previsao_formatura = $this->normalizePrevisaoFormatura(
+      (string) $form_state->getValue('field_previsao_formatura_month'),
+      (string) $form_state->getValue('field_previsao_formatura_year')
+    );
+    if ($previsao_formatura === NULL) {
+      $form_state->setErrorByName('field_previsao_formatura_month', $this->t('Informe o mês e o ano da previsão de formatura.'));
+    }
   }
 
   // ── Submit ─────────────────────────────────────────────────────
 
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state)
+  {
     $user = User::load(\Drupal::currentUser()->id());
     if (!$user) {
       $this->messenger()->addError($this->t('Não foi possível carregar sua conta.'));
@@ -1184,7 +1310,6 @@ class CandidatoEditForm extends FormBase {
       'field_periodo_matriculado',
       'field_horario_curso',
       'field_duracao_curso',
-      'field_previsao_formatura',
       'field_disponibilidade_estagio',
       'field_numero_matricula',
       'field_possui_deficiencia',
@@ -1196,6 +1321,16 @@ class CandidatoEditForm extends FormBase {
         $value = $form_state->getValue($field);
         $user->set($field, $value !== '' ? $value : NULL);
       }
+    }
+
+    if ($user->hasField('field_previsao_formatura')) {
+      $user->set(
+        'field_previsao_formatura',
+        $this->normalizePrevisaoFormatura(
+          (string) $form_state->getValue('field_previsao_formatura_month'),
+          (string) $form_state->getValue('field_previsao_formatura_year')
+        )
+      );
     }
 
     // ── Paragraphs: Instituições de Ensino ────────────────────
@@ -1334,7 +1469,8 @@ class CandidatoEditForm extends FormBase {
   /**
    * Valida CPF pelo dígito verificador.
    */
-  private function validarCpf(string $cpf): bool {
+  private function validarCpf(string $cpf): bool
+  {
     if (preg_match('/^(\d)\1{10}$/', $cpf)) {
       return FALSE;
     }
@@ -1355,6 +1491,4 @@ class CandidatoEditForm extends FormBase {
 
     return TRUE;
   }
-
 }
-

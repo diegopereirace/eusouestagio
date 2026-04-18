@@ -174,3 +174,40 @@ function custom_panel_update_10003(): void
     $candidatura->save();
   }
 }
+
+/**
+ * Garante o campo de previsão de formatura nos usuários candidatos.
+ */
+function custom_panel_update_10004(): void
+{
+  if (!\Drupal::moduleHandler()->moduleExists('datetime')) {
+    return;
+  }
+
+  $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('user', 'field_previsao_formatura');
+  if (!$storage) {
+    $storage = \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => 'field_previsao_formatura',
+      'entity_type' => 'user',
+      'type' => 'datetime',
+      'settings' => ['datetime_type' => 'date'],
+      'cardinality' => 1,
+      'translatable' => FALSE,
+    ]);
+    $storage->save();
+  }
+
+  $field = \Drupal\field\Entity\FieldConfig::loadByName('user', 'user', 'field_previsao_formatura');
+  if (!$field) {
+    $field = \Drupal\field\Entity\FieldConfig::create([
+      'field_name' => 'field_previsao_formatura',
+      'entity_type' => 'user',
+      'bundle' => 'user',
+      'label' => 'Previsão de formatura',
+      'description' => 'Mês e ano previstos para a conclusão do curso.',
+      'required' => FALSE,
+      'settings' => [],
+    ]);
+    $field->save();
+  }
+}

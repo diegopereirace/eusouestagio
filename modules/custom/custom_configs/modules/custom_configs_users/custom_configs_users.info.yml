@@ -11,5 +11,6 @@ dependencies:
   - drupal:system
   - drupal:paragraphs
   - drupal:options
+  - drupal:datetime
 
 configure: custom_configs_users.settings

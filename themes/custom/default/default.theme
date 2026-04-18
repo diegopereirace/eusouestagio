@@ -362,6 +362,22 @@ function default_preprocess_views_exposed_form(array &$variables): void
     return;
   }
 
+  foreach (['estado', 'estados'] as $state_key) {
+    if (!isset($variables['form'][$state_key])) {
+      continue;
+    }
+
+    if (isset($variables['form'][$state_key]['#options']['All'])) {
+      $variables['form'][$state_key]['#options']['All'] = t('Selecionar');
+    }
+    if (isset($variables['form'][$state_key]['#options'][''])) {
+      $variables['form'][$state_key]['#options'][''] = t('Selecionar');
+    }
+
+    $variables['form'][$state_key]['#empty_option'] = t('Selecionar');
+    $variables['form'][$state_key]['#empty_value'] = '';
+  }
+
   $attrs = $form['#attributes'] ?? [];
   $attribute = new \Drupal\Core\Template\Attribute($attrs);
 

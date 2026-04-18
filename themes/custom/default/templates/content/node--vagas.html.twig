@@ -76,16 +76,17 @@
 <article{{ attributes.addClass(classes) }}>
   <header class="vaga-header">
 
-    {# Título #}
-    <h1{{ title_attributes.addClass('vaga-titulo') }}>{{ label }}</h1>
+    <h1{{ title_attributes.addClass('vaga-titulo', 'pb-2') }}>{{ label }}</h1>
 
     {# Nome Fantasia da empresa #}
     {% if node.field_empresa_u.entity and node.field_empresa_u.entity.field_nome_fantasia.value %}
-      <div class="vaga-empresa">{{ node.field_empresa_u.entity.field_nome_fantasia.value }}</div>
+      <div class="vaga-empresa"><strong>Empresa:</strong> {{ node.field_empresa_u.entity.field_nome_fantasia.value }}</div>
+    {% else %}
+      <div class="vaga-empresa"><strong>Empresa:</strong> Anônima</div>
     {% endif %}
 
     {# Linha de metadados: regime — localização — salário — data #}
-    <div class="vaga-meta">
+    <div class="vaga-meta mt-4">
 
       {% if node.field_regime_t is not empty %}
         {% for item in node.field_regime_t %}
@@ -131,6 +132,7 @@
       </span>
 
     </div>
+    <div class="vaga-numero mt-3 text-muted"><strong>{{ 'Número da Vaga:'|t }}</strong> {{ node.id() }}</div>
   </header>
 
   <div{{ content_attributes.addClass('node__content', 'clearfix') }}>

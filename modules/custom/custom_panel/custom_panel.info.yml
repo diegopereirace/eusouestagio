@@ -10,3 +10,4 @@ dependencies:
   - drupal:node
   - drupal:user
   - drupal:options
+  - drupal:datetime

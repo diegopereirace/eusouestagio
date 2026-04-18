@@ -175,6 +175,17 @@
           </section>
         {% endif %}
 
+        {% if content.field_auxilio_transporte is defined %}
+          {% set auxilio_transporte = content.field_auxilio_transporte|render|striptags|trim %}
+          {% if auxilio_transporte %}
+            <section class="vaga-section">
+              <div class="vaga-section-body">
+                <strong>{{ 'Auxílio Transporte:'|t }}</strong> {{ auxilio_transporte }}
+              </div>
+            </section>
+          {% endif %}
+        {% endif %}
+
         {% set sobre_empresa = node.field_empresa_u.entity.field_sobre_empresa.value ?? '' %}
         {% if sobre_empresa %}
           <section class="vaga-section">

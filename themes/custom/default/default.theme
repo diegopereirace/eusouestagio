@@ -378,6 +378,22 @@ function default_preprocess_views_exposed_form(array &$variables): void
     $variables['form'][$state_key]['#empty_value'] = '';
   }
 
+  foreach (['escolaridade'] as $schooling_key) {
+    if (!isset($variables['form'][$schooling_key])) {
+      continue;
+    }
+
+    if (isset($variables['form'][$schooling_key]['#options']['All'])) {
+      $variables['form'][$schooling_key]['#options']['All'] = t('Selecione um nível de ensino');
+    }
+    if (isset($variables['form'][$schooling_key]['#options'][''])) {
+      $variables['form'][$schooling_key]['#options'][''] = t('Selecione um nível de ensino');
+    }
+
+    $variables['form'][$schooling_key]['#empty_option'] = t('Selecione um nível de ensino');
+    $variables['form'][$schooling_key]['#empty_value'] = '';
+  }
+
   $attrs = $form['#attributes'] ?? [];
   $attribute = new \Drupal\Core\Template\Attribute($attrs);
 

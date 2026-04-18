@@ -7,6 +7,10 @@
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Markup;
+use Drupal\node\NodeInterface;
+use Drupal\views\Plugin\views\query\QueryPluginBase;
+use Drupal\views\Plugin\views\query\Sql;
+use Drupal\views\ResultRow;
 use Drupal\views\ViewExecutable;
 
 /**
@@ -202,16 +206,146 @@ function default_form_views_exposed_form_alter(array &$form, FormStateInterface 
 }
 
 /**
+ * Retorna os IDs dos termos de curso associados à vaga atual.
+ */
+function default_get_current_vaga_course_term_ids(?NodeInterface $node): array
+{
+  if (!$node instanceof NodeInterface || $node->bundle() !== 'vagas') {
+    return [];
+  }
+
+  if (!$node->hasField('field_cursos_t') || $node->get('field_cursos_t')->isEmpty()) {
+    return [];
+  }
+
+  $term_ids = [];
+  foreach ($node->get('field_cursos_t') as $item) {
+    $term_id = (int) ($item->target_id ?? 0);
+    if ($term_id > 0) {
+      $term_ids[$term_id] = $term_id;
+    }
+  }
+
+  return array_values($term_ids);
+}
+
+/**
  * Implements hook_views_pre_view().
  *
  * Desativa o AJAX da listagem principal de vagas para permitir
- * navegação completa via URL /para-estudantes.
+ * navegação completa via URL /para-estudantes e prepara o bloco de
+ * vagas similares com os cursos da vaga atual.
  */
 function default_views_pre_view(ViewExecutable $view, $display_id, array &$args): void
 {
   if ($view->id() === 'vagas' && $display_id === 'page_1' && $view->display_handler) {
     $view->display_handler->setOption('use_ajax', FALSE);
   }
+
+  if ($view->id() !== 'vagas' || $display_id !== 'block_2') {
+    return;
+  }
+
+  $route_node = \Drupal::routeMatch()->getParameter('node');
+  if (!$route_node instanceof NodeInterface) {
+    return;
+  }
+
+  $term_ids = default_get_current_vaga_course_term_ids($route_node);
+  if (empty($term_ids)) {
+    return;
+  }
+
+  // Evita que o display fique preso ao argumento contextual do nid atual.
+  $args = [];
+  $view->args = [];
+
+  $exposed_input = $view->getExposedInput();
+  $exposed_input['cursos'] = count($term_ids) === 1 ? (string) reset($term_ids) : $term_ids;
+  $view->setExposedInput($exposed_input);
+}
+
+/**
+ * Implements hook_views_query_alter().
+ *
+ * Garante que o bloco de vagas similares busque outras vagas com o mesmo
+ * curso da vaga atual, excluindo o próprio conteúdo aberto.
+ */
+function default_views_query_alter(ViewExecutable $view, QueryPluginBase $query): void
+{
+  if ($view->id() !== 'vagas' || $view->current_display !== 'block_2' || !$query instanceof Sql) {
+    return;
+  }
+
+  $query->distinct = TRUE;
+}
+
+/**
+ * Implements hook_views_pre_render().
+ *
+ * Sobrescreve os resultados do bloco de vagas similares com outras vagas
+ * publicadas que compartilham o mesmo termo em field_cursos_t.
+ */
+function default_views_pre_render(ViewExecutable $view): void
+{
+  if ($view->id() !== 'vagas' || $view->current_display !== 'block_2') {
+    return;
+  }
+
+  $route_node = \Drupal::routeMatch()->getParameter('node');
+  if (!$route_node instanceof NodeInterface) {
+    return;
+  }
+
+  $current_nid = (int) $route_node->id();
+  $term_ids = default_get_current_vaga_course_term_ids($route_node);
+
+  if (empty($term_ids)) {
+    $view->result = [];
+    $view->total_rows = 0;
+    return;
+  }
+
+  $pager_options = $view->display_handler?->getOption('pager') ?? [];
+  $items_per_page = (int) ($pager_options['options']['items_per_page'] ?? 12);
+  if ($items_per_page <= 0) {
+    $items_per_page = 12;
+  }
+
+  $nids = \Drupal::entityQuery('node')
+    ->accessCheck(FALSE)
+    ->condition('type', 'vagas')
+    ->condition('status', 1)
+    ->condition('field_cursos_t.target_id', $term_ids, 'IN')
+    ->condition('nid', $current_nid, '<>')
+    ->sort('created', 'DESC')
+    ->range(0, $items_per_page)
+    ->execute();
+
+  if (empty($nids)) {
+    $view->result = [];
+    $view->total_rows = 0;
+    return;
+  }
+
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $nodes = $storage->loadMultiple($nids);
+  $rows = [];
+
+  foreach (array_values($nids) as $index => $nid) {
+    if (!isset($nodes[$nid])) {
+      continue;
+    }
+
+    $row = new ResultRow();
+    $row->nid = $nid;
+    $row->_entity = $nodes[$nid];
+    $row->index = $index;
+    $rows[] = $row;
+  }
+
+  $view->result = $rows;
+  $view->total_rows = count($rows);
 }
 
 /**

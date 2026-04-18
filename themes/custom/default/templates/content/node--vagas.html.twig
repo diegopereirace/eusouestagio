@@ -115,22 +115,6 @@
         </span>
       {% endif %}
 
-      <span class="vaga-meta-item">
-        <i class="fa-regular fa-clock"></i>
-        {% set diff_days = (("now"|date("U") - node.getCreatedTime()) / 86400)|round(0, 'floor') %}
-        {% if diff_days == 0 %}
-          Hoje
-        {% elseif diff_days == 1 %}
-          1 dia atrás
-        {% elseif diff_days < 30 %}
-          {{ diff_days }} dias atrás
-        {% elseif diff_days < 60 %}
-          1 mês atrás
-        {% else %}
-          {{ (diff_days / 30)|round(0, 'floor') }} meses atrás
-        {% endif %}
-      </span>
-
     </div>
     <div class="vaga-numero mt-3 text-muted"><strong>{{ 'Número da Vaga:'|t }}</strong> {{ node.id() }}</div>
   </header>

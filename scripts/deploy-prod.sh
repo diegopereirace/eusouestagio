@@ -103,6 +103,6 @@ log "Limpando caches"
 run_drush cache:rebuild
 
 log "Verificando status final"
-run_drush status --fields=bootstrap,database,drupal-version,drush-version,php
+run_drush status --fields=bootstrap,db-status,drupal-version,drush-version,php-version
 
 log "Deploy concluido"

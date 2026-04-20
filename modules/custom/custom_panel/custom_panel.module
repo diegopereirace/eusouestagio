@@ -2,6 +2,8 @@
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\views\Plugin\views\query\Sql;
+use Drupal\views\ViewExecutable;
 
 /**
  * Implements hook_form_user_login_form_alter().
@@ -81,6 +83,115 @@ function custom_panel_form_node_form_alter(array &$form, FormStateInterface $for
  * Usa um container em largura total apenas nas URLs do painel para ampliar
  * a área útil das listagens.
  */
+/**
+ * Implements hook_form_views_exposed_form_alter().
+ *
+ * Ajusta o filtro exposto de cursos da view de vagas para funcionar como
+ * campo de texto livre, sem exigir seleção do autocomplete.
+ */
+function custom_panel_form_views_exposed_form_alter(array &$form, FormStateInterface $form_state, $form_id): void
+{
+    $view = $form['#view'] ?? $form_state->get('view');
+    $form_dom_id = (string) ($form['#id'] ?? '');
+    $is_vagas_form = ($view instanceof ViewExecutable && $view->id() === 'vagas')
+        || str_contains($form_dom_id, 'views-exposed-form-vagas-page-1');
+
+    if (!$is_vagas_form || !isset($form['cursos'])) {
+        return;
+    }
+
+    $search = trim((string) \Drupal::request()->query->get('cursos', ''));
+    if ($search !== '') {
+        $user_input = $form_state->getUserInput();
+        $user_input['cursos'] = '';
+        $form_state->setUserInput($user_input);
+    }
+
+    unset(
+        $form['cursos']['#autocomplete_path'],
+        $form['cursos']['#autocomplete_route_name'],
+        $form['cursos']['#autocomplete_route_parameters'],
+        $form['cursos']['#selection_handler'],
+        $form['cursos']['#selection_settings'],
+        $form['cursos']['#tags']
+    );
+
+    if (isset($form['cursos']['#attributes']['class']) && is_array($form['cursos']['#attributes']['class'])) {
+        $form['cursos']['#attributes']['class'] = array_values(array_diff(
+            $form['cursos']['#attributes']['class'],
+            ['form-autocomplete', 'ui-autocomplete-input']
+        ));
+    }
+
+    $form['cursos']['#type'] = 'textfield';
+    $form['cursos']['#title'] = t('Cursos');
+    $form['cursos']['#default_value'] = $search;
+    $form['cursos']['#description'] = '';
+    $form['cursos']['#attributes']['autocomplete'] = 'off';
+    $form['cursos']['#attributes']['placeholder'] = t('Digite um curso');
+}
+
+/**
+ * Implements hook_views_pre_view().
+ *
+ * Neutraliza a validação rígida do filtro exposto de taxonomia quando o
+ * usuário pesquisa por texto livre no campo cursos.
+ */
+function custom_panel_views_pre_view(ViewExecutable $view, $display_id, array &$args): void
+{
+    if ($view->id() !== 'vagas' || $display_id !== 'page_1') {
+        return;
+    }
+
+    $search = trim((string) \Drupal::request()->query->get('cursos', ''));
+    if ($search === '') {
+        return;
+    }
+
+    $view->build_info['custom_panel_course_search'] = $search;
+
+    $exposed_input = $view->getExposedInput();
+    $exposed_input['cursos'] = '';
+    $view->setExposedInput($exposed_input);
+    $view->exposed_raw_input['cursos'] = '';
+
+    if (isset($view->filter['field_cursos_t_target_id'])) {
+        $view->filter['field_cursos_t_target_id']->value = [];
+    }
+}
+
+/**
+ * Implements hook_views_query_alter().
+ *
+ * Aplica busca por contains no nome dos termos de taxonomia usados no campo
+ * de cursos da vaga.
+ */
+function custom_panel_views_query_alter(ViewExecutable $view, $query): void
+{
+    if (!$query instanceof Sql || $view->id() !== 'vagas' || $view->current_display !== 'page_1') {
+        return;
+    }
+
+    $search = trim((string) \Drupal::request()->query->get('cursos', ($view->build_info['custom_panel_course_search'] ?? '')));
+    if ($search === '') {
+        return;
+    }
+
+    $like = '%' . \Drupal::database()->escapeLike($search) . '%';
+
+    $query->addWhereExpression(
+        0,
+        "EXISTS (
+            SELECT 1
+            FROM {node__field_cursos_t} nfc
+            INNER JOIN {taxonomy_term_field_data} tfd ON tfd.tid = nfc.field_cursos_t_target_id
+            WHERE nfc.entity_id = node_field_data.nid
+              AND LOWER(tfd.name) LIKE LOWER(:custom_panel_course_search)
+        )",
+        [':custom_panel_course_search' => $like]
+    );
+}
+
 function custom_panel_preprocess_page(array &$variables): void
 {
     $current_path = \Drupal::service('path.current')->getPath();

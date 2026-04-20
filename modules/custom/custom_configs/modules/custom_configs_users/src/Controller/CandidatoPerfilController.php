@@ -50,7 +50,6 @@ class CandidatoPerfilController extends ControllerBase {
             'periodo_letivo'           => $this->fieldVal($user, 'field_periodo_letivo'),
             'nome_curso'               => $this->fieldVal($user, 'field_nome_curso'),
             'tipo_curso'               => $this->fieldVal($user, 'field_tipo_curso'),
-            'periodo_matriculado'      => $this->fieldVal($user, 'field_periodo_matriculado'),
             'horario_curso'            => $this->fieldVal($user, 'field_horario_curso'),
             'duracao_curso'            => $this->fieldVal($user, 'field_duracao_curso'),
             'previsao_formatura'       => $this->fieldVal($user, 'field_previsao_formatura'),

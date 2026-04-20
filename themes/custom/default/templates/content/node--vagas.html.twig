@@ -184,7 +184,7 @@
             <div class="vaga-section-body">
               {% for item in node.field_horarios %}
                 {% if item.value %}
-                  <div>{{ item.value }}</div>
+                  <div>{{ item.value|capitalize }}</div>
                 {% endif %}
               {% endfor %}
             </div>

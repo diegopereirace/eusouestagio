@@ -1406,6 +1406,10 @@ class CandidatoEditForm extends FormBase
     array $existing_ids,
     callable $getValues,
   ): void {
+    if (!$user->hasField($field_name)) {
+      return;
+    }
+
     $references = [];
 
     for ($i = 0; $i < $num_items; $i++) {
@@ -1427,7 +1431,9 @@ class CandidatoEditForm extends FormBase
         $paragraph = Paragraph::load($existing_ids[$i]);
         if ($paragraph) {
           foreach ($values as $fname => $fval) {
-            $paragraph->set($fname, $fval !== '' ? $fval : NULL);
+            if ($paragraph->hasField($fname)) {
+              $paragraph->set($fname, $fval !== '' ? $fval : NULL);
+            }
           }
           $paragraph->save();
           $references[] = [

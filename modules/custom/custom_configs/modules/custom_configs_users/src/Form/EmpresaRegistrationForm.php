@@ -166,7 +166,7 @@ class EmpresaRegistrationForm extends FormBase
 
         $form['section_empresa']['row']['col_cnpj'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['col-12', 'col-md-6']],
+            '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
         ];
         $form['section_empresa']['row']['col_cnpj']['field_cnpj'] = [
             '#type' => 'textfield',
@@ -181,7 +181,7 @@ class EmpresaRegistrationForm extends FormBase
 
         $form['section_empresa']['row']['col_razao_social'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['col-12', 'col-md-6']],
+            '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
         ];
         $form['section_empresa']['row']['col_razao_social']['field_razao_social'] = [
             '#type' => 'textfield',
@@ -193,7 +193,7 @@ class EmpresaRegistrationForm extends FormBase
 
         $form['section_empresa']['row']['col_nome_fantasia'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['col-12', 'col-md-6']],
+            '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
         ];
         $form['section_empresa']['row']['col_nome_fantasia']['field_nome_fantasia'] = [
             '#type' => 'textfield',
@@ -210,28 +210,6 @@ class EmpresaRegistrationForm extends FormBase
             '#type' => 'textarea',
             '#title' => $this->t('Sobre a Empresa'),
             '#rows' => 5,
-            '#attributes' => ['class' => ['form-control']],
-        ];
-
-        $form['section_empresa']['row']['col_atividade_principal'] = [
-            '#type' => 'container',
-            '#attributes' => ['class' => ['col-12', 'col-md-8']],
-        ];
-        $form['section_empresa']['row']['col_atividade_principal']['field_atividade_principal'] = [
-            '#type' => 'textfield',
-            '#title' => $this->t('Atividade Principal'),
-            '#maxlength' => 255,
-            '#attributes' => ['class' => ['form-control']],
-        ];
-
-        $form['section_empresa']['row']['col_unidade'] = [
-            '#type' => 'container',
-            '#attributes' => ['class' => ['col-12', 'col-md-4']],
-        ];
-        $form['section_empresa']['row']['col_unidade']['field_unidade'] = [
-            '#type' => 'textfield',
-            '#title' => $this->t('Unidade'),
-            '#maxlength' => 100,
             '#attributes' => ['class' => ['form-control']],
         ];
 
@@ -473,8 +451,6 @@ class EmpresaRegistrationForm extends FormBase
             'field_razao_social',
             'field_nome_fantasia',
             'field_sobre_empresa',
-            'field_atividade_principal',
-            'field_unidade',
             // Endereço (campos compartilhados com candidato).
             'field_cep',
             'field_endereco',

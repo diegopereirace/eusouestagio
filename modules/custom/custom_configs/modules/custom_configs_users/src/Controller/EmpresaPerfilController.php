@@ -26,8 +26,6 @@ class EmpresaPerfilController extends ControllerBase
             // Dados da empresa.
             'razao_social'          => $this->fieldVal($user, 'field_razao_social'),
             'nome_fantasia'         => $this->fieldVal($user, 'field_nome_fantasia'),
-            'atividade_principal'   => $this->fieldVal($user, 'field_atividade_principal'),
-            'unidade'               => $this->fieldVal($user, 'field_unidade'),
             // Endereço (campos compartilhados com candidato).
             'cep'                   => $this->fieldVal($user, 'field_cep'),
             'endereco'              => $this->fieldVal($user, 'field_endereco'),

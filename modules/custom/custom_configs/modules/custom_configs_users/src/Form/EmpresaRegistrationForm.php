@@ -172,7 +172,7 @@ class EmpresaRegistrationForm extends FormBase
             '#type' => 'textfield',
             '#title' => $this->t('Inscrição Municipal'),
             '#maxlength' => 255,
-            '#attributes' => ['class' => ['form-control']],
+            '#attributes' => ['class' => ['form-control', 'mask-numbers']],
         ];
 
         $form['section_empresa']['row']['col_cnpj'] = [
@@ -493,7 +493,7 @@ class EmpresaRegistrationForm extends FormBase
         $user = User::create($values);
 
         if ($user->hasField('field_inscricao_municipal')) {
-            $inscricao_municipal = $form_state->getValue('field_inscricao_municipal');
+            $inscricao_municipal = preg_replace('/\D/', '', (string) $form_state->getValue('field_inscricao_municipal'));
             $user->set('field_inscricao_municipal', $inscricao_municipal !== '' ? $inscricao_municipal : NULL);
         }
 

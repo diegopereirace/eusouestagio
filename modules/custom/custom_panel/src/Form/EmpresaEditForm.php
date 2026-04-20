@@ -118,21 +118,6 @@ class EmpresaEditForm extends FormBase
       '#attributes' => ['class' => ['row', 'g-3']],
     ];
 
-    $form['section_empresa']['row']['col_cpf_empresa'] = [
-      '#type' => 'container',
-      '#attributes' => ['class' => ['col-12', 'col-md-6']],
-    ];
-    $form['section_empresa']['row']['col_cpf_empresa']['field_cpf_empresa'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('CPF'),
-      '#maxlength' => 14,
-      '#default_value' => $this->getFieldValue($user, 'field_cpf_empresa'),
-      '#attributes' => [
-        'class' => ['form-control', 'mask-cpf'],
-        'placeholder' => '000.000.000-00',
-      ],
-    ];
-
     $form['section_empresa']['row']['col_cnpj'] = [
       '#type' => 'container',
       '#attributes' => ['class' => ['col-12', 'col-md-6']],
@@ -140,6 +125,7 @@ class EmpresaEditForm extends FormBase
     $form['section_empresa']['row']['col_cnpj']['field_cnpj'] = [
       '#type' => 'textfield',
       '#title' => $this->t('CNPJ'),
+      '#required' => TRUE,
       '#maxlength' => 18,
       '#default_value' => $this->getFieldValue($user, 'field_cnpj'),
       '#attributes' => [
@@ -374,7 +360,6 @@ class EmpresaEditForm extends FormBase
   {
     $user = User::load(\Drupal::currentUser()->id());
     $mail = trim((string) $form_state->getValue('mail'));
-    $cpf = preg_replace('/\D/', '', (string) $form_state->getValue('field_cpf_empresa'));
     $cnpj = preg_replace('/\D/', '', (string) $form_state->getValue('field_cnpj'));
 
     // E-mail válido.
@@ -393,25 +378,11 @@ class EmpresaEditForm extends FormBase
       }
     }
 
-    // Documento (CPF / CNPJ) conforme tipo de entidade.
-    if ($cpf !== '' && $cnpj !== '') {
-      $form_state->setErrorByName('field_cpf_empresa', $this->t('Informe apenas um documento: CPF ou CNPJ.'));
-      $form_state->setErrorByName('field_cnpj', $this->t('Informe apenas um documento: CPF ou CNPJ.'));
-    } elseif ($cpf !== '') {
-      if (empty($cpf)) {
-        $form_state->setErrorByName('field_cpf_empresa', $this->t('O CPF é obrigatório para Pessoa Física.'));
-      } elseif (mb_strlen($cpf) !== 11 || !$this->validarCpf($cpf)) {
-        $form_state->setErrorByName('field_cpf_empresa', $this->t('O CPF informado é inválido.'));
-      }
-    } elseif ($cnpj !== '') {
-      if (empty($cnpj)) {
-        $form_state->setErrorByName('field_cnpj', $this->t('O CNPJ é obrigatório para Pessoa Jurídica.'));
-      } elseif (mb_strlen($cnpj) !== 14 || !$this->validarCnpj($cnpj)) {
-        $form_state->setErrorByName('field_cnpj', $this->t('O CNPJ informado é inválido.'));
-      }
-    } else {
-      $form_state->setErrorByName('field_cpf_empresa', $this->t('Informe um CPF ou um CNPJ.'));
-      $form_state->setErrorByName('field_cnpj', $this->t('Informe um CPF ou um CNPJ.'));
+    // Documento da empresa.
+    if ($cnpj === '') {
+      $form_state->setErrorByName('field_cnpj', $this->t('O CNPJ é obrigatório.'));
+    } elseif (mb_strlen($cnpj) !== 14 || !$this->validarCnpj($cnpj)) {
+      $form_state->setErrorByName('field_cnpj', $this->t('O CNPJ informado é inválido.'));
     }
 
     // E-mail do responsável (se preenchido, valida formato).
@@ -435,12 +406,10 @@ class EmpresaEditForm extends FormBase
     $mail = trim((string) $form_state->getValue('mail'));
     $user->setEmail($mail);
 
-    $cpf = preg_replace('/\D/', '', (string) $form_state->getValue('field_cpf_empresa'));
     $cnpj = preg_replace('/\D/', '', (string) $form_state->getValue('field_cnpj'));
 
     // Campos simples.
     $custom_fields = [
-      'field_cpf_empresa',
       'field_cnpj',
       'field_razao_social',
       'field_nome_fantasia',
@@ -465,11 +434,7 @@ class EmpresaEditForm extends FormBase
       }
     }
 
-    // Limpa documento que não se aplica ao tipo selecionado.
-    if ($cpf !== '' && $user->hasField('field_cnpj')) {
-      $user->set('field_cnpj', NULL);
-    }
-    if ($cnpj !== '' && $user->hasField('field_cpf_empresa')) {
+    if ($user->hasField('field_cpf_empresa')) {
       $user->set('field_cpf_empresa', NULL);
     }
 
@@ -479,29 +444,6 @@ class EmpresaEditForm extends FormBase
   }
 
   // ── Helpers de validação ───────────────────────────────────────
-
-  private function validarCpf(string $cpf): bool
-  {
-    if (preg_match('/^(\d)\1{10}$/', $cpf)) {
-      return FALSE;
-    }
-
-    for ($t = 9; $t < 11; $t++) {
-      $sum = 0;
-      for ($i = 0; $i < $t; $i++) {
-        $sum += (int) $cpf[$i] * ($t + 1 - $i);
-      }
-      $remainder = (10 * $sum) % 11;
-      if ($remainder >= 10) {
-        $remainder = 0;
-      }
-      if ((int) $cpf[$t] !== $remainder) {
-        return FALSE;
-      }
-    }
-
-    return TRUE;
-  }
 
   private function validarCnpj(string $cnpj): bool
   {

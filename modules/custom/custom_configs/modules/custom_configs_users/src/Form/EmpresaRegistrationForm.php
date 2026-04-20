@@ -164,20 +164,6 @@ class EmpresaRegistrationForm extends FormBase
             '#attributes' => ['class' => ['row', 'g-3']],
         ];
 
-        $form['section_empresa']['row']['col_cpf_empresa'] = [
-            '#type' => 'container',
-            '#attributes' => ['class' => ['col-12', 'col-md-6']],
-        ];
-        $form['section_empresa']['row']['col_cpf_empresa']['field_cpf_empresa'] = [
-            '#type' => 'textfield',
-            '#title' => $this->t('CPF'),
-            '#maxlength' => 14,
-            '#attributes' => [
-                'class' => ['form-control', 'mask-cpf'],
-                'placeholder' => '000.000.000-00',
-            ],
-        ];
-
         $form['section_empresa']['row']['col_cnpj'] = [
             '#type' => 'container',
             '#attributes' => ['class' => ['col-12', 'col-md-6']],
@@ -185,6 +171,7 @@ class EmpresaRegistrationForm extends FormBase
         $form['section_empresa']['row']['col_cnpj']['field_cnpj'] = [
             '#type' => 'textfield',
             '#title' => $this->t('CNPJ'),
+            '#required' => TRUE,
             '#maxlength' => 18,
             '#attributes' => [
                 'class' => ['form-control', 'mask-cnpj'],
@@ -416,7 +403,6 @@ class EmpresaRegistrationForm extends FormBase
         $pass = (string) $form_state->getValue('pass');
         $pass_confirm = (string) $form_state->getValue('pass_confirm');
         $verify_mail = (bool) \Drupal::config('user.settings')->get('verify_mail');
-        $cpf = preg_replace('/\D/', '', (string) $form_state->getValue('field_cpf_empresa'));
         $cnpj = preg_replace('/\D/', '', (string) $form_state->getValue('field_cnpj'));
 
         // ── Dados de Acesso ────────────────────────────────────────
@@ -452,25 +438,11 @@ class EmpresaRegistrationForm extends FormBase
             }
         }
 
-        // ── Documento (CPF / CNPJ) ─────────────────────────────────
-        if ($cpf !== '' && $cnpj !== '') {
-            $form_state->setErrorByName('field_cpf_empresa', $this->t('Informe apenas um documento: CPF ou CNPJ.'));
-            $form_state->setErrorByName('field_cnpj', $this->t('Informe apenas um documento: CPF ou CNPJ.'));
-        } elseif ($cpf !== '') {
-            if (empty($cpf)) {
-                $form_state->setErrorByName('field_cpf_empresa', $this->t('O CPF é obrigatório para Pessoa Física.'));
-            } elseif (mb_strlen($cpf) !== 11 || !$this->validarCpf($cpf)) {
-                $form_state->setErrorByName('field_cpf_empresa', $this->t('O CPF informado é inválido.'));
-            }
-        } elseif ($cnpj !== '') {
-            if (empty($cnpj)) {
-                $form_state->setErrorByName('field_cnpj', $this->t('O CNPJ é obrigatório para Pessoa Jurídica.'));
-            } elseif (mb_strlen($cnpj) !== 14 || !$this->validarCnpj($cnpj)) {
-                $form_state->setErrorByName('field_cnpj', $this->t('O CNPJ informado é inválido.'));
-            }
-        } else {
-            $form_state->setErrorByName('field_cpf_empresa', $this->t('Informe um CPF ou um CNPJ para concluir o cadastro.'));
-            $form_state->setErrorByName('field_cnpj', $this->t('Informe um CPF ou um CNPJ para concluir o cadastro.'));
+        // ── Documento (CNPJ) ───────────────────────────────────────
+        if ($cnpj === '') {
+            $form_state->setErrorByName('field_cnpj', $this->t('O CNPJ é obrigatório para concluir o cadastro.'));
+        } elseif (mb_strlen($cnpj) !== 14 || !$this->validarCnpj($cnpj)) {
+            $form_state->setErrorByName('field_cnpj', $this->t('O CNPJ informado é inválido.'));
         }
 
         // ── Termo ──────────────────────────────────────────────────
@@ -494,11 +466,9 @@ class EmpresaRegistrationForm extends FormBase
             ? \Drupal::service('password_generator')->generate()
             : $submitted_password;
         $account_is_active = $registration_policy === UserInterface::REGISTER_VISITORS;
-        $cpf = preg_replace('/\D/', '', (string) $form_state->getValue('field_cpf_empresa'));
         $cnpj = preg_replace('/\D/', '', (string) $form_state->getValue('field_cnpj'));
 
         $custom_fields = [
-            'field_cpf_empresa',
             'field_cnpj',
             'field_razao_social',
             'field_nome_fantasia',
@@ -533,15 +503,11 @@ class EmpresaRegistrationForm extends FormBase
             }
         }
 
-        if ($cpf !== '') {
-            unset($values['field_cnpj']);
-        }
-
-        if ($cnpj !== '') {
-            unset($values['field_cpf_empresa']);
-        }
-
         $user = User::create($values);
+
+        if ($user->hasField('field_cpf_empresa')) {
+            $user->set('field_cpf_empresa', NULL);
+        }
 
         if ($user->hasField('field_termo')) {
             $user->set('field_termo', (bool) $form_state->getValue('field_termo'));
@@ -577,32 +543,6 @@ class EmpresaRegistrationForm extends FormBase
         \_user_mail_notify('register_pending_approval', $user);
         $this->messenger()->addStatus($this->t('Cadastro realizado. Sua conta aguarda aprovação do administrador e você receberá um e-mail com as próximas instruções.'));
         $form_state->setRedirect('<front>');
-    }
-
-    /**
-     * Valida o CPF pelo dígito verificador.
-     */
-    private function validarCpf(string $cpf): bool
-    {
-        if (preg_match('/^(\d)\1{10}$/', $cpf)) {
-            return FALSE;
-        }
-
-        for ($t = 9; $t < 11; $t++) {
-            $sum = 0;
-            for ($i = 0; $i < $t; $i++) {
-                $sum += (int) $cpf[$i] * ($t + 1 - $i);
-            }
-            $remainder = (10 * $sum) % 11;
-            if ($remainder >= 10) {
-                $remainder = 0;
-            }
-            if ((int) $cpf[$t] !== $remainder) {
-                return FALSE;
-            }
-        }
-
-        return TRUE;
     }
 
     /**

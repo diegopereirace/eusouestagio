@@ -119,7 +119,6 @@
   }
 
   function initEmpresaValidation(form) {
-    var cpf = form.querySelector('input[name="field_cpf_empresa"]');
     var cnpj = form.querySelector('input[name="field_cnpj"]');
     var termo = form.querySelector('input[name="field_termo"]');
     var pass = form.querySelector('input[name="pass"]');
@@ -171,37 +170,9 @@
     ];
 
     function validateDocumento() {
-      clearInvalidState(cpf);
       clearInvalidState(cnpj);
 
-      var cpfDigits = cpf ? digitsOnly(cpf.value) : '';
       var cnpjDigits = cnpj ? digitsOnly(cnpj.value) : '';
-
-      if (!cpfDigits && !cnpjDigits) {
-        var cpfValid = validateField(cpf, 'Informe um CPF ou um CNPJ.', function () {
-          return false;
-        });
-        var cnpjValid = validateField(cnpj, 'Informe um CPF ou um CNPJ.', function () {
-          return false;
-        });
-        return cpfValid && cnpjValid;
-      }
-
-      if (cpfDigits && cnpjDigits) {
-        var cpfOnlyValid = validateField(cpf, 'Informe apenas um documento: CPF ou CNPJ.', function () {
-          return false;
-        });
-        var cnpjOnlyValid = validateField(cnpj, 'Informe apenas um documento: CPF ou CNPJ.', function () {
-          return false;
-        });
-        return cpfOnlyValid && cnpjOnlyValid;
-      }
-
-      if (cpfDigits) {
-        return validateField(cpf, 'Informe um CPF válido.', function (input) {
-          return digitsOnly(input.value).length === 11;
-        });
-      }
 
       if (cnpjDigits) {
         return validateField(cnpj, 'Informe um CNPJ válido.', function (input) {
@@ -209,7 +180,9 @@
         });
       }
 
-      return true;
+      return validateField(cnpj, 'Informe o CNPJ da empresa.', function () {
+        return false;
+      });
     }
 
     function validateTermo() {
@@ -224,7 +197,7 @@
       });
     });
 
-    [cpf, cnpj].forEach(function (input) {
+    [cnpj].forEach(function (input) {
       bindRealtimeValidation(input, validateDocumento);
     });
 

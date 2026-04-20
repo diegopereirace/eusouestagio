@@ -8,9 +8,11 @@ use Drupal\user\Entity\User;
 /**
  * Exibe o perfil da empresa logada.
  */
-class EmpresaPerfilController extends ControllerBase {
+class EmpresaPerfilController extends ControllerBase
+{
 
-    public function view(): array {
+    public function view(): array
+    {
         $uid  = $this->currentUser()->id();
         $user = User::load($uid);
 
@@ -19,8 +21,7 @@ class EmpresaPerfilController extends ControllerBase {
         }
 
         $dados = [
-            // Tipo e documento.
-            'tipo_entidade'         => $this->fieldVal($user, 'field_tipo_entidade'),
+            // Documento.
             'cpf_empresa'           => $this->fieldVal($user, 'field_cpf_empresa'),
             'cnpj'                  => $this->fieldVal($user, 'field_cnpj'),
             // Dados da empresa.
@@ -48,7 +49,8 @@ class EmpresaPerfilController extends ControllerBase {
         ];
     }
 
-    private function fieldVal($entity, string $field_name): string {
+    private function fieldVal($entity, string $field_name): string
+    {
         if (!$entity->hasField($field_name)) {
             return '';
         }
@@ -58,5 +60,4 @@ class EmpresaPerfilController extends ControllerBase {
         }
         return (string) $field->value;
     }
-
 }

@@ -119,7 +119,6 @@
   }
 
   function initEmpresaValidation(form) {
-    var tipo = form.querySelector('select[name="field_tipo_entidade"]');
     var cpf = form.querySelector('input[name="field_cpf_empresa"]');
     var cnpj = form.querySelector('input[name="field_cnpj"]');
     var termo = form.querySelector('input[name="field_termo"]');
@@ -156,13 +155,6 @@
         }
       },
       {
-        input: tipo,
-        message: 'Selecione o tipo de entidade.',
-        validate: function (input) {
-          return input.value !== '';
-        }
-      },
-      {
         input: form.querySelector('input[name="field_razao_social"]'),
         message: 'Informe a razão social.',
         validate: function (input) {
@@ -182,17 +174,36 @@
       clearInvalidState(cpf);
       clearInvalidState(cnpj);
 
-      if (!tipo || tipo.value === '') {
-        return true;
+      var cpfDigits = cpf ? digitsOnly(cpf.value) : '';
+      var cnpjDigits = cnpj ? digitsOnly(cnpj.value) : '';
+
+      if (!cpfDigits && !cnpjDigits) {
+        var cpfValid = validateField(cpf, 'Informe um CPF ou um CNPJ.', function () {
+          return false;
+        });
+        var cnpjValid = validateField(cnpj, 'Informe um CPF ou um CNPJ.', function () {
+          return false;
+        });
+        return cpfValid && cnpjValid;
       }
 
-      if (tipo.value === 'fisica') {
+      if (cpfDigits && cnpjDigits) {
+        var cpfOnlyValid = validateField(cpf, 'Informe apenas um documento: CPF ou CNPJ.', function () {
+          return false;
+        });
+        var cnpjOnlyValid = validateField(cnpj, 'Informe apenas um documento: CPF ou CNPJ.', function () {
+          return false;
+        });
+        return cpfOnlyValid && cnpjOnlyValid;
+      }
+
+      if (cpfDigits) {
         return validateField(cpf, 'Informe um CPF válido.', function (input) {
           return digitsOnly(input.value).length === 11;
         });
       }
 
-      if (tipo.value === 'juridica') {
+      if (cnpjDigits) {
         return validateField(cnpj, 'Informe um CNPJ válido.', function (input) {
           return digitsOnly(input.value).length === 14;
         });
@@ -212,17 +223,6 @@
         validateField(rule.input, rule.message, rule.validate);
       });
     });
-
-    if (tipo) {
-      tipo.addEventListener('change', function () {
-        clearInvalidState(cpf);
-        clearInvalidState(cnpj);
-        validateField(tipo, 'Selecione o tipo de entidade.', function (input) {
-          return input.value !== '';
-        });
-        validateDocumento();
-      });
-    }
 
     [cpf, cnpj].forEach(function (input) {
       bindRealtimeValidation(input, validateDocumento);

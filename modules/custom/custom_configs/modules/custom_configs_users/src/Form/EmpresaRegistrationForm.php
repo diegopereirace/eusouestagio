@@ -164,25 +164,9 @@ class EmpresaRegistrationForm extends FormBase
             '#attributes' => ['class' => ['row', 'g-3']],
         ];
 
-        $form['section_empresa']['row']['col_tipo_entidade'] = [
-            '#type' => 'container',
-            '#attributes' => ['class' => ['col-12', 'col-md-4']],
-        ];
-        $form['section_empresa']['row']['col_tipo_entidade']['field_tipo_entidade'] = [
-            '#type' => 'select',
-            '#title' => $this->t('Tipo de entidade'),
-            '#options' => [
-                '' => $this->t('- Selecione -'),
-                'fisica'   => $this->t('Pessoa Física'),
-                'juridica' => $this->t('Pessoa Jurídica'),
-            ],
-            '#required' => TRUE,
-            '#attributes' => ['class' => ['form-select']],
-        ];
-
         $form['section_empresa']['row']['col_cpf_empresa'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+            '#attributes' => ['class' => ['col-12', 'col-md-6']],
         ];
         $form['section_empresa']['row']['col_cpf_empresa']['field_cpf_empresa'] = [
             '#type' => 'textfield',
@@ -192,16 +176,11 @@ class EmpresaRegistrationForm extends FormBase
                 'class' => ['form-control', 'mask-cpf'],
                 'placeholder' => '000.000.000-00',
             ],
-            '#states' => [
-                'enabled' => [
-                    ':input[name="field_tipo_entidade"]' => ['value' => 'fisica'],
-                ],
-            ],
         ];
 
         $form['section_empresa']['row']['col_cnpj'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+            '#attributes' => ['class' => ['col-12', 'col-md-6']],
         ];
         $form['section_empresa']['row']['col_cnpj']['field_cnpj'] = [
             '#type' => 'textfield',
@@ -210,11 +189,6 @@ class EmpresaRegistrationForm extends FormBase
             '#attributes' => [
                 'class' => ['form-control', 'mask-cnpj'],
                 'placeholder' => '00.000.000/0000-00',
-            ],
-            '#states' => [
-                'enabled' => [
-                    ':input[name="field_tipo_entidade"]' => ['value' => 'juridica'],
-                ],
             ],
         ];
 
@@ -442,7 +416,8 @@ class EmpresaRegistrationForm extends FormBase
         $pass = (string) $form_state->getValue('pass');
         $pass_confirm = (string) $form_state->getValue('pass_confirm');
         $verify_mail = (bool) \Drupal::config('user.settings')->get('verify_mail');
-        $tipo = (string) $form_state->getValue('field_tipo_entidade');
+        $cpf = preg_replace('/\D/', '', (string) $form_state->getValue('field_cpf_empresa'));
+        $cnpj = preg_replace('/\D/', '', (string) $form_state->getValue('field_cnpj'));
 
         // ── Dados de Acesso ────────────────────────────────────────
         if (mb_strlen($name) < 3) {
@@ -478,22 +453,24 @@ class EmpresaRegistrationForm extends FormBase
         }
 
         // ── Documento (CPF / CNPJ) ─────────────────────────────────
-        if ($tipo === 'fisica') {
-            $cpf = preg_replace('/\D/', '', (string) $form_state->getValue('field_cpf_empresa'));
+        if ($cpf !== '' && $cnpj !== '') {
+            $form_state->setErrorByName('field_cpf_empresa', $this->t('Informe apenas um documento: CPF ou CNPJ.'));
+            $form_state->setErrorByName('field_cnpj', $this->t('Informe apenas um documento: CPF ou CNPJ.'));
+        } elseif ($cpf !== '') {
             if (empty($cpf)) {
                 $form_state->setErrorByName('field_cpf_empresa', $this->t('O CPF é obrigatório para Pessoa Física.'));
             } elseif (mb_strlen($cpf) !== 11 || !$this->validarCpf($cpf)) {
                 $form_state->setErrorByName('field_cpf_empresa', $this->t('O CPF informado é inválido.'));
             }
-        } elseif ($tipo === 'juridica') {
-            $cnpj = preg_replace('/\D/', '', (string) $form_state->getValue('field_cnpj'));
+        } elseif ($cnpj !== '') {
             if (empty($cnpj)) {
                 $form_state->setErrorByName('field_cnpj', $this->t('O CNPJ é obrigatório para Pessoa Jurídica.'));
             } elseif (mb_strlen($cnpj) !== 14 || !$this->validarCnpj($cnpj)) {
                 $form_state->setErrorByName('field_cnpj', $this->t('O CNPJ informado é inválido.'));
             }
         } else {
-            $form_state->setErrorByName('field_tipo_entidade', $this->t('Selecione o tipo de entidade para informar o documento correto.'));
+            $form_state->setErrorByName('field_cpf_empresa', $this->t('Informe um CPF ou um CNPJ para concluir o cadastro.'));
+            $form_state->setErrorByName('field_cnpj', $this->t('Informe um CPF ou um CNPJ para concluir o cadastro.'));
         }
 
         // ── Termo ──────────────────────────────────────────────────
@@ -517,10 +494,10 @@ class EmpresaRegistrationForm extends FormBase
             ? \Drupal::service('password_generator')->generate()
             : $submitted_password;
         $account_is_active = $registration_policy === UserInterface::REGISTER_VISITORS;
-        $tipo = (string) $form_state->getValue('field_tipo_entidade');
+        $cpf = preg_replace('/\D/', '', (string) $form_state->getValue('field_cpf_empresa'));
+        $cnpj = preg_replace('/\D/', '', (string) $form_state->getValue('field_cnpj'));
 
         $custom_fields = [
-            'field_tipo_entidade',
             'field_cpf_empresa',
             'field_cnpj',
             'field_razao_social',
@@ -556,11 +533,11 @@ class EmpresaRegistrationForm extends FormBase
             }
         }
 
-        if ($tipo === 'fisica') {
+        if ($cpf !== '') {
             unset($values['field_cnpj']);
         }
 
-        if ($tipo === 'juridica') {
+        if ($cnpj !== '') {
             unset($values['field_cpf_empresa']);
         }
 

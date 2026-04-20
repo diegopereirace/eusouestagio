@@ -28,17 +28,6 @@
     <div class="card-body">
       <dl class="row mb-0">
 
-        {% if dados.tipo_entidade %}
-          <dt class="col-sm-4">{{ 'Tipo de entidade'|t }}</dt>
-          <dd class="col-sm-8">
-            {% if dados.tipo_entidade == 'fisica' %}
-              {{ 'Pessoa Física'|t }}
-            {% else %}
-              {{ 'Pessoa Jurídica'|t }}
-            {% endif %}
-          </dd>
-        {% endif %}
-
         {% if dados.cnpj %}
           <dt class="col-sm-4">{{ 'CNPJ'|t }}</dt>
           <dd class="col-sm-8">{{ dados.cnpj }}</dd>

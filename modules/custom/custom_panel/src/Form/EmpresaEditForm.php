@@ -8,13 +8,16 @@ use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\user\Entity\User;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
-class EmpresaEditForm extends FormBase {
+class EmpresaEditForm extends FormBase
+{
 
-  public function getFormId() {
+  public function getFormId()
+  {
     return 'custom_panel_empresa_edit_form';
   }
 
-  private function getListOptions(string $field_name, string $entity_type = 'user'): array {
+  private function getListOptions(string $field_name, string $entity_type = 'user'): array
+  {
     $storage = FieldStorageConfig::loadByName($entity_type, $field_name);
     if (!$storage) {
       return [];
@@ -35,15 +38,12 @@ class EmpresaEditForm extends FormBase {
     foreach ($allowed as $key => $item) {
       if (is_array($item) && isset($item['value']) && isset($item['label'])) {
         $options[(string) $item['value']] = (string) $item['label'];
-      }
-      elseif (is_array($item) && isset($item['value'])) {
+      } elseif (is_array($item) && isset($item['value'])) {
         $value = (string) $item['value'];
         $options[$value] = $value;
-      }
-      elseif (!is_int($key) && (is_string($item) || is_numeric($item))) {
+      } elseif (!is_int($key) && (is_string($item) || is_numeric($item))) {
         $options[(string) $key] = (string) $item;
-      }
-      elseif (is_int($key) && (is_string($item) || is_numeric($item))) {
+      } elseif (is_int($key) && (is_string($item) || is_numeric($item))) {
         $value = (string) $item;
         $options[$value] = $value;
       }
@@ -52,14 +52,16 @@ class EmpresaEditForm extends FormBase {
     return $options;
   }
 
-  private function getFieldValue(User $user, string $field_name): string {
+  private function getFieldValue(User $user, string $field_name): string
+  {
     if ($user->hasField($field_name) && !$user->get($field_name)->isEmpty()) {
       return (string) $user->get($field_name)->value;
     }
     return '';
   }
 
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state)
+  {
     $user = User::load(\Drupal::currentUser()->id());
     if (!$user || !$user->hasRole('empresa')) {
       throw new AccessDeniedHttpException();
@@ -116,26 +118,9 @@ class EmpresaEditForm extends FormBase {
       '#attributes' => ['class' => ['row', 'g-3']],
     ];
 
-    $form['section_empresa']['row']['col_tipo_entidade'] = [
-      '#type' => 'container',
-      '#attributes' => ['class' => ['col-12', 'col-md-4']],
-    ];
-    $form['section_empresa']['row']['col_tipo_entidade']['field_tipo_entidade'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Tipo de entidade'),
-      '#options' => [
-        '' => $this->t('- Selecione -'),
-        'fisica' => $this->t('Pessoa Física'),
-        'juridica' => $this->t('Pessoa Jurídica'),
-      ],
-      '#required' => TRUE,
-      '#default_value' => $this->getFieldValue($user, 'field_tipo_entidade'),
-      '#attributes' => ['class' => ['form-select']],
-    ];
-
     $form['section_empresa']['row']['col_cpf_empresa'] = [
       '#type' => 'container',
-      '#attributes' => ['class' => ['col-12', 'col-md-4']],
+      '#attributes' => ['class' => ['col-12', 'col-md-6']],
     ];
     $form['section_empresa']['row']['col_cpf_empresa']['field_cpf_empresa'] = [
       '#type' => 'textfield',
@@ -146,16 +131,11 @@ class EmpresaEditForm extends FormBase {
         'class' => ['form-control', 'mask-cpf'],
         'placeholder' => '000.000.000-00',
       ],
-      '#states' => [
-        'enabled' => [
-          ':input[name="field_tipo_entidade"]' => ['value' => 'fisica'],
-        ],
-      ],
     ];
 
     $form['section_empresa']['row']['col_cnpj'] = [
       '#type' => 'container',
-      '#attributes' => ['class' => ['col-12', 'col-md-4']],
+      '#attributes' => ['class' => ['col-12', 'col-md-6']],
     ];
     $form['section_empresa']['row']['col_cnpj']['field_cnpj'] = [
       '#type' => 'textfield',
@@ -165,11 +145,6 @@ class EmpresaEditForm extends FormBase {
       '#attributes' => [
         'class' => ['form-control', 'mask-cnpj'],
         'placeholder' => '00.000.000/0000-00',
-      ],
-      '#states' => [
-        'enabled' => [
-          ':input[name="field_tipo_entidade"]' => ['value' => 'juridica'],
-        ],
       ],
     ];
 
@@ -395,10 +370,12 @@ class EmpresaEditForm extends FormBase {
 
   // ── Validação ──────────────────────────────────────────────────
 
-  public function validateForm(array &$form, FormStateInterface $form_state) {
+  public function validateForm(array &$form, FormStateInterface $form_state)
+  {
     $user = User::load(\Drupal::currentUser()->id());
     $mail = trim((string) $form_state->getValue('mail'));
-    $tipo = (string) $form_state->getValue('field_tipo_entidade');
+    $cpf = preg_replace('/\D/', '', (string) $form_state->getValue('field_cpf_empresa'));
+    $cnpj = preg_replace('/\D/', '', (string) $form_state->getValue('field_cnpj'));
 
     // E-mail válido.
     if (!\Drupal::service('email.validator')->isValid($mail)) {
@@ -417,26 +394,24 @@ class EmpresaEditForm extends FormBase {
     }
 
     // Documento (CPF / CNPJ) conforme tipo de entidade.
-    if ($tipo === 'fisica') {
-      $cpf = preg_replace('/\D/', '', (string) $form_state->getValue('field_cpf_empresa'));
+    if ($cpf !== '' && $cnpj !== '') {
+      $form_state->setErrorByName('field_cpf_empresa', $this->t('Informe apenas um documento: CPF ou CNPJ.'));
+      $form_state->setErrorByName('field_cnpj', $this->t('Informe apenas um documento: CPF ou CNPJ.'));
+    } elseif ($cpf !== '') {
       if (empty($cpf)) {
         $form_state->setErrorByName('field_cpf_empresa', $this->t('O CPF é obrigatório para Pessoa Física.'));
-      }
-      elseif (mb_strlen($cpf) !== 11 || !$this->validarCpf($cpf)) {
+      } elseif (mb_strlen($cpf) !== 11 || !$this->validarCpf($cpf)) {
         $form_state->setErrorByName('field_cpf_empresa', $this->t('O CPF informado é inválido.'));
       }
-    }
-    elseif ($tipo === 'juridica') {
-      $cnpj = preg_replace('/\D/', '', (string) $form_state->getValue('field_cnpj'));
+    } elseif ($cnpj !== '') {
       if (empty($cnpj)) {
         $form_state->setErrorByName('field_cnpj', $this->t('O CNPJ é obrigatório para Pessoa Jurídica.'));
-      }
-      elseif (mb_strlen($cnpj) !== 14 || !$this->validarCnpj($cnpj)) {
+      } elseif (mb_strlen($cnpj) !== 14 || !$this->validarCnpj($cnpj)) {
         $form_state->setErrorByName('field_cnpj', $this->t('O CNPJ informado é inválido.'));
       }
-    }
-    else {
-      $form_state->setErrorByName('field_tipo_entidade', $this->t('Selecione o tipo de entidade.'));
+    } else {
+      $form_state->setErrorByName('field_cpf_empresa', $this->t('Informe um CPF ou um CNPJ.'));
+      $form_state->setErrorByName('field_cnpj', $this->t('Informe um CPF ou um CNPJ.'));
     }
 
     // E-mail do responsável (se preenchido, valida formato).
@@ -448,7 +423,8 @@ class EmpresaEditForm extends FormBase {
 
   // ── Submit ─────────────────────────────────────────────────────
 
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state)
+  {
     $user = User::load(\Drupal::currentUser()->id());
     if (!$user) {
       $this->messenger()->addError($this->t('Não foi possível carregar sua conta.'));
@@ -459,11 +435,11 @@ class EmpresaEditForm extends FormBase {
     $mail = trim((string) $form_state->getValue('mail'));
     $user->setEmail($mail);
 
-    $tipo = (string) $form_state->getValue('field_tipo_entidade');
+    $cpf = preg_replace('/\D/', '', (string) $form_state->getValue('field_cpf_empresa'));
+    $cnpj = preg_replace('/\D/', '', (string) $form_state->getValue('field_cnpj'));
 
     // Campos simples.
     $custom_fields = [
-      'field_tipo_entidade',
       'field_cpf_empresa',
       'field_cnpj',
       'field_razao_social',
@@ -490,10 +466,10 @@ class EmpresaEditForm extends FormBase {
     }
 
     // Limpa documento que não se aplica ao tipo selecionado.
-    if ($tipo === 'fisica' && $user->hasField('field_cnpj')) {
+    if ($cpf !== '' && $user->hasField('field_cnpj')) {
       $user->set('field_cnpj', NULL);
     }
-    if ($tipo === 'juridica' && $user->hasField('field_cpf_empresa')) {
+    if ($cnpj !== '' && $user->hasField('field_cpf_empresa')) {
       $user->set('field_cpf_empresa', NULL);
     }
 
@@ -504,7 +480,8 @@ class EmpresaEditForm extends FormBase {
 
   // ── Helpers de validação ───────────────────────────────────────
 
-  private function validarCpf(string $cpf): bool {
+  private function validarCpf(string $cpf): bool
+  {
     if (preg_match('/^(\d)\1{10}$/', $cpf)) {
       return FALSE;
     }
@@ -526,7 +503,8 @@ class EmpresaEditForm extends FormBase {
     return TRUE;
   }
 
-  private function validarCnpj(string $cnpj): bool {
+  private function validarCnpj(string $cnpj): bool
+  {
     if (preg_match('/^(\d)\1{13}$/', $cnpj)) {
       return FALSE;
     }
@@ -554,6 +532,4 @@ class EmpresaEditForm extends FormBase {
 
     return (int) $cnpj[13] === $digit2;
   }
-
 }
-

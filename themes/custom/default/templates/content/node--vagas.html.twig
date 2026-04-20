@@ -178,6 +178,19 @@
           </section>
         {% endif %}
 
+        {% if node.field_horarios is defined and node.field_horarios is not empty %}
+          <section class="vaga-section">
+            <h2 class="vaga-section-title">{{ 'Horários'|t }}</h2>
+            <div class="vaga-section-body">
+              {% for item in node.field_horarios %}
+                {% if item.value %}
+                  <div>{{ item.value }}</div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </section>
+        {% endif %}
+
         {% set cursos_items = node.field_cursos_t is defined and node.field_cursos_t is not empty
           ? node.field_cursos_t
           : (node.field_tecnologias_t is defined and node.field_tecnologias_t is not empty ? node.field_tecnologias_t : []) %}

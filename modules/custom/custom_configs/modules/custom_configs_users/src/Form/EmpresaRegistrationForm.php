@@ -164,9 +164,20 @@ class EmpresaRegistrationForm extends FormBase
             '#attributes' => ['class' => ['row', 'g-3']],
         ];
 
+        $form['section_empresa']['row']['col_inscricao_municipal'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-3']],
+        ];
+        $form['section_empresa']['row']['col_inscricao_municipal']['field_inscricao_municipal'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Inscrição Municipal'),
+            '#maxlength' => 255,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
         $form['section_empresa']['row']['col_cnpj'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
+            '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-3']],
         ];
         $form['section_empresa']['row']['col_cnpj']['field_cnpj'] = [
             '#type' => 'textfield',
@@ -181,7 +192,7 @@ class EmpresaRegistrationForm extends FormBase
 
         $form['section_empresa']['row']['col_razao_social'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
+            '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-3']],
         ];
         $form['section_empresa']['row']['col_razao_social']['field_razao_social'] = [
             '#type' => 'textfield',
@@ -193,7 +204,7 @@ class EmpresaRegistrationForm extends FormBase
 
         $form['section_empresa']['row']['col_nome_fantasia'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
+            '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-3']],
         ];
         $form['section_empresa']['row']['col_nome_fantasia']['field_nome_fantasia'] = [
             '#type' => 'textfield',
@@ -480,6 +491,11 @@ class EmpresaRegistrationForm extends FormBase
         }
 
         $user = User::create($values);
+
+        if ($user->hasField('field_inscricao_municipal')) {
+            $inscricao_municipal = $form_state->getValue('field_inscricao_municipal');
+            $user->set('field_inscricao_municipal', $inscricao_municipal !== '' ? $inscricao_municipal : NULL);
+        }
 
         if ($user->hasField('field_cpf_empresa')) {
             $user->set('field_cpf_empresa', NULL);

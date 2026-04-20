@@ -118,9 +118,21 @@ class EmpresaEditForm extends FormBase
       '#attributes' => ['class' => ['row', 'g-3']],
     ];
 
+    $form['section_empresa']['row']['col_inscricao_municipal'] = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-3']],
+    ];
+    $form['section_empresa']['row']['col_inscricao_municipal']['field_inscricao_municipal'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Inscrição Municipal'),
+      '#maxlength' => 255,
+      '#default_value' => $this->getFieldValue($user, 'field_inscricao_municipal'),
+      '#attributes' => ['class' => ['form-control']],
+    ];
+
     $form['section_empresa']['row']['col_cnpj'] = [
       '#type' => 'container',
-      '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
+      '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-3']],
     ];
     $form['section_empresa']['row']['col_cnpj']['field_cnpj'] = [
       '#type' => 'textfield',
@@ -136,7 +148,7 @@ class EmpresaEditForm extends FormBase
 
     $form['section_empresa']['row']['col_razao_social'] = [
       '#type' => 'container',
-      '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
+      '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-3']],
     ];
     $form['section_empresa']['row']['col_razao_social']['field_razao_social'] = [
       '#type' => 'textfield',
@@ -149,7 +161,7 @@ class EmpresaEditForm extends FormBase
 
     $form['section_empresa']['row']['col_nome_fantasia'] = [
       '#type' => 'container',
-      '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
+      '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-3']],
     ];
     $form['section_empresa']['row']['col_nome_fantasia']['field_nome_fantasia'] = [
       '#type' => 'textfield',
@@ -386,6 +398,7 @@ class EmpresaEditForm extends FormBase
 
     // Campos simples.
     $custom_fields = [
+      'field_inscricao_municipal',
       'field_cnpj',
       'field_razao_social',
       'field_nome_fantasia',

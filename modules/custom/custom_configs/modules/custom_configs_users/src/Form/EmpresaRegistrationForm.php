@@ -84,7 +84,7 @@ class EmpresaRegistrationForm extends FormBase
         ];
         $form['page_title'] = [
             '#markup' => '<div class="mb-4 mt-5">'
-                . '<p class="text-muted mb-0">' . $this->t('Preencha os dados abaixo para cadastrar sua empresa na plataforma.') . '</p>'
+                . '<p class="text-muted mb-0">' . $this->t('Preencha os campos abaixo para contratação de estagiários.') . '</p>'
                 . '</div>',
         ];
         $form['section_acesso'] = [

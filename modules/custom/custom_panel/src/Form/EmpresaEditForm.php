@@ -127,7 +127,7 @@ class EmpresaEditForm extends FormBase
       '#title' => $this->t('Inscrição Municipal'),
       '#maxlength' => 255,
       '#default_value' => $this->getFieldValue($user, 'field_inscricao_municipal'),
-      '#attributes' => ['class' => ['form-control']],
+      '#attributes' => ['class' => ['form-control', 'mask-numbers']],
     ];
 
     $form['section_empresa']['row']['col_cnpj'] = [
@@ -395,10 +395,10 @@ class EmpresaEditForm extends FormBase
     $user->setEmail($mail);
 
     $cnpj = preg_replace('/\D/', '', (string) $form_state->getValue('field_cnpj'));
+    $inscricao_municipal = preg_replace('/\D/', '', (string) $form_state->getValue('field_inscricao_municipal'));
 
     // Campos simples.
     $custom_fields = [
-      'field_inscricao_municipal',
       'field_cnpj',
       'field_razao_social',
       'field_nome_fantasia',
@@ -413,6 +413,10 @@ class EmpresaEditForm extends FormBase
       'field_responsavel_telefone',
       'field_responsavel_email',
     ];
+
+    if ($user->hasField('field_inscricao_municipal')) {
+      $user->set('field_inscricao_municipal', $inscricao_municipal !== '' ? $inscricao_municipal : NULL);
+    }
 
     foreach ($custom_fields as $field) {
       if ($user->hasField($field)) {

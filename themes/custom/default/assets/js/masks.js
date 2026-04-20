@@ -169,6 +169,15 @@
                 });
             }
 
+            once('mask-numbers', '.mask-numbers', context).forEach(function (element) {
+                $(element).on('input', function () {
+                    var pos = this.selectionStart;
+                    var raw = $(this).val().replace(/\D/g, '');
+                    $(this).val(raw);
+                    this.setSelectionRange(pos, pos);
+                });
+            });
+
             var MaskBankAgency = function (val) {
                 return val.replace(/\D/g, '').length === 5 ? '0000-0' : '000000';
             },

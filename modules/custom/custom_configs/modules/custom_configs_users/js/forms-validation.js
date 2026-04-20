@@ -208,6 +208,11 @@
     form.addEventListener('submit', function (event) {
       var isValid = true;
 
+      var inscricaoMunicipal = form.querySelector('input[name="field_inscricao_municipal"]');
+      if (inscricaoMunicipal) {
+        inscricaoMunicipal.value = digitsOnly(inscricaoMunicipal.value);
+      }
+
       rules.forEach(function (rule) {
         if (!validateField(rule.input, rule.message, rule.validate)) {
           isValid = false;

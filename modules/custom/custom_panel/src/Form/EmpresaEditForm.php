@@ -120,7 +120,7 @@ class EmpresaEditForm extends FormBase
 
     $form['section_empresa']['row']['col_cnpj'] = [
       '#type' => 'container',
-      '#attributes' => ['class' => ['col-12', 'col-md-6']],
+      '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
     ];
     $form['section_empresa']['row']['col_cnpj']['field_cnpj'] = [
       '#type' => 'textfield',
@@ -136,7 +136,7 @@ class EmpresaEditForm extends FormBase
 
     $form['section_empresa']['row']['col_razao_social'] = [
       '#type' => 'container',
-      '#attributes' => ['class' => ['col-12', 'col-md-6']],
+      '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
     ];
     $form['section_empresa']['row']['col_razao_social']['field_razao_social'] = [
       '#type' => 'textfield',
@@ -149,7 +149,7 @@ class EmpresaEditForm extends FormBase
 
     $form['section_empresa']['row']['col_nome_fantasia'] = [
       '#type' => 'container',
-      '#attributes' => ['class' => ['col-12', 'col-md-6']],
+      '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
     ];
     $form['section_empresa']['row']['col_nome_fantasia']['field_nome_fantasia'] = [
       '#type' => 'textfield',
@@ -168,30 +168,6 @@ class EmpresaEditForm extends FormBase
       '#title' => $this->t('Sobre a Empresa'),
       '#rows' => 5,
       '#default_value' => $this->getFieldValue($user, 'field_sobre_empresa'),
-      '#attributes' => ['class' => ['form-control']],
-    ];
-
-    $form['section_empresa']['row']['col_atividade_principal'] = [
-      '#type' => 'container',
-      '#attributes' => ['class' => ['col-12', 'col-md-8']],
-    ];
-    $form['section_empresa']['row']['col_atividade_principal']['field_atividade_principal'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Atividade Principal'),
-      '#maxlength' => 255,
-      '#default_value' => $this->getFieldValue($user, 'field_atividade_principal'),
-      '#attributes' => ['class' => ['form-control']],
-    ];
-
-    $form['section_empresa']['row']['col_unidade'] = [
-      '#type' => 'container',
-      '#attributes' => ['class' => ['col-12', 'col-md-4']],
-    ];
-    $form['section_empresa']['row']['col_unidade']['field_unidade'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Unidade'),
-      '#maxlength' => 100,
-      '#default_value' => $this->getFieldValue($user, 'field_unidade'),
       '#attributes' => ['class' => ['form-control']],
     ];
 
@@ -414,8 +390,6 @@ class EmpresaEditForm extends FormBase
       'field_razao_social',
       'field_nome_fantasia',
       'field_sobre_empresa',
-      'field_atividade_principal',
-      'field_unidade',
       'field_cep',
       'field_endereco',
       'field_complemento',

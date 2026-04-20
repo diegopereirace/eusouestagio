@@ -56,18 +56,18 @@ class CandidatoEditForm extends FormBase
   private function getMonthOptions(): array
   {
     return [
-      '01' => $this->t('01 - Janeiro'),
-      '02' => $this->t('02 - Fevereiro'),
-      '03' => $this->t('03 - Março'),
-      '04' => $this->t('04 - Abril'),
-      '05' => $this->t('05 - Maio'),
-      '06' => $this->t('06 - Junho'),
-      '07' => $this->t('07 - Julho'),
-      '08' => $this->t('08 - Agosto'),
-      '09' => $this->t('09 - Setembro'),
-      '10' => $this->t('10 - Outubro'),
-      '11' => $this->t('11 - Novembro'),
-      '12' => $this->t('12 - Dezembro'),
+      '01' => $this->t('Janeiro'),
+      '02' => $this->t('Fevereiro'),
+      '03' => $this->t('Março'),
+      '04' => $this->t('Abril'),
+      '05' => $this->t('Maio'),
+      '06' => $this->t('Junho'),
+      '07' => $this->t('Julho'),
+      '08' => $this->t('Agosto'),
+      '09' => $this->t('Setembro'),
+      '10' => $this->t('Outubro'),
+      '11' => $this->t('Novembro'),
+      '12' => $this->t('Dezembro'),
     ];
   }
 
@@ -655,7 +655,7 @@ class CandidatoEditForm extends FormBase
 
     $form['section_academico']['row']['col_escolaridade'] = [
       '#type' => 'container',
-      '#attributes' => ['class' => ['col-12', 'col-md-4']],
+      '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
     ];
     $form['section_academico']['row']['col_escolaridade']['field_escolaridade'] = [
       '#type' => 'select',
@@ -667,19 +667,22 @@ class CandidatoEditForm extends FormBase
 
     $form['section_academico']['row']['col_periodo_letivo'] = [
       '#type' => 'container',
-      '#attributes' => ['class' => ['col-12', 'col-md-4']],
+      '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
     ];
     $form['section_academico']['row']['col_periodo_letivo']['field_periodo_letivo'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Período letivo'),
+      '#title' => $this->t('Período em que está matriculado'),
       '#maxlength' => 60,
       '#default_value' => $this->getFieldValue($user, 'field_periodo_letivo'),
-      '#attributes' => ['class' => ['form-control']],
+      '#attributes' => [
+        'class' => ['form-control'],
+        'placeholder' => 'Ex: 2026.1',
+      ],
     ];
 
     $form['section_academico']['row']['col_nome_curso'] = [
       '#type' => 'container',
-      '#attributes' => ['class' => ['col-12', 'col-md-4']],
+      '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
     ];
     $form['section_academico']['row']['col_nome_curso']['field_nome_curso'] = [
       '#type' => 'textfield',
@@ -691,7 +694,7 @@ class CandidatoEditForm extends FormBase
 
     $form['section_academico']['row']['col_tipo_curso'] = [
       '#type' => 'container',
-      '#attributes' => ['class' => ['col-12', 'col-md-4']],
+      '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
     ];
     $form['section_academico']['row']['col_tipo_curso']['field_tipo_curso'] = [
       '#type' => 'select',
@@ -701,21 +704,9 @@ class CandidatoEditForm extends FormBase
       '#attributes' => ['class' => ['form-select']],
     ];
 
-    $form['section_academico']['row']['col_periodo_matriculado'] = [
-      '#type' => 'container',
-      '#attributes' => ['class' => ['col-12', 'col-md-4']],
-    ];
-    $form['section_academico']['row']['col_periodo_matriculado']['field_periodo_matriculado'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Período em que está matriculado'),
-      '#maxlength' => 60,
-      '#default_value' => $this->getFieldValue($user, 'field_periodo_matriculado'),
-      '#attributes' => ['class' => ['form-control']],
-    ];
-
     $form['section_academico']['row']['col_horario_curso'] = [
       '#type' => 'container',
-      '#attributes' => ['class' => ['col-12', 'col-md-4']],
+      '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
     ];
     $form['section_academico']['row']['col_horario_curso']['field_horario_curso'] = [
       '#type' => 'select',
@@ -727,7 +718,7 @@ class CandidatoEditForm extends FormBase
 
     $form['section_academico']['row']['col_duracao_curso'] = [
       '#type' => 'container',
-      '#attributes' => ['class' => ['col-12', 'col-md-4']],
+      '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
     ];
     $form['section_academico']['row']['col_duracao_curso']['field_duracao_curso'] = [
       '#type' => 'textfield',
@@ -782,7 +773,7 @@ class CandidatoEditForm extends FormBase
 
     $form['section_academico']['row']['col_disponibilidade'] = [
       '#type' => 'container',
-      '#attributes' => ['class' => ['col-12', 'col-md-4']],
+      '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-3']],
     ];
     $form['section_academico']['row']['col_disponibilidade']['field_disponibilidade_estagio'] = [
       '#type' => 'select',
@@ -794,7 +785,7 @@ class CandidatoEditForm extends FormBase
 
     $form['section_academico']['row']['col_numero_matricula'] = [
       '#type' => 'container',
-      '#attributes' => ['class' => ['col-12', 'col-md-4']],
+      '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-3']],
     ];
     $form['section_academico']['row']['col_numero_matricula']['field_numero_matricula'] = [
       '#type' => 'textfield',
@@ -1307,7 +1298,6 @@ class CandidatoEditForm extends FormBase
       'field_periodo_letivo',
       'field_nome_curso',
       'field_tipo_curso',
-      'field_periodo_matriculado',
       'field_horario_curso',
       'field_duracao_curso',
       'field_disponibilidade_estagio',

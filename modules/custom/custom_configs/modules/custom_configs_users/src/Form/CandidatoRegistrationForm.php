@@ -1399,7 +1399,7 @@ class CandidatoRegistrationForm extends FormBase
             }
         }
 
-        if (!empty($inst_paragraphs)) {
+        if (!empty($inst_paragraphs) && FieldStorageConfig::loadByName('user', 'field_instituicao_ensino')) {
             $values['field_instituicao_ensino'] = $inst_paragraphs;
         }
 
@@ -1436,7 +1436,7 @@ class CandidatoRegistrationForm extends FormBase
             }
         }
 
-        if (!empty($paragraphs)) {
+        if (!empty($paragraphs) && FieldStorageConfig::loadByName('user', 'field_cursos_extracurriculares')) {
             $values['field_cursos_extracurriculares'] = $paragraphs;
         }
 
@@ -1481,7 +1481,7 @@ class CandidatoRegistrationForm extends FormBase
             }
         }
 
-        if (!empty($exp_paragraphs)) {
+        if (!empty($exp_paragraphs) && FieldStorageConfig::loadByName('user', 'field_experiencias_profissionais')) {
             $values['field_experiencias_profissionais'] = $exp_paragraphs;
         }
 

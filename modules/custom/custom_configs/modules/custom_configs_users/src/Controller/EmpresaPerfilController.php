@@ -22,7 +22,6 @@ class EmpresaPerfilController extends ControllerBase
 
         $dados = [
             // Documento.
-            'cpf_empresa'           => $this->fieldVal($user, 'field_cpf_empresa'),
             'cnpj'                  => $this->fieldVal($user, 'field_cnpj'),
             // Dados da empresa.
             'razao_social'          => $this->fieldVal($user, 'field_razao_social'),

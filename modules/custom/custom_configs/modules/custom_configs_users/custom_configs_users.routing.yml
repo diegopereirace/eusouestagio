@@ -29,3 +29,19 @@ custom_configs_users.empresa_perfil:
     _controller: '\Drupal\custom_configs_users\Controller\EmpresaPerfilController::view'
   requirements:
     _role: 'empresa'
+
+custom_configs_users.candidato_alterar_senha:
+  path: '/painel/estudante/alterar-senha'
+  defaults:
+    _title: 'Alterar Senha'
+    _form: '\Drupal\custom_configs_users\Form\AlterarSenhaForm'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+
+custom_configs_users.empresa_alterar_senha:
+  path: '/painel/empresa/alterar-senha'
+  defaults:
+    _title: 'Alterar Senha'
+    _form: '\Drupal\custom_configs_users\Form\AlterarSenhaForm'
+  requirements:
+    _role: 'empresa'

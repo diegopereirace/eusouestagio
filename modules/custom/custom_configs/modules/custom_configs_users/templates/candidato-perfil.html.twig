@@ -337,4 +337,17 @@
     </div>
   </div>
 
+  {# ── Ações da Conta ──────────────────────────────────────── #}
+  <div class="card mb-4 border-warning">
+    <div class="card-header bg-warning bg-opacity-10 fw-semibold text-warning-emphasis">
+      <i class="fas fa-shield-alt me-2"></i>{{ 'Segurança da Conta'|t }}
+    </div>
+    <div class="card-body d-flex align-items-center gap-3">
+      <p class="mb-0 text-muted flex-grow-1">{{ 'Mantenha sua conta segura alterando sua senha regularmente.'|t }}</p>
+      <a href="{{ path('custom_configs_users.candidato_alterar_senha') }}" class="btn btn-outline-warning text-nowrap">
+        <i class="fas fa-lock me-1"></i>{{ 'Alterar Senha'|t }}
+      </a>
+    </div>
+  </div>
+
 </div>{# /.candidato-perfil #}

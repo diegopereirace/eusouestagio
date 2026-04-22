@@ -6,7 +6,8 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * Implements hook_theme().
  */
-function custom_configs_users_theme(): array {
+function custom_configs_users_theme(): array
+{
     return [
         'candidato_perfil' => [
             'variables' => [
@@ -23,13 +24,20 @@ function custom_configs_users_theme(): array {
                 'user'  => NULL,
             ],
         ],
+        'alterar_senha' => [
+            'variables' => [
+                'form' => [],
+                'user' => NULL,
+            ],
+        ],
     ];
 }
 
 /**
  * Implements hook_form_user_form_alter().
  */
-function custom_configs_users_form_user_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
+function custom_configs_users_form_user_form_alter(array &$form, FormStateInterface $form_state, $form_id)
+{
     $pass_reset_token = \Drupal::request()->query->get('pass-reset-token');
     $translation = \Drupal::translation();
 
@@ -99,7 +107,8 @@ function custom_configs_users_form_user_form_alter(array &$form, FormStateInterf
 /**
  * Submit callback for password reset with token.
  */
-function custom_configs_users_user_pass_reset_submit(array &$form, FormStateInterface $form_state) {
+function custom_configs_users_user_pass_reset_submit(array &$form, FormStateInterface $form_state)
+{
     $pass_reset_token = \Drupal::request()->query->get('pass-reset-token');
 
     if (!$pass_reset_token) {
@@ -129,7 +138,8 @@ function custom_configs_users_user_pass_reset_submit(array &$form, FormStateInte
 /**
  * Implements hook_mail_alter().
  */
-function custom_configs_users_mail_alter(array &$message) {
+function custom_configs_users_mail_alter(array &$message)
+{
     $target_keys = [
         'register_no_approval_required',
         'register_pending_approval',
@@ -180,7 +190,8 @@ function custom_configs_users_mail_alter(array &$message) {
 /**
  * Extrai a primeira URL de um texto.
  */
-function custom_configs_users_extract_first_url(string $text): string {
+function custom_configs_users_extract_first_url(string $text): string
+{
     if (preg_match('/https?:\/\/[^\s<>"\']+/i', $text, $matches)) {
         return rtrim($matches[0], '.,);');
     }
@@ -191,7 +202,8 @@ function custom_configs_users_extract_first_url(string $text): string {
 /**
  * Monta HTML de e-mail com estilo inline (sem imagens).
  */
-function custom_configs_users_build_mail_html(string $title, string $intro, string $cta_url, string $account_name, string $site_name): string {
+function custom_configs_users_build_mail_html(string $title, string $intro, string $cta_url, string $account_name, string $site_name): string
+{
     $title_safe = Html::escape($title);
     $intro_safe = Html::escape($intro);
     $site_safe = Html::escape($site_name !== '' ? $site_name : 'Eu Sou Estagio');
@@ -210,8 +222,7 @@ function custom_configs_users_build_mail_html(string $title, string $intro, stri
             . 'Se o botao nao funcionar, copie e cole este link no navegador:<br>'
             . '<span style="word-break:break-all;color:#0b4a74;">' . $cta_safe . '</span>'
             . '</td></tr>';
-    }
-    else {
+    } else {
         $button_html = '<tr><td style="padding:0 32px 20px 32px;font-size:14px;line-height:1.6;color:#5a6473;">'
             . 'Nenhuma acao adicional e necessaria neste momento. Aguarde novas instrucoes por e-mail.'
             . '</td></tr>';

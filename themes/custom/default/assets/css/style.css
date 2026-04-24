@@ -104,6 +104,53 @@ h6 {
 	transform: scaleX(1);
 }
 
+.top-actions-wrap {
+	flex-wrap: wrap;
+}
+
+.top-user-badge {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	padding: 0.35rem 0.65rem;
+	border: 1px solid #d5e0e9;
+	border-radius: 10px;
+	background: #f4f8fc;
+	line-height: 1.1;
+	max-width: 230px;
+}
+
+.top-user-label {
+	font-size: 0.67rem;
+	font-weight: 500;
+	color: #4d6479;
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+}
+
+.top-user-name {
+	font-size: 0.86rem;
+	color: #023c62;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 100%;
+}
+
+.top-user-mail {
+	font-size: 0.72rem;
+	color: #5d7488;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 100%;
+}
+
+.top-user-badge--mobile {
+	align-items: flex-start;
+	max-width: 100%;
+}
+
 .text-title {
 	margin: 0;
 	color: #003f69;
@@ -1080,6 +1127,12 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 	padding: 14px 4px;
 	color: #023c62;
 	text-decoration: none;
+}
+
+@media (max-width: 1199px) {
+	.top-user-badge {
+		max-width: 170px;
+	}
 }
 
 .footer-links-menu .menu,

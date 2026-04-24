@@ -8,6 +8,7 @@
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Markup;
 use Drupal\node\NodeInterface;
+use Drupal\user\UserInterface;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\Plugin\views\query\Sql;
 use Drupal\views\ResultRow;
@@ -94,6 +95,27 @@ function default_preprocess_block__default_top(&$variables)
   $user = \Drupal::currentUser();
   $variables['is_candidato'] = $user->isAuthenticated() && $user->hasPermission('access content') && in_array('candidato', $user->getRoles());
   $variables['is_empresa'] = $user->isAuthenticated() && in_array('empresa', $user->getRoles());
+
+  $variables['top_user_name'] = '';
+  $variables['top_user_mail'] = '';
+  if ($user->isAuthenticated()) {
+    $account = \Drupal::entityTypeManager()->getStorage('user')->load($user->id());
+    if ($account instanceof UserInterface) {
+      $top_user_name = trim((string) $account->getDisplayName());
+      if ($account->hasField('field_nome_completo') && !$account->get('field_nome_completo')->isEmpty()) {
+        $top_user_name = trim((string) $account->get('field_nome_completo')->value);
+      } elseif ($account->hasField('field_nome_fantasia') && !$account->get('field_nome_fantasia')->isEmpty()) {
+        $top_user_name = trim((string) $account->get('field_nome_fantasia')->value);
+      }
+
+      $variables['top_user_name'] = $top_user_name;
+      $variables['top_user_mail'] = (string) $account->getEmail();
+    }
+  }
+
+  // Evita servir dados de usuário em cache compartilhado.
+  $variables['elements']['#cache']['contexts'][] = 'user';
+  $variables['elements']['#cache']['contexts'] = array_values(array_unique($variables['elements']['#cache']['contexts']));
 
   $current_path = \Drupal::service('path.current')->getPath();
   $path_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);

@@ -1,0 +1,99 @@
+<?php
+
+use Drupal\node\NodeInterface;
+use Drupal\user\UserInterface;
+
+/**
+ * Implements hook_mail().
+ */
+function custom_notifications_mail(string $key, array &$message, array $params): void
+{
+  $site_name = (string) \Drupal::config('system.site')->get('name');
+
+  switch ($key) {
+    case 'nova_vaga_moderadores':
+      $message['subject'] = \Drupal::translation()->translate('@site - Nova vaga cadastrada por @empresa', [
+        '@site' => $site_name,
+        '@empresa' => $params['empresa_nome'],
+      ]);
+
+      $message['body'][] = \Drupal::translation()->translate('Ola, moderador(a)!');
+      $message['body'][] = \Drupal::translation()->translate(
+        'A empresa "@empresa" cadastrou uma nova vaga na plataforma.',
+        ['@empresa' => $params['empresa_nome']]
+      );
+      $message['body'][] = \Drupal::translation()->translate('Vaga: @vaga', ['@vaga' => $params['vaga_titulo']]);
+      $message['body'][] = \Drupal::translation()->translate('Email da empresa: @email', ['@email' => $params['empresa_mail']]);
+      $message['body'][] = \Drupal::translation()->translate('Acesse a vaga: @url', ['@url' => $params['vaga_url']]);
+      $message['body'][] = \Drupal::translation()->translate('Atenciosamente,') . "\n" . $site_name;
+      break;
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function custom_notifications_node_insert(NodeInterface $node): void
+{
+  if ($node->bundle() !== 'vagas') {
+    return;
+  }
+
+  if (!$node->hasField('field_empresa_u') || $node->get('field_empresa_u')->isEmpty()) {
+    return;
+  }
+
+  $empresa = $node->get('field_empresa_u')->entity;
+  if (!$empresa instanceof UserInterface || !$empresa->hasRole('empresa')) {
+    return;
+  }
+
+  $empresa_nome = $empresa->getDisplayName();
+  if ($empresa->hasField('field_nome_fantasia') && !$empresa->get('field_nome_fantasia')->isEmpty()) {
+    $empresa_nome = (string) $empresa->get('field_nome_fantasia')->value;
+  }
+
+  $empresa_mail = (string) $empresa->getEmail();
+  $vaga_titulo = (string) $node->label();
+  $vaga_url = $node->toUrl('canonical', ['absolute' => TRUE])->toString();
+
+  $moderador_ids = \Drupal::entityQuery('user')
+    ->condition('status', 1)
+    ->condition('roles', 'moderador')
+    ->accessCheck(FALSE)
+    ->execute();
+
+  if (empty($moderador_ids)) {
+    return;
+  }
+
+  $default_langcode = \Drupal::languageManager()->getDefaultLanguage()->getId();
+  $mail_manager = \Drupal::service('plugin.manager.mail');
+  $moderadores = \Drupal::entityTypeManager()->getStorage('user')->loadMultiple($moderador_ids);
+
+  $params = [
+    'empresa_nome' => $empresa_nome,
+    'empresa_mail' => $empresa_mail,
+    'vaga_titulo' => $vaga_titulo,
+    'vaga_url' => $vaga_url,
+  ];
+
+  foreach ($moderadores as $moderador) {
+    if (!$moderador instanceof UserInterface) {
+      continue;
+    }
+
+    $email = (string) $moderador->getEmail();
+    if ($email === '') {
+      continue;
+    }
+
+    $mail_manager->mail(
+      'custom_notifications',
+      'nova_vaga_moderadores',
+      $email,
+      $default_langcode,
+      $params
+    );
+  }
+}

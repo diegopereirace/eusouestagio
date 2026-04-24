@@ -96,7 +96,17 @@ function default_preprocess_block__default_top(&$variables)
   $variables['is_empresa'] = $user->isAuthenticated() && in_array('empresa', $user->getRoles());
 
   $current_path = \Drupal::service('path.current')->getPath();
-  $variables['is_painel'] = ($current_path === '/painel' || str_starts_with($current_path, '/painel/'));
+  $path_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
+  $variables['is_painel'] = ($current_path === '/painel' || str_starts_with($current_path, '/painel/') || $path_alias === '/painel' || str_starts_with($path_alias, '/painel/'));
+}
+
+/**
+ * Implements hook_preprocess_block() for the vagasvoltar block.
+ */
+function default_preprocess_block__default_vagasvoltar(&$variables)
+{
+  $current_path = \Drupal::service('path.current')->getPath();
+  $variables['is_node_add'] = str_starts_with($current_path, '/node/add/');
 }
 
 /**

@@ -43,6 +43,7 @@
   {% endif %}
   {{ title_suffix }}
   {% block content %}
+    {% if not is_node_add %}
     <div{{ content_attributes.addClass('content', 'container') }}>
       <div class="node-header">
         <a href="#">
@@ -51,5 +52,6 @@
         </a>
       </div>
     </div>
+    {% endif %}
   {% endblock %}
 </div>

@@ -2,8 +2,22 @@
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\user\Entity\User;
 use Drupal\views\Plugin\views\query\Sql;
 use Drupal\views\ViewExecutable;
+
+/**
+ * Submit handler: garante que field_empresa_u seja salvo com o usuário logado,
+ * mesmo quando o campo está desabilitado (campos disabled não enviam valor).
+ */
+function _custom_panel_vaga_empresa_submit(array &$form, FormStateInterface $form_state): void
+{
+    $uid = $form_state->get('custom_panel_empresa_uid');
+    if (!$uid) {
+        return;
+    }
+    $form_state->setValue(['field_empresa_u', 0, 'target_id'], (int) $uid);
+}
 
 /**
  * Implements hook_form_user_login_form_alter().
@@ -75,6 +89,25 @@ function custom_panel_form_node_form_alter(array &$form, FormStateInterface $for
         ],
         '#weight' => -90,
     ];
+
+    // Preenche o campo empresa com o usuário logado (role empresa) e bloqueia edição.
+    $current_user = \Drupal::currentUser();
+    if ($current_user->hasRole('empresa') && isset($form['field_empresa_u'])) {
+        $uid = $current_user->id();
+
+        // Força o valor padrão para o campo de referência de entidade.
+        $form['field_empresa_u']['widget'][0]['target_id']['#default_value'] =
+            \Drupal\user\Entity\User::load($uid);
+
+        // Bloqueia o campo para que o usuário não possa alterar.
+        $form['field_empresa_u']['#disabled'] = TRUE;
+        $form['field_empresa_u']['widget'][0]['target_id']['#disabled'] = TRUE;
+        $form['field_empresa_u']['widget'][0]['target_id']['#attributes']['readonly'] = 'readonly';
+
+        // Adiciona submit handler para garantir o valor mesmo com campo desabilitado.
+        $form['#submit'][] = '_custom_panel_vaga_empresa_submit';
+        $form_state->set('custom_panel_empresa_uid', $uid);
+    }
 }
 
 /**

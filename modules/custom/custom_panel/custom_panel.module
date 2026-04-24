@@ -195,7 +195,8 @@ function custom_panel_views_query_alter(ViewExecutable $view, $query): void
 function custom_panel_preprocess_page(array &$variables): void
 {
     $current_path = \Drupal::service('path.current')->getPath();
-    $is_painel_route = ($current_path === '/painel' || str_starts_with($current_path, '/painel/'));
+    $path_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
+    $is_painel_route = ($current_path === '/painel' || str_starts_with($current_path, '/painel/') || $path_alias === '/painel' || str_starts_with($path_alias, '/painel/'));
 
     $variables['is_painel_route'] = $is_painel_route;
 

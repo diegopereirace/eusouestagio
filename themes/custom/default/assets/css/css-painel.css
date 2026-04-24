@@ -9,6 +9,11 @@ body.path-painel {
   overflow-x: hidden;
 }
 
+/* Cobre páginas do painel acessadas via alias (ex: /node/add/vagas via /painel/empresa/cadastro/vaga) */
+#page-wrapper.is-painel-page {
+  overflow-x: hidden;
+}
+
 .container-full {
   width: 100%;
   max-width: 100%;
@@ -129,4 +134,67 @@ body.path-painel {
 .vagas-salvas + nav.pager .pager__items,
 .vagas-aplicadas + nav.pager .pager__items {
   justify-content: center;
+}
+
+/* ── Formulários de node dentro do painel (ex: cadastro de vaga) ─────────── */
+
+/* Área de conteúdo com padding interno adequado */
+#page-wrapper.is-painel-page main .section {
+  padding: 2rem 3%;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+/* Colapsa o layout de duas colunas do node form para coluna única */
+#page-wrapper.is-painel-page .layout-node-form {
+  display: block;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+#page-wrapper.is-painel-page .layout-region-node-main,
+#page-wrapper.is-painel-page .layout-region-node-secondary {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Campos secundários (publicação, menu, etc.) com visual discreto */
+#page-wrapper.is-painel-page .layout-region-node-secondary {
+  margin-top: 1.5rem;
+}
+
+/* Garante que todos os inputs caibam na área disponível */
+#page-wrapper.is-painel-page form input[type="text"],
+#page-wrapper.is-painel-page form input[type="email"],
+#page-wrapper.is-painel-page form input[type="number"],
+#page-wrapper.is-painel-page form input[type="url"],
+#page-wrapper.is-painel-page form input[type="date"],
+#page-wrapper.is-painel-page form textarea,
+#page-wrapper.is-painel-page form select {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Editor WYSIWYG (CKEditor) e container de mídia não ultrapassam o pai */
+#page-wrapper.is-painel-page .ck-editor,
+#page-wrapper.is-painel-page .ck-editor__editable,
+#page-wrapper.is-painel-page .ck-toolbar,
+#page-wrapper.is-painel-page .field--widget-media-library-widget,
+#page-wrapper.is-painel-page .media-library-widget {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Botões de ação do formulário */
+#page-wrapper.is-painel-page .form-actions {
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e2e6ed;
+}
+
+/* Oculta os toggles "Show row weights" nos elementos com tabledrag do painel */
+#page-wrapper.is-painel-page .tabledrag-toggle-weight-wrapper {
+  display: none !important;
 }

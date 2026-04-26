@@ -95,6 +95,14 @@ function default_preprocess_block__default_top(&$variables)
   $user = \Drupal::currentUser();
   $variables['is_candidato'] = $user->isAuthenticated() && $user->hasPermission('access content') && in_array('candidato', $user->getRoles());
   $variables['is_empresa'] = $user->isAuthenticated() && in_array('empresa', $user->getRoles());
+  $variables['top_user_panel_url'] = '';
+  if ($variables['is_candidato']) {
+    $variables['top_user_panel_url'] = '/painel/estudante/perfil';
+  } elseif ($variables['is_empresa']) {
+    $variables['top_user_panel_url'] = '/painel/empresa/perfil';
+  }
+
+  $variables['top_user_avatar_url'] = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='32' fill='%23e8edf3'/%3E%3Ccircle cx='32' cy='24' r='13' fill='%23839ab1'/%3E%3Cpath d='M12 56c2-12 11-19 20-19s18 7 20 19' fill='%23839ab1'/%3E%3C/svg%3E";
 
   $variables['top_user_name'] = '';
   $variables['top_user_mail'] = '';
@@ -110,6 +118,15 @@ function default_preprocess_block__default_top(&$variables)
 
       $variables['top_user_name'] = $top_user_name;
       $variables['top_user_mail'] = (string) $account->getEmail();
+
+      if ($account->hasField('user_picture') && !$account->get('user_picture')->isEmpty() && $account->get('user_picture')->entity) {
+        $avatar_uri = $account->get('user_picture')->entity->getFileUri();
+        if (!empty($avatar_uri)) {
+          $file_url_generator = \Drupal::service('file_url_generator');
+          $avatar_url = $file_url_generator->generateAbsoluteString($avatar_uri);
+          $variables['top_user_avatar_url'] = $file_url_generator->transformRelative($avatar_url);
+        }
+      }
     }
   }
 

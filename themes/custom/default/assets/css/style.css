@@ -70,6 +70,35 @@ h6 {
 	display: block;
 }
 
+/* Fallback CSS para o topo caso o JS de breakpoint nao execute. */
+.top-content-desktop {
+	display: block;
+}
+
+.top-content-mobile {
+	display: none;
+}
+
+.row-top {
+	align-items: center;
+}
+
+.col-top-2 {
+	gap: 0.75rem;
+	flex-wrap: wrap;
+}
+
+.wrap-menu {
+	min-width: 0;
+}
+
+.wrap-menu .menu,
+.wrap-menu .nav,
+.wrap-menu .navbar-nav {
+	flex-wrap: wrap;
+	justify-content: flex-end;
+}
+
 .wrap-menu .nav-link {
 	position: relative;
 	color: #495057;
@@ -105,7 +134,105 @@ h6 {
 }
 
 .top-actions-wrap {
+	margin-left: 0.75rem;
 	flex-wrap: wrap;
+	justify-content: flex-end;
+	align-items: center;
+	gap: 0.5rem;
+	min-width: 0;
+}
+
+.top-actions-wrap .btn {
+	white-space: nowrap;
+}
+
+.top-user-menu {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+}
+
+.top-user-menu::after {
+	content: '';
+	position: absolute;
+	top: 100%;
+	right: 0;
+	width: 100%;
+	height: 10px;
+}
+
+.top-user-menu-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	padding: 0;
+	border: 1px solid #d5e0e9;
+	border-radius: 999px;
+	background: #f4f8fc;
+	overflow: hidden;
+	cursor: pointer;
+	transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.top-user-menu-toggle:hover,
+.top-user-menu-toggle:focus {
+	border-color: #9cb7cd;
+	box-shadow: 0 0 0 3px rgba(2, 60, 98, 0.12);
+	outline: none;
+}
+
+.top-user-avatar-img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.top-user-menu-dropdown {
+	position: absolute;
+	top: calc(100% + 8px);
+	right: 0;
+	min-width: 180px;
+	padding: 0.35rem;
+	border: 1px solid #d7e1ea;
+	border-radius: 10px;
+	background: #fff;
+	box-shadow: 0 10px 26px rgba(2, 60, 98, 0.16);
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	transform: translateY(6px);
+	transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s ease;
+	z-index: 1010;
+}
+
+.top-user-menu:hover .top-user-menu-dropdown,
+.top-user-menu:focus-within .top-user-menu-dropdown {
+	opacity: 1;
+	visibility: visible;
+	pointer-events: auto;
+	transform: translateY(0);
+}
+
+.top-user-menu-link {
+	display: block;
+	padding: 0.5rem 0.65rem;
+	border-radius: 8px;
+	color: #023c62;
+	font-weight: 500;
+	text-decoration: none;
+	white-space: nowrap;
+	transition: background-color 0.16s ease, color 0.16s ease;
+}
+
+.top-user-menu-link:hover,
+.top-user-menu-link:focus {
+	background: #f0f5fa;
+	color: #023c62;
+	text-decoration: none;
+	outline: none;
 }
 
 .top-user-badge {
@@ -117,6 +244,8 @@ h6 {
 	border-radius: 10px;
 	background: #f4f8fc;
 	line-height: 1.1;
+	flex: 0 1 230px;
+	min-width: 120px;
 	max-width: 230px;
 }
 
@@ -129,6 +258,7 @@ h6 {
 }
 
 .top-user-name {
+	display: block;
 	font-size: 0.86rem;
 	color: #023c62;
 	white-space: nowrap;
@@ -1129,9 +1259,42 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 	text-decoration: none;
 }
 
+@media (max-width: 767.98px) {
+	.top-content-desktop {
+		display: none;
+	}
+
+	.top-content-mobile {
+		display: block;
+	}
+}
+
 @media (max-width: 1199px) {
+	.wrap-menu .nav-link {
+		padding-left: 0.55rem;
+		padding-right: 0.55rem;
+		font-size: 0.95rem;
+	}
+
 	.top-user-badge {
+		min-width: 110px;
 		max-width: 170px;
+	}
+}
+
+@media (max-width: 991.98px) {
+	.top-actions-wrap {
+		gap: 0.35rem;
+	}
+
+	.col-top-2 {
+		justify-content: flex-end;
+	}
+}
+
+@media (max-width: 575.98px) {
+	.top-content-mobile #wrap-menu-mobile {
+		max-width: 100vw;
 	}
 }
 

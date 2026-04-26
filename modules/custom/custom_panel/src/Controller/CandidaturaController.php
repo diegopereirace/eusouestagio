@@ -3,18 +3,40 @@
 namespace Drupal\custom_panel\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\node\Entity\Node;
+use Drupal\Core\Mail\MailManagerInterface;
+use Drupal\custom_candidaturas\CandidaturasManager;
+use Drupal\node\NodeInterface;
+use Drupal\user\UserInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Controller para candidatura a vagas.
+ *
+ * Delega a lógica de registro e notificação ao CandidaturasManager.
  */
 class CandidaturaController extends ControllerBase
 {
 
+  public function __construct(
+    protected CandidaturasManager $candidaturasManager,
+    protected MailManagerInterface $mailManager,
+  ) {}
+
   /**
-   * AJAX: registra a candidatura do estudante à vaga.
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container): static
+  {
+    return new static(
+      $container->get('custom_candidaturas.manager'),
+      $container->get('plugin.manager.mail'),
+    );
+  }
+
+  /**
+   * AJAX: registra a candidatura do estudante à vaga via field_candidatos_u.
    */
   public function candidatar(Request $request): JsonResponse
   {
@@ -27,50 +49,38 @@ class CandidaturaController extends ControllerBase
     $nid = (int) $nid;
     $uid = (int) $this->currentUser()->id();
 
-    $storage = $this->entityTypeManager()->getStorage('node');
-
-    $vaga = $storage->load($nid);
-    if (!$vaga || $vaga->bundle() !== 'vagas') {
+    // Valida que a vaga existe e é do bundle correto.
+    $vaga = $this->entityTypeManager()->getStorage('node')->load($nid);
+    if (!$vaga instanceof NodeInterface || $vaga->bundle() !== 'vagas') {
       return new JsonResponse(['error' => 'Vaga não encontrada.'], 404);
     }
 
-    // Verifica se já se candidatou via entity query.
-    $existing = $storage->getQuery()
-      ->accessCheck(FALSE)
-      ->condition('type', 'candidatura')
-      ->condition('field_candidatura_vaga', $nid)
-      ->condition('field_candidatura_candidato', $uid)
-      ->count()
-      ->execute();
+    // Delega registro ao manager (duplicidade + save).
+    $resultado = $this->candidaturasManager->registrar($nid, $uid);
 
-    if ($existing > 0) {
+    if ($resultado === 'already') {
       return new JsonResponse([
-        'status' => 'already',
+        'status'  => 'already',
         'message' => $this->t('Você já se candidatou a esta vaga.'),
       ]);
     }
 
-    // Cria o node de candidatura (não publicado — invisível no site público).
-    $candidatura = Node::create([
-      'type'                        => 'candidatura',
-      'title'                       => 'Candidatura #' . $nid . ' — UID ' . $uid,
-      'uid'                         => $uid,
-      'status'                      => 0,
-      'field_candidatura_vaga'      => ['target_id' => $nid],
-      'field_candidatura_candidato' => ['target_id' => $uid],
-      'field_candidatura_status'    => 'em_triagem',
-    ]);
-    $candidatura->save();
+    if ($resultado === 'error') {
+      return new JsonResponse(['error' => 'Erro ao registrar candidatura.'], 500);
+    }
 
-    // Envia e-mail de confirmação ao candidato.
+    // Notifica moderadores sobre a nova candidatura.
+    $this->candidaturasManager->notificarModeradores($vaga, $uid);
+
+    // E-mail de confirmação ao próprio candidato.
     $account = $this->entityTypeManager()->getStorage('user')->load($uid);
-    if ($account && !empty($account->getEmail())) {
+    if ($account instanceof UserInterface && !empty($account->getEmail())) {
       $params = [
         'candidato_nome' => $account->getDisplayName(),
         'vaga_titulo'    => $vaga->label(),
         'vaga_url'       => $vaga->toUrl('canonical', ['absolute' => TRUE])->toString(),
       ];
-      \Drupal::service('plugin.manager.mail')->mail(
+      $this->mailManager->mail(
         'custom_panel',
         'candidatura_confirmacao',
         $account->getEmail(),

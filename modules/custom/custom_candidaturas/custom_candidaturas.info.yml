@@ -1,0 +1,8 @@
+name: 'Custom Candidaturas'
+type: module
+description: 'Gestão, cálculo e listagem de candidaturas de vagas via field_candidatos_u.'
+core_version_requirement: ^10 || ^11
+package: 'Custom'
+dependencies:
+  - drupal:node
+  - drupal:user

@@ -6,6 +6,115 @@
 (function (Drupal, drupalSettings, once) {
   'use strict';
 
+  function cleanupModalState() {
+    document.querySelectorAll('.modal-backdrop').forEach(function (backdrop) {
+      backdrop.remove();
+    });
+
+    document.body.classList.remove('modal-open');
+    document.body.style.removeProperty('overflow');
+    document.body.style.removeProperty('padding-right');
+  }
+
+  function getActionModal() {
+    var modalElement = document.getElementById('script-painel-feedback-modal');
+
+    if (modalElement) {
+      return modalElement;
+    }
+
+    modalElement = document.createElement('div');
+    modalElement.className = 'modal fade script-painel-feedback-modal';
+    modalElement.id = 'script-painel-feedback-modal';
+    modalElement.tabIndex = -1;
+    modalElement.setAttribute('aria-labelledby', 'script-painel-feedback-modal-label');
+    modalElement.setAttribute('aria-hidden', 'true');
+    modalElement.innerHTML =
+      '<div class="modal-dialog modal-dialog-centered" role="document">' +
+        '<div class="modal-content">' +
+          '<div class="modal-header">' +
+            '<h5 class="modal-title" id="script-painel-feedback-modal-label"></h5>' +
+            '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="' + Drupal.t('Close') + '"></button>' +
+          '</div>' +
+          '<div class="modal-body text-center"></div>' +
+          '<div class="modal-footer d-block text-center">' +
+            '<button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">' + Drupal.t('Close') + '</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    document.body.appendChild(modalElement);
+
+    modalElement.addEventListener('hidden.bs.modal', function () {
+      cleanupModalState();
+    });
+
+    return modalElement;
+  }
+
+  function getModalMeta(type) {
+    if (type === 'error') {
+      return {
+        title: Drupal.t('Erro'),
+        className: 'is-error',
+      };
+    }
+
+    if (type === 'warning') {
+      return {
+        title: Drupal.t('Atencao'),
+        className: 'is-warning',
+      };
+    }
+
+    return {
+      title: Drupal.t('Sucesso'),
+      className: 'is-status',
+    };
+  }
+
+  function showActionModal(message, type) {
+    var modalElement;
+    var modalBody;
+    var modalTitle;
+    var modalContent;
+    var modal;
+    var meta;
+
+    if (!message || typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+      return;
+    }
+
+    modalElement = getActionModal();
+    modalBody = modalElement.querySelector('.modal-body');
+    modalTitle = modalElement.querySelector('.modal-title');
+    modalContent = modalElement.querySelector('.modal-content');
+    meta = getModalMeta(type);
+
+    modalTitle.textContent = meta.title;
+    modalBody.textContent = message;
+    modalContent.classList.remove('is-status', 'is-warning', 'is-error');
+    modalContent.classList.add(meta.className);
+
+    cleanupModalState();
+    modal = bootstrap.Modal.getOrCreateInstance(modalElement, {
+      backdrop: true,
+      focus: true,
+      keyboard: true,
+    });
+    modal.show();
+  }
+
+  function parseJsonResponse(response) {
+    return response.json().then(function (data) {
+      if (!response.ok) {
+        throw data;
+      }
+
+      return data;
+    });
+  }
+
   Drupal.behaviors.scriptPainel = {
     attach: function (context) {
       once('salvar-vaga', '.js-salvar-vaga', context).forEach(function (btn) {
@@ -33,27 +142,29 @@
                 body: 'nid=' + encodeURIComponent(nodeId),
               });
             })
-            .then(function (response) {
-              return response.json();
-            })
+            .then(parseJsonResponse)
             .then(function (data) {
               button.disabled = false;
 
               if (data.status === 'saved') {
                 button.textContent = Drupal.t('Remover dos Salvos');
                 button.classList.add('ui-btn--saved');
+                showActionModal(data.message || Drupal.t('Vaga salva com sucesso.'));
               }
               else if (data.status === 'removed') {
                 button.textContent = Drupal.t('Salvar Vaga');
                 button.classList.remove('ui-btn--saved');
+                showActionModal(data.message || Drupal.t('Vaga removida dos salvos.'));
               }
               else {
                 button.textContent = originalText;
+                showActionModal(data.message || Drupal.t('Nao foi possivel concluir a operacao.'), 'warning');
               }
             })
-            .catch(function () {
+            .catch(function (error) {
               button.disabled = false;
               button.textContent = originalText;
+              showActionModal((error && error.error) || Drupal.t('Ocorreu um erro ao salvar a vaga.'), 'error');
             });
         });
       });
@@ -82,7 +193,7 @@
                 body: 'nid=' + encodeURIComponent(nodeId),
               });
             })
-            .then(function (response) { return response.json(); })
+            .then(parseJsonResponse)
             .then(function (data) {
               if (data.status === 'candidatado' || data.status === 'already') {
                 // Substitui o botão por texto informativo.
@@ -90,14 +201,17 @@
                 label.className = 'vaga-ja-aplicada';
                 label.textContent = Drupal.t('Vaga já aplicada');
                 button.parentNode.replaceChild(label, button);
+                showActionModal(data.message || Drupal.t('Sua candidatura foi registrada.'));
               } else {
                 button.disabled = false;
                 button.textContent = Drupal.t('Candidatar-se');
+                showActionModal(data.message || Drupal.t('Nao foi possivel registrar sua candidatura.'), 'warning');
               }
             })
-            .catch(function () {
+            .catch(function (error) {
               button.disabled = false;
               button.textContent = Drupal.t('Candidatar-se');
+              showActionModal((error && error.error) || Drupal.t('Ocorreu um erro ao enviar sua candidatura.'), 'error');
             });
         });
       });
@@ -129,7 +243,7 @@
                 body: 'nid=' + encodeURIComponent(nid) + '&status=' + encodeURIComponent(newStatus),
               });
             })
-            .then(function (response) { return response.json(); })
+            .then(parseJsonResponse)
             .then(function (data) {
               button.disabled = false;
               button.textContent = Drupal.t('Salvar');
@@ -139,11 +253,16 @@
                   .trim();
                 badge.classList.add('candidatura-status--' + newStatus);
                 badge.textContent = select.options[select.selectedIndex].text.trim();
+                showActionModal(data.message || Drupal.t('Status da candidatura atualizado com sucesso.'));
+              }
+              else {
+                showActionModal(data.message || Drupal.t('Nao foi possivel atualizar o status da candidatura.'), 'warning');
               }
             })
-            .catch(function () {
+            .catch(function (error) {
               button.disabled = false;
               button.textContent = Drupal.t('Salvar');
+              showActionModal((error && error.error) || Drupal.t('Ocorreu um erro ao atualizar o status da candidatura.'), 'error');
             });
         });
       });

@@ -47,7 +47,7 @@
           <div class="col-md-4 col-9 col-top col-top-1 p-0">
             <div class="wrap-logo">
               <a href="{{ path('<front>') }}" title="Início">
-                <img src="{{ logopath }}" class="img-responsive" draggable="false" width="350" />
+                <img src="{{ logopath }}" class="img-responsive" draggable="false" width="300" />
               </a>
             </div>
           </div>
@@ -60,9 +60,6 @@
                 <div class="top-user-badge" aria-label="Usuário logado">
                   <span class="top-user-label">Conectado como</span>
                   <strong class="top-user-name">{{ top_user_name|default('Usuário') }}</strong>
-                  {% if top_user_mail is defined and top_user_mail %}
-                    <span class="top-user-mail">{{ top_user_mail }}</span>
-                  {% endif %}
                 </div>
                 {% if not is_painel %}
                   {% if is_candidato %}
@@ -86,7 +83,7 @@
         <div class="col-12 px-4 d-flex align-items-center justify-content-between">
           <div class="wrap-logo">
             <a href="{{ path('<front>') }}" title="Início">
-              <img src="{{ logopath }}" class="img-responsive" draggable="false" width="220" />
+              <img src="{{ logopath }}" class="img-responsive" draggable="false" width="200" />
             </a>
           </div>
           <div class="wrap-icon">
@@ -122,9 +119,6 @@
             <div class="top-user-badge top-user-badge--mobile mt-3" aria-label="Usuário logado">
               <span class="top-user-label">Conectado como</span>
               <strong class="top-user-name">{{ top_user_name|default('Usuário') }}</strong>
-              {% if top_user_mail is defined and top_user_mail %}
-                <span class="top-user-mail">{{ top_user_mail }}</span>
-              {% endif %}
             </div>
           {% endif %}
           

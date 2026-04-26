@@ -24,21 +24,22 @@
     }
 
     modalElement = document.createElement('div');
-    modalElement.className = 'modal fade script-painel-feedback-modal';
+    modalElement.className = 'modal fade app-feedback-modal';
     modalElement.id = 'script-painel-feedback-modal';
     modalElement.tabIndex = -1;
     modalElement.setAttribute('aria-labelledby', 'script-painel-feedback-modal-label');
     modalElement.setAttribute('aria-hidden', 'true');
     modalElement.innerHTML =
       '<div class="modal-dialog modal-dialog-centered" role="document">' +
-        '<div class="modal-content">' +
-          '<div class="modal-header">' +
-            '<h5 class="modal-title" id="script-painel-feedback-modal-label"></h5>' +
+        '<div class="modal-content app-feedback-modal__content">' +
+          '<div class="modal-header app-feedback-modal__header">' +
+            '<div class="app-feedback-modal__eyebrow">' + Drupal.t('Notificacao') + '</div>' +
+            '<h5 class="modal-title app-feedback-modal__title" id="script-painel-feedback-modal-label"></h5>' +
             '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="' + Drupal.t('Close') + '"></button>' +
           '</div>' +
-          '<div class="modal-body text-center"></div>' +
-          '<div class="modal-footer d-block text-center">' +
-            '<button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">' + Drupal.t('Close') + '</button>' +
+          '<div class="modal-body app-feedback-modal__body text-center"></div>' +
+          '<div class="modal-footer app-feedback-modal__footer d-block text-center">' +
+            '<button type="button" class="btn btn-primary app-feedback-modal__button" data-bs-dismiss="modal">' + Drupal.t('Close') + '</button>' +
           '</div>' +
         '</div>' +
       '</div>';
@@ -56,20 +57,20 @@
     if (type === 'error') {
       return {
         title: Drupal.t('Erro'),
-        className: 'is-error',
+        className: 'app-feedback-modal__content--error',
       };
     }
 
     if (type === 'warning') {
       return {
         title: Drupal.t('Atencao'),
-        className: 'is-warning',
+        className: 'app-feedback-modal__content--warning',
       };
     }
 
     return {
       title: Drupal.t('Sucesso'),
-      className: 'is-status',
+      className: 'app-feedback-modal__content--status',
     };
   }
 
@@ -93,7 +94,11 @@
 
     modalTitle.textContent = meta.title;
     modalBody.textContent = message;
-    modalContent.classList.remove('is-status', 'is-warning', 'is-error');
+    modalContent.classList.remove(
+      'app-feedback-modal__content--status',
+      'app-feedback-modal__content--warning',
+      'app-feedback-modal__content--error'
+    );
     modalContent.classList.add(meta.className);
 
     cleanupModalState();

@@ -73,15 +73,18 @@ function default_preprocess_node__vagas(&$variables)
       $variables['vaga_salva'] = !empty($exists_salva);
     }
 
-    // Candidatura agora é armazenada como node do tipo 'candidatura'.
-    $exists_candidatura = \Drupal::entityQuery('node')
-      ->accessCheck(FALSE)
-      ->condition('type', 'candidatura')
-      ->condition('field_candidatura_vaga', $nid)
-      ->condition('field_candidatura_candidato', $uid)
-      ->range(0, 1)
-      ->execute();
-    $variables['vaga_candidatada'] = !empty($exists_candidatura);
+    // Candidatura verificada via field_candidatos_u na própria vaga.
+    $vaga_candidatada = FALSE;
+    $node = $variables['node'];
+    if ($node->hasField('field_candidatos_u') && !$node->get('field_candidatos_u')->isEmpty()) {
+      foreach ($node->get('field_candidatos_u') as $item) {
+        if ((int) $item->target_id === $uid) {
+          $vaga_candidatada = TRUE;
+          break;
+        }
+      }
+    }
+    $variables['vaga_candidatada'] = $vaga_candidatada;
   }
 }
 

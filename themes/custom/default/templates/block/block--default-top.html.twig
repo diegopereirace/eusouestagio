@@ -42,6 +42,11 @@
 <div{{ attributes.addClass(classes) }}>
   {% block content %}
     {% set painel_url = top_user_panel_url|default('') %}
+    {% set top_user_name_full = top_user_name|default('Usuário')|trim %}
+    {% if top_user_name_full is empty %}
+      {% set top_user_name_full = 'Usuário' %}
+    {% endif %}
+    {% set top_user_name_short = top_user_name_full|length > 30 ? top_user_name_full|slice(0, 30) ~ '...' : top_user_name_full %}
 
     <div{{ content_attributes.addClass('content', 'container') }}>
       <div class="top-content-desktop" data-breakpoint="default.desktop">
@@ -64,13 +69,17 @@
                     <img
                       src="{{ top_user_avatar_url|default('') }}"
                       class="top-user-avatar-img"
-                      alt="Avatar de {{ top_user_name|default('Usuário') }}"
+                      alt="Avatar de {{ top_user_name_full }}"
                       loading="lazy"
                       width="44"
                       height="44"
                     />
                   </button>
                   <div class="top-user-menu-dropdown" role="menu" aria-label="Ações do usuário">
+                    <div class="top-user-menu-info" aria-label="Dono da conta logada">
+                      <span class="top-user-label">Conta logada</span>
+                      <strong class="top-user-name" title="{{ top_user_name_full }}" aria-label="Usuário logado: {{ top_user_name_full }}">{{ top_user_name_short }}</strong>
+                    </div>
                     {% if painel_url %}
                       <a href="{{ painel_url }}" class="top-user-menu-link" role="menuitem">Acessar Painel</a>
                     {% endif %}
@@ -126,7 +135,7 @@
           {% if logged_in is defined and logged_in %}
             <div class="top-user-badge top-user-badge--mobile mt-3" aria-label="Usuário logado">
               <span class="top-user-label">Conectado como</span>
-              <strong class="top-user-name">{{ top_user_name|default('Usuário') }}</strong>
+              <strong class="top-user-name" title="{{ top_user_name_full }}" aria-label="Usuário logado: {{ top_user_name_full }}">{{ top_user_name_short }}</strong>
             </div>
           {% endif %}
           

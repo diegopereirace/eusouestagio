@@ -313,6 +313,22 @@ h6 {
 	z-index: 1010;
 }
 
+.top-user-menu-info {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.15rem;
+	padding: 0.45rem 0.65rem 0.5rem;
+	margin-bottom: 0.35rem;
+	border-bottom: 1px solid #e6edf4;
+	max-width: 100%;
+}
+
+.top-user-menu-info .top-user-name {
+	width: 100%;
+	max-width: 170px;
+}
+
 .top-user-menu:hover .top-user-menu-dropdown,
 .top-user-menu:focus-within .top-user-menu-dropdown {
 	opacity: 1;

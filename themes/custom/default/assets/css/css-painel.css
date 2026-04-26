@@ -94,45 +94,6 @@ body.path-painel {
   text-align: center;
 }
 
-.script-painel-feedback-modal .modal-content {
-  border: 0;
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
-}
-
-.script-painel-feedback-modal .modal-header {
-  border-bottom: 0;
-  padding: 1rem 1.25rem 0.5rem;
-}
-
-.script-painel-feedback-modal .modal-title {
-  font-weight: 700;
-}
-
-.script-painel-feedback-modal .modal-body {
-  padding: 0.5rem 1.5rem 1.25rem;
-  font-size: 1rem;
-  line-height: 1.6;
-}
-
-.script-painel-feedback-modal .modal-footer {
-  border-top: 0;
-  padding: 0 1.5rem 1.5rem;
-}
-
-.script-painel-feedback-modal .modal-content.is-status .modal-title {
-  color: var(--bs-success, #198754);
-}
-
-.script-painel-feedback-modal .modal-content.is-warning .modal-title {
-  color: var(--bs-warning, #b78103);
-}
-
-.script-painel-feedback-modal .modal-content.is-error .modal-title {
-  color: var(--bs-danger, #dc3545);
-}
-
 /* Vagas Salvas — listagem no painel */
 .vagas-salvas {  padding: 2rem 2rem 3rem;
   min-height: calc(100vh - 180px);

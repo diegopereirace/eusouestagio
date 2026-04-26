@@ -14,29 +14,28 @@
 #}
 
 {% if message_list %}
-  <div class="modal" id="modal-system-messages" tabindex="-1" aria-labelledby="system-messagesModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title text-maroon" id="system-messagesModalLabel">{{ 'Message'|trans }}</h5>
+  {% set modal_type = message_list.error is defined ? 'error' : (message_list.warning is defined ? 'warning' : 'status') %}
+  {% set modal_title = modal_type == 'error' ? 'Erro'|t : (modal_type == 'warning' ? 'Atenção'|t : 'Sucesso'|t) %}
+  <div class="modal fade app-feedback-modal" id="modal-system-messages" tabindex="-1" aria-labelledby="system-messagesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content app-feedback-modal__content app-feedback-modal__content--{{ modal_type }}">
+        <div class="modal-header app-feedback-modal__header">
+          <div class="app-feedback-modal__eyebrow">{{ 'Notificação'|t }}</div>
+          <h5 class="modal-title app-feedback-modal__title" id="system-messagesModalLabel">{{ modal_title }}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
         </div>
-        <div class="modal-body text-center">
+        <div class="modal-body app-feedback-modal__body text-center">
           {% for type, messages in message_list %}
-            {% if type == 'status' %}{% set text_color = 'text-maroon' %}
-            {% elseif type == 'warning' %}{% set text_color = 'text-warning' %}
-            {% elseif type == 'error' %}{% set text_color = 'text-danger' %}
-            {% else %}{% set text_color = '' %}{% endif %}
             {% for message in messages %}
-              <div class="wrap-item{% if not loop.last %} mb-2{% endif %}">
-                <h6 class="item {{ text_color }}">{{ message }}</h6>
+              <div class="app-feedback-modal__message{% if not loop.last %} mb-3{% endif %}">
+                <h6 class="app-feedback-modal__message-text">{{ message }}</h6>
               </div>
-              {% if not loop.last %}<hr>{% endif %}
+              {% if not loop.last %}<hr class="app-feedback-modal__divider">{% endif %}
             {% endfor %}
           {% endfor %}
         </div>
-        <div class="modal-footer d-block text-center">
-          <button type="button" class="btn btn-primary mx-auto py-1 w-25" data-bs-dismiss="modal">{{ 'Close'|trans }}</button>
+        <div class="modal-footer app-feedback-modal__footer d-block text-center">
+          <button type="button" class="btn btn-primary app-feedback-modal__button" data-bs-dismiss="modal">{{ 'Close'|trans }}</button>
         </div>
       </div>
     </div>

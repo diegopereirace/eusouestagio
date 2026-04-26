@@ -7,6 +7,111 @@
 
 :root {
 	--header-h: 100px;
+	--feedback-status: #198754;
+	--feedback-warning: #b78103;
+	--feedback-error: #dc3545;
+	--feedback-ink: #17324d;
+	--feedback-muted: #667a8f;
+}
+
+.app-feedback-modal .modal-dialog {
+	max-width: 520px;
+}
+
+.app-feedback-modal__content {
+	border: 0;
+	border-radius: 20px;
+	overflow: hidden;
+	box-shadow: 0 28px 70px rgba(8, 29, 52, 0.22);
+	background: linear-gradient(180deg, #ffffff 0%, #f8fbfe 100%);
+	border-top: 5px solid var(--feedback-status);
+}
+
+.app-feedback-modal__content--warning {
+	border-top-color: var(--feedback-warning);
+}
+
+.app-feedback-modal__content--error {
+	border-top-color: var(--feedback-error);
+}
+
+.app-feedback-modal__header {
+	display: block;
+	position: relative;
+	padding: 1.1rem 1.4rem 0.4rem;
+	border-bottom: 0;
+}
+
+.app-feedback-modal__header .btn-close {
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+}
+
+.app-feedback-modal__eyebrow {
+	margin-bottom: 0.35rem;
+	padding-right: 2.5rem;
+	font-size: 0.72rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--feedback-muted);
+}
+
+.app-feedback-modal__title {
+	margin: 0;
+	padding-right: 2.5rem;
+	font-size: 1.45rem;
+	font-weight: 700;
+	line-height: 1.2;
+	color: var(--feedback-status);
+}
+
+.app-feedback-modal__content--warning .app-feedback-modal__title {
+	color: var(--feedback-warning);
+}
+
+.app-feedback-modal__content--error .app-feedback-modal__title {
+	color: var(--feedback-error);
+}
+
+.app-feedback-modal__body {
+	padding: 0.55rem 1.4rem 1.2rem;
+	font-size: 1rem;
+	line-height: 1.65;
+	color: var(--feedback-ink);
+}
+
+.app-feedback-modal__message:last-child {
+	margin-bottom: 0;
+}
+
+.app-feedback-modal__message-text {
+	margin: 0;
+	font-size: 1rem;
+	font-weight: 500;
+	line-height: 1.65;
+	color: inherit;
+}
+
+.app-feedback-modal__divider {
+	margin: 0;
+	border: 0;
+	border-top: 1px solid #e3ebf3;
+	opacity: 1;
+}
+
+.app-feedback-modal__footer {
+	padding: 0 1.4rem 1.4rem;
+	border-top: 0;
+}
+
+.app-feedback-modal__button {
+	min-width: 140px;
+	padding: 0.7rem 1.4rem;
+	border-radius: 999px;
+	font-weight: 600;
+	box-shadow: none;
 }
 
 html,

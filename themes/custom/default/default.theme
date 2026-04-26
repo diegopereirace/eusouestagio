@@ -515,6 +515,34 @@ function default_preprocess_menu(array &$variables): void
   $user = \Drupal::currentUser();
   $user_roles = $user->getRoles();
 
+  // Exibe o item "Contratar Estagiário" apenas para
+  // usuários autenticados com papel empresa.
+  $must_hide_contratar_estagiario = !$user->isAuthenticated() || !in_array('empresa', $user_roles, TRUE);
+  if ($must_hide_contratar_estagiario) {
+    $remove_contratar_estagiario = static function (array &$items) use (&$remove_contratar_estagiario): void {
+      foreach ($items as $key => &$item) {
+        if (!is_array($item)) {
+          continue;
+        }
+
+        $title = trim((string) ($item['title'] ?? ''));
+        $is_target_link = in_array($title, ['Contratar Estagiário', 'Contratar Estagiario', 'contratar estagiário', 'contratar estagiario'], TRUE);
+
+        if ($is_target_link) {
+          unset($items[$key]);
+          continue;
+        }
+
+        if (!empty($item['below']) && is_array($item['below'])) {
+          $remove_contratar_estagiario($item['below']);
+        }
+      }
+      unset($item);
+    };
+
+    $remove_contratar_estagiario($variables['items']);
+  }
+
   // Oculta "Acessar" (user.login) no menu do próprio papel do usuário logado.
   if (isset($hide_login_for_roles[$menu_name])) {
     $required_role = $hide_login_for_roles[$menu_name];

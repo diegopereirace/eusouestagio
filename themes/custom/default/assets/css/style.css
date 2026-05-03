@@ -2140,6 +2140,81 @@ body.path-painel {
 	}
 }
 
+/* ── Páginas de erro (403/404) ─────────────────────────────────────────── */
+.custom-error-page {
+	padding: 2.5rem 1rem 3rem;
+}
+
+.custom-error-page__panel {
+	max-width: 760px;
+	margin: 0 auto;
+	padding: 2.1rem 1.6rem 1.9rem;
+	text-align: center;
+	background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+	border: 1px solid #d7e5f3;
+	border-radius: 20px;
+	box-shadow: 0 16px 40px rgba(2, 60, 98, 0.09);
+}
+
+.custom-error-page__code {
+	display: inline-block;
+	margin-bottom: 0.85rem;
+	padding: 0.2rem 0.8rem;
+	border-radius: 999px;
+	font-size: 0.78rem;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: #0f3e5d;
+	background-color: #e8f0f8;
+}
+
+.custom-error-page__icon {
+	margin-bottom: 0.7rem;
+	font-size: 2.3rem;
+	line-height: 1;
+	color: #de7420;
+}
+
+.custom-error-page__title {
+	margin: 0 0 0.7rem;
+	font-size: clamp(1.5rem, 1.9vw + 1rem, 2rem);
+	font-weight: 700;
+	line-height: 1.2;
+	color: #023c62;
+}
+
+.custom-error-page__message {
+	margin: 0;
+	font-size: 1.03rem;
+	font-weight: 500;
+	line-height: 1.6;
+	color: #244866;
+}
+
+.custom-error-page__hint {
+	margin: 0.9rem auto 0;
+	max-width: 620px;
+	font-size: 0.95rem;
+	line-height: 1.65;
+	color: #58748e;
+}
+
+@media (max-width: 767.98px) {
+	.custom-error-page {
+		padding: 2rem 0.75rem 2.4rem;
+	}
+
+	.custom-error-page__panel {
+		padding: 1.7rem 1.1rem 1.5rem;
+		border-radius: 16px;
+	}
+
+	.custom-error-page__icon {
+		font-size: 2rem;
+	}
+}
+
 
 .footer-cta-link--linkedin {
 	background-color: #0a66c2;

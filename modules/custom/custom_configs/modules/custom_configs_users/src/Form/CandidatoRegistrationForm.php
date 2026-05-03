@@ -415,13 +415,24 @@ class CandidatoRegistrationForm extends FormBase
 
         $form['section_endereco']['row']['col_endereco'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['col-12', 'col-md-9']],
+            '#attributes' => ['class' => ['col-12', 'col-md-7']],
         ];
 
         $form['section_endereco']['row']['col_endereco']['field_endereco'] = [
             '#type' => 'textfield',
             '#title' => $this->t('Endereço'),
             '#maxlength' => 255,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        $form['section_endereco']['row']['col_numero'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-2']],
+        ];
+        $form['section_endereco']['row']['col_numero']['field_numero'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Número'),
+            '#maxlength' => 20,
             '#attributes' => ['class' => ['form-control']],
         ];
 
@@ -1314,6 +1325,7 @@ class CandidatoRegistrationForm extends FormBase
             'field_nome_pai',
             'field_cep',
             'field_endereco',
+            'field_numero',
             'field_complemento',
             'field_bairro',
             'field_cidade',

@@ -410,7 +410,7 @@ class CandidatoEditForm extends FormBase
 
     $form['section_endereco']['row']['col_endereco'] = [
       '#type' => 'container',
-      '#attributes' => ['class' => ['col-12', 'col-md-9']],
+      '#attributes' => ['class' => ['col-12', 'col-md-7']],
     ];
     $form['section_endereco']['row']['col_endereco']['field_endereco'] = [
       '#type' => 'textfield',
@@ -419,6 +419,19 @@ class CandidatoEditForm extends FormBase
       '#default_value' => $this->getFieldValue($user, 'field_endereco'),
       '#attributes' => ['class' => ['form-control']],
     ];
+
+    $form['section_endereco']['row']['col_numero'] = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['col-12', 'col-md-2']],
+    ];
+    $form['section_endereco']['row']['col_numero']['field_numero'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Número'),
+      '#maxlength' => 20,
+      '#default_value' => $this->getFieldValue($user, 'field_numero'),
+      '#attributes' => ['class' => ['form-control']],
+    ];
+
     $form['section_endereco']['row']['col_endereco']['field_complemento'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Complemento'),
@@ -1287,6 +1300,7 @@ class CandidatoEditForm extends FormBase
       'field_nome_pai',
       'field_cep',
       'field_endereco',
+      'field_numero',
       'field_complemento',
       'field_bairro',
       'field_cidade',

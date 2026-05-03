@@ -2443,3 +2443,53 @@ body.path-painel {
 		width: 100%;
 	}
 }
+
+/* ── Correção de clique no reCAPTCHA (desktop e mobile) ─────────────────── */
+
+/*
+ * Garante que o wrapper do captcha crie um contexto de empilhamento próprio
+ * e não seja bloqueado por elementos com z-index maior acima dele.
+ */
+.captcha {
+	position: relative;
+	z-index: 2;
+	isolation: isolate;
+}
+
+.captcha_element,
+.g-recaptcha {
+	position: relative;
+}
+
+/*
+ * O iframe e o div interno do widget reCAPTCHA DEVEM receber eventos de ponteiro.
+ * Alguns temas/módulos herdam pointer-events: none de ancestrais.
+ */
+.g-recaptcha > div,
+.g-recaptcha iframe {
+	pointer-events: auto !important;
+}
+
+/*
+ * Impede que o banner LGPD (opacity: 0 mas posicionado fixo)
+ * bloqueie cliques quando não está visível.
+ */
+.lgpd-cookie-banner:not(.is-visible) {
+	pointer-events: none;
+}
+
+/*
+ * No mobile, o cabeçalho sticky com z-index alto pode criar contextos de
+ * empilhamento que interferem em elementos de formulário abaixo.
+ * A propriedade isolation garante que o conteúdo do header não "vaze"
+ * para a área de conteúdo principal.
+ */
+@media (max-width: 767.98px) {
+	#header {
+		isolation: isolate;
+	}
+
+	.captcha {
+		z-index: 3;
+	}
+}

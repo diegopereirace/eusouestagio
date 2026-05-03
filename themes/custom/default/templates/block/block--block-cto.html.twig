@@ -56,7 +56,16 @@
             <div class="cto-title"><h3 class="text-white">{{ content.field_text_simple|render|striptags|trim }}</h3></div>
             <div class="cto-body text-white">{{ content.field_text_simple_long|render|striptags|trim }}</div>
             <div class="cto-actions">
-              <div class="cto-action-primary">{{ content.field_link }}</div>
+              {% if cto_use_role_rules|default(false) %}
+                <div class="cto-action-primary">
+                  <a href="{{ cto_cta_url }}" class="ui-btn ui-btn--primary{% if cto_cta_disabled %} ui-btn--disabled{% endif %}"{% if cto_cta_disabled %} aria-disabled="true" tabindex="-1"{% endif %}>{{ cto_cta_label }}</a>
+                  {% if cto_cta_help_text %}
+                    <div class="cto-action-primary__hint">{{ cto_cta_help_text }}</div>
+                  {% endif %}
+                </div>
+              {% else %}
+                <div class="cto-action-primary">{{ content.field_link }}</div>
+              {% endif %}
             </div>
           </div>
         </section>
@@ -77,7 +86,16 @@
           <div class="cto-title"><h3 class="text-white">{{ content.field_text_simple|render|striptags|trim }}</h3></div>
           <div class="cto-body text-white">{{ content.field_text_simple_long|render|striptags|trim }}</div>
           <div class="cto-actions">
-            <div class="cto-action-primary">{{ content.field_link }}</div>
+            {% if cto_use_role_rules|default(false) %}
+              <div class="cto-action-primary">
+                <a href="{{ cto_cta_url }}" class="ui-btn ui-btn--primary{% if cto_cta_disabled %} ui-btn--disabled{% endif %}"{% if cto_cta_disabled %} aria-disabled="true" tabindex="-1"{% endif %}>{{ cto_cta_label }}</a>
+                {% if cto_cta_help_text %}
+                  <div class="cto-action-primary__hint">{{ cto_cta_help_text }}</div>
+                {% endif %}
+              </div>
+            {% else %}
+              <div class="cto-action-primary">{{ content.field_link }}</div>
+            {% endif %}
           </div>
         </div>
       </section>

@@ -848,6 +848,26 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 	filter: brightness(0.95);
 }
 
+.cto-action-primary .ui-btn--disabled,
+.cto-action-primary .ui-btn--disabled:hover,
+.cto-action-primary .ui-btn--disabled:focus {
+	background-color: #8ea0ae;
+	border-color: #8ea0ae;
+	color: #fff;
+	pointer-events: none;
+	cursor: not-allowed;
+	filter: none;
+	opacity: 0.85;
+}
+
+.cto-action-primary__hint {
+	margin-top: 0.55rem;
+	font-size: 0.9rem;
+	font-weight: 500;
+	line-height: 1.35;
+	color: #fff;
+}
+
 .banner-content-desktop,
 .banner-content-mobile {
 	display: none;

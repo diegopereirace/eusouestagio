@@ -189,23 +189,20 @@
           fetch(Drupal.url('session/token'))
             .then(function (res) { return res.text(); })
             .then(function (csrfToken) {
-              return fetch(Drupal.url('painel/estudante/vagas/candidatar'), {
+              return fetch(Drupal.url('vaga/apply/' + nodeId), {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/x-www-form-urlencoded',
                   'X-CSRF-Token': csrfToken,
                 },
-                body: 'nid=' + encodeURIComponent(nodeId),
               });
             })
             .then(parseJsonResponse)
             .then(function (data) {
-              if (data.status === 'candidatado' || data.status === 'already') {
-                // Substitui o botão por texto informativo.
-                var label = document.createElement('p');
-                label.className = 'vaga-ja-aplicada';
-                label.textContent = Drupal.t('Vaga já aplicada');
-                button.parentNode.replaceChild(label, button);
+              if (data.success || data.status === 'candidatado' || data.status === 'already') {
+                // Substitui o botão por estado desabilitado.
+                button.disabled = true;
+                button.textContent = Drupal.t('Candidatura Enviada');
                 showActionModal(data.message || Drupal.t('Sua candidatura foi registrada.'));
               } else {
                 button.disabled = false;

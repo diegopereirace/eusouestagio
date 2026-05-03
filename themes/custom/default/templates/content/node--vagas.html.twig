@@ -214,7 +214,9 @@
 
           {% if logged_in and user.hasRole('candidato') %}
             {% if vaga_candidatada %}
-              <p class="vaga-ja-aplicada mb-3">{{ 'Vaga já aplicada'|t }}</p>
+              <button type="button" class="ui-btn ui-btn--primary w-100 mb-3" disabled>
+                {{ 'Candidatura Enviada'|t }}
+              </button>
             {% else %}
               <button type="button"
                 class="ui-btn ui-btn--primary w-100 mb-3 js-candidatar-vaga"
@@ -227,8 +229,11 @@
               {{ vaga_salva ? 'Remover dos Salvos'|t : 'Salvar Vaga'|t }}
             </button>
           {% elseif not logged_in %}
-            <a href="/cadastro/candidato" class="ui-btn ui-btn--primary w-100 mb-4">
-              {{ 'Cadastrar Agora'|t }}
+            <a href="/user/login?destination={{ url('entity.node.canonical', {'node': node.id}) }}" class="ui-btn ui-btn--primary w-100 mb-3">
+              {{ 'Faça login para se candidatar'|t }}
+            </a>
+            <a href="/cadastro/candidato" class="ui-btn ui-btn--outline w-100 mb-4">
+              {{ 'Criar conta de candidato'|t }}
             </a>
           {% endif %}
 

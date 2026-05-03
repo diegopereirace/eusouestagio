@@ -85,9 +85,6 @@ function default_preprocess_node__vagas(&$variables)
       ->range(0, 1);
     $candidacy_nids = $candidacy_query->execute();
     $variables['vaga_candidatada'] = !empty($candidacy_nids);
-
-    // Anexa a biblioteca de candidatura apenas para nós de vaga.
-    $variables['#attached']['library'][] = 'custom_panel/candidatura';
   }
 }
 

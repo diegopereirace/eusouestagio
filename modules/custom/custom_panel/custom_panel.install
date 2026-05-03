@@ -211,3 +211,33 @@ function custom_panel_update_10004(): void
     $field->save();
   }
 }
+
+/**
+ * Configura páginas amigáveis para erros 403 e 404.
+ */
+function custom_panel_update_10005(): void
+{
+  $config = \Drupal::configFactory()->getEditable('system.site');
+
+  $current_403 = trim((string) $config->get('page.403'));
+  $current_404 = trim((string) $config->get('page.404'));
+
+  $new_403 = '/acesso-negado';
+  $new_404 = '/pagina-nao-encontrada';
+
+  $changed = FALSE;
+
+  if ($current_403 === '' || $current_403 === '/system/403') {
+    $config->set('page.403', $new_403);
+    $changed = TRUE;
+  }
+
+  if ($current_404 === '' || $current_404 === '/system/404') {
+    $config->set('page.404', $new_404);
+    $changed = TRUE;
+  }
+
+  if ($changed) {
+    $config->save(TRUE);
+  }
+}

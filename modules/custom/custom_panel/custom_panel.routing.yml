@@ -78,3 +78,19 @@ custom_panel.empresa_candidaturas_listagem:
   requirements:
     _role: 'empresa'
 
+custom_panel.error_403:
+  path: '/acesso-negado'
+  defaults:
+    _title: 'Acesso negado'
+    _controller: '\Drupal\custom_panel\Controller\ErrorPageController::accessDenied'
+  requirements:
+    _access: 'TRUE'
+
+custom_panel.error_404:
+  path: '/pagina-nao-encontrada'
+  defaults:
+    _title: 'Página não encontrada'
+    _controller: '\Drupal\custom_panel\Controller\ErrorPageController::notFound'
+  requirements:
+    _access: 'TRUE'
+

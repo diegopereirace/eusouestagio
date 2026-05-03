@@ -278,6 +278,16 @@ function custom_panel_theme(): array
                 'empty' => NULL,
             ],
         ],
+        'custom_panel_error_page' => [
+            'variables' => [
+                'status_code' => 0,
+                'title'       => NULL,
+                'message'     => NULL,
+                'hint'        => NULL,
+                'icon'        => NULL,
+            ],
+            'template' => 'custom-panel-error-page',
+        ],
     ];
 }
 

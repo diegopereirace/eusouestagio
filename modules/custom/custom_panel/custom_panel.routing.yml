@@ -47,11 +47,12 @@ custom_panel.vagas_aplicadas_listagem:
     _role: 'candidato'
 
 custom_panel.vagas_candidatar:
-  path: '/painel/estudante/vagas/candidatar'
+  path: '/vaga/apply/{node}'
   defaults:
-    _controller: '\Drupal\custom_panel\Controller\CandidaturaController::candidatar'
+    _controller: '\Drupal\custom_panel\Controller\VagasAplicadasController::apply'
   requirements:
     _role: 'candidato'
+    node: \d+
   methods: [POST]
 
 custom_panel.moderador_candidaturas_listagem:

@@ -59,9 +59,11 @@ function default_preprocess_node__vagas(&$variables)
   $variables['vaga_candidatada'] = FALSE;
 
   if ($user->isAuthenticated() && in_array('candidato', $user->getRoles())) {
-    $nid = $variables['node']->id();
-    $uid = $user->id();
+    $node = $variables['node'];
+    $nid = (int) $node->id();
+    $uid = (int) $user->id();
 
+    // Verifica se a vaga já foi salva.
     $database = \Drupal::database();
     if ($database->schema()->tableExists('vagas_salvas')) {
       $exists_salva = $database->select('vagas_salvas', 'vs')
@@ -73,18 +75,19 @@ function default_preprocess_node__vagas(&$variables)
       $variables['vaga_salva'] = !empty($exists_salva);
     }
 
-    // Candidatura verificada via field_candidatos_u na própria vaga.
-    $vaga_candidatada = FALSE;
-    $node = $variables['node'];
-    if ($node->hasField('field_candidatos_u') && !$node->get('field_candidatos_u')->isEmpty()) {
-      foreach ($node->get('field_candidatos_u') as $item) {
-        if ((int) $item->target_id === $uid) {
-          $vaga_candidatada = TRUE;
-          break;
-        }
-      }
-    }
-    $variables['vaga_candidatada'] = $vaga_candidatada;
+    // Verifica se o usuário já se candidatou a esta vaga.
+    $storage = \Drupal::entityTypeManager()->getStorage('node');
+    $candidacy_query = $storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('type', 'candidatura')
+      ->condition('field_candidatura_candidato', $uid)
+      ->condition('field_candidatura_vaga', $nid)
+      ->range(0, 1);
+    $candidacy_nids = $candidacy_query->execute();
+    $variables['vaga_candidatada'] = !empty($candidacy_nids);
+
+    // Anexa a biblioteca de candidatura apenas para nós de vaga.
+    $variables['#attached']['library'][] = 'custom_panel/candidatura';
   }
 }
 

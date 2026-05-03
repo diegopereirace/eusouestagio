@@ -1,0 +1,9 @@
+candidatura:
+  version: 1.x
+  js:
+    js/candidatura.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/once
+    - core/drupalSettings

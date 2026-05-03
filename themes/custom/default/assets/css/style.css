@@ -2493,3 +2493,9 @@ body.path-painel {
 		z-index: 3;
 	}
 }
+
+/* Oculta a aba "Criar nova conta" nas paginas de login. */
+.page-user-login .tabs .nav-link--user-register,
+.page-user-login .tabs li:has(> .nav-link--user-register) {
+	display: none !important;
+}

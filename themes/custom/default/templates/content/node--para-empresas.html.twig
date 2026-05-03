@@ -101,7 +101,11 @@
         <div class="dv-wraper text-wrapper">{{ content.field_text_simple_long_2 }}</div>
       </div>
       <div class="col-md-5 col-12">
-        <div class="dv-wraper image-wrapper text-center">{{ content.field_imagem|add_class('img-fluid') }}</div>
+        <div class="dv-wraper image-wrapper text-center">
+          {% if content.field_imagem['#items'] is not empty %}
+            <img class="img-fluid" src="{{ file_url(content.field_imagem['#items'].0.entity.uri.value) }}" loading="lazy" alt="{{ content.field_imagem['#items'].0.alt }}">
+          {% endif %}
+        </div>
       </div>
     </div>
 

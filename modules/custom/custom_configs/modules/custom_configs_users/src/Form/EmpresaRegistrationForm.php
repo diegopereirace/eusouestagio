@@ -253,7 +253,7 @@ class EmpresaRegistrationForm extends FormBase
 
         $form['section_endereco']['row']['col_endereco'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['col-12', 'col-md-9']],
+            '#attributes' => ['class' => ['col-12', 'col-md-7']],
         ];
         $form['section_endereco']['row']['col_endereco']['field_endereco'] = [
             '#type' => 'textfield',
@@ -261,6 +261,18 @@ class EmpresaRegistrationForm extends FormBase
             '#maxlength' => 255,
             '#attributes' => ['class' => ['form-control']],
         ];
+
+        $form['section_endereco']['row']['col_numero'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-2']],
+        ];
+        $form['section_endereco']['row']['col_numero']['field_numero'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Número'),
+            '#maxlength' => 20,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
         $form['section_endereco']['row']['col_endereco']['field_complemento'] = [
             '#type' => 'textfield',
             '#title' => $this->t('Complemento'),
@@ -465,6 +477,7 @@ class EmpresaRegistrationForm extends FormBase
             // Endereço (campos compartilhados com candidato).
             'field_cep',
             'field_endereco',
+            'field_numero',
             'field_complemento',
             'field_bairro',
             'field_cidade',

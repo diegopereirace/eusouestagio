@@ -2499,3 +2499,43 @@ body.path-painel {
 .page-user-login .tabs li:has(> .nav-link--user-register) {
 	display: none !important;
 }
+/* ── Paginação ───────────────────────────────────────────────── */
+nav[aria-label] .pagination.js-pager__items {
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: 4px;
+	padding: 1.5rem 0 0.5rem;
+	margin-bottom: 0;
+}
+
+nav[aria-label] .pagination.js-pager__items .page-item .page-link {
+	min-width: 2.5rem;
+	text-align: center;
+	border-radius: 6px;
+	border: 1px solid #d5e0e9;
+	color: #023c62;
+	background-color: #fff;
+	font-weight: 500;
+	font-size: 0.9rem;
+	padding: 0.45rem 0.8rem;
+	transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+	text-decoration: none;
+}
+
+nav[aria-label] .pagination.js-pager__items .page-item .page-link:hover,
+nav[aria-label] .pagination.js-pager__items .page-item .page-link:focus {
+	background-color: #023c62;
+	border-color: #023c62;
+	color: #fff;
+	outline: none;
+	box-shadow: 0 2px 8px rgba(2, 60, 98, 0.25);
+}
+
+nav[aria-label] .pagination.js-pager__items .page-item.active .page-link {
+	background-color: #de7420;
+	border-color: #de7420;
+	color: #fff;
+	font-weight: 700;
+	box-shadow: 0 2px 8px rgba(222, 116, 32, 0.35);
+	pointer-events: none;
+}

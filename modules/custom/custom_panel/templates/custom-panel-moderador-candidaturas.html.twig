@@ -12,13 +12,12 @@
  * - update_url: Endpoint POST para atualização de status.
  */
 #}
-<div class="moderador-candidaturas pt-3 pb-5">
+<div class="moderador-candidaturas ps-0 pt-3 pb-5">
   {% if rows is not empty %}
     <div class="card">
       <div class="card-body p-0">
         <div class="table-responsive">
-          <table class="table table-striped table-hover mb-0 align-middle"
-                 data-update-url="{{ update_url }}">
+          <table class="table table-striped table-hover mb-0 align-middle" data-update-url="{{ update_url }}">
             <thead>
               <tr>
                 <th class="px-3 py-3 text-muted text-nowrap" style="width:1%">#</th>

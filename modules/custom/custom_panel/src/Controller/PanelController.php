@@ -6,26 +6,35 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
 use Drupal\custom_panel\Form\CandidatoEditForm;
 use Drupal\custom_panel\Form\EmpresaEditForm;
+use Drupal\user\UserInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-class PanelController extends ControllerBase {
+class PanelController extends ControllerBase
+{
 
   /**
    * Página /painel: redireciona para a rota correta conforme a role.
    */
-  public function index(): array|RedirectResponse {
+  public function index(): array|RedirectResponse
+  {
     $user = $this->entityTypeManager()->getStorage('user')->load($this->currentUser()->id());
 
-    if (!$user) {
+    if (!$user instanceof UserInterface) {
       return new RedirectResponse(Url::fromRoute('<front>')->toString());
     }
 
-    if ($user->hasRole('empresa')) {
+    $roles = $user->getRoles();
+
+    if (in_array('empresa', $roles, TRUE)) {
       return new RedirectResponse(Url::fromRoute('custom_panel.painel_empresa_perfil')->toString());
     }
 
-    if ($user->hasRole('candidato')) {
+    if (in_array('candidato', $roles, TRUE)) {
       return new RedirectResponse(Url::fromRoute('custom_panel.painel_estudante_perfil')->toString());
+    }
+
+    if (in_array('moderador', $roles, TRUE)) {
+      return new RedirectResponse(Url::fromRoute('custom_panel.moderador_candidaturas_listagem')->toString());
     }
 
     // Usuários sem role candidato/empresa (ex: admin) vão para o perfil padrão.
@@ -35,15 +44,16 @@ class PanelController extends ControllerBase {
   /**
    * Página /painel/estudante/perfil.
    */
-  public function estudantePerfil(): array {
+  public function estudantePerfil(): array
+  {
     return $this->formBuilder()->getForm(CandidatoEditForm::class);
   }
 
   /**
    * Página /painel/empresa/perfil.
    */
-  public function empresaPerfil(): array {
+  public function empresaPerfil(): array
+  {
     return $this->formBuilder()->getForm(EmpresaEditForm::class);
   }
-
 }

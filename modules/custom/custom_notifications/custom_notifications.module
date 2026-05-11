@@ -28,6 +28,141 @@ function custom_notifications_mail(string $key, array &$message, array $params):
       $message['body'][] = \Drupal::translation()->translate('Acesse a vaga: @url', ['@url' => $params['vaga_url']]);
       $message['body'][] = \Drupal::translation()->translate('Atenciosamente,') . "\n" . $site_name;
       break;
+
+    case 'nova_empresa_moderadores':
+      $message['subject'] = \Drupal::translation()->translate('@site - Novo cadastro de empresa: @empresa', [
+        '@site' => $site_name,
+        '@empresa' => $params['empresa_nome'],
+      ]);
+
+      $message['body'][] = \Drupal::translation()->translate('Ola, moderador(a)!');
+      $message['body'][] = \Drupal::translation()->translate(
+        'Uma nova empresa foi registrada na plataforma: "@empresa".',
+        ['@empresa' => $params['empresa_nome']]
+      );
+      $message['body'][] = \Drupal::translation()->translate('Email: @email', ['@email' => $params['empresa_email']]);
+      $message['body'][] = \Drupal::translation()->translate('CNPJ: @cnpj', ['@cnpj' => $params['empresa_cnpj']]);
+      $message['body'][] = \Drupal::translation()->translate('Status: @status', ['@status' => $params['status']]);
+      $message['body'][] = \Drupal::translation()->translate('Atenciosamente,') . "\n" . $site_name;
+      break;
+
+    case 'novo_candidato_moderadores':
+      $message['subject'] = \Drupal::translation()->translate('@site - Novo cadastro de estudante: @candidato', [
+        '@site' => $site_name,
+        '@candidato' => $params['candidato_nome'],
+      ]);
+
+      $message['body'][] = \Drupal::translation()->translate('Ola, moderador(a)!');
+      $message['body'][] = \Drupal::translation()->translate(
+        'Um novo estudante foi registrado na plataforma: "@candidato".',
+        ['@candidato' => $params['candidato_nome']]
+      );
+      $message['body'][] = \Drupal::translation()->translate('Email: @email', ['@email' => $params['candidato_email']]);
+      $message['body'][] = \Drupal::translation()->translate('Status: @status', ['@status' => $params['status']]);
+      $message['body'][] = \Drupal::translation()->translate('Atenciosamente,') . "\n" . $site_name;
+      break;
+  }
+}
+
+/**
+ * Implements hook_user_insert().
+ */
+function custom_notifications_user_insert(UserInterface $user): void
+{
+  $logger = \Drupal::logger('custom_notifications');
+
+  // Notifica moderadores sobre novo cadastro de empresa.
+  if ($user->hasRole('empresa')) {
+    _custom_notifications_notificar_novo_usuario($user, 'nova_empresa_moderadores', 'empresa', $logger);
+  }
+
+  // Notifica moderadores sobre novo cadastro de candidato/estudante.
+  if ($user->hasRole('candidato')) {
+    _custom_notifications_notificar_novo_usuario($user, 'novo_candidato_moderadores', 'candidato', $logger);
+  }
+}
+
+/**
+ * Envia notificação aos moderadores sobre novo usuário cadastrado.
+ */
+function _custom_notifications_notificar_novo_usuario(UserInterface $user, string $mail_key, string $tipo, $logger): void
+{
+  $moderador_ids = \Drupal::entityQuery('user')
+    ->condition('status', 1)
+    ->condition('roles', 'moderador')
+    ->accessCheck(FALSE)
+    ->execute();
+
+  if (empty($moderador_ids)) {
+    $logger->warning('Notificacao de novo @tipo sem envio para uid @uid: nenhum usuario com role moderador ativo.', [
+      '@uid' => $user->id(),
+      '@tipo' => $tipo,
+    ]);
+    return;
+  }
+
+  $default_langcode = \Drupal::languageManager()->getDefaultLanguage()->getId();
+  $mail_manager = \Drupal::service('plugin.manager.mail');
+  $moderadores = \Drupal::entityTypeManager()->getStorage('user')->loadMultiple($moderador_ids);
+  $status_label = $user->isActive() ? 'Ativo' : 'Aguardando aprovação';
+
+  if ($tipo === 'empresa') {
+    $empresa_nome = $user->getDisplayName();
+    if ($user->hasField('field_nome_fantasia') && !$user->get('field_nome_fantasia')->isEmpty()) {
+      $empresa_nome = (string) $user->get('field_nome_fantasia')->value;
+    }
+
+    $cnpj = $user->hasField('field_cnpj') ? (string) $user->get('field_cnpj')->value : '—';
+
+    $params = [
+      'empresa_nome' => $empresa_nome,
+      'empresa_email' => (string) $user->getEmail(),
+      'empresa_cnpj' => $cnpj,
+      'status' => $status_label,
+    ];
+  } else {
+    $params = [
+      'candidato_nome' => $user->getDisplayName(),
+      'candidato_email' => (string) $user->getEmail(),
+      'status' => $status_label,
+    ];
+  }
+
+  foreach ($moderadores as $moderador) {
+    if (!$moderador instanceof UserInterface) {
+      continue;
+    }
+
+    $email = (string) $moderador->getEmail();
+    if ($email === '') {
+      $logger->warning('Notificacao de novo @tipo ignorou moderador uid @uid por falta de e-mail.', [
+        '@uid' => $moderador->id(),
+        '@tipo' => $tipo,
+      ]);
+      continue;
+    }
+
+    $result = $mail_manager->mail(
+      'custom_notifications',
+      $mail_key,
+      $email,
+      $default_langcode,
+      $params
+    );
+
+    if (!empty($result['result'])) {
+      $logger->notice('Notificacao de novo @tipo enviada para @email (uid @uid).', [
+        '@email' => $email,
+        '@uid' => $user->id(),
+        '@tipo' => $tipo,
+      ]);
+    } else {
+      $logger->error('Falha ao enviar notificacao de novo @tipo para @email (uid @uid).', [
+        '@email' => $email,
+        '@uid' => $user->id(),
+        '@tipo' => $tipo,
+      ]);
+    }
   }
 }
 

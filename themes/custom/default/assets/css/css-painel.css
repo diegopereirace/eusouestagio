@@ -42,11 +42,28 @@ body.path-painel {
 }
 
 .moderador-candidaturas,
+.moderador-candidatos,
 .empresa-candidaturas,
 .vagas-salvas,
 .vagas-aplicadas {
   padding: 2rem 5% 3rem;
   min-height: calc(100vh - 180px);
+}
+
+.moderador-candidaturas {
+  padding-left: 0;
+}
+
+.moderador-candidatos {
+  padding-left: 0;
+}
+
+#page-wrapper.is-painel-page main .section:has(.moderador-candidaturas) {
+  padding-left: 0;
+}
+
+#page-wrapper.is-painel-page main .section:has(.moderador-candidatos) {
+  padding-left: 0;
 }
 
 .salvar-vaga-spinner {
@@ -134,6 +151,103 @@ body.path-painel {
 .vagas-salvas + nav.pager .pager__items,
 .vagas-aplicadas + nav.pager .pager__items {
   justify-content: center;
+}
+
+/* ── Filtro exposto da listagem de pessoas/empresas ─────────────────────── */
+
+#page-wrapper.is-painel-page .view-id-user-admin-people .views-exposed-form,
+#page-wrapper.is-painel-page #views-exposed-form-user-admin-people-page-1 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.25rem;
+  align-items: flex-end;
+}
+
+#page-wrapper.is-painel-page .view-id-user-admin-people .views-exposed-form .form-item,
+#page-wrapper.is-painel-page #views-exposed-form-user-admin-people-page-1 .form-item {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#page-wrapper.is-painel-page .view-id-user-admin-people .views-exposed-form .form-item-combine,
+#page-wrapper.is-painel-page .view-id-user-admin-people .views-exposed-form .form-item-status,
+#page-wrapper.is-painel-page #views-exposed-form-user-admin-people-page-1 .form-item-user,
+#page-wrapper.is-painel-page #views-exposed-form-user-admin-people-page-1 .form-item-status {
+  flex: 1 1 240px;
+  min-width: 220px;
+}
+
+#page-wrapper.is-painel-page .view-id-user-admin-people .views-exposed-form label,
+#page-wrapper.is-painel-page .view-id-user-admin-people .views-exposed-form .form-item__label,
+#page-wrapper.is-painel-page .view-id-user-admin-people .views-exposed-form .control-label,
+#page-wrapper.is-painel-page #views-exposed-form-user-admin-people-page-1 label,
+#page-wrapper.is-painel-page #views-exposed-form-user-admin-people-page-1 .form-item__label,
+#page-wrapper.is-painel-page #views-exposed-form-user-admin-people-page-1 .control-label {
+  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #243447;
+}
+
+#page-wrapper.is-painel-page .view-id-user-admin-people .views-exposed-form input[type="text"],
+#page-wrapper.is-painel-page .view-id-user-admin-people .views-exposed-form select,
+#page-wrapper.is-painel-page #views-exposed-form-user-admin-people-page-1 input[type="text"],
+#page-wrapper.is-painel-page #views-exposed-form-user-admin-people-page-1 select {
+  width: 100%;
+  max-width: 100%;
+  min-height: 48px;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid #d4dce6;
+  border-radius: 12px;
+  box-sizing: border-box;
+  background-color: #fff;
+}
+
+#page-wrapper.is-painel-page .view-id-user-admin-people .views-exposed-form .form-actions,
+#page-wrapper.is-painel-page #views-exposed-form-user-admin-people-page-1 .form-actions {
+  margin: 0;
+  padding: 0;
+  flex: 0 0 auto;
+}
+
+#page-wrapper.is-painel-page .view-id-user-admin-people .views-exposed-form .form-submit,
+#page-wrapper.is-painel-page .view-id-user-admin-people .views-exposed-form input[type="submit"],
+#page-wrapper.is-painel-page .view-id-user-admin-people .views-exposed-form button[type="submit"],
+#page-wrapper.is-painel-page #views-exposed-form-user-admin-people-page-1 .form-submit,
+#page-wrapper.is-painel-page #views-exposed-form-user-admin-people-page-1 input[type="submit"],
+#page-wrapper.is-painel-page #views-exposed-form-user-admin-people-page-1 button[type="submit"] {
+  min-height: 48px;
+  padding: 0.7rem 1.4rem;
+  border-radius: 12px;
+}
+
+@media (max-width: 767.98px) {
+  #page-wrapper.is-painel-page .view-id-user-admin-people .views-exposed-form,
+  #page-wrapper.is-painel-page #views-exposed-form-user-admin-people-page-1 {
+    display: block;
+  }
+
+  #page-wrapper.is-painel-page .view-id-user-admin-people .views-exposed-form .form-item,
+  #page-wrapper.is-painel-page #views-exposed-form-user-admin-people-page-1 .form-item,
+  #page-wrapper.is-painel-page .view-id-user-admin-people .views-exposed-form .form-actions,
+  #page-wrapper.is-painel-page #views-exposed-form-user-admin-people-page-1 .form-actions {
+    width: 100%;
+  }
+
+  #page-wrapper.is-painel-page .view-id-user-admin-people .views-exposed-form .form-actions,
+  #page-wrapper.is-painel-page #views-exposed-form-user-admin-people-page-1 .form-actions {
+    margin-top: 0.25rem;
+  }
+
+  #page-wrapper.is-painel-page .view-id-user-admin-people .views-exposed-form .form-submit,
+  #page-wrapper.is-painel-page .view-id-user-admin-people .views-exposed-form input[type="submit"],
+  #page-wrapper.is-painel-page .view-id-user-admin-people .views-exposed-form button[type="submit"],
+  #page-wrapper.is-painel-page #views-exposed-form-user-admin-people-page-1 .form-submit,
+  #page-wrapper.is-painel-page #views-exposed-form-user-admin-people-page-1 input[type="submit"],
+  #page-wrapper.is-painel-page #views-exposed-form-user-admin-people-page-1 button[type="submit"] {
+    width: 100%;
+  }
 }
 
 /* ── Formulários de node dentro do painel (ex: cadastro de vaga) ─────────── */

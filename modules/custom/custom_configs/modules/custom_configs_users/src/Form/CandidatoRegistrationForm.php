@@ -406,6 +406,7 @@ class CandidatoRegistrationForm extends FormBase
         $form['section_endereco']['row']['col_cep']['field_cep'] = [
             '#type' => 'textfield',
             '#title' => $this->t('CEP'),
+            '#required' => TRUE,
             '#maxlength' => 9,
             '#attributes' => [
                 'class' => ['form-control', 'mask-cep'],
@@ -421,6 +422,7 @@ class CandidatoRegistrationForm extends FormBase
         $form['section_endereco']['row']['col_endereco']['field_endereco'] = [
             '#type' => 'textfield',
             '#title' => $this->t('Endereço'),
+            '#required' => TRUE,
             '#maxlength' => 255,
             '#attributes' => ['class' => ['form-control']],
         ];
@@ -432,6 +434,7 @@ class CandidatoRegistrationForm extends FormBase
         $form['section_endereco']['row']['col_numero']['field_numero'] = [
             '#type' => 'textfield',
             '#title' => $this->t('Número'),
+            '#required' => TRUE,
             '#maxlength' => 20,
             '#attributes' => ['class' => ['form-control']],
         ];
@@ -451,6 +454,7 @@ class CandidatoRegistrationForm extends FormBase
         $form['section_endereco']['row']['col_bairro']['field_bairro'] = [
             '#type' => 'textfield',
             '#title' => $this->t('Bairro'),
+            '#required' => TRUE,
             '#maxlength' => 100,
             '#attributes' => ['class' => ['form-control']],
         ];
@@ -463,6 +467,7 @@ class CandidatoRegistrationForm extends FormBase
         $form['section_endereco']['row']['col_cidade']['field_cidade'] = [
             '#type' => 'textfield',
             '#title' => $this->t('Cidade'),
+            '#required' => TRUE,
             '#maxlength' => 100,
             '#attributes' => ['class' => ['form-control']],
         ];
@@ -476,6 +481,7 @@ class CandidatoRegistrationForm extends FormBase
             '#type' => 'select',
             '#title' => $this->t('Estado'),
             '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_estado'),
+            '#required' => TRUE,
             '#attributes' => ['class' => ['form-select']],
         ];
 
@@ -499,6 +505,7 @@ class CandidatoRegistrationForm extends FormBase
         $form['section_contato']['row']['col_telefone']['field_telefone'] = [
             '#type' => 'tel',
             '#title' => $this->t('Telefone'),
+            '#required' => TRUE,
             '#maxlength' => 15,
             '#attributes' => [
                 'class' => ['form-control', 'mask-phone'],
@@ -583,6 +590,7 @@ class CandidatoRegistrationForm extends FormBase
             $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_nome']['inst_nome_' . $i] = [
                 '#type' => 'textfield',
                 '#title' => $this->t('Instituição de Ensino'),
+                '#required' => TRUE,
                 '#maxlength' => 255,
                 '#attributes' => ['class' => ['form-control']],
             ];
@@ -594,8 +602,36 @@ class CandidatoRegistrationForm extends FormBase
             $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_endereco']['inst_endereco_' . $i] = [
                 '#type' => 'textfield',
                 '#title' => $this->t('Endereço'),
+                '#required' => TRUE,
                 '#maxlength' => 255,
                 '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_numero'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-2']],
+            ];
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_numero']['inst_numero_' . $i] = [
+                '#type' => 'textfield',
+                '#title' => $this->t('Número'),
+                '#required' => TRUE,
+                '#maxlength' => 20,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_cep'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-4']],
+            ];
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_cep']['inst_cep_' . $i] = [
+                '#type' => 'textfield',
+                '#title' => $this->t('CEP'),
+                '#required' => TRUE,
+                '#maxlength' => 9,
+                '#attributes' => [
+                    'class' => ['form-control', 'mask-cep'],
+                    'placeholder' => '00000-000',
+                ],
             ];
 
             $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_bairro'] = [
@@ -605,6 +641,7 @@ class CandidatoRegistrationForm extends FormBase
             $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_bairro']['inst_bairro_' . $i] = [
                 '#type' => 'textfield',
                 '#title' => $this->t('Bairro'),
+                '#required' => TRUE,
                 '#maxlength' => 100,
                 '#attributes' => ['class' => ['form-control']],
             ];
@@ -616,8 +653,21 @@ class CandidatoRegistrationForm extends FormBase
             $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_cidade']['inst_cidade_' . $i] = [
                 '#type' => 'textfield',
                 '#title' => $this->t('Cidade'),
+                '#required' => TRUE,
                 '#maxlength' => 100,
                 '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_estado'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-2']],
+            ];
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_estado']['inst_estado_' . $i] = [
+                '#type' => 'select',
+                '#title' => $this->t('Estado'),
+                '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_estado'),
+                '#required' => TRUE,
+                '#attributes' => ['class' => ['form-select']],
             ];
         }
 
@@ -668,6 +718,7 @@ class CandidatoRegistrationForm extends FormBase
             '#type' => 'select',
             '#title' => $this->t('Escolaridade'),
             '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_escolaridade'),
+            '#required' => TRUE,
             '#attributes' => ['class' => ['form-select']],
         ];
 
@@ -678,6 +729,7 @@ class CandidatoRegistrationForm extends FormBase
         $form['section_academico']['row']['col_periodo_letivo']['field_periodo_letivo'] = [
             '#type' => 'textfield',
             '#title' => $this->t('Período em que está matriculado'),
+            '#required' => TRUE,
             '#maxlength' => 60,
             '#attributes' => [
                 'class' => ['form-control'],
@@ -692,6 +744,7 @@ class CandidatoRegistrationForm extends FormBase
         $form['section_academico']['row']['col_nome_curso']['field_nome_curso'] = [
             '#type' => 'textfield',
             '#title' => $this->t('Nome do curso'),
+            '#required' => TRUE,
             '#maxlength' => 255,
             '#attributes' => ['class' => ['form-control']],
         ];
@@ -704,6 +757,7 @@ class CandidatoRegistrationForm extends FormBase
             '#type' => 'select',
             '#title' => $this->t('Tipo de curso'),
             '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_tipo_curso'),
+            '#required' => TRUE,
             '#attributes' => ['class' => ['form-select']],
         ];
 
@@ -715,6 +769,7 @@ class CandidatoRegistrationForm extends FormBase
             '#type' => 'select',
             '#title' => $this->t('Horário do curso'),
             '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_horario_curso'),
+            '#required' => TRUE,
             '#attributes' => ['class' => ['form-select']],
         ];
 
@@ -778,6 +833,7 @@ class CandidatoRegistrationForm extends FormBase
             '#type' => 'select',
             '#title' => $this->t('Disponibilidade para estágio'),
             '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_disponibilidade_estagio'),
+            '#required' => TRUE,
             '#attributes' => ['class' => ['form-select']],
         ];
 
@@ -788,6 +844,7 @@ class CandidatoRegistrationForm extends FormBase
         $form['section_academico']['row']['col_numero_matricula']['field_numero_matricula'] = [
             '#type' => 'textfield',
             '#title' => $this->t('Número de matrícula'),
+            '#required' => TRUE,
             '#maxlength' => 60,
             '#attributes' => ['class' => ['form-control']],
         ];
@@ -1376,10 +1433,13 @@ class CandidatoRegistrationForm extends FormBase
         for ($i = 0; $i < $num_instituicoes; $i++) {
             $nome = $form_state->getValue('inst_nome_' . $i);
             $endereco = $form_state->getValue('inst_endereco_' . $i);
+            $numero = $form_state->getValue('inst_numero_' . $i);
+            $cep = $form_state->getValue('inst_cep_' . $i);
             $bairro = $form_state->getValue('inst_bairro_' . $i);
             $cidade = $form_state->getValue('inst_cidade_' . $i);
+            $estado = $form_state->getValue('inst_estado_' . $i);
 
-            if (!empty($nome) || !empty($endereco) || !empty($bairro) || !empty($cidade)) {
+            if (!empty($nome) || !empty($endereco) || !empty($numero) || !empty($cep) || !empty($bairro) || !empty($cidade) || !empty($estado)) {
                 $p_values = ['type' => 'instituicao_ensino'];
                 if (!empty($nome)) {
                     $p_values['field_nome_instituicao'] = $nome;
@@ -1387,11 +1447,20 @@ class CandidatoRegistrationForm extends FormBase
                 if (!empty($endereco)) {
                     $p_values['field_endereco'] = $endereco;
                 }
+                if (!empty($numero)) {
+                    $p_values['field_numero'] = $numero;
+                }
+                if (!empty($cep)) {
+                    $p_values['field_cep'] = $cep;
+                }
                 if (!empty($bairro)) {
                     $p_values['field_bairro'] = $bairro;
                 }
                 if (!empty($cidade)) {
                     $p_values['field_cidade'] = $cidade;
+                }
+                if (!empty($estado)) {
+                    $p_values['field_estado'] = $estado;
                 }
                 $paragraph = Paragraph::create($p_values);
                 $paragraph->save();

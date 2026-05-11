@@ -75,6 +75,37 @@ class CandidatoRegistrationForm extends FormBase
     }
 
     /**
+     * Ajustes de opções específicos do formulário de cadastro.
+     */
+    private function getAdjustedOptions(string $field_name): array
+    {
+        $options = $this->getListOptions($field_name);
+
+        if ($field_name === 'field_escolaridade') {
+            foreach ($options as $value => $label) {
+                if (stripos((string) $value, 'gradua') !== FALSE || stripos((string) $label, 'gradua') !== FALSE) {
+                    unset($options[$value]);
+                }
+            }
+        }
+
+        if ($field_name === 'field_tipo_curso') {
+            if (!isset($options['Técnico'])) {
+                $options['Técnico'] = 'Técnico';
+            }
+            if (!isset($options['Tecnólogo'])) {
+                $options['Tecnólogo'] = 'Tecnólogo';
+            }
+        }
+
+        if ($field_name === 'field_disponibilidade_estagio' && !isset($options['Manhã e tarde'])) {
+            $options['Manhã e tarde'] = 'Manhã e tarde';
+        }
+
+        return $options;
+    }
+
+    /**
      * Opções de mês para previsão de formatura.
      */
     private function getMonthOptions(): array
@@ -260,6 +291,18 @@ class CandidatoRegistrationForm extends FormBase
             ],
         ];
 
+        $form['section_pessoal']['row']['col_rg'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_pessoal']['row']['col_rg']['field_rg'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('RG'),
+            '#required' => TRUE,
+            '#maxlength' => 20,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
         $form['section_pessoal']['row']['col_orgao_emissor'] = [
             '#type' => 'container',
             '#attributes' => ['class' => ['col-12', 'col-md-4']],
@@ -267,6 +310,7 @@ class CandidatoRegistrationForm extends FormBase
         $form['section_pessoal']['row']['col_orgao_emissor']['field_orgao_emissor'] = [
             '#type' => 'textfield',
             '#title' => $this->t('Órgão emissor'),
+            '#required' => TRUE,
             '#maxlength' => 60,
             '#attributes' => ['class' => ['form-control']],
         ];
@@ -717,7 +761,7 @@ class CandidatoRegistrationForm extends FormBase
         $form['section_academico']['row']['col_escolaridade']['field_escolaridade'] = [
             '#type' => 'select',
             '#title' => $this->t('Escolaridade'),
-            '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_escolaridade'),
+            '#options' => ['' => $this->t('- Selecione -')] + $this->getAdjustedOptions('field_escolaridade'),
             '#required' => TRUE,
             '#attributes' => ['class' => ['form-select']],
         ];
@@ -756,7 +800,7 @@ class CandidatoRegistrationForm extends FormBase
         $form['section_academico']['row']['col_tipo_curso']['field_tipo_curso'] = [
             '#type' => 'select',
             '#title' => $this->t('Tipo de curso'),
-            '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_tipo_curso'),
+            '#options' => ['' => $this->t('- Selecione -')] + $this->getAdjustedOptions('field_tipo_curso'),
             '#required' => TRUE,
             '#attributes' => ['class' => ['form-select']],
         ];
@@ -832,7 +876,7 @@ class CandidatoRegistrationForm extends FormBase
         $form['section_academico']['row']['col_disponibilidade']['field_disponibilidade_estagio'] = [
             '#type' => 'select',
             '#title' => $this->t('Disponibilidade para estágio'),
-            '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_disponibilidade_estagio'),
+            '#options' => ['' => $this->t('- Selecione -')] + $this->getAdjustedOptions('field_disponibilidade_estagio'),
             '#required' => TRUE,
             '#attributes' => ['class' => ['form-select']],
         ];
@@ -1337,6 +1381,12 @@ class CandidatoRegistrationForm extends FormBase
             $form_state->setErrorByName('field_cpf', $this->t('O CPF deve conter 11 dígitos.'));
         }
 
+        // RG — apenas dígitos, 6 a 12 caracteres.
+        $rg = preg_replace('/\D/', '', (string) $form_state->getValue('field_rg'));
+        if (mb_strlen($rg) < 6 || mb_strlen($rg) > 12) {
+            $form_state->setErrorByName('field_rg', $this->t('O RG deve conter entre 6 e 12 dígitos.'));
+        }
+
         $previsao_formatura = $this->normalizePrevisaoFormatura(
             (string) $form_state->getValue('field_previsao_formatura_month'),
             (string) $form_state->getValue('field_previsao_formatura_year')
@@ -1370,6 +1420,7 @@ class CandidatoRegistrationForm extends FormBase
         $custom_fields = [
             'field_nome_completo',
             'field_cpf',
+            'field_rg',
             'field_orgao_emissor',
             'field_data_nascimento',
             'field_sexo',

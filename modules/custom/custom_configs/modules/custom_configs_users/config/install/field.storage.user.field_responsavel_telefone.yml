@@ -1,0 +1,21 @@
+uuid: 2bf2ef82-3805-4fb4-a64b-08f6749f95fb
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - user
+id: user.field_responsavel_telefone
+field_name: field_responsavel_telefone
+entity_type: user
+type: string
+settings:
+  max_length: 30
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

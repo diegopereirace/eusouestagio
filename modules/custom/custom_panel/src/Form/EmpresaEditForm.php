@@ -312,6 +312,7 @@ class EmpresaEditForm extends FormBase
     $form['section_responsavel']['row']['col_responsavel_telefone']['field_responsavel_telefone'] = [
       '#type' => 'tel',
       '#title' => $this->t('Telefone'),
+      '#required' => TRUE,
       '#maxlength' => 15,
       '#default_value' => $this->getFieldValue($user, 'field_responsavel_telefone'),
       '#attributes' => [
@@ -327,6 +328,7 @@ class EmpresaEditForm extends FormBase
     $form['section_responsavel']['row']['col_responsavel_email']['field_responsavel_email'] = [
       '#type' => 'email',
       '#title' => $this->t('E-mail'),
+      '#required' => TRUE,
       '#maxlength' => 254,
       '#default_value' => $this->getFieldValue($user, 'field_responsavel_email'),
       '#attributes' => ['class' => ['form-control']],

@@ -345,6 +345,7 @@ class EmpresaRegistrationForm extends FormBase
         $form['section_responsavel']['row']['col_responsavel_telefone']['field_responsavel_telefone'] = [
             '#type' => 'tel',
             '#title' => $this->t('Telefone'),
+            '#required' => TRUE,
             '#maxlength' => 15,
             '#attributes' => [
                 'class' => ['form-control', 'mask-phone'],
@@ -359,6 +360,7 @@ class EmpresaRegistrationForm extends FormBase
         $form['section_responsavel']['row']['col_responsavel_email']['field_responsavel_email'] = [
             '#type' => 'email',
             '#title' => $this->t('E-mail'),
+            '#required' => TRUE,
             '#maxlength' => 254,
             '#attributes' => ['class' => ['form-control']],
         ];

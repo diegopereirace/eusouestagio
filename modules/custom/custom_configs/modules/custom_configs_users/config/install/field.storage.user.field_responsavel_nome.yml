@@ -1,0 +1,21 @@
+uuid: b5f2f153-5a85-4fd2-aa31-bf8eb5d798f5
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - user
+id: user.field_responsavel_nome
+field_name: field_responsavel_nome
+entity_type: user
+type: string
+settings:
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

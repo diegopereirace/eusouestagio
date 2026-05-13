@@ -1,0 +1,35 @@
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_candidatura_status
+field_name: field_candidatura_status
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: em_triagem
+      label: 'Em Triagem'
+    -
+      value: aprovado
+      label: 'Aprovado'
+    -
+      value: reprovado
+      label: 'Reprovado'
+    -
+      value: lista_espera
+      label: 'Lista de Espera'
+    -
+      value: entrevista_agendada
+      label: 'Entrevista Agendada'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: false
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

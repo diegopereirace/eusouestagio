@@ -1,0 +1,405 @@
+<?php
+
+use Drupal\Component\Utility\Html;
+use Drupal\node\NodeInterface;
+use Drupal\user\UserInterface;
+
+/**
+ * Implements hook_mail().
+ */
+function custom_notifications_mail(string $key, array &$message, array $params): void
+{
+  $site_name = (string) \Drupal::config('system.site')->get('name');
+
+  switch ($key) {
+    case 'nova_vaga_moderadores':
+      $message['subject'] = \Drupal::translation()->translate('@site - Nova vaga cadastrada por @empresa', [
+        '@site' => $site_name,
+        '@empresa' => $params['empresa_nome'],
+      ]);
+
+      $message['body'][] = \Drupal::translation()->translate('Ola, moderador(a)!');
+      $message['body'][] = \Drupal::translation()->translate(
+        'A empresa "@empresa" cadastrou uma nova vaga na plataforma.',
+        ['@empresa' => $params['empresa_nome']]
+      );
+      $message['body'][] = \Drupal::translation()->translate('Vaga: @vaga', ['@vaga' => $params['vaga_titulo']]);
+      $message['body'][] = \Drupal::translation()->translate('Email da empresa: @email', ['@email' => $params['empresa_mail']]);
+      $message['body'][] = \Drupal::translation()->translate('Acesse a vaga: @url', ['@url' => $params['vaga_url']]);
+      $message['body'][] = \Drupal::translation()->translate('Atenciosamente,') . "\n" . $site_name;
+      break;
+
+    case 'nova_empresa_moderadores':
+      $message['subject'] = \Drupal::translation()->translate('@site - Novo cadastro de empresa: @empresa', [
+        '@site' => $site_name,
+        '@empresa' => $params['empresa_nome'],
+      ]);
+
+      $message['body'][] = \Drupal::translation()->translate('Ola, moderador(a)!');
+      $message['body'][] = \Drupal::translation()->translate(
+        'Uma nova empresa foi registrada na plataforma: "@empresa".',
+        ['@empresa' => $params['empresa_nome']]
+      );
+      $message['body'][] = \Drupal::translation()->translate('Email: @email', ['@email' => $params['empresa_email']]);
+      $message['body'][] = \Drupal::translation()->translate('CNPJ: @cnpj', ['@cnpj' => $params['empresa_cnpj']]);
+      $message['body'][] = \Drupal::translation()->translate('Status: @status', ['@status' => $params['status']]);
+      $message['body'][] = \Drupal::translation()->translate('Atenciosamente,') . "\n" . $site_name;
+      break;
+
+    case 'novo_candidato_moderadores':
+      $message['subject'] = \Drupal::translation()->translate('@site - Novo cadastro de estudante: @candidato', [
+        '@site' => $site_name,
+        '@candidato' => $params['candidato_nome'],
+      ]);
+
+      $message['body'][] = \Drupal::translation()->translate('Ola, moderador(a)!');
+      $message['body'][] = \Drupal::translation()->translate(
+        'Um novo estudante foi registrado na plataforma: "@candidato".',
+        ['@candidato' => $params['candidato_nome']]
+      );
+      $message['body'][] = \Drupal::translation()->translate('Email: @email', ['@email' => $params['candidato_email']]);
+      $message['body'][] = \Drupal::translation()->translate('Status: @status', ['@status' => $params['status']]);
+      $message['body'][] = \Drupal::translation()->translate('Atenciosamente,') . "\n" . $site_name;
+      break;
+  }
+}
+
+/**
+ * Implements hook_user_insert().
+ */
+function custom_notifications_user_insert(UserInterface $user): void
+{
+  $logger = \Drupal::logger('custom_notifications');
+
+  // Notifica moderadores sobre novo cadastro de empresa.
+  if ($user->hasRole('empresa')) {
+    _custom_notifications_notificar_novo_usuario($user, 'nova_empresa_moderadores', 'empresa', $logger);
+  }
+
+  // Notifica moderadores sobre novo cadastro de candidato/estudante.
+  if ($user->hasRole('candidato')) {
+    _custom_notifications_notificar_novo_usuario($user, 'novo_candidato_moderadores', 'candidato', $logger);
+  }
+}
+
+/**
+ * Envia notificação aos moderadores sobre novo usuário cadastrado.
+ */
+function _custom_notifications_notificar_novo_usuario(UserInterface $user, string $mail_key, string $tipo, $logger): void
+{
+  $moderador_ids = \Drupal::entityQuery('user')
+    ->condition('status', 1)
+    ->condition('roles', 'moderador')
+    ->accessCheck(FALSE)
+    ->execute();
+
+  if (empty($moderador_ids)) {
+    $logger->warning('Notificacao de novo @tipo sem envio para uid @uid: nenhum usuario com role moderador ativo.', [
+      '@uid' => $user->id(),
+      '@tipo' => $tipo,
+    ]);
+    return;
+  }
+
+  $default_langcode = \Drupal::languageManager()->getDefaultLanguage()->getId();
+  $mail_manager = \Drupal::service('plugin.manager.mail');
+  $moderadores = \Drupal::entityTypeManager()->getStorage('user')->loadMultiple($moderador_ids);
+  $status_label = $user->isActive() ? 'Ativo' : 'Aguardando aprovação';
+
+  if ($tipo === 'empresa') {
+    $empresa_nome = $user->getDisplayName();
+    if ($user->hasField('field_nome_fantasia') && !$user->get('field_nome_fantasia')->isEmpty()) {
+      $empresa_nome = (string) $user->get('field_nome_fantasia')->value;
+    }
+
+    $cnpj = $user->hasField('field_cnpj') ? (string) $user->get('field_cnpj')->value : '—';
+
+    $params = [
+      'empresa_nome' => $empresa_nome,
+      'empresa_email' => (string) $user->getEmail(),
+      'empresa_cnpj' => $cnpj,
+      'status' => $status_label,
+    ];
+  } else {
+    $params = [
+      'candidato_nome' => $user->getDisplayName(),
+      'candidato_email' => (string) $user->getEmail(),
+      'status' => $status_label,
+    ];
+  }
+
+  foreach ($moderadores as $moderador) {
+    if (!$moderador instanceof UserInterface) {
+      continue;
+    }
+
+    $email = (string) $moderador->getEmail();
+    if ($email === '') {
+      $logger->warning('Notificacao de novo @tipo ignorou moderador uid @uid por falta de e-mail.', [
+        '@uid' => $moderador->id(),
+        '@tipo' => $tipo,
+      ]);
+      continue;
+    }
+
+    $result = $mail_manager->mail(
+      'custom_notifications',
+      $mail_key,
+      $email,
+      $default_langcode,
+      $params
+    );
+
+    if (!empty($result['result'])) {
+      $logger->notice('Notificacao de novo @tipo enviada para @email (uid @uid).', [
+        '@email' => $email,
+        '@uid' => $user->id(),
+        '@tipo' => $tipo,
+      ]);
+    } else {
+      $logger->error('Falha ao enviar notificacao de novo @tipo para @email (uid @uid).', [
+        '@email' => $email,
+        '@uid' => $user->id(),
+        '@tipo' => $tipo,
+      ]);
+    }
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function custom_notifications_node_insert(NodeInterface $node): void
+{
+  if ($node->bundle() !== 'vagas') {
+    return;
+  }
+
+  $logger = \Drupal::logger('custom_notifications');
+
+  if (!$node->hasField('field_empresa_u') || $node->get('field_empresa_u')->isEmpty()) {
+    $logger->warning('Notificacao de nova vaga ignorada para nid @nid: campo field_empresa_u vazio.', [
+      '@nid' => $node->id(),
+    ]);
+    return;
+  }
+
+  $empresa = $node->get('field_empresa_u')->entity;
+  if (!$empresa instanceof UserInterface || !$empresa->hasRole('empresa')) {
+    $logger->warning('Notificacao de nova vaga ignorada para nid @nid: empresa vinculada invalida.', [
+      '@nid' => $node->id(),
+    ]);
+    return;
+  }
+
+  $empresa_nome = $empresa->getDisplayName();
+  if ($empresa->hasField('field_nome_fantasia') && !$empresa->get('field_nome_fantasia')->isEmpty()) {
+    $empresa_nome = (string) $empresa->get('field_nome_fantasia')->value;
+  }
+
+  $empresa_mail = (string) $empresa->getEmail();
+  $vaga_titulo = (string) $node->label();
+  $vaga_url = $node->toUrl('canonical', ['absolute' => TRUE])->toString();
+
+  $moderador_ids = \Drupal::entityQuery('user')
+    ->condition('status', 1)
+    ->condition('roles', 'moderador')
+    ->accessCheck(FALSE)
+    ->execute();
+
+  if (empty($moderador_ids)) {
+    $logger->warning('Notificacao de nova vaga sem envio para nid @nid: nenhum usuario com role moderador ativo.', [
+      '@nid' => $node->id(),
+    ]);
+    return;
+  }
+
+  $default_langcode = \Drupal::languageManager()->getDefaultLanguage()->getId();
+  $mail_manager = \Drupal::service('plugin.manager.mail');
+  $moderadores = \Drupal::entityTypeManager()->getStorage('user')->loadMultiple($moderador_ids);
+
+  $params = [
+    'empresa_nome' => $empresa_nome,
+    'empresa_mail' => $empresa_mail,
+    'vaga_titulo' => $vaga_titulo,
+    'vaga_url' => $vaga_url,
+  ];
+
+  foreach ($moderadores as $moderador) {
+    if (!$moderador instanceof UserInterface) {
+      continue;
+    }
+
+    $email = (string) $moderador->getEmail();
+    if ($email === '') {
+      $logger->warning('Notificacao de nova vaga ignorou moderador uid @uid por falta de e-mail.', [
+        '@uid' => $moderador->id(),
+      ]);
+      continue;
+    }
+
+    $result = $mail_manager->mail(
+      'custom_notifications',
+      'nova_vaga_moderadores',
+      $email,
+      $default_langcode,
+      $params
+    );
+
+    if (!empty($result['result'])) {
+      $logger->notice('Notificacao de nova vaga enviada para @email (nid @nid).', [
+        '@email' => $email,
+        '@nid' => $node->id(),
+      ]);
+    } else {
+      $logger->error('Falha ao enviar notificacao de nova vaga para @email (nid @nid).', [
+        '@email' => $email,
+        '@nid' => $node->id(),
+      ]);
+    }
+  }
+}
+
+/**
+ * Implements hook_mail_alter().
+ *
+ * Substitui o body do e-mail de nova vaga por HTML estilizado inline.
+ */
+function custom_notifications_mail_alter(array &$message): void
+{
+  if (($message['module'] ?? '') !== 'custom_notifications') {
+    return;
+  }
+
+  if (($message['key'] ?? '') !== 'nova_vaga_moderadores') {
+    return;
+  }
+
+  $params = $message['params'] ?? [];
+
+  $html = _custom_notifications_build_nova_vaga_html(
+    (string) ($params['empresa_nome'] ?? ''),
+    (string) ($params['empresa_mail'] ?? ''),
+    (string) ($params['vaga_titulo'] ?? ''),
+    (string) ($params['vaga_url'] ?? ''),
+    (string) \Drupal::config('system.site')->get('name')
+  );
+
+  $message['headers']['MIME-Version'] = '1.0';
+  $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed; delsp=yes';
+  $message['headers']['Content-Transfer-Encoding'] = '8Bit';
+  $message['body'] = [$html];
+}
+
+/**
+ * Monta o HTML do e-mail de nova vaga cadastrada por empresa.
+ *
+ * Todos os valores dinâmicos são escapados para evitar XSS no corpo do e-mail.
+ */
+function _custom_notifications_build_nova_vaga_html(
+  string $empresa_nome,
+  string $empresa_mail,
+  string $vaga_titulo,
+  string $vaga_url,
+  string $site_name
+): string {
+  $site_safe    = Html::escape($site_name !== '' ? $site_name : 'Eu Sou Estágio');
+  $empresa_safe = Html::escape($empresa_nome !== '' ? $empresa_nome : 'Empresa');
+  $mail_safe    = Html::escape($empresa_mail);
+  $vaga_safe    = Html::escape($vaga_titulo !== '' ? $vaga_titulo : 'Nova Vaga');
+  $url_safe     = Html::escape($vaga_url);
+
+  // ── Card de dados da vaga ─────────────────────────────────────────────────
+  $card_rows = '<tr><td style="padding:0 0 8px 0;">'
+    . '<span style="font-size:11px;font-weight:700;text-transform:uppercase;'
+    . 'letter-spacing:0.06em;color:#7a8696;">T&iacute;tulo da Vaga</span><br>'
+    . '<span style="font-size:16px;font-weight:700;color:#1d2430;">' . $vaga_safe . '</span>'
+    . '</td></tr>'
+    . '<tr><td style="padding:8px 0 0 0;border-top:1px solid #e8edf3;">'
+    . '<span style="font-size:11px;font-weight:700;text-transform:uppercase;'
+    . 'letter-spacing:0.06em;color:#7a8696;">Empresa</span><br>'
+    . '<span style="font-size:14px;color:#1d2430;">' . $empresa_safe . '</span>'
+    . '</td></tr>';
+
+  if ($mail_safe !== '') {
+    $card_rows .= '<tr><td style="padding:8px 0 0 0;border-top:1px solid #e8edf3;">'
+      . '<span style="font-size:11px;font-weight:700;text-transform:uppercase;'
+      . 'letter-spacing:0.06em;color:#7a8696;">E-mail da Empresa</span><br>'
+      . '<span style="font-size:14px;color:#1d2430;">'
+      . '<a href="mailto:' . $mail_safe . '" style="color:#0b4a74;text-decoration:none;">'
+      . $mail_safe . '</a>'
+      . '</span>'
+      . '</td></tr>';
+  }
+
+  // ── Estrutura completa do e-mail ──────────────────────────────────────────
+  return '<!doctype html>'
+    // Cabeça
+    . '<html lang="pt-br"><head>'
+    . '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">'
+    . '<meta name="viewport" content="width=device-width,initial-scale=1">'
+    . '<title>' . $site_safe . ' — Nova Vaga</title>'
+    . '</head>'
+    // Corpo
+    . '<body style="margin:0;padding:0;background:#f0f4f8;'
+    . 'font-family:Arial,Helvetica,sans-serif;color:#1d2430;-webkit-text-size-adjust:100%;">'
+    . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"'
+    . ' style="background:#f0f4f8;">'
+    . '<tr><td align="center" style="padding:28px 16px;">'
+
+    // ── Card externo ──
+    . '<table role="presentation" width="620" cellpadding="0" cellspacing="0"'
+    . ' style="max-width:620px;width:100%;background:#ffffff;border-radius:8px;'
+    . 'overflow:hidden;border-top:6px solid #0b4a74;'
+    . 'box-shadow:0 2px 8px rgba(0,0,0,0.08);">'
+
+    // Cabeçalho do e-mail
+    . '<tr><td style="padding:26px 32px 4px 32px;">'
+    . '<span style="font-size:22px;font-weight:700;color:#0b4a74;'
+    . 'letter-spacing:-0.01em;">' . $site_safe . '</span>'
+    . '</td></tr>'
+
+    // Título do e-mail
+    . '<tr><td style="padding:6px 32px 6px 32px;">'
+    . '<span style="font-size:18px;font-weight:700;color:#1d2430;">Nova vaga cadastrada</span>'
+    . '</td></tr>'
+
+    // Saudação
+    . '<tr><td style="padding:4px 32px 18px 32px;font-size:14px;'
+    . 'line-height:1.7;color:#2b3445;">'
+    . 'Ol&aacute;, moderador(a)! Uma nova vaga foi cadastrada na plataforma e aguarda revis&atilde;o.'
+    . '</td></tr>'
+
+    // Separador
+    . '<tr><td style="padding:0 32px;">'
+    . '<div style="border-top:1px solid #e8edf3;"></div>'
+    . '</td></tr>'
+
+    // Card de resumo da vaga
+    . '<tr><td style="padding:20px 32px;">'
+    . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"'
+    . ' style="background:#f7f9fc;border-radius:6px;border:1px solid #dce3ec;">'
+    . '<tr><td style="padding:18px 20px;">'
+    . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0">'
+    . $card_rows
+    . '</table>'
+    . '</td></tr>'
+    . '</table>'
+    . '</td></tr>'
+
+    // Separador rodapé
+    . '<tr><td style="padding:0 32px;">'
+    . '<div style="border-top:1px solid #e8edf3;"></div>'
+    . '</td></tr>'
+
+    // Rodapé
+    . '<tr><td style="padding:18px 32px 26px 32px;font-size:12px;'
+    . 'line-height:1.6;color:#8a939f;">'
+    . 'Este e-mail foi enviado automaticamente pelo sistema ' . $site_safe . '.'
+    . '</td></tr>'
+
+    . '</table>' // fim card externo
+    . '</td></tr>'
+    . '</table>' // fim tabela body
+    . '</body></html>';
+}

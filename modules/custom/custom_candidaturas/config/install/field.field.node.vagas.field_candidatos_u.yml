@@ -1,0 +1,31 @@
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_candidatos_u
+    - node.type.vagas
+  module:
+    - node
+    - user
+id: node.vagas.field_candidatos_u
+field_name: field_candidatos_u
+entity_type: node
+bundle: vagas
+label: 'Candidatos'
+description: 'Usuários (candidatos) que se candidataram a esta vaga.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:user'
+  handler_settings:
+    include_anonymous: false
+    filter:
+      type: role
+      role:
+        candidato: candidato
+    sort:
+      field: _none
+    auto_create: false
+field_type: entity_reference

@@ -1,0 +1,97 @@
+﻿{#
+/**
+ * @file
+ * Default theme implementation for status messages.
+ *
+ * Available variables:
+ * - message_list: List of messages to be displayed, grouped by type.
+ * - status_headings: List of all status types.
+ * - display: (optional) May have a value of 'status' or 'error'.
+ *
+ * @see template_preprocess_status_messages()
+ * @ingroup themeable
+ */
+#}
+
+{% if message_list %}
+  {% set modal_type = message_list.error is defined ? 'error' : (message_list.warning is defined ? 'warning' : 'status') %}
+  {% set modal_title = modal_type == 'error' ? 'Erro'|t : (modal_type == 'warning' ? 'Atenção'|t : 'Sucesso'|t) %}
+  <div class="modal fade app-feedback-modal" id="modal-system-messages" tabindex="-1" aria-labelledby="system-messagesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content app-feedback-modal__content app-feedback-modal__content--{{ modal_type }}">
+        <div class="modal-header app-feedback-modal__header">
+          <div class="app-feedback-modal__eyebrow">{{ 'Notificação'|t }}</div>
+          <h5 class="modal-title app-feedback-modal__title" id="system-messagesModalLabel">{{ modal_title }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
+        </div>
+        <div class="modal-body app-feedback-modal__body text-center">
+          {% for type, messages in message_list %}
+            {% for message in messages %}
+              <div class="app-feedback-modal__message{% if not loop.last %} mb-3{% endif %}">
+                <h6 class="app-feedback-modal__message-text">{{ message }}</h6>
+              </div>
+              {% if not loop.last %}<hr class="app-feedback-modal__divider">{% endif %}
+            {% endfor %}
+          {% endfor %}
+        </div>
+        <div class="modal-footer app-feedback-modal__footer d-block text-center">
+          <button type="button" class="btn btn-primary app-feedback-modal__button" data-bs-dismiss="modal">{{ 'Close'|trans }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+  (function () {
+    function cleanupModalState() {
+      document.querySelectorAll('.modal-backdrop').forEach(function (backdrop) {
+        backdrop.remove();
+      });
+
+      document.body.classList.remove('modal-open');
+      document.body.style.removeProperty('overflow');
+      document.body.style.removeProperty('padding-right');
+    }
+
+    function openMsg() {
+      var el = document.getElementById('modal-system-messages');
+      if (!el || typeof bootstrap === 'undefined') {
+        cleanupModalState();
+        return;
+      }
+
+      cleanupModalState();
+
+      var modal = bootstrap.Modal.getOrCreateInstance(el, {
+        backdrop: true,
+        focus: true,
+        keyboard: true
+      });
+
+      el.addEventListener('hidden.bs.modal', function () {
+        cleanupModalState();
+
+        var invalidField = document.querySelector('.is-invalid, [aria-invalid="true"]');
+        if (invalidField && typeof invalidField.focus === 'function') {
+          invalidField.focus();
+        }
+      }, { once: true });
+
+      el.querySelectorAll('[data-bs-dismiss="modal"]').forEach(function (button) {
+        button.addEventListener('click', function () {
+          modal.hide();
+        }, { once: true });
+      });
+
+      if (typeof bootstrap !== 'undefined') {
+        modal.show();
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', openMsg);
+    } else {
+      openMsg();
+    }
+  })();
+  </script>
+{% endif %}

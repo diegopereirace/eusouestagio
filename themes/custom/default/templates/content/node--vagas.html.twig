@@ -1,0 +1,272 @@
+{#
+/**
+ * @file
+ * Bootstrap Barrio's theme implementation to display a node.
+ *
+ * Available variables:
+ * - node: The node entity with limited access to object properties and methods.
+    Only "getter" methods (method names starting with "get", "has", or "is")
+    and a few common methods such as "id" and "label" are available. Calling
+    other methods (such as node.delete) will result in an exception.
+ * - label: The title of the node.
+ * - content: All node items. Use {{ content }} to print them all,
+ *   or print a subset such as {{ content.field_example }}. Use
+ *   {{ content|without('field_example') }} to temporarily suppress the printing
+ *   of a given child element.
+ * - author_picture: The node author user entity, rendered using the "compact"
+ *   view mode.
+ * - metadata: Metadata for this node.
+ * - date: Themed creation date field.
+ * - author_name: Themed author name field.
+ * - url: Direct URL of the current node.
+ * - display_submitted: Whether submission information should be displayed.
+ * - attributes: HTML attributes for the containing element.
+ *   The attributes.class element may contain one or more of the following
+ *   classes:
+ *   - node: The current template type (also known as a "theming hook").
+ *   - node--type-[type]: The current node type. For example, if the node is an
+ *     "Article" it would result in "node--type-article". Note that the machine
+ *     name will often be in a short form of the human readable label.
+ *   - node--view-mode-[view_mode]: The View Mode of the node; for example, a
+ *     teaser would result in: "node--view-mode-teaser", and
+ *     full: "node--view-mode-full".
+ *   The following are controlled through the node publishing options.
+ *   - node--promoted: Appears on nodes promoted to the front page.
+ *   - node--sticky: Appears on nodes ordered above other non-sticky nodes in
+ *     teaser listings.
+ *   - node--unpublished: Appears on unpublished nodes visible only to site
+ *     admins.
+ * - title_attributes: Same as attributes, except applied to the main title
+ *   tag that appears in the template.
+ * - content_attributes: Same as attributes, except applied to the main
+ *   content tag that appears in the template.
+ * - author_attributes: Same as attributes, except applied to the author of
+ *   the node tag that appears in the template.
+ * - title_prefix: Additional output populated by modules, intended to be
+ *   displayed in front of the main title tag that appears in the template.
+ * - title_suffix: Additional output populated by modules, intended to be
+ *   displayed after the main title tag that appears in the template.
+ * - view_mode: View mode; for example, "teaser" or "full".
+ * - teaser: Flag for the teaser state. Will be true if view_mode is 'teaser'.
+ * - page: Flag for the full page state. Will be true if view_mode is 'full'.
+ * - readmore: Flag for more state. Will be true if the teaser content of the
+ *   node cannot hold the main body content.
+ * - logged_in: Flag for authenticated user status. Will be true when the
+ *   current user is a logged-in member.
+ * - is_admin: Flag for admin user status. Will be true when the current user
+ *   is an administrator.
+ *
+ * @see template_preprocess_node()
+ */
+#}
+{{ attach_library('bootstrap_barrio/node') }}
+{{ attach_library('default/script-painel') }}
+
+{%
+  set classes = [
+    'node',
+    'node--type-' ~ node.bundle|clean_class,
+    node.isPromoted() ? 'node--promoted',
+    node.isSticky() ? 'node--sticky',
+    not node.isPublished() ? 'node--unpublished',
+    view_mode ? 'node--view-mode-' ~ view_mode|clean_class,
+    'clearfix',
+  ]
+%}
+<article{{ attributes.addClass(classes) }}>
+  <header class="vaga-header">
+
+    <h1{{ title_attributes.addClass('vaga-titulo', 'pb-2') }}>{{ label }}</h1>
+
+    {# Nome Fantasia da empresa #}
+    {% if node.field_empresa_u.entity and node.field_empresa_u.entity.field_nome_fantasia.value %}
+      <div class="vaga-empresa"><strong>Empresa:</strong> {{ node.field_empresa_u.entity.field_nome_fantasia.value }}</div>
+    {% else %}
+      <div class="vaga-empresa"><strong>Empresa:</strong> Anônima</div>
+    {% endif %}
+
+    {# Linha de metadados: regime — localização — salário — data #}
+    <div class="vaga-meta mt-4">
+
+      {% if node.field_regime_t is not empty %}
+        {% for item in node.field_regime_t %}
+          {% if item.entity %}
+            <span class="vaga-badge vaga-badge--regime">{{ item.entity.label }}</span>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+
+      {% set cidade = node.field_cidade.value %}
+      {% set estado = node.field_estados.value %}
+      {% if cidade or estado %}
+        <span class="vaga-meta-item">
+          <i class="fa-solid fa-location-dot"></i>
+          {% if cidade and estado %}{{ cidade }}, {{ estado }}
+          {% elseif cidade %}{{ cidade }}
+          {% else %}{{ estado }}
+          {% endif %}
+        </span>
+      {% endif %}
+
+      {% if node.field_text_simple.value %}
+        <span class="vaga-meta-item">
+          <i class="fa-solid fa-dollar-sign"></i>
+          {{ node.field_text_simple.value }}
+        </span>
+      {% endif %}
+
+    </div>
+    <div class="vaga-numero mt-3 text-muted"><strong>{{ 'Número da Vaga:'|t }}</strong> {{ node.id() }}</div>
+  </header>
+
+  <div{{ content_attributes.addClass('node__content', 'clearfix') }}>
+    <div class="vaga-body row">
+
+      {# Coluna principal #}
+      <div class="col-12 col-lg-8">
+        {% if node.field_text_long_formatted.value %}
+          <section class="vaga-section">
+            <h2 class="vaga-section-title">{{ 'Sobre a Vaga'|t }}</h2>
+            <div class="vaga-section-body">
+              {{ node.field_text_long_formatted.value|raw }}
+            </div>
+          </section>
+        {% endif %}
+
+        {% if node.field_text_simple_multiple is not empty %}
+          <section class="vaga-section">
+            <h2 class="vaga-section-title">{{ 'Requisitos'|t }}</h2>
+            <ul class="vaga-lista-requisitos">
+              {% for item in node.field_text_simple_multiple %}
+                {% if item.value %}
+                  <li>{{ item.value }}</li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </section>
+        {% endif %}
+
+        {% if node.field_text_simple_multiple_2 is not empty %}
+          <section class="vaga-section">
+            <h2 class="vaga-section-title">{{ 'Benefícios'|t }}</h2>
+            <ul class="vaga-lista-beneficios">
+              {% for item in node.field_text_simple_multiple_2 %}
+                {% if item.value %}
+                  <li>{{ item.value }}</li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </section>
+        {% endif %}
+
+        {% if content.field_auxilio_transporte is defined %}
+          {% set auxilio_transporte = content.field_auxilio_transporte|render|striptags|trim %}
+          {% if auxilio_transporte %}
+            <section class="vaga-section">
+              <div class="vaga-section-body">
+                <strong>{{ 'Auxílio Transporte:'|t }}</strong> {{ auxilio_transporte }}
+              </div>
+            </section>
+          {% endif %}
+        {% endif %}
+
+        {% set sobre_empresa = node.field_empresa_u.entity.field_sobre_empresa.value ?? '' %}
+        {% if sobre_empresa %}
+          <section class="vaga-section">
+            <h2 class="vaga-section-title">{{ 'Sobre a Empresa'|t }}</h2>
+            <div class="vaga-section-body">{{ sobre_empresa }}</div>
+          </section>
+        {% endif %}
+
+        {% if node.field_horarios is defined and node.field_horarios is not empty %}
+          <section class="vaga-section">
+            <h2 class="vaga-section-title">{{ 'Horários'|t }}</h2>
+            <div class="vaga-section-body">
+              {% for item in node.field_horarios %}
+                {% if item.value %}
+                  <div>{{ item.value|capitalize }}</div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </section>
+        {% endif %}
+
+        {% set cursos_items = node.field_cursos_t is defined and node.field_cursos_t is not empty
+          ? node.field_cursos_t
+          : (node.field_tecnologias_t is defined and node.field_tecnologias_t is not empty ? node.field_tecnologias_t : []) %}
+        {% if cursos_items is not empty %}
+          <section class="vaga-section">
+            <h2 class="vaga-section-title">{{ 'Cursos'|t }}</h2>
+            <div class="vaga-tag-list">
+              {% for item in cursos_items %}
+                {% if item.entity %}
+                  <span class="vaga-tag-pill">{{ item.entity.label }}</span>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </section>
+        {% endif %}
+      </div>
+
+      {# Sidebar #}
+      <div class="col-12 col-lg-4">
+        <aside class="vaga-sidebar">
+
+          {% if logged_in and user.hasRole('candidato') %}
+            {% if vaga_candidatada %}
+              <button type="button" class="ui-btn ui-btn--primary w-100 mb-3" disabled>
+                {{ 'Candidatura Enviada'|t }}
+              </button>
+            {% else %}
+              <button type="button"
+                class="ui-btn ui-btn--primary w-100 mb-3 js-candidatar-vaga"
+                data-node-id="{{ node.id }}">
+                {{ 'Candidatar-se'|t }}
+              </button>
+            {% endif %}
+
+            <button type="button" class="ui-btn ui-btn--outline w-100 mb-4 js-salvar-vaga{{ vaga_salva ? ' ui-btn--saved' : '' }}" data-node-id="{{ node.id }}">
+              {{ vaga_salva ? 'Remover dos Salvos'|t : 'Salvar Vaga'|t }}
+            </button>
+          {% elseif not logged_in %}
+            <a href="/user/login?destination={{ url('entity.node.canonical', {'node': node.id}) }}" class="ui-btn ui-btn--primary w-100 mb-3">
+              {{ 'Faça login para se candidatar'|t }}
+            </a>
+            <a href="/cadastro/candidato" class="ui-btn ui-btn--outline w-100 mb-4">
+              {{ 'Criar conta de candidato'|t }}
+            </a>
+          {% endif %}
+
+          <div class="vaga-compartilhar">
+            <p class="vaga-compartilhar-label">{{ 'Compartilhar'|t }}</p>
+            <div class="vaga-compartilhar-btns">
+              <a href="#"
+                 onclick="event.preventDefault(); window.open('https://wa.me/?text=' + encodeURIComponent(window.location.href), '_blank', 'noopener,noreferrer');"
+                 class="vaga-share-btn"
+                 title="{{ 'Compartilhar no WhatsApp'|t }}"
+                 aria-label="{{ 'Compartilhar no WhatsApp'|t }}">
+                <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+              </a>
+              <a href="#"
+                 onclick="event.preventDefault(); window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href), '_blank', 'noopener,noreferrer');"
+                 class="vaga-share-btn"
+                 title="{{ 'Compartilhar no Facebook'|t }}"
+                 aria-label="{{ 'Compartilhar no Facebook'|t }}">
+                <i class="fa-brands fa-facebook-f" aria-hidden="true"></i>
+              </a>
+              <a href="#"
+                 onclick="event.preventDefault(); window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(window.location.href), '_blank', 'noopener,noreferrer');"
+                 class="vaga-share-btn"
+                 title="{{ 'Compartilhar no LinkedIn'|t }}"
+                 aria-label="{{ 'Compartilhar no LinkedIn'|t }}">
+                <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
+              </a>
+            </div>
+          </div>
+
+        </aside>
+      </div>
+
+    </div>
+  </div>
+</article>

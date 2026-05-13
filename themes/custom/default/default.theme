@@ -1,0 +1,648 @@
+<?php
+
+/**
+ * @file
+ * Functions to support theming in the SASS Starterkit subtheme.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Markup;
+use Drupal\node\NodeInterface;
+use Drupal\user\UserInterface;
+use Drupal\views\Plugin\views\query\QueryPluginBase;
+use Drupal\views\Plugin\views\query\Sql;
+use Drupal\views\ResultRow;
+use Drupal\views\ViewExecutable;
+
+/**
+ * Implements hook_form_system_theme_settings_alter() for settings form.
+ *
+ * Replace Barrio setting options with subtheme ones.
+ *
+ * Example on how to alter theme settings form
+ */
+function default_form_system_theme_settings_alter(&$form, FormStateInterface $form_state)
+{
+  $form['components']['navbar']['bootstrap_barrio_navbar_top_background']['#options'] = [
+    'bg-primary' => t('Primary'),
+    'bg-secondary' => t('Secondary'),
+    'bg-light' => t('Light'),
+    'bg-dark' => t('Dark'),
+    'bg-white' => t('White'),
+    'bg-transparent' => t('Transparent'),
+  ];
+  $form['components']['navbar']['bootstrap_barrio_navbar_background']['#options'] = [
+    'bg-primary' => t('Primary'),
+    'bg-secondary' => t('Secondary'),
+    'bg-light' => t('Light'),
+    'bg-dark' => t('Dark'),
+    'bg-white' => t('White'),
+    'bg-transparent' => t('Transparent'),
+  ];
+}
+
+function default_preprocess(&$variables, $hook)
+{
+  $variables['logopath'] = \Drupal::service('file_url_generator')->transformRelative(\Drupal::service('file_url_generator')->generateAbsoluteString(theme_get_setting('logo.url')));
+  $variables['path_to_theme'] = \Drupal::theme()->getActiveTheme()->getPath();
+}
+
+/**
+ * Implements hook_preprocess_node() for vagas nodes.
+ *
+ * Verifica se a vaga já está salva pelo estudante logado.
+ */
+function default_preprocess_node__vagas(&$variables)
+{
+  $user = \Drupal::currentUser();
+  $variables['vaga_salva'] = FALSE;
+  $variables['vaga_candidatada'] = FALSE;
+
+  if ($user->isAuthenticated() && in_array('candidato', $user->getRoles())) {
+    $node = $variables['node'];
+    $nid = (int) $node->id();
+    $uid = (int) $user->id();
+
+    // Verifica se a vaga já foi salva.
+    $database = \Drupal::database();
+    if ($database->schema()->tableExists('vagas_salvas')) {
+      $exists_salva = $database->select('vagas_salvas', 'vs')
+        ->fields('vs', ['id'])
+        ->condition('uid', $uid)
+        ->condition('nid', $nid)
+        ->execute()
+        ->fetchField();
+      $variables['vaga_salva'] = !empty($exists_salva);
+    }
+
+    // Verifica se o usuário já se candidatou a esta vaga.
+    $storage = \Drupal::entityTypeManager()->getStorage('node');
+    $candidacy_query = $storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('type', 'candidatura')
+      ->condition('field_candidatura_candidato', $uid)
+      ->condition('field_candidatura_vaga', $nid)
+      ->range(0, 1);
+    $candidacy_nids = $candidacy_query->execute();
+    $variables['vaga_candidatada'] = !empty($candidacy_nids);
+  }
+}
+
+/**
+ * Implements hook_preprocess_block() for the top block.
+ *
+ * Expõe as variáveis de role do usuário logado para o template do topo.
+ */
+function default_preprocess_block__default_top(&$variables)
+{
+  $user = \Drupal::currentUser();
+  $variables['is_candidato'] = $user->isAuthenticated() && $user->hasPermission('access content') && in_array('candidato', $user->getRoles());
+  $variables['is_empresa'] = $user->isAuthenticated() && in_array('empresa', $user->getRoles());
+  $variables['is_moderador'] = $user->isAuthenticated() && in_array('moderador', $user->getRoles());
+  $variables['top_user_panel_url'] = '';
+  if ($variables['is_candidato']) {
+    $variables['top_user_panel_url'] = '/painel/estudante/perfil';
+  } elseif ($variables['is_empresa']) {
+    $variables['top_user_panel_url'] = '/painel/empresa/perfil';
+  } elseif ($variables['is_moderador']) {
+    $variables['top_user_panel_url'] = '/painel/moderador/candidaturas';
+  }
+
+  $variables['top_user_avatar_url'] = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='32' fill='%23e8edf3'/%3E%3Ccircle cx='32' cy='24' r='13' fill='%23839ab1'/%3E%3Cpath d='M12 56c2-12 11-19 20-19s18 7 20 19' fill='%23839ab1'/%3E%3C/svg%3E";
+
+  $variables['top_user_name'] = '';
+  $variables['top_user_mail'] = '';
+  if ($user->isAuthenticated()) {
+    $account = \Drupal::entityTypeManager()->getStorage('user')->load($user->id());
+    if ($account instanceof UserInterface) {
+      $top_user_name = trim((string) $account->getDisplayName());
+      if ($account->hasField('field_nome_completo') && !$account->get('field_nome_completo')->isEmpty()) {
+        $top_user_name = trim((string) $account->get('field_nome_completo')->value);
+      } elseif ($account->hasField('field_nome_fantasia') && !$account->get('field_nome_fantasia')->isEmpty()) {
+        $top_user_name = trim((string) $account->get('field_nome_fantasia')->value);
+      }
+
+      $variables['top_user_name'] = $top_user_name;
+      $variables['top_user_mail'] = (string) $account->getEmail();
+
+      if ($account->hasField('user_picture') && !$account->get('user_picture')->isEmpty() && $account->get('user_picture')->entity) {
+        $avatar_uri = $account->get('user_picture')->entity->getFileUri();
+        if (!empty($avatar_uri)) {
+          $file_url_generator = \Drupal::service('file_url_generator');
+          $avatar_url = $file_url_generator->generateAbsoluteString($avatar_uri);
+          $variables['top_user_avatar_url'] = $file_url_generator->transformRelative($avatar_url);
+        }
+      }
+    }
+  }
+
+  // Evita servir dados de usuário em cache compartilhado.
+  $variables['elements']['#cache']['contexts'][] = 'user';
+  $variables['elements']['#cache']['contexts'] = array_values(array_unique($variables['elements']['#cache']['contexts']));
+
+  $current_path = \Drupal::service('path.current')->getPath();
+  $path_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
+  $variables['is_painel'] = ($current_path === '/painel' || str_starts_with($current_path, '/painel/') || $path_alias === '/painel' || str_starts_with($path_alias, '/painel/'));
+}
+
+/**
+ * Implements hook_preprocess_block() for the vagasvoltar block.
+ */
+function default_preprocess_block__default_vagasvoltar(&$variables)
+{
+  $current_path = \Drupal::service('path.current')->getPath();
+  $variables['is_node_add'] = str_starts_with($current_path, '/node/add/');
+}
+
+/**
+ * Implements hook_preprocess_block() for the painel page header block.
+ *
+ * Exposes the current page title so the template can render it.
+ * Individual pages can override the title by implementing
+ * hook_preprocess_block__default_painelpageheader() in a module,
+ * or by setting the route's _title or _title_callback.
+ */
+function default_preprocess_block__default_painelpageheader(&$variables)
+{
+  $request = \Drupal::request();
+  $route_match = \Drupal::routeMatch();
+  $title = \Drupal::service('title_resolver')->getTitle($request, $route_match->getRouteObject());
+  if (is_array($title)) {
+    $variables['painel_page_title'] = \Drupal\Core\Render\Markup::create(\Drupal::service('renderer')->renderInIsolation($title));
+  } else {
+    $variables['painel_page_title'] = $title;
+  }
+}
+
+/**
+ * Implements hook_page_attachments_alter().
+ *
+ * Injects breakpoint media queries from the active theme into drupalSettings
+ * so block_breakpoint JS can evaluate data-breakpoint attributes.
+ */
+function default_page_attachments_alter(array &$attachments)
+{
+  $active_theme = \Drupal::theme()->getActiveTheme()->getName();
+
+  /** @var \Drupal\breakpoint\BreakpointManagerInterface $manager */
+  $manager = \Drupal::service('breakpoint.manager');
+  $breakpoints = $manager->getBreakpointsByGroup($active_theme);
+
+  $map = [];
+  foreach ($breakpoints as $id => $breakpoint) {
+    $map[$id] = $breakpoint->getMediaQuery();
+  }
+
+  if (!empty($map)) {
+    $attachments['#attached']['drupalSettings']['blockBreakpoint']['breakpoints'] = $map;
+  }
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter() for block templates.
+ */
+function default_theme_suggestions_block_alter(array &$suggestions, array $variables)
+{
+  if (!isset($variables['elements']['content']['#block_content'])) {
+    return;
+  }
+
+  $block_content = $variables['elements']['content']['#block_content'];
+  if ($block_content->bundle() === 'banner') {
+    array_splice($suggestions, 1, 0, 'block__bundle__banner');
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for search_block_form.
+ */
+function default_form_search_block_form_alter(array &$form, FormStateInterface $form_state)
+{
+  if (isset($form['keys'])) {
+    $form['keys']['#attributes']['placeholder'] = 'Buscar Vagas';
+    $form['keys']['#attributes']['aria-label'] = 'Buscar Vagas';
+  }
+}
+
+/**
+ * Implements hook_form_views_exposed_form_alter().
+ */
+function default_form_views_exposed_form_alter(array &$form, FormStateInterface $form_state)
+{
+  $view = $form_state->get('view');
+  if (!$view || $view->id() !== 'vagas') {
+    return;
+  }
+
+  // Garante que a busca de vagas sempre abra a listagem principal.
+  $form['#method'] = 'get';
+  $form['#action'] = \Drupal\Core\Url::fromRoute('view.vagas.page_1')->toString();
+  $form['#attributes']['data-banner-search-redirect'] = 'true';
+
+  foreach ($form as $key => &$element) {
+    if (!is_array($element)) {
+      continue;
+    }
+
+    $title = (string) ($element['#title'] ?? '');
+    if ($key === 'nid' || stripos($title, 'Número da Vaga') !== FALSE || stripos($title, 'Numero da Vaga') !== FALSE) {
+      $element['#attributes']['placeholder'] = 'Ex.: 123';
+      $element['#attributes']['aria-label'] = 'Número da Vaga';
+      $element['#size'] = 12;
+      $element['#wrapper_attributes']['class'][] = 'banner-search-field--serial';
+      $element['#attributes']['class'][] = 'input-serial-curto';
+    }
+
+    if ($key === 'cursos' || stripos($title, 'Cursos') !== FALSE) {
+      $element['#attributes']['placeholder'] = 'Ex.: Marketing, React ou Power BI';
+      $element['#attributes']['aria-label'] = 'Pesquisar por curso';
+    }
+  }
+}
+
+/**
+ * Retorna os IDs dos termos de curso associados à vaga atual.
+ */
+function default_get_current_vaga_course_term_ids(?NodeInterface $node): array
+{
+  if (!$node instanceof NodeInterface || $node->bundle() !== 'vagas') {
+    return [];
+  }
+
+  if (!$node->hasField('field_cursos_t') || $node->get('field_cursos_t')->isEmpty()) {
+    return [];
+  }
+
+  $term_ids = [];
+  foreach ($node->get('field_cursos_t') as $item) {
+    $term_id = (int) ($item->target_id ?? 0);
+    if ($term_id > 0) {
+      $term_ids[$term_id] = $term_id;
+    }
+  }
+
+  return array_values($term_ids);
+}
+
+/**
+ * Implements hook_views_pre_view().
+ *
+ * Desativa o AJAX da listagem principal de vagas para permitir
+ * navegação completa via URL /para-estudantes e prepara o bloco de
+ * vagas similares com os cursos da vaga atual.
+ */
+function default_views_pre_view(ViewExecutable $view, $display_id, array &$args): void
+{
+  if ($view->id() === 'vagas' && $display_id === 'page_1' && $view->display_handler) {
+    $view->display_handler->setOption('use_ajax', FALSE);
+  }
+
+  if ($view->id() !== 'vagas' || $display_id !== 'block_2') {
+    return;
+  }
+
+  $route_node = \Drupal::routeMatch()->getParameter('node');
+  if (!$route_node instanceof NodeInterface) {
+    return;
+  }
+
+  $term_ids = default_get_current_vaga_course_term_ids($route_node);
+  if (empty($term_ids)) {
+    return;
+  }
+
+  // Evita que o display fique preso ao argumento contextual do nid atual.
+  $args = [];
+  $view->args = [];
+
+  $exposed_input = $view->getExposedInput();
+  $exposed_input['cursos'] = count($term_ids) === 1 ? (string) reset($term_ids) : $term_ids;
+  $view->setExposedInput($exposed_input);
+}
+
+/**
+ * Implements hook_views_query_alter().
+ *
+ * Garante que o bloco de vagas similares busque outras vagas com o mesmo
+ * curso da vaga atual, excluindo o próprio conteúdo aberto.
+ */
+function default_views_query_alter(ViewExecutable $view, QueryPluginBase $query): void
+{
+  if ($view->id() !== 'vagas' || $view->current_display !== 'block_2' || !$query instanceof Sql) {
+    return;
+  }
+
+  $query->distinct = TRUE;
+}
+
+/**
+ * Implements hook_views_pre_render().
+ *
+ * Sobrescreve os resultados do bloco de vagas similares com outras vagas
+ * publicadas que compartilham o mesmo termo em field_cursos_t.
+ */
+function default_views_pre_render(ViewExecutable $view): void
+{
+  if ($view->id() !== 'vagas' || $view->current_display !== 'block_2') {
+    return;
+  }
+
+  $route_node = \Drupal::routeMatch()->getParameter('node');
+  if (!$route_node instanceof NodeInterface) {
+    return;
+  }
+
+  $current_nid = (int) $route_node->id();
+  $term_ids = default_get_current_vaga_course_term_ids($route_node);
+
+  if (empty($term_ids)) {
+    $view->result = [];
+    $view->total_rows = 0;
+    return;
+  }
+
+  $pager_options = $view->display_handler?->getOption('pager') ?? [];
+  $items_per_page = (int) ($pager_options['options']['items_per_page'] ?? 12);
+  if ($items_per_page <= 0) {
+    $items_per_page = 12;
+  }
+
+  $nids = \Drupal::entityQuery('node')
+    ->accessCheck(FALSE)
+    ->condition('type', 'vagas')
+    ->condition('status', 1)
+    ->condition('field_cursos_t.target_id', $term_ids, 'IN')
+    ->condition('nid', $current_nid, '<>')
+    ->sort('created', 'DESC')
+    ->range(0, $items_per_page)
+    ->execute();
+
+  if (empty($nids)) {
+    $view->result = [];
+    $view->total_rows = 0;
+    return;
+  }
+
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $nodes = $storage->loadMultiple($nids);
+  $rows = [];
+
+  foreach (array_values($nids) as $index => $nid) {
+    if (!isset($nodes[$nid])) {
+      continue;
+    }
+
+    $row = new ResultRow();
+    $row->nid = $nid;
+    $row->_entity = $nodes[$nid];
+    $row->index = $index;
+    $rows[] = $row;
+  }
+
+  $view->result = $rows;
+  $view->total_rows = count($rows);
+}
+
+/**
+ * Implements hook_preprocess_views_exposed_form() for vagas page_1.
+ *
+ * Extrai os atributos do form (#action, #method, #attributes) para uma
+ * variável Twig acessível, já que Twig não consegue ler chaves com '#'.
+ */
+function default_preprocess_views_exposed_form(array &$variables): void
+{
+  $form = $variables['form'] ?? [];
+  $view = $form['#view'] ?? NULL;
+  if (!$view || $view->id() !== 'vagas') {
+    return;
+  }
+
+  foreach (['estado', 'estados'] as $state_key) {
+    if (!isset($variables['form'][$state_key])) {
+      continue;
+    }
+
+    if (isset($variables['form'][$state_key]['#options']['All'])) {
+      $variables['form'][$state_key]['#options']['All'] = t('Selecionar');
+    }
+    if (isset($variables['form'][$state_key]['#options'][''])) {
+      $variables['form'][$state_key]['#options'][''] = t('Selecionar');
+    }
+
+    $variables['form'][$state_key]['#empty_option'] = t('Selecionar');
+    $variables['form'][$state_key]['#empty_value'] = '';
+  }
+
+  foreach (['escolaridade'] as $schooling_key) {
+    if (!isset($variables['form'][$schooling_key])) {
+      continue;
+    }
+
+    if (isset($variables['form'][$schooling_key]['#options']['All'])) {
+      $variables['form'][$schooling_key]['#options']['All'] = t('Selecione um nível de ensino');
+    }
+    if (isset($variables['form'][$schooling_key]['#options'][''])) {
+      $variables['form'][$schooling_key]['#options'][''] = t('Selecione um nível de ensino');
+    }
+
+    $variables['form'][$schooling_key]['#empty_option'] = t('Selecione um nível de ensino');
+    $variables['form'][$schooling_key]['#empty_value'] = '';
+  }
+
+  $attrs = $form['#attributes'] ?? [];
+  $attribute = new \Drupal\Core\Template\Attribute($attrs);
+
+  if (!empty($form['#action'])) {
+    $attribute->setAttribute('action', $form['#action']);
+  }
+  if (!empty($form['#method'])) {
+    $attribute->setAttribute('method', $form['#method']);
+  }
+
+  $variables['form_attributes'] = $attribute;
+}
+
+/**
+ * Implements hook_preprocess_views_view().
+ *
+ * Ajusta o cabeçalho da listagem de vagas quando houver filtros ativos,
+ * indicando ao usuário que está vendo um resultado de pesquisa.
+ */
+function default_preprocess_views_view(array &$variables): void
+{
+  $view = $variables['view'] ?? NULL;
+  $display_id = $variables['display_id'] ?? NULL;
+  if (!$view instanceof ViewExecutable || $view->id() !== 'vagas' || $display_id !== 'page_1') {
+    return;
+  }
+
+  $query = \Drupal::request()->query;
+  $filter_keys = ['nid', 'cursos', 'estado', 'cidade', 'escolaridade'];
+  $has_active_filters = FALSE;
+
+  foreach ($filter_keys as $key) {
+    $value = $query->get($key);
+
+    if (is_array($value)) {
+      $value = array_filter($value, static fn($item) => $item !== '' && $item !== 'All');
+    }
+
+    if ((is_array($value) && !empty($value)) || (!is_array($value) && $value !== NULL && $value !== '' && $value !== 'All')) {
+      $has_active_filters = TRUE;
+      break;
+    }
+  }
+
+  $title = $has_active_filters ? 'Resultado - Vagas Disponíveis' : 'Vagas Disponíveis';
+  $variables['header'] = Markup::create('<div class="mt-3 mb-3"><h3 class="text-title-md">' . $title . '</h3></div>');
+}
+
+/**
+ * Implements hook_preprocess_menu().
+ *
+ * Adiciona a classe 'is-active' nos links do menu do painel com base
+ * na rota atual, ignorando parâmetros de query string (ex.: ?page=1).
+ */
+function default_preprocess_menu(array &$variables): void
+{
+  // Oculta o item "Acessar" (user.login) no rodapé para usuários já logados
+  // com o papel adequado ao menu em questão:
+  // - candidato: menu "rodape---para-estudantes"
+  // - empresa:   menu "para-empresas"
+  $menu_name = $variables['menu_name'] ?? '';
+  $hide_login_for_roles = [
+    'rodape---para-estudantes' => 'candidato',
+    'para-empresas'            => 'empresa',
+  ];
+
+  $user = \Drupal::currentUser();
+  $user_roles = $user->getRoles();
+
+  // Exibe o item "Contratar Estagiário" apenas para
+  // usuários autenticados com papel empresa.
+  $must_hide_contratar_estagiario = !$user->isAuthenticated() || !in_array('empresa', $user_roles, TRUE);
+  if ($must_hide_contratar_estagiario) {
+    $remove_contratar_estagiario = static function (array &$items) use (&$remove_contratar_estagiario): void {
+      foreach ($items as $key => &$item) {
+        if (!is_array($item)) {
+          continue;
+        }
+
+        $title = trim((string) ($item['title'] ?? ''));
+        $is_target_link = in_array($title, ['Contratar Estagiário', 'Contratar Estagiario', 'contratar estagiário', 'contratar estagiario'], TRUE);
+
+        if ($is_target_link) {
+          unset($items[$key]);
+          continue;
+        }
+
+        if (!empty($item['below']) && is_array($item['below'])) {
+          $remove_contratar_estagiario($item['below']);
+        }
+      }
+      unset($item);
+    };
+
+    $remove_contratar_estagiario($variables['items']);
+  }
+
+  // Oculta "Acessar" (user.login) no menu do próprio papel do usuário logado.
+  if (isset($hide_login_for_roles[$menu_name])) {
+    $required_role = $hide_login_for_roles[$menu_name];
+    if (in_array($required_role, $user_roles, TRUE)) {
+      foreach ($variables['items'] as $key => $item) {
+        /** @var \Drupal\Core\Url $url */
+        $url = $item['url'] ?? NULL;
+        if ($url instanceof \Drupal\Core\Url && $url->isRouted() && $url->getRouteName() === 'user.login') {
+          unset($variables['items'][$key]);
+        }
+      }
+    }
+  }
+
+  // Desabilita visualmente todos os links do menu oposto ao papel do usuário.
+  // - candidato logado → desabilita links de "para-empresas"
+  // - empresa logada   → desabilita links de "rodape---para-estudantes"
+  $disable_links_map = [
+    'candidato' => 'para-empresas',
+    'empresa'   => 'rodape---para-estudantes',
+  ];
+  foreach ($disable_links_map as $role => $target_menu) {
+    if ($menu_name === $target_menu && in_array($role, $user_roles, TRUE)) {
+      foreach ($variables['items'] as &$item) {
+        $url = $item['url'] ?? NULL;
+        if ($url instanceof \Drupal\Core\Url) {
+          // Substitui a URL por uma âncora vazia e marca o item como desabilitado.
+          $item['url'] = \Drupal\Core\Url::fromRoute('<nolink>');
+          $attrs = $item['url']->getOption('attributes') ?? [];
+          $classes = $attrs['class'] ?? [];
+          $classes[] = 'footer-link--disabled';
+          $attrs['class'] = $classes;
+          $attrs['aria-disabled'] = 'true';
+          $item['url']->setOption('attributes', $attrs);
+        }
+      }
+      unset($item);
+      break;
+    }
+  }
+
+  $current_route = \Drupal::routeMatch()->getRouteName();
+  if (empty($current_route)) {
+    return;
+  }
+
+  $current_path = parse_url(\Drupal::request()->getRequestUri(), PHP_URL_PATH) ?: '/';
+  $current_path = rtrim($current_path, '/') ?: '/';
+
+  $normalize_params = static function (array $params): array {
+    return array_map(static function ($value): string {
+      if (is_object($value) && method_exists($value, 'id')) {
+        return (string) $value->id();
+      }
+
+      if (is_scalar($value) || $value === NULL) {
+        return (string) $value;
+      }
+
+      return '';
+    }, $params);
+  };
+
+  $current_params = $normalize_params(\Drupal::routeMatch()->getParameters()->all());
+
+  foreach ($variables['items'] as &$item) {
+    /** @var \Drupal\Core\Url $url */
+    $url = $item['url'] ?? NULL;
+    if (!$url instanceof \Drupal\Core\Url) {
+      continue;
+    }
+
+    if (!$url->isRouted()) {
+      continue;
+    }
+
+    if ($url->getRouteName() !== $current_route) {
+      continue;
+    }
+
+    $item_path = parse_url($url->toString(), PHP_URL_PATH) ?: '/';
+    $item_path = rtrim($item_path, '/') ?: '/';
+    $item_params = $normalize_params($url->getRouteParameters());
+
+    if ($item_path !== $current_path && $item_params !== $current_params) {
+      continue;
+    }
+
+    $item['in_active_trail'] = TRUE;
+
+    // Adiciona 'is-active' ao <a> via URL options (usado pelo template do menu).
+    $attrs = $url->getOption('attributes') ?? [];
+    $classes = $attrs['class'] ?? [];
+    if (!in_array('is-active', $classes, TRUE)) {
+      $classes[] = 'is-active';
+    }
+    $attrs['class'] = $classes;
+    $url->setOption('attributes', $attrs);
+  }
+}

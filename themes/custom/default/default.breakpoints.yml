@@ -1,0 +1,13 @@
+default.mobile:
+  label: mobile
+  mediaQuery: '(max-width: 767.98px)'
+  weight: 0
+  multipliers:
+    - 1x
+
+default.desktop:
+  label: desktop
+  mediaQuery: '(min-width: 768px)'
+  weight: 1
+  multipliers:
+    - 1x

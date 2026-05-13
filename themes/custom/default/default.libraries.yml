@@ -1,0 +1,58 @@
+global-styling:
+  version: VERSION
+  js:
+    assets/js/global.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
+    - core/once
+  css:
+    component:
+      assets/css/style.css: {}
+bootstrap:
+  js:
+    /libraries/popper/popper.min.js: { weight: -19 }
+    /libraries/bootstrap/js/bootstrap.min.js: { weight: -20 }
+  css:
+    component:
+      /libraries/bootstrap/css/bootstrap.min.css: {}
+  dependencies:
+    - core/popperjs
+fontawesome:
+  css:
+    component:
+      /libraries/fontawesome/css/all.min.css: {}
+  js:
+    /libraries/fontawesome/js/all.min.js: {}
+
+block_breakpoint:
+  js:
+    assets/js/block_breakpoint.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
+    - core/once
+jquery_mask:
+  js:
+    /libraries/jquery-mask/jquery.mask.min.js: {}
+  dependencies:
+    - core/jquery
+masks:
+  js:
+    assets/js/masks.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/once
+    - core/drupalSettings
+    - default/jquery_mask
+script-painel:
+  js:
+    assets/js/script-painel.js: {}
+  css:
+    component:
+      assets/css/css-painel.css: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
+    - core/once

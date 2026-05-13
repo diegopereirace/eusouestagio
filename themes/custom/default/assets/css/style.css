@@ -200,8 +200,21 @@ h6 {
 .wrap-menu .menu,
 .wrap-menu .nav,
 .wrap-menu .navbar-nav {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
 	flex-wrap: wrap;
 	justify-content: flex-end;
+}
+
+.wrap-menu .navbar-collapse,
+.wrap-menu .collapse {
+	display: block;
+	visibility: visible;
+}
+
+.wrap-menu .navbar-toggler {
+	display: none;
 }
 
 .wrap-menu .nav-link {
@@ -1407,6 +1420,10 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 
 	.top-content-mobile {
 		display: block;
+	}
+
+	.wrap-menu .navbar-toggler {
+		display: inline-flex;
 	}
 }
 

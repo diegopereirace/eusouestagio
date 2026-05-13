@@ -1,0 +1,156 @@
+{#
+/**
+ * @file
+ * Default theme implementation to display a block.
+ *
+ * Available variables:
+ * - plugin_id: The ID of the block implementation.
+ * - label: The configured label of the block if visible.
+ * - configuration: A list of the block's configuration values.
+ *   - label: The configured label for the block.
+ *   - label_display: The display settings for the label.
+ *   - provider: The module or other provider that provided this block plugin.
+ *   - Block plugin specific settings will also be stored here.
+ * - content: The content of this block.
+ * - attributes: array of HTML attributes populated by modules, intended to
+ *   be added to the main container tag of this template.
+ *   - id: A valid HTML ID and guaranteed unique.
+ * - title_attributes: Same as attributes, except applied to the main title
+ *   tag that appears in the template.
+ * - content_attributes: Same as attributes, except applied to the main content
+ *   tag that appears in the template.
+ * - title_prefix: Additional output populated by modules, intended to be
+ *   displayed in front of the main title tag that appears in the template.
+ * - title_suffix: Additional output populated by modules, intended to be
+ *   displayed after the main title tag that appears in the template.
+ *
+ * @see template_preprocess_block()
+ *
+ * @ingroup themeable
+ */
+#}
+
+{{ attach_library('default/block_breakpoint') }}
+
+{%
+  set classes = [
+    'block',
+    'block-' ~ configuration.provider|clean_class,
+    'block-' ~ plugin_id|clean_class,
+  ]
+%}
+<div{{ attributes.addClass(classes) }}>
+  {% block content %}
+    {% set painel_url = top_user_panel_url|default('') %}
+    {% set top_user_name_full = top_user_name|default('Usuário')|trim %}
+    {% if top_user_name_full is empty %}
+      {% set top_user_name_full = 'Usuário' %}
+    {% endif %}
+    {% set top_user_name_short = top_user_name_full|length > 30 ? top_user_name_full|slice(0, 30) ~ '...' : top_user_name_full %}
+
+    <div{{ content_attributes.addClass('content', 'container') }}>
+      <div class="top-content-desktop" data-breakpoint="default.desktop">
+        <div class="row row-top">
+          <div class="col-md-4 col-9 col-top col-top-1 p-0">
+            <div class="wrap-logo">
+              <a href="{{ path('<front>') }}" title="Início">
+                <img src="{{ logopath }}" class="img-responsive" draggable="false" width="300" />
+              </a>
+            </div>
+          </div>
+          <div class="col-md-8 col-3 col-top col-top-2 p-0 d-flex align-items-center justify-content-end">
+            <div class="wrap-menu">
+              {{ drupal_menu('main') }}
+            </div>
+            <div class="d-flex top-actions-wrap {{ painel_url ? 'top-actions-wrap--has-painel' : 'top-actions-wrap--no-painel' }}">
+              {% if logged_in is defined and logged_in %}
+                <div class="top-user-menu" aria-label="Menu do usuário logado">
+                  <button type="button" class="top-user-menu-toggle" aria-label="Abrir menu do usuário">
+                    <img
+                      src="{{ top_user_avatar_url|default('') }}"
+                      class="top-user-avatar-img"
+                      alt="Avatar de {{ top_user_name_full }}"
+                      loading="lazy"
+                      width="44"
+                      height="44"
+                    />
+                  </button>
+                  <div class="top-user-menu-dropdown" role="menu" aria-label="Ações do usuário">
+                    <div class="top-user-menu-info" aria-label="Dono da conta logada">
+                      <span class="top-user-label">Conta logada</span>
+                      <strong class="top-user-name" title="{{ top_user_name_full }}" aria-label="Usuário logado: {{ top_user_name_full }}">{{ top_user_name_short }}</strong>
+                    </div>
+                    {% if painel_url %}
+                      <a href="{{ painel_url }}" class="top-user-menu-link" role="menuitem">Acessar Painel</a>
+                    {% endif %}
+                    <a href="{{ path('user.logout') }}" class="top-user-menu-link" role="menuitem">Sair</a>
+                  </div>
+                </div>
+              {% else %}
+                <a href="{{ path('user.login') }}" class="btn btn-outline-laranja btn-sm">Acesso</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="top-content-mobile" data-breakpoint="default.mobile">
+      <div class="row-top">
+        <div class="col-12 px-4 d-flex align-items-center justify-content-between">
+          <div class="wrap-logo">
+            <a href="{{ path('<front>') }}" title="Início">
+              <img src="{{ logopath }}" class="img-responsive" draggable="false" width="200" />
+            </a>
+          </div>
+          <div class="wrap-icon">
+            <button
+              id="dv-button-menu"
+              class="button-menu navbar-toggler p-0 border-0 bg-transparent"
+              type="button"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#wrap-menu-mobile"
+              aria-controls="wrap-menu-mobile"
+              aria-label="Menu mobile"
+            >
+              <i class="fa-solid fa-bars fa-2x"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        id="wrap-menu-mobile"
+        class="offcanvas offcanvas-end"
+        tabindex="-1"
+        aria-labelledby="wrap-menu-mobile-title"
+      >
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="wrap-menu-mobile-title">Menu</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fechar"></button>
+        </div>
+        <div class="offcanvas-body">
+          <div class="inner-menu-mobile">{{ drupal_menu('main') }}</div>
+
+          {% if logged_in is defined and logged_in %}
+            <div class="top-user-badge top-user-badge--mobile mt-3" aria-label="Usuário logado">
+              <span class="top-user-label">Conectado como</span>
+              <strong class="top-user-name" title="{{ top_user_name_full }}" aria-label="Usuário logado: {{ top_user_name_full }}">{{ top_user_name_short }}</strong>
+            </div>
+          {% endif %}
+          
+          <div class="mt-3 d-grid gap-2 top-mobile-actions {{ painel_url ? 'top-mobile-actions--has-painel' : 'top-mobile-actions--no-painel' }}">
+            {% if logged_in is defined and logged_in %}
+              {% if painel_url %}
+                <a href="{{ painel_url }}" class="btn btn-primary w-100">Acessar Painel</a>
+              {% endif %}
+              <a href="{{ path('user.logout') }}" class="btn btn-outline-secondary w-100">Sair</a>
+            {% else %}
+              <a href="{{ path('user.login') }}" class="btn btn-outline-laranja w-100">Acesso</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endblock %}
+</div>

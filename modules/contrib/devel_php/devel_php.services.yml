@@ -1,2 +1,0 @@
-parameters:
-  devel_php.skip_procedural_hook_scan: true

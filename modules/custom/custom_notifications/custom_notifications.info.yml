@@ -1,5 +1,0 @@
-name: 'Custom Notifications'
-type: module
-description: 'Envio de notificacoes por email para eventos do projeto.'
-package: Custom
-core_version_requirement: ^10 || ^11

@@ -1,0 +1,1645 @@
+<?php
+
+namespace Drupal\custom_configs_users\Form;
+
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\ReplaceCommand;
+use Drupal\Core\Form\FormBase;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Markup;
+use Drupal\Component\Utility\Xss;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\paragraphs\Entity\Paragraph;
+use Drupal\user\Entity\Role;
+use Drupal\user\Entity\User;
+use Drupal\user\UserInterface;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+
+class CandidatoRegistrationForm extends FormBase
+{
+
+    public function getFormId()
+    {
+        return 'custom_configs_users_candidato_registration_form';
+    }
+
+    /**
+     * Carrega as opções de um campo list_string.
+     */
+    private function getListOptions(string $field_name, string $entity_type = 'user'): array
+    {
+        $storage = FieldStorageConfig::loadByName($entity_type, $field_name);
+        if (!$storage) {
+            return [];
+        }
+
+        $allowed = [];
+        if (function_exists('options_allowed_values')) {
+            $allowed = \options_allowed_values($storage);
+        }
+
+        if (!is_array($allowed) || empty($allowed)) {
+            $allowed = $storage->getSetting('allowed_values');
+        }
+
+        if (!is_array($allowed) || empty($allowed)) {
+            return [];
+        }
+
+        $options = [];
+        foreach ($allowed as $key => $item) {
+            if (is_array($item) && isset($item['value']) && isset($item['label'])) {
+                $options[(string) $item['value']] = (string) $item['label'];
+                continue;
+            }
+
+            if (is_array($item) && isset($item['value']) && !isset($item['label'])) {
+                $value = (string) $item['value'];
+                $options[$value] = $value;
+                continue;
+            }
+
+            if (!is_int($key) && (is_string($item) || is_numeric($item))) {
+                $options[(string) $key] = (string) $item;
+                continue;
+            }
+
+            if (is_int($key) && (is_string($item) || is_numeric($item))) {
+                $value = (string) $item;
+                $options[$value] = $value;
+            }
+        }
+
+        return $options;
+    }
+
+    /**
+     * Ajustes de opções específicos do formulário de cadastro.
+     */
+    private function getAdjustedOptions(string $field_name): array
+    {
+        $options = $this->getListOptions($field_name);
+
+        if ($field_name === 'field_escolaridade') {
+            foreach ($options as $value => $label) {
+                if (stripos((string) $value, 'gradua') !== FALSE || stripos((string) $label, 'gradua') !== FALSE) {
+                    unset($options[$value]);
+                }
+            }
+        }
+
+        if ($field_name === 'field_tipo_curso') {
+            if (!isset($options['Técnico'])) {
+                $options['Técnico'] = 'Técnico';
+            }
+            if (!isset($options['Tecnólogo'])) {
+                $options['Tecnólogo'] = 'Tecnólogo';
+            }
+        }
+
+        if ($field_name === 'field_disponibilidade_estagio' && !isset($options['Manhã e tarde'])) {
+            $options['Manhã e tarde'] = 'Manhã e tarde';
+        }
+
+        return $options;
+    }
+
+    /**
+     * Opções de mês para previsão de formatura.
+     */
+    private function getMonthOptions(): array
+    {
+        return [
+            '01' => $this->t('Janeiro'),
+            '02' => $this->t('Fevereiro'),
+            '03' => $this->t('Março'),
+            '04' => $this->t('Abril'),
+            '05' => $this->t('Maio'),
+            '06' => $this->t('Junho'),
+            '07' => $this->t('Julho'),
+            '08' => $this->t('Agosto'),
+            '09' => $this->t('Setembro'),
+            '10' => $this->t('Outubro'),
+            '11' => $this->t('Novembro'),
+            '12' => $this->t('Dezembro'),
+        ];
+    }
+
+    /**
+     * Opções de ano para previsão de formatura.
+     */
+    private function getYearOptions(): array
+    {
+        $current_year = (int) date('Y');
+        $options = [];
+
+        for ($year = $current_year - 1; $year <= $current_year + 15; $year++) {
+            $options[(string) $year] = (string) $year;
+        }
+
+        return $options;
+    }
+
+    /**
+     * Converte mês/ano em uma data lógica para armazenamento.
+     */
+    private function normalizePrevisaoFormatura(?string $month, ?string $year): ?string
+    {
+        $month = trim((string) $month);
+        $year = trim((string) $year);
+
+        if ($month === '' || $year === '') {
+            return NULL;
+        }
+
+        if (!preg_match('/^(0[1-9]|1[0-2])$/', $month) || !preg_match('/^\d{4}$/', $year)) {
+            return NULL;
+        }
+
+        return sprintf('%04d-%02d-01', (int) $year, (int) $month);
+    }
+
+    public function buildForm(array $form, FormStateInterface $form_state)
+    {
+        if (\Drupal::config('user.settings')->get('register') === UserInterface::REGISTER_ADMINISTRATORS_ONLY) {
+            throw new AccessDeniedHttpException();
+        }
+
+        $verify_mail = (bool) \Drupal::config('user.settings')->get('verify_mail');
+
+        // Usa validação do Drupal (server-side) para garantir exibição de erros.
+        $form['#attributes']['novalidate'] = 'novalidate';
+
+        // Garante renderização das mensagens de validação no topo do formulário.
+        $form['messages'] = [
+            '#type' => 'status_messages',
+            '#weight' => -1000,
+        ];
+
+        // ── Seção 1 — Dados de Acesso ──────────────────────────────
+
+        $form['page_title'] = [
+            '#markup' => '<div class="mb-4 mt-5">'
+                . '<p class="text-muted mb-0">' . $this->t('Preencha os dados abaixo para criar sua conta como candidato a estágio.') . '</p>'
+                . '</div>',
+        ];
+        $form['section_acesso'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['mb-4']],
+        ];
+        $form['section_acesso']['heading'] = [
+            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-lock me-2"></i>' . $this->t('Dados de Acesso') . '</h4>',
+        ];
+        $form['section_acesso']['row'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['row', 'g-3']],
+        ];
+
+        $form['section_acesso']['row']['col_name'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-6']],
+        ];
+        $form['section_acesso']['row']['col_name']['name'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Nome de usuário'),
+            '#required' => TRUE,
+            '#maxlength' => 60,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        $form['section_acesso']['row']['col_mail'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-6']],
+        ];
+        $form['section_acesso']['row']['col_mail']['mail'] = [
+            '#type' => 'email',
+            '#title' => $this->t('E-mail'),
+            '#required' => TRUE,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        if (!$verify_mail) {
+            $form['section_acesso']['row']['col_pass'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-6']],
+            ];
+            $form['section_acesso']['row']['col_pass']['pass'] = [
+                '#type' => 'password',
+                '#title' => $this->t('Senha'),
+                '#required' => TRUE,
+                '#description' => $this->t('Mínimo de 8 caracteres.'),
+                '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_acesso']['row']['col_pass_confirm'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-6']],
+            ];
+            $form['section_acesso']['row']['col_pass_confirm']['pass_confirm'] = [
+                '#type' => 'password',
+                '#title' => $this->t('Confirmar senha'),
+                '#required' => TRUE,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+        } else {
+            $form['section_acesso']['verify_mail_message'] = [
+                '#type' => 'markup',
+                '#markup' => '<div class="alert alert-info mt-3 mb-0">'
+                    . $this->t('Após o cadastro, você receberá um e-mail com um link para definir sua senha.')
+                    . '</div>',
+            ];
+        }
+
+        // ── Seção 2 — Dados Pessoais ───────────────────────────────
+        $form['section_pessoal'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['mb-4']],
+        ];
+        $form['section_pessoal']['heading'] = [
+            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-user me-2"></i>' . $this->t('Dados Pessoais') . '</h4>',
+        ];
+        $form['section_pessoal']['row'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['row', 'g-3']],
+        ];
+
+        $form['section_pessoal']['row']['col_nome_completo'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12']],
+        ];
+        $form['section_pessoal']['row']['col_nome_completo']['field_nome_completo'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Nome completo'),
+            '#required' => TRUE,
+            '#maxlength' => 255,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        $form['section_pessoal']['row']['col_cpf'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_pessoal']['row']['col_cpf']['field_cpf'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('CPF'),
+            '#required' => TRUE,
+            '#maxlength' => 14,
+            '#attributes' => [
+                'class' => ['form-control', 'mask-cpf'],
+                'placeholder' => '000.000.000-00',
+            ],
+        ];
+
+        $form['section_pessoal']['row']['col_rg'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_pessoal']['row']['col_rg']['field_rg'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('RG'),
+            '#required' => TRUE,
+            '#maxlength' => 20,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        $form['section_pessoal']['row']['col_orgao_emissor'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_pessoal']['row']['col_orgao_emissor']['field_orgao_emissor'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Órgão emissor'),
+            '#required' => TRUE,
+            '#maxlength' => 60,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        $form['section_pessoal']['row']['col_data_nascimento'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_pessoal']['row']['col_data_nascimento']['field_data_nascimento'] = [
+            '#type' => 'date',
+            '#title' => $this->t('Data de nascimento'),
+            '#required' => TRUE,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        $form['section_pessoal']['row']['col_sexo'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_pessoal']['row']['col_sexo']['field_sexo'] = [
+            '#type' => 'select',
+            '#title' => $this->t('Sexo'),
+            '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_sexo'),
+            '#required' => TRUE,
+            '#attributes' => ['class' => ['form-select']],
+        ];
+
+        $form['section_pessoal']['row']['col_identidade_genero'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_pessoal']['row']['col_identidade_genero']['field_identidade_genero'] = [
+            '#type' => 'select',
+            '#title' => $this->t('Identidade de gênero'),
+            '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_identidade_genero'),
+            '#attributes' => ['class' => ['form-select']],
+        ];
+
+        $form['section_pessoal']['row']['col_estado_civil'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_pessoal']['row']['col_estado_civil']['field_estado_civil'] = [
+            '#type' => 'select',
+            '#title' => $this->t('Estado civil'),
+            '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_estado_civil'),
+            '#attributes' => ['class' => ['form-select']],
+        ];
+
+        $form['section_pessoal']['row']['col_quantidade_filhos'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_pessoal']['row']['col_quantidade_filhos']['field_quantidade_filhos'] = [
+            '#type' => 'select',
+            '#title' => $this->t('Quantidade de filhos'),
+            '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_quantidade_filhos'),
+            '#attributes' => ['class' => ['form-select']],
+        ];
+
+        $form['section_pessoal']['row']['col_nacionalidade'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_pessoal']['row']['col_nacionalidade']['field_nacionalidade'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Nacionalidade'),
+            '#maxlength' => 100,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        $form['section_pessoal']['row']['col_estado_natal'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_pessoal']['row']['col_estado_natal']['field_estado_natal'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Estado natal'),
+            '#maxlength' => 100,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        // ── Seção 3 — Filiação ─────────────────────────────────────
+        $form['section_filiacao'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['mb-4']],
+        ];
+        $form['section_filiacao']['heading'] = [
+            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-people-arrows me-2"></i>' . $this->t('Filiação') . '</h4>',
+        ];
+        $form['section_filiacao']['row'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['row', 'g-3']],
+        ];
+
+        $form['section_filiacao']['row']['col_nome_mae'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-6']],
+        ];
+        $form['section_filiacao']['row']['col_nome_mae']['field_nome_mae'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Nome da mãe'),
+            '#maxlength' => 255,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        $form['section_filiacao']['row']['col_nome_pai'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-6']],
+        ];
+        $form['section_filiacao']['row']['col_nome_pai']['field_nome_pai'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Nome do pai'),
+            '#maxlength' => 255,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        // ── Seção 4 — Endereço ─────────────────────────────────────
+        $form['section_endereco'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['mb-4']],
+        ];
+
+        $form['section_endereco']['heading'] = [
+            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-map-marker-alt me-2"></i>' . $this->t('Endereço') . '</h4>',
+        ];
+
+        $form['section_endereco']['row'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['row', 'g-3']],
+        ];
+
+        $form['section_endereco']['row']['col_cep'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-3']],
+        ];
+        $form['section_endereco']['row']['col_cep']['field_cep'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('CEP'),
+            '#required' => TRUE,
+            '#maxlength' => 9,
+            '#attributes' => [
+                'class' => ['form-control', 'mask-cep'],
+                'placeholder' => '00000-000',
+            ],
+        ];
+
+        $form['section_endereco']['row']['col_endereco'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-7']],
+        ];
+
+        $form['section_endereco']['row']['col_endereco']['field_endereco'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Endereço'),
+            '#required' => TRUE,
+            '#maxlength' => 255,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        $form['section_endereco']['row']['col_numero'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-2']],
+        ];
+        $form['section_endereco']['row']['col_numero']['field_numero'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Número'),
+            '#required' => TRUE,
+            '#maxlength' => 20,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        $form['section_endereco']['row']['col_endereco']['field_complemento'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Complemento'),
+            '#maxlength' => 255,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        $form['section_endereco']['row']['col_bairro'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+
+        $form['section_endereco']['row']['col_bairro']['field_bairro'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Bairro'),
+            '#required' => TRUE,
+            '#maxlength' => 100,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        $form['section_endereco']['row']['col_cidade'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+
+        $form['section_endereco']['row']['col_cidade']['field_cidade'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Cidade'),
+            '#required' => TRUE,
+            '#maxlength' => 100,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        $form['section_endereco']['row']['col_estado'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+
+        $form['section_endereco']['row']['col_estado']['field_estado'] = [
+            '#type' => 'select',
+            '#title' => $this->t('Estado'),
+            '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_estado'),
+            '#required' => TRUE,
+            '#attributes' => ['class' => ['form-select']],
+        ];
+
+        // ── Seção 5 — Contato e Redes Sociais ──────────────────────
+        $form['section_contato'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['mb-4']],
+        ];
+        $form['section_contato']['heading'] = [
+            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-address-book me-2"></i>' . $this->t('Contato e Redes Sociais') . '</h4>',
+        ];
+        $form['section_contato']['row'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['row', 'g-3']],
+        ];
+
+        $form['section_contato']['row']['col_telefone'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_contato']['row']['col_telefone']['field_telefone'] = [
+            '#type' => 'tel',
+            '#title' => $this->t('Telefone'),
+            '#required' => TRUE,
+            '#maxlength' => 15,
+            '#attributes' => [
+                'class' => ['form-control', 'mask-phone'],
+                'placeholder' => '(00) 00000-0000',
+            ],
+        ];
+
+        $form['section_contato']['row']['col_instagram'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_contato']['row']['col_instagram']['field_instagram'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Instagram'),
+            '#maxlength' => 100,
+            '#attributes' => [
+                'class' => ['form-control'],
+                'placeholder' => '@usuario',
+            ],
+        ];
+
+        // Attach jQuery Mask library
+        $form['#attached']['library'][] = 'core/jquery.ui.widget';
+        $form['#attached']['library'][] = 'default/jquery_mask';
+        $form['#attached']['library'][] = 'default/masks';
+        $form['#attached']['drupalSettings']['defaultMasks']['cepApi'] = [
+            'lookupUrl' => '/api/cep',
+        ];
+
+        $form['section_contato']['row']['col_linkedin'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-4']],
+        ];
+        $form['section_contato']['row']['col_linkedin']['field_linkedin'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('LinkedIn'),
+            '#maxlength' => 255,
+            '#attributes' => [
+                'class' => ['form-control'],
+                'placeholder' => 'https://linkedin.com/in/usuario',
+            ],
+        ];
+
+        // ── Seção 6 — Instituição de Ensino (Paragraphs) ──────────
+        $form['section_instituicao'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['mb-4']],
+        ];
+        $form['section_instituicao']['heading'] = [
+            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-university me-2"></i>' . $this->t('Instituição de Ensino') . '</h4>',
+        ];
+
+        $form['section_instituicao']['instituicoes_wrapper'] = [
+            '#type' => 'container',
+            '#attributes' => ['id' => 'instituicoes-wrapper'],
+        ];
+
+        $num_instituicoes = $form_state->get('num_instituicoes') ?? 1;
+        $form_state->set('num_instituicoes', $num_instituicoes);
+
+        for ($i = 0; $i < $num_instituicoes; $i++) {
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['card', 'mb-3']],
+            ];
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['card-body']],
+            ];
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['title'] = [
+                '#markup' => '<h6 class="card-title text-muted">' . $this->t('Instituição @num', ['@num' => $i + 1]) . '</h6>',
+            ];
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['row', 'g-3']],
+            ];
+
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_nome'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12']],
+            ];
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_nome']['inst_nome_' . $i] = [
+                '#type' => 'textfield',
+                '#title' => $this->t('Instituição de Ensino'),
+                '#required' => TRUE,
+                '#maxlength' => 255,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_endereco'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-6']],
+            ];
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_endereco']['inst_endereco_' . $i] = [
+                '#type' => 'textfield',
+                '#title' => $this->t('Endereço'),
+                '#required' => TRUE,
+                '#maxlength' => 255,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_numero'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-2']],
+            ];
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_numero']['inst_numero_' . $i] = [
+                '#type' => 'textfield',
+                '#title' => $this->t('Número'),
+                '#required' => TRUE,
+                '#maxlength' => 20,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_cep'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-4']],
+            ];
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_cep']['inst_cep_' . $i] = [
+                '#type' => 'textfield',
+                '#title' => $this->t('CEP'),
+                '#required' => TRUE,
+                '#maxlength' => 9,
+                '#attributes' => [
+                    'class' => ['form-control', 'mask-cep'],
+                    'placeholder' => '00000-000',
+                ],
+            ];
+
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_bairro'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-3']],
+            ];
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_bairro']['inst_bairro_' . $i] = [
+                '#type' => 'textfield',
+                '#title' => $this->t('Bairro'),
+                '#required' => TRUE,
+                '#maxlength' => 100,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_cidade'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-3']],
+            ];
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_cidade']['inst_cidade_' . $i] = [
+                '#type' => 'textfield',
+                '#title' => $this->t('Cidade'),
+                '#required' => TRUE,
+                '#maxlength' => 100,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_estado'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-2']],
+            ];
+            $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_estado']['inst_estado_' . $i] = [
+                '#type' => 'select',
+                '#title' => $this->t('Estado'),
+                '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_estado'),
+                '#required' => TRUE,
+                '#attributes' => ['class' => ['form-select']],
+            ];
+        }
+
+        $form['section_instituicao']['instituicoes_wrapper']['add_instituicao'] = [
+            '#type' => 'submit',
+            '#value' => $this->t('Incluir Instituição'),
+            '#submit' => ['::addInstituicaoCallback'],
+            '#ajax' => [
+                'callback' => '::ajaxRefreshInstituicoes',
+                'wrapper' => 'instituicoes-wrapper',
+            ],
+            '#attributes' => ['class' => ['btn', 'btn-outline-secondary', 'btn-sm']],
+            '#limit_validation_errors' => [],
+        ];
+
+        if ($num_instituicoes > 1) {
+            $form['section_instituicao']['instituicoes_wrapper']['remove_instituicao'] = [
+                '#type' => 'submit',
+                '#value' => $this->t('Remover última instituição'),
+                '#submit' => ['::removeInstituicaoCallback'],
+                '#ajax' => [
+                    'callback' => '::ajaxRefreshInstituicoes',
+                    'wrapper' => 'instituicoes-wrapper',
+                ],
+                '#attributes' => ['class' => ['btn', 'btn-outline-danger', 'btn-sm', 'ms-2']],
+                '#limit_validation_errors' => [],
+            ];
+        }
+
+        // ── Seção 7 — Informações Acadêmicas ───────────────────────
+        $form['section_academico'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['mb-4']],
+        ];
+        $form['section_academico']['heading'] = [
+            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-graduation-cap me-2"></i>' . $this->t('Informações Acadêmicas') . '</h4>',
+        ];
+        $form['section_academico']['row'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['row', 'g-3']],
+        ];
+
+        $form['section_academico']['row']['col_escolaridade'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
+        ];
+        $form['section_academico']['row']['col_escolaridade']['field_escolaridade'] = [
+            '#type' => 'select',
+            '#title' => $this->t('Escolaridade'),
+            '#options' => ['' => $this->t('- Selecione -')] + $this->getAdjustedOptions('field_escolaridade'),
+            '#required' => TRUE,
+            '#attributes' => ['class' => ['form-select']],
+        ];
+
+        $form['section_academico']['row']['col_periodo_letivo'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
+        ];
+        $form['section_academico']['row']['col_periodo_letivo']['field_periodo_letivo'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Período em que está matriculado'),
+            '#required' => TRUE,
+            '#maxlength' => 60,
+            '#attributes' => [
+                'class' => ['form-control'],
+                'placeholder' => 'Ex: 2026.1',
+            ],
+        ];
+
+        $form['section_academico']['row']['col_nome_curso'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
+        ];
+        $form['section_academico']['row']['col_nome_curso']['field_nome_curso'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Nome do curso'),
+            '#required' => TRUE,
+            '#maxlength' => 255,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        $form['section_academico']['row']['col_tipo_curso'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
+        ];
+        $form['section_academico']['row']['col_tipo_curso']['field_tipo_curso'] = [
+            '#type' => 'select',
+            '#title' => $this->t('Tipo de curso'),
+            '#options' => ['' => $this->t('- Selecione -')] + $this->getAdjustedOptions('field_tipo_curso'),
+            '#required' => TRUE,
+            '#attributes' => ['class' => ['form-select']],
+        ];
+
+        $form['section_academico']['row']['col_horario_curso'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
+        ];
+        $form['section_academico']['row']['col_horario_curso']['field_horario_curso'] = [
+            '#type' => 'select',
+            '#title' => $this->t('Horário do curso'),
+            '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_horario_curso'),
+            '#required' => TRUE,
+            '#attributes' => ['class' => ['form-select']],
+        ];
+
+        $form['section_academico']['row']['col_duracao_curso'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-4']],
+        ];
+        $form['section_academico']['row']['col_duracao_curso']['field_duracao_curso'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Duração do curso (semestres)'),
+            '#maxlength' => 10,
+            '#attributes' => [
+                'class' => ['form-control'],
+                'placeholder' => 'Ex: 8',
+            ],
+        ];
+
+        $form['section_academico']['row']['col_previsao_formatura'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-6']],
+        ];
+        $form['section_academico']['row']['col_previsao_formatura']['heading'] = [
+            '#markup' => '<label class="form-label d-block mb-2">' . $this->t('Previsão de formatura') . ' <span class="text-danger">*</span></label><div class="form-text mb-2">' . $this->t('Informe somente o mês e o ano previstos para a conclusão do curso.') . '</div>',
+        ];
+        $form['section_academico']['row']['col_previsao_formatura']['row'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['row', 'g-2']],
+        ];
+        $form['section_academico']['row']['col_previsao_formatura']['row']['col_mes'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-6']],
+        ];
+        $form['section_academico']['row']['col_previsao_formatura']['row']['col_mes']['field_previsao_formatura_month'] = [
+            '#type' => 'select',
+            '#title' => $this->t('Mês'),
+            '#title_display' => 'invisible',
+            '#required' => TRUE,
+            '#empty_option' => $this->t('- Selecione o mês -'),
+            '#options' => $this->getMonthOptions(),
+            '#attributes' => ['class' => ['form-select']],
+        ];
+        $form['section_academico']['row']['col_previsao_formatura']['row']['col_ano'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-6']],
+        ];
+        $form['section_academico']['row']['col_previsao_formatura']['row']['col_ano']['field_previsao_formatura_year'] = [
+            '#type' => 'select',
+            '#title' => $this->t('Ano'),
+            '#title_display' => 'invisible',
+            '#required' => TRUE,
+            '#empty_option' => $this->t('- Selecione o ano -'),
+            '#options' => $this->getYearOptions(),
+            '#attributes' => ['class' => ['form-select']],
+        ];
+
+        $form['section_academico']['row']['col_disponibilidade'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-3']],
+        ];
+        $form['section_academico']['row']['col_disponibilidade']['field_disponibilidade_estagio'] = [
+            '#type' => 'select',
+            '#title' => $this->t('Disponibilidade para estágio'),
+            '#options' => ['' => $this->t('- Selecione -')] + $this->getAdjustedOptions('field_disponibilidade_estagio'),
+            '#required' => TRUE,
+            '#attributes' => ['class' => ['form-select']],
+        ];
+
+        $form['section_academico']['row']['col_numero_matricula'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-6', 'col-lg-3']],
+        ];
+        $form['section_academico']['row']['col_numero_matricula']['field_numero_matricula'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Número de matrícula'),
+            '#required' => TRUE,
+            '#maxlength' => 60,
+            '#attributes' => ['class' => ['form-control']],
+        ];
+
+        // ── Seção 8 — Cursos Extracurriculares (Paragraphs) ────────
+        $form['section_extracurricular'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['mb-4']],
+        ];
+        $form['section_extracurricular']['heading'] = [
+            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-award me-2"></i>' . $this->t('Cursos Extracurriculares') . ' <small class="text-muted">(' . $this->t('Opcional') . ')</small></h4>',
+        ];
+
+        $form['section_extracurricular']['cursos_wrapper'] = [
+            '#type' => 'container',
+            '#attributes' => ['id' => 'cursos-extracurriculares-wrapper'],
+        ];
+
+        $num_cursos = $form_state->get('num_cursos') ?? 0;
+        $form_state->set('num_cursos', $num_cursos);
+
+        $nivel_options = $this->getListOptions('field_nivel', 'paragraph');
+        if (empty($nivel_options)) {
+            $nivel_options = [
+                'basico' => $this->t('Básico'),
+                'intermediario' => $this->t('Intermediário'),
+                'avancado' => $this->t('Avançado'),
+            ];
+        }
+
+        for ($i = 0; $i < $num_cursos; $i++) {
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['card', 'mb-3']],
+            ];
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['card-body']],
+            ];
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['title'] = [
+                '#markup' => '<h6 class="card-title text-muted">' . $this->t('Curso @num', ['@num' => $i + 1]) . '</h6>',
+            ];
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['row'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['row', 'g-3']],
+            ];
+
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['row']['col_tipo'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-3']],
+            ];
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['row']['col_tipo']['curso_tipo_' . $i] = [
+                '#type' => 'textfield',
+                '#title' => $this->t('Tipo de habilidade'),
+                '#maxlength' => 255,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['row']['col_habilidade'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-3']],
+            ];
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['row']['col_habilidade']['curso_habilidade_' . $i] = [
+                '#type' => 'textfield',
+                '#title' => $this->t('Habilidade'),
+                '#maxlength' => 255,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['row']['col_nivel'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-3']],
+            ];
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['row']['col_nivel']['curso_nivel_' . $i] = [
+                '#type' => 'select',
+                '#title' => $this->t('Nível'),
+                '#options' => ['' => $this->t('- Selecione -')] + $nivel_options,
+                '#attributes' => ['class' => ['form-select']],
+            ];
+
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['row']['col_carga'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-3']],
+            ];
+            $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['row']['col_carga']['curso_carga_' . $i] = [
+                '#type' => 'textfield',
+                '#title' => $this->t('Carga horária'),
+                '#maxlength' => 20,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+        }
+
+        $form['section_extracurricular']['cursos_wrapper']['add_curso'] = [
+            '#type' => 'submit',
+            '#value' => $this->t('Incluir Curso Extracurricular'),
+            '#submit' => ['::addCursoCallback'],
+            '#ajax' => [
+                'callback' => '::ajaxRefreshCursos',
+                'wrapper' => 'cursos-extracurriculares-wrapper',
+            ],
+            '#attributes' => ['class' => ['btn', 'btn-outline-secondary', 'btn-sm']],
+            '#limit_validation_errors' => [],
+        ];
+
+        if ($num_cursos > 0) {
+            $form['section_extracurricular']['cursos_wrapper']['remove_curso'] = [
+                '#type' => 'submit',
+                '#value' => $this->t('Remover último curso'),
+                '#submit' => ['::removeCursoCallback'],
+                '#ajax' => [
+                    'callback' => '::ajaxRefreshCursos',
+                    'wrapper' => 'cursos-extracurriculares-wrapper',
+                ],
+                '#attributes' => ['class' => ['btn', 'btn-outline-danger', 'btn-sm', 'ms-2']],
+                '#limit_validation_errors' => [],
+            ];
+        }
+
+        // ── Seção 9 — Experiência Profissional (Paragraphs) ────────
+        $form['section_experiencia'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['mb-4']],
+        ];
+        $form['section_experiencia']['heading'] = [
+            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-briefcase me-2"></i>' . $this->t('Experiência Profissional') . ' <small class="text-muted">(' . $this->t('Opcional') . ')</small></h4>',
+        ];
+
+        $form['section_experiencia']['experiencias_wrapper'] = [
+            '#type' => 'container',
+            '#attributes' => ['id' => 'experiencias-wrapper'],
+        ];
+
+        $num_experiencias = $form_state->get('num_experiencias') ?? 0;
+        $form_state->set('num_experiencias', $num_experiencias);
+
+        $regime_options = $this->getListOptions('field_regime_contrato', 'paragraph');
+        if (empty($regime_options)) {
+            $regime_options = [
+                'clt'        => $this->t('CLT'),
+                'estagio'    => $this->t('Estágio'),
+                'pj'         => $this->t('Pessoa Jurídica (PJ)'),
+                'autonomo'   => $this->t('Autônomo'),
+                'temporario' => $this->t('Temporário'),
+                'outros'     => $this->t('Outros'),
+            ];
+        }
+
+        for ($i = 0; $i < $num_experiencias; $i++) {
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['card', 'mb-3']],
+            ];
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['card-body']],
+            ];
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['title'] = [
+                '#markup' => '<h6 class="card-title text-muted">' . $this->t('Experiência @num', ['@num' => $i + 1]) . '</h6>',
+            ];
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['row', 'g-3']],
+            ];
+
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_empresa'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-6']],
+            ];
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_empresa']['exp_nome_empresa_' . $i] = [
+                '#type' => 'textfield',
+                '#title' => $this->t('Nome da Empresa'),
+                '#maxlength' => 255,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_cargo'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-6']],
+            ];
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_cargo']['exp_cargo_' . $i] = [
+                '#type' => 'textfield',
+                '#title' => $this->t('Cargo'),
+                '#maxlength' => 255,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_data_inicio'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-3']],
+            ];
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_data_inicio']['exp_data_inicio_' . $i] = [
+                '#type' => 'date',
+                '#title' => $this->t('Data de Início'),
+                '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_data_termino'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-3']],
+            ];
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_data_termino']['exp_data_termino_' . $i] = [
+                '#type' => 'date',
+                '#title' => $this->t('Data de Término'),
+                '#description' => $this->t('Deixe em branco se ainda está neste emprego.'),
+                '#attributes' => ['class' => ['form-control']],
+            ];
+
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_regime'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12', 'col-md-6']],
+            ];
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_regime']['exp_regime_' . $i] = [
+                '#type' => 'select',
+                '#title' => $this->t('Regime de Contrato'),
+                '#options' => ['' => $this->t('- Selecione -')] + $regime_options,
+                '#attributes' => ['class' => ['form-select']],
+            ];
+
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_atividades'] = [
+                '#type' => 'container',
+                '#attributes' => ['class' => ['col-12']],
+            ];
+            $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_atividades']['exp_atividades_' . $i] = [
+                '#type' => 'textarea',
+                '#title' => $this->t('Atividades'),
+                '#rows' => 3,
+                '#attributes' => ['class' => ['form-control']],
+            ];
+        }
+
+        $form['section_experiencia']['experiencias_wrapper']['add_experiencia'] = [
+            '#type' => 'submit',
+            '#value' => $this->t('Incluir Experiência'),
+            '#submit' => ['::addExperienciaCallback'],
+            '#ajax' => [
+                'callback' => '::ajaxRefreshExperiencias',
+                'wrapper' => 'experiencias-wrapper',
+            ],
+            '#attributes' => ['class' => ['btn', 'btn-outline-secondary', 'btn-sm']],
+            '#limit_validation_errors' => [],
+        ];
+
+        if ($num_experiencias > 0) {
+            $form['section_experiencia']['experiencias_wrapper']['remove_experiencia'] = [
+                '#type' => 'submit',
+                '#value' => $this->t('Remover última experiência'),
+                '#submit' => ['::removeExperienciaCallback'],
+                '#ajax' => [
+                    'callback' => '::ajaxRefreshExperiencias',
+                    'wrapper' => 'experiencias-wrapper',
+                ],
+                '#attributes' => ['class' => ['btn', 'btn-outline-danger', 'btn-sm', 'ms-2']],
+                '#limit_validation_errors' => [],
+            ];
+        }
+
+        $form['section_complementar'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['mb-4']],
+        ];
+
+        $form['section_complementar']['heading'] = [
+            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-info-circle me-2"></i>' . $this->t('Informações Complementares') . '</h4>',
+        ];
+
+        $form['section_complementar']['row'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['row', 'g-3']],
+        ];
+
+        $form['section_complementar']['row']['col_deficiencia'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12']],
+        ];
+
+        $form['section_complementar']['row']['col_deficiencia']['field_possui_deficiencia'] = [
+            '#type' => 'radios',
+            '#title' => $this->t('Possui alguma deficiência?'),
+            '#options' => [
+                '0' => $this->t('Não'),
+                '1' => $this->t('Sim'),
+            ],
+            '#default_value' => '0',
+            '#attributes' => ['class' => ['d-flex', 'gap-4']],
+        ];
+
+        $form['section_complementar']['row']['col_cid'] = [
+            '#type' => 'container',
+            '#attributes' => [
+                'class' => ['col-12', 'col-md-4'],
+                'id'    => 'cid-wrapper',
+            ],
+            '#states' => [
+                'visible' => [
+                    ':input[name="field_possui_deficiencia"]' => ['value' => '1'],
+                ],
+            ],
+        ];
+
+        $form['section_complementar']['row']['col_cid']['field_numero_cid'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Número do CID'),
+            '#maxlength' => 20,
+            '#attributes' => [
+                'class'       => ['form-control'],
+                'placeholder' => $this->t('Ex: F84.0'),
+            ],
+        ];
+
+        $form['section_termo'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['mb-4']],
+        ];
+
+        $termo_help_text = '';
+        $termo_field_config = FieldConfig::loadByName('user', 'user', 'field_termo');
+        if ($termo_field_config) {
+            $termo_help_text = trim((string) $termo_field_config->getDescription());
+        }
+
+        $termo_title = $termo_help_text !== ''
+            ? Markup::create(Xss::filter($termo_help_text, ['a', 'strong', 'em', 'span', 'br']))
+            : $this->t('Declaro que li e aceito os termos para cadastro.');
+
+        $form['section_termo']['field_termo'] = [
+            '#type' => 'checkbox',
+            '#title' => $termo_title,
+            '#default_value' => 0,
+            '#attributes' => [
+                'class' => ['js-field-termo'],
+            ],
+        ];
+
+        $form['#attached']['library'][] = 'custom_configs_users/registration_forms_validation';
+
+        $form['captcha'] = [
+            '#type' => 'captcha',
+            '#captcha_type' => 'recaptcha/reCAPTCHA',
+        ];
+
+        $form['actions'] = [
+            '#type' => 'actions',
+            '#attributes' => ['class' => ['mt-4', 'd-grid', 'gap-2', 'd-md-flex', 'justify-content-md-end']],
+        ];
+
+        $form['actions']['submit'] = [
+            '#type' => 'submit',
+            '#value' => $this->t('Cadastrar'),
+            '#button_type' => 'primary',
+            '#attributes' => ['class' => ['btn', 'btn-primary', 'btn-lg', 'px-5', 'js-candidato-submit']],
+        ];
+
+        return $form;
+    }
+
+    /**
+     * AJAX: adiciona mais uma instituição de ensino.
+     */
+    public function addInstituicaoCallback(array &$form, FormStateInterface $form_state)
+    {
+        $num = $form_state->get('num_instituicoes') ?? 1;
+        $form_state->set('num_instituicoes', $num + 1);
+        $form_state->setRebuild();
+    }
+
+    /**
+     * AJAX: remove a última instituição de ensino.
+     */
+    public function removeInstituicaoCallback(array &$form, FormStateInterface $form_state)
+    {
+        $num = $form_state->get('num_instituicoes') ?? 1;
+        if ($num > 1) {
+            $form_state->set('num_instituicoes', $num - 1);
+        }
+        $form_state->setRebuild();
+    }
+
+    /**
+     * AJAX: retorna o wrapper atualizado das instituições.
+     */
+    public function ajaxRefreshInstituicoes(array &$form, FormStateInterface $form_state)
+    {
+        return $form['section_instituicao']['instituicoes_wrapper'];
+    }
+
+    /**
+     * AJAX: adiciona mais um curso extracurricular.
+     */
+    public function addCursoCallback(array &$form, FormStateInterface $form_state)
+    {
+        $num = $form_state->get('num_cursos') ?? 0;
+        $form_state->set('num_cursos', $num + 1);
+        $form_state->setRebuild();
+    }
+
+    /**
+     * AJAX: remove o último curso extracurricular.
+     */
+    public function removeCursoCallback(array &$form, FormStateInterface $form_state)
+    {
+        $num = $form_state->get('num_cursos') ?? 0;
+        if ($num > 0) {
+            $form_state->set('num_cursos', $num - 1);
+        }
+        $form_state->setRebuild();
+    }
+
+    /**
+     * AJAX: retorna o wrapper atualizado dos cursos.
+     */
+    public function ajaxRefreshCursos(array &$form, FormStateInterface $form_state)
+    {
+        return $form['section_extracurricular']['cursos_wrapper'];
+    }
+
+    /**
+     * AJAX: adiciona mais uma experiência profissional.
+     */
+    public function addExperienciaCallback(array &$form, FormStateInterface $form_state)
+    {
+        $num = $form_state->get('num_experiencias') ?? 0;
+        $form_state->set('num_experiencias', $num + 1);
+        $form_state->setRebuild();
+    }
+
+    /**
+     * AJAX: remove a última experiência profissional.
+     */
+    public function removeExperienciaCallback(array &$form, FormStateInterface $form_state)
+    {
+        $num = $form_state->get('num_experiencias') ?? 0;
+        if ($num > 0) {
+            $form_state->set('num_experiencias', $num - 1);
+        }
+        $form_state->setRebuild();
+    }
+
+    /**
+     * AJAX: retorna o wrapper atualizado das experiências.
+     */
+    public function ajaxRefreshExperiencias(array &$form, FormStateInterface $form_state)
+    {
+        return $form['section_experiencia']['experiencias_wrapper'];
+    }
+
+    public function validateForm(array &$form, FormStateInterface $form_state)
+    {
+        $name = trim((string) $form_state->getValue('name'));
+        $mail = trim((string) $form_state->getValue('mail'));
+        $pass = (string) $form_state->getValue('pass');
+        $pass_confirm = (string) $form_state->getValue('pass_confirm');
+        $verify_mail = (bool) \Drupal::config('user.settings')->get('verify_mail');
+
+        // Acesso.
+        if (mb_strlen($name) < 3) {
+            $form_state->setErrorByName('name', $this->t('O nome de usuário deve ter pelo menos 3 caracteres.'));
+        }
+
+        if (!\Drupal::service('email.validator')->isValid($mail)) {
+            $form_state->setErrorByName('mail', $this->t('Informe um endereço de e-mail válido.'));
+        }
+
+        $existing_name = \Drupal::entityTypeManager()
+            ->getStorage('user')
+            ->loadByProperties(['name' => $name]);
+        if (!empty($existing_name)) {
+            $form_state->setErrorByName('name', $this->t('Este nome de usuário já está em uso.'));
+        }
+
+        $existing_mail = \Drupal::entityTypeManager()
+            ->getStorage('user')
+            ->loadByProperties(['mail' => $mail]);
+        if (!empty($existing_mail)) {
+            $form_state->setErrorByName('mail', $this->t('Este e-mail já está em uso.'));
+        }
+
+        if (!$verify_mail) {
+            if (mb_strlen($pass) < 8) {
+                $form_state->setErrorByName('pass', $this->t('A senha deve ter no mínimo 8 caracteres.'));
+            }
+
+            if ($pass !== $pass_confirm) {
+                $form_state->setErrorByName('pass_confirm', $this->t('A confirmação de senha não confere.'));
+            }
+        }
+
+        // CPF — apenas dígitos, 11 caracteres.
+        $cpf = preg_replace('/\D/', '', (string) $form_state->getValue('field_cpf'));
+        if (mb_strlen($cpf) !== 11) {
+            $form_state->setErrorByName('field_cpf', $this->t('O CPF deve conter 11 dígitos.'));
+        }
+
+        // RG — apenas dígitos, 6 a 12 caracteres.
+        $rg = preg_replace('/\D/', '', (string) $form_state->getValue('field_rg'));
+        if (mb_strlen($rg) < 6 || mb_strlen($rg) > 12) {
+            $form_state->setErrorByName('field_rg', $this->t('O RG deve conter entre 6 e 12 dígitos.'));
+        }
+
+        $previsao_formatura = $this->normalizePrevisaoFormatura(
+            (string) $form_state->getValue('field_previsao_formatura_month'),
+            (string) $form_state->getValue('field_previsao_formatura_year')
+        );
+        if ($previsao_formatura === NULL) {
+            $form_state->setErrorByName('field_previsao_formatura_month', $this->t('Informe o mês e o ano da previsão de formatura.'));
+        }
+
+        if (!(bool) $form_state->getValue('field_termo')) {
+            $form_state->setErrorByName('field_termo', $this->t('Você precisa aceitar o termo para concluir o cadastro.'));
+        }
+    }
+
+    public function submitForm(array &$form, FormStateInterface $form_state)
+    {
+        if (!(bool) $form_state->getValue('field_termo')) {
+            $this->messenger()->addError($this->t('Você precisa aceitar o termo para concluir o cadastro.'));
+            return;
+        }
+
+        $user_settings = \Drupal::config('user.settings');
+        $verify_mail = (bool) $user_settings->get('verify_mail');
+        $registration_policy = $user_settings->get('register');
+        $submitted_password = (string) $form_state->getValue('pass');
+        $account_password = $verify_mail
+            ? \Drupal::service('password_generator')->generate()
+            : $submitted_password;
+        $account_is_active = $registration_policy === UserInterface::REGISTER_VISITORS;
+
+        // Campos simples (texto/select/data) no User.
+        $custom_fields = [
+            'field_nome_completo',
+            'field_cpf',
+            'field_rg',
+            'field_orgao_emissor',
+            'field_data_nascimento',
+            'field_sexo',
+            'field_identidade_genero',
+            'field_estado_civil',
+            'field_quantidade_filhos',
+            'field_nacionalidade',
+            'field_estado_natal',
+            'field_nome_mae',
+            'field_nome_pai',
+            'field_cep',
+            'field_endereco',
+            'field_numero',
+            'field_complemento',
+            'field_bairro',
+            'field_cidade',
+            'field_estado',
+            'field_telefone',
+            'field_instagram',
+            'field_linkedin',
+            // Informações Acadêmicas.
+            'field_escolaridade',
+            'field_periodo_letivo',
+            'field_nome_curso',
+            'field_tipo_curso',
+            'field_horario_curso',
+            'field_duracao_curso',
+            'field_disponibilidade_estagio',
+            'field_numero_matricula',
+            // Informações Complementares.
+            'field_possui_deficiencia',
+            'field_numero_cid',
+        ];
+
+        $values = [
+            'name' => trim((string) $form_state->getValue('name')),
+            'mail' => trim((string) $form_state->getValue('mail')),
+            'init' => trim((string) $form_state->getValue('mail')),
+            'pass' => $account_password,
+            'status' => $account_is_active ? 1 : 0,
+        ];
+
+        foreach ($custom_fields as $field) {
+            $value = $form_state->getValue($field);
+            if ($value !== NULL && $value !== '') {
+                $values[$field] = $value;
+            }
+        }
+
+        $previsao_formatura = $this->normalizePrevisaoFormatura(
+            (string) $form_state->getValue('field_previsao_formatura_month'),
+            (string) $form_state->getValue('field_previsao_formatura_year')
+        );
+        if ($previsao_formatura !== NULL) {
+            $values['field_previsao_formatura'] = $previsao_formatura;
+        }
+
+        // Paragraphs — Instituições de Ensino.
+        $num_instituicoes = $form_state->get('num_instituicoes') ?? 1;
+        $inst_paragraphs = [];
+        for ($i = 0; $i < $num_instituicoes; $i++) {
+            $nome = $form_state->getValue('inst_nome_' . $i);
+            $endereco = $form_state->getValue('inst_endereco_' . $i);
+            $numero = $form_state->getValue('inst_numero_' . $i);
+            $cep = $form_state->getValue('inst_cep_' . $i);
+            $bairro = $form_state->getValue('inst_bairro_' . $i);
+            $cidade = $form_state->getValue('inst_cidade_' . $i);
+            $estado = $form_state->getValue('inst_estado_' . $i);
+
+            if (!empty($nome) || !empty($endereco) || !empty($numero) || !empty($cep) || !empty($bairro) || !empty($cidade) || !empty($estado)) {
+                $p_values = ['type' => 'instituicao_ensino'];
+                if (!empty($nome)) {
+                    $p_values['field_nome_instituicao'] = $nome;
+                }
+                if (!empty($endereco)) {
+                    $p_values['field_endereco'] = $endereco;
+                }
+                if (!empty($numero)) {
+                    $p_values['field_numero'] = $numero;
+                }
+                if (!empty($cep)) {
+                    $p_values['field_cep'] = $cep;
+                }
+                if (!empty($bairro)) {
+                    $p_values['field_bairro'] = $bairro;
+                }
+                if (!empty($cidade)) {
+                    $p_values['field_cidade'] = $cidade;
+                }
+                if (!empty($estado)) {
+                    $p_values['field_estado'] = $estado;
+                }
+                $paragraph = Paragraph::create($p_values);
+                $paragraph->save();
+                $inst_paragraphs[] = [
+                    'target_id' => $paragraph->id(),
+                    'target_revision_id' => $paragraph->getRevisionId(),
+                ];
+            }
+        }
+
+        if (!empty($inst_paragraphs) && FieldStorageConfig::loadByName('user', 'field_instituicao_ensino')) {
+            $values['field_instituicao_ensino'] = $inst_paragraphs;
+        }
+
+        // Paragraphs — Cursos Extracurriculares.
+        $num_cursos = $form_state->get('num_cursos') ?? 0;
+        $paragraphs = [];
+        for ($i = 0; $i < $num_cursos; $i++) {
+            $tipo = $form_state->getValue('curso_tipo_' . $i);
+            $habilidade = $form_state->getValue('curso_habilidade_' . $i);
+            $nivel = $form_state->getValue('curso_nivel_' . $i);
+            $carga = $form_state->getValue('curso_carga_' . $i);
+
+            // Só cria o Paragraph se ao menos um campo tiver valor.
+            if (!empty($tipo) || !empty($habilidade) || !empty($nivel) || !empty($carga)) {
+                $paragraph_values = ['type' => 'curso_extracurricular'];
+                if (!empty($tipo)) {
+                    $paragraph_values['field_tipo_habilidade'] = $tipo;
+                }
+                if (!empty($habilidade)) {
+                    $paragraph_values['field_habilidade'] = $habilidade;
+                }
+                if (!empty($nivel)) {
+                    $paragraph_values['field_nivel'] = $nivel;
+                }
+                if (!empty($carga)) {
+                    $paragraph_values['field_carga_horaria'] = $carga;
+                }
+                $paragraph = Paragraph::create($paragraph_values);
+                $paragraph->save();
+                $paragraphs[] = [
+                    'target_id' => $paragraph->id(),
+                    'target_revision_id' => $paragraph->getRevisionId(),
+                ];
+            }
+        }
+
+        if (!empty($paragraphs) && FieldStorageConfig::loadByName('user', 'field_cursos_extracurriculares')) {
+            $values['field_cursos_extracurriculares'] = $paragraphs;
+        }
+
+        // Paragraphs — Experiências Profissionais.
+        $num_experiencias = $form_state->get('num_experiencias') ?? 0;
+        $exp_paragraphs = [];
+        for ($i = 0; $i < $num_experiencias; $i++) {
+            $empresa    = $form_state->getValue('exp_nome_empresa_' . $i);
+            $cargo      = $form_state->getValue('exp_cargo_' . $i);
+            $data_ini   = $form_state->getValue('exp_data_inicio_' . $i);
+            $data_fim   = $form_state->getValue('exp_data_termino_' . $i);
+            $regime     = $form_state->getValue('exp_regime_' . $i);
+            $atividades = $form_state->getValue('exp_atividades_' . $i);
+
+            if (!empty($empresa) || !empty($cargo)) {
+                $p_values = ['type' => 'experiencia_profissional'];
+                if (!empty($empresa)) {
+                    $p_values['field_nome_empresa']     = $empresa;
+                }
+                if (!empty($cargo)) {
+                    $p_values['field_cargo']             = $cargo;
+                }
+                if (!empty($data_ini)) {
+                    $p_values['field_data_inicio']       = $data_ini;
+                }
+                if (!empty($data_fim)) {
+                    $p_values['field_data_termino']      = $data_fim;
+                }
+                if (!empty($regime)) {
+                    $p_values['field_regime_contrato']   = $regime;
+                }
+                if (!empty($atividades)) {
+                    $p_values['field_atividades']        = $atividades;
+                }
+
+                $paragraph = Paragraph::create($p_values);
+                $paragraph->save();
+                $exp_paragraphs[] = [
+                    'target_id'          => $paragraph->id(),
+                    'target_revision_id' => $paragraph->getRevisionId(),
+                ];
+            }
+        }
+
+        if (!empty($exp_paragraphs) && FieldStorageConfig::loadByName('user', 'field_experiencias_profissionais')) {
+            $values['field_experiencias_profissionais'] = $exp_paragraphs;
+        }
+
+        $user = User::create($values);
+        if ($user->hasField('field_termo')) {
+            $user->set('field_termo', (bool) $form_state->getValue('field_termo'));
+        }
+        if (Role::load('candidato')) {
+            $user->addRole('candidato');
+        }
+        $user->save();
+        $user->password = $account_password;
+
+        if (!$user->id()) {
+            $this->messenger()->addError($this->t('Nao foi possivel concluir o cadastro. Tente novamente.'));
+            return;
+        }
+
+        if (!$verify_mail && $user->isActive()) {
+            \_user_mail_notify('register_no_approval_required', $user);
+            \user_login_finalize($user);
+            $this->messenger()->addStatus($this->t('Cadastro realizado com sucesso.'));
+            $form_state->setRedirect('custom_configs_users.candidato_perfil');
+            return;
+        }
+
+        if ($user->isActive()) {
+            \_user_mail_notify('register_no_approval_required', $user);
+            $this->messenger()->addStatus($this->t('Cadastro realizado com sucesso. Enviamos um e-mail com instrucoes para acessar a conta.'));
+            $form_state->setRedirect('<front>');
+            return;
+        }
+
+        \_user_mail_notify('register_pending_approval', $user);
+        $this->messenger()->addStatus($this->t('Cadastro realizado. Sua conta aguarda aprovacao do administrador e voce recebera um e-mail com as proximas instrucoes.'));
+        $form_state->setRedirect('<front>');
+    }
+}

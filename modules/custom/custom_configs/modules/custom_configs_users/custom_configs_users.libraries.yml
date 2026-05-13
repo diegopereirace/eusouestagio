@@ -1,0 +1,8 @@
+registration_forms_validation:
+  version: 1.x
+  js:
+    js/forms-validation.js: {}
+  dependencies:
+    - core/drupal
+    - core/once
+

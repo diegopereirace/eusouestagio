@@ -1,0 +1,97 @@
+custom_panel.painel:
+  path: '/painel'
+  defaults:
+    _controller: '\Drupal\custom_panel\Controller\PanelController::index'
+    _title: 'Painel'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+
+custom_panel.painel_estudante_perfil:
+  path: '/painel/estudante/perfil'
+  defaults:
+    _title: 'Estudante - Perfil'
+    _controller: '\Drupal\custom_panel\Controller\PanelController::estudantePerfil'
+  requirements:
+    _role: 'candidato'
+
+custom_panel.painel_empresa_perfil:
+  path: '/painel/empresa/perfil'
+  defaults:
+    _title: 'Empresa - Perfil'
+    _controller: '\Drupal\custom_panel\Controller\PanelController::empresaPerfil'
+  requirements:
+    _role: 'empresa'
+
+custom_panel.vagas_salvas_toggle:
+  path: '/painel/estudante/vagas-salvas/toggle'
+  defaults:
+    _controller: '\Drupal\custom_panel\Controller\VagasSalvasController::toggle'
+  requirements:
+    _role: 'candidato'
+  methods: [POST]
+
+custom_panel.vagas_salvas_listagem:
+  path: '/painel/estudante/vagas-salvas'
+  defaults:
+    _title: 'Vagas Salvas'
+    _controller: '\Drupal\custom_panel\Controller\VagasSalvasController::listagem'
+  requirements:
+    _role: 'candidato'
+
+custom_panel.vagas_aplicadas_listagem:
+  path: '/painel/estudante/vagas-aplicadas'
+  defaults:
+    _title: 'Vagas Aplicadas'
+    _controller: '\Drupal\custom_panel\Controller\VagasAplicadasController::listagem'
+  requirements:
+    _role: 'candidato'
+
+custom_panel.vagas_candidatar:
+  path: '/vaga/apply/{node}'
+  defaults:
+    _controller: '\Drupal\custom_panel\Controller\VagasAplicadasController::apply'
+  requirements:
+    _role: 'candidato'
+    node: \d+
+  methods: [POST]
+
+custom_panel.moderador_candidaturas_listagem:
+  path: '/painel/moderador/candidaturas'
+  defaults:
+    _title: 'Candidaturas'
+    _controller: '\Drupal\custom_panel\Controller\ModeradorCandidaturasController::listagem'
+  requirements:
+    _role: 'moderador+administrator'
+
+custom_panel.moderador_candidaturas_status:
+  path: '/painel/moderador/candidaturas/status'
+  defaults:
+    _controller: '\Drupal\custom_panel\Controller\ModeradorCandidaturasController::atualizarStatus'
+  requirements:
+    _role: 'moderador+administrator'
+  methods: [POST]
+
+custom_panel.empresa_candidaturas_listagem:
+  path: '/painel/empresa/candidaturas'
+  defaults:
+    _title: 'Candidaturas Recebidas'
+    _controller: '\Drupal\custom_panel\Controller\EmpresaCandidaturasController::listagem'
+  requirements:
+    _role: 'empresa'
+
+custom_panel.error_403:
+  path: '/acesso-negado'
+  defaults:
+    _title: 'Acesso negado'
+    _controller: '\Drupal\custom_panel\Controller\ErrorPageController::accessDenied'
+  requirements:
+    _access: 'TRUE'
+
+custom_panel.error_404:
+  path: '/pagina-nao-encontrada'
+  defaults:
+    _title: 'Página não encontrada'
+    _controller: '\Drupal\custom_panel\Controller\ErrorPageController::notFound'
+  requirements:
+    _access: 'TRUE'
+

@@ -1,0 +1,12 @@
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - node
+name: Candidatura
+type: candidatura
+description: 'Registra a candidatura de um estudante a uma vaga de estágio.'
+help: ''
+new_revision: false
+preview_mode: 1
+display_submitted: false

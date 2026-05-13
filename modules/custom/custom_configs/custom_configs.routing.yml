@@ -1,0 +1,8 @@
+custom_configs.cep_lookup:
+  path: '/api/cep/{cep}'
+  defaults:
+    _controller: '\Drupal\custom_configs\Controller\CepLookupController::lookup'
+  requirements:
+    _access: 'TRUE'
+    cep: '\d{8}'
+  methods: [GET]

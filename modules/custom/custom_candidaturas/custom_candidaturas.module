@@ -1,0 +1,193 @@
+<?php
+
+use Drupal\Component\Utility\Html;
+
+/**
+ * Implements hook_mail().
+ */
+function custom_candidaturas_mail(string $key, array &$message, array $params): void
+{
+  if ($key !== 'nova_candidatura_moderadores') {
+    return;
+  }
+
+  $site_name      = $params['site_name'] ?? \Drupal::config('system.site')->get('name');
+  $candidato_nome = $params['candidato_nome'] ?? 'Candidato';
+  $vaga_titulo    = $params['vaga_titulo'] ?? 'Vaga';
+
+  $message['subject'] = \Drupal::translation()->translate(
+    '@site - Nova candidatura: @candidato para "@vaga"',
+    [
+      '@site'      => $site_name,
+      '@candidato' => $candidato_nome,
+      '@vaga'      => $vaga_titulo,
+    ]
+  );
+
+  $message['body'][] = \Drupal::translation()->translate('Olá, moderador(a)!');
+  $message['body'][] = \Drupal::translation()->translate(
+    'O candidato "@candidato" se inscreveu na vaga "@vaga".',
+    ['@candidato' => $candidato_nome, '@vaga' => $vaga_titulo]
+  );
+
+  if (!empty($params['tem_empresa'])) {
+    $message['body'][] = \Drupal::translation()->translate(
+      'Atenção: esta vaga foi cadastrada pela empresa "@empresa". Apenas o moderador poderá dar seguimento ao processo.',
+      ['@empresa' => $params['empresa_nome'] ?? '']
+    );
+  } else {
+    $message['body'][] = \Drupal::translation()->translate(
+      'Informação: esta vaga não está vinculada a uma empresa cadastrada na plataforma.'
+    );
+  }
+
+  $message['body'][] = \Drupal::translation()->translate('Acesse a vaga: @url', ['@url' => $params['vaga_url'] ?? '']);
+}
+
+/**
+ * Implements hook_mail_alter().
+ *
+ * Substitui o corpo do e-mail por HTML inline-styled para clientes de e-mail.
+ */
+function custom_candidaturas_mail_alter(array &$message): void
+{
+  if (($message['module'] ?? '') !== 'custom_candidaturas') {
+    return;
+  }
+
+  if (($message['key'] ?? '') !== 'nova_candidatura_moderadores') {
+    return;
+  }
+
+  $params = $message['params'] ?? [];
+  $html   = _custom_candidaturas_build_candidatura_html($params);
+
+  $message['headers']['MIME-Version']              = '1.0';
+  $message['headers']['Content-Type']              = 'text/html; charset=UTF-8; format=flowed; delsp=yes';
+  $message['headers']['Content-Transfer-Encoding'] = '8Bit';
+  $message['body'] = [$html];
+}
+
+/**
+ * Monta o HTML do e-mail de nova candidatura para moderadores.
+ */
+function _custom_candidaturas_build_candidatura_html(array $params): string
+{
+  $site_safe      = Html::escape(($params['site_name'] ?? '') ?: 'Eu Sou Estágio');
+  $candidato_safe = Html::escape(($params['candidato_nome'] ?? '') ?: 'Candidato');
+  $vaga_safe      = Html::escape(($params['vaga_titulo'] ?? '') ?: 'Vaga');
+  $url_safe       = Html::escape($params['vaga_url'] ?? '');
+  $tem_empresa    = !empty($params['tem_empresa']);
+  $empresa_safe   = Html::escape($params['empresa_nome'] ?? '');
+  $emp_mail_safe  = Html::escape($params['empresa_mail'] ?? '');
+
+  // ── Linhas do card de dados ───────────────────────────────────────────────
+  $card_rows = '<tr><td style="padding:0 0 8px 0;">'
+    . '<span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#7a8696;">Candidato</span><br>'
+    . '<span style="font-size:16px;font-weight:700;color:#1d2430;">' . $candidato_safe . '</span>'
+    . '</td></tr>'
+    . '<tr><td style="padding:8px 0 0 0;border-top:1px solid #e8edf3;">'
+    . '<span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#7a8696;">Vaga</span><br>'
+    . '<span style="font-size:14px;color:#1d2430;">' . $vaga_safe . '</span>'
+    . '</td></tr>';
+
+  if ($tem_empresa && $empresa_safe !== '') {
+    $card_rows .= '<tr><td style="padding:8px 0 0 0;border-top:1px solid #e8edf3;">'
+      . '<span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#7a8696;">Empresa (vaga)</span><br>'
+      . '<span style="font-size:14px;color:#1d2430;">' . $empresa_safe . '</span>'
+      . '</td></tr>';
+
+    if ($emp_mail_safe !== '') {
+      $card_rows .= '<tr><td style="padding:8px 0 0 0;border-top:1px solid #e8edf3;">'
+        . '<span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#7a8696;">E-mail da Empresa</span><br>'
+        . '<span style="font-size:14px;color:#1d2430;">'
+        . '<a href="mailto:' . $emp_mail_safe . '" style="color:#0b4a74;text-decoration:none;">' . $emp_mail_safe . '</a>'
+        . '</span></td></tr>';
+    }
+  }
+
+  // ── Banner de aviso empresa / sem empresa ─────────────────────────────────
+  if ($tem_empresa) {
+    $aviso_bg    = '#fff8e1';
+    $aviso_borda = '#f5c518';
+    $aviso_cor   = '#6b5000';
+    $aviso_texto = '⚠&nbsp;Vaga cadastrada por <strong>' . $empresa_safe . '</strong>. '
+      . 'Apenas o moderador poderá dar seguimento ao processo seletivo.';
+  } else {
+    $aviso_bg    = '#e8f5e9';
+    $aviso_borda = '#4caf50';
+    $aviso_cor   = '#1b5e20';
+    $aviso_texto = 'ℹ&nbsp;Esta vaga não está vinculada a uma empresa cadastrada na plataforma.';
+  }
+
+  // ── Estrutura completa do e-mail ──────────────────────────────────────────
+  return '<!doctype html>'
+    . '<html lang="pt-br"><head>'
+    . '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">'
+    . '<meta name="viewport" content="width=device-width,initial-scale=1">'
+    . '<title>' . $site_safe . ' — Nova Candidatura</title>'
+    . '</head>'
+    . '<body style="margin:0;padding:0;background:#f0f4f8;font-family:Arial,Helvetica,sans-serif;color:#1d2430;-webkit-text-size-adjust:100%;">'
+    . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f0f4f8;">'
+    . '<tr><td align="center" style="padding:28px 16px;">'
+
+    // Card externo
+    . '<table role="presentation" width="620" cellpadding="0" cellspacing="0"'
+    . ' style="max-width:620px;width:100%;background:#ffffff;border-radius:8px;'
+    . 'overflow:hidden;border-top:6px solid #0b4a74;box-shadow:0 2px 8px rgba(0,0,0,0.08);">'
+
+    // Cabeçalho do site
+    . '<tr><td style="padding:26px 32px 4px 32px;">'
+    . '<span style="font-size:22px;font-weight:700;color:#0b4a74;letter-spacing:-0.01em;">' . $site_safe . '</span>'
+    . '</td></tr>'
+
+    // Título
+    . '<tr><td style="padding:6px 32px 6px 32px;">'
+    . '<span style="font-size:18px;font-weight:700;color:#1d2430;">Nova candidatura registrada</span>'
+    . '</td></tr>'
+
+    // Saudação
+    . '<tr><td style="padding:4px 32px 18px 32px;font-size:14px;line-height:1.7;color:#2b3445;">'
+    . 'Olá, moderador(a)! Um candidato se inscreveu em uma vaga na plataforma.'
+    . '</td></tr>'
+
+    // Separador
+    . '<tr><td style="padding:0 32px;"><div style="border-top:1px solid #e8edf3;"></div></td></tr>'
+
+    // Card de dados
+    . '<tr><td style="padding:20px 32px;">'
+    . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"'
+    . ' style="background:#f7f9fc;border-radius:6px;border:1px solid #dce3ec;">'
+    . '<tr><td style="padding:18px 20px;">'
+    . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0">'
+    . $card_rows
+    . '</table></td></tr></table>'
+    . '</td></tr>'
+
+    // Banner de aviso
+    . '<tr><td style="padding:0 32px 20px 32px;">'
+    . '<div style="padding:12px 16px;background:' . $aviso_bg . ';border-left:4px solid '
+    . $aviso_borda . ';border-radius:4px;font-size:13px;color:' . $aviso_cor . ';line-height:1.5;">'
+    . $aviso_texto
+    . '</div></td></tr>'
+
+    // Botão CTA
+    . ($url_safe !== ''
+      ? '<tr><td style="padding:0 32px 26px 32px;text-align:center;">'
+      . '<a href="' . $url_safe . '" style="display:inline-block;padding:11px 28px;'
+      . 'background:#0b4a74;color:#ffffff;font-size:14px;font-weight:700;'
+      . 'text-decoration:none;border-radius:5px;">Ver Vaga</a>'
+      . '</td></tr>'
+      : ''
+    )
+
+    // Rodapé
+    . '<tr><td style="padding:16px 32px;background:#f7f9fc;border-top:1px solid #e8edf3;">'
+    . '<span style="font-size:11px;color:#9aa5b4;">Este e-mail foi gerado automaticamente pela plataforma '
+    . $site_safe . '. Por favor, não responda diretamente.</span>'
+    . '</td></tr>'
+
+    . '</table>'   // card externo
+    . '</td></tr></table>'  // wrapper
+    . '</body></html>';
+}

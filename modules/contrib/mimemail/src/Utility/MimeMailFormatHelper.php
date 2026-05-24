@@ -812,15 +812,15 @@ class MimeMailFormatHelper {
     // Overwrite standard headers.
     if ($from) {
       $default_from = $site_config->get('mail');
-      if (!isset($headers['From']) || $headers['From'] == $default_from) {
+      $overwrite = isset($headers['From'], $headers['Sender'], $headers['Return-Path'])
+        && $headers['From'] === $default_from
+        && $headers['Sender'] === $default_from;
+
+      if ($overwrite || !isset($headers['From'])) {
         $headers['From'] = $from;
       }
-      if (!isset($headers['Sender']) || $headers['Sender'] == $default_from) {
+      if ($overwrite || !isset($headers['Sender'])) {
         $headers['Sender'] = $from;
-      }
-      // This may not work. The MTA may rewrite the Return-Path.
-      if (!isset($headers['Return-Path']) || $headers['Return-Path'] == $default_from) {
-        $headers['Return-Path'] = static::mimeMailAddress($from, TRUE);
       }
     }
 

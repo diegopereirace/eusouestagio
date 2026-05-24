@@ -521,10 +521,14 @@ class MimeMailFormatHelperTest extends KernelTestBase {
     $name = $this->randomString();
     $local = $this->randomMachineName() . $chars[array_rand($chars)] . $this->randomMachineName();
     $domain = $this->randomMachineName() . '-' . $this->randomMachineName() . '.' . $this->randomMachineName(rand(2, 4));
-    $headers = MimeMailFormatHelper::mimeMailHeaders([], "$name <$local@$domain>");
+    $mail = "$name <$local@$domain>";
+    $existing_return_path = "prepopulated@here";
+    $headers = MimeMailFormatHelper::mimeMailHeaders(['Return-Path' => $existing_return_path], $mail);
     $result = $headers['Return-Path'];
-    $expected = "$local@$domain";
-    $this->assertSame($expected, $result, 'Return-Path header field correctly set.');
+    $this->assertSame($existing_return_path, $result, 'When a Return-Path header is already present, mimemail leaves it intact.');
+    $headers = MimeMailFormatHelper::mimeMailHeaders([], "$mail");
+    // Check absence of Return-path: header as per RFC 5321.
+    $this->assertFalse(isset(array_change_key_case($headers)['return-path']), 'When no Return-Path header is present, Mimemail does not add one.');
   }
 
 }

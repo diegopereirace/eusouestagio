@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\mimemail\Unit;
 
-use Drupal\Tests\Core\Mail\Plugin\Mail\PhpMailTest;
 use Drupal\mimemail\Plugin\Mail\MimeMail;
+use Drupal\Tests\Core\Mail\Plugin\Mail\PhpMailTest;
 
 /**
  * Tests the MimeMail plugin by adapting its parent class's tests.

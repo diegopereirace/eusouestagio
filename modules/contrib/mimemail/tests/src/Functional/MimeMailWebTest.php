@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\mimemail\Functional;
 
-use Drupal\Tests\BrowserTestBase;
 use Drupal\mimemail\Utility\MimeMailFormatHelper;
+use Drupal\Tests\BrowserTestBase;
 
 /**
  * Mime Mail web tests.

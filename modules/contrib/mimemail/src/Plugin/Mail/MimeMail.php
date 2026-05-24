@@ -154,6 +154,7 @@ class MimeMail extends PhpMail implements ContainerFactoryPluginInterface {
     $from = $message['from'];
     $subject = $message['subject'];
     $body = $message['body'];
+    $params = $message['params'];
 
     $headers = $message['params']['headers'] ?? [];
     $plain = $message['params']['plain'] ?? NULL;
@@ -196,7 +197,7 @@ class MimeMail extends PhpMail implements ContainerFactoryPluginInterface {
     // MailFormatHelper::htmlToText() removes \r and adds \n both directly and
     // within the utility method MailFormatHelper::wrapMailLine(). Subject
     // headers can't contain \n characters, so we remove those here.
-    $subject = str_replace(["\n"], '', trim(MailFormatHelper::htmlToText($subject)));
+    $subject = str_replace([" \n", "\n"], '', trim(MailFormatHelper::htmlToText($subject)));
 
     $body = [
       '#theme' => 'mimemail_message',
@@ -205,6 +206,7 @@ class MimeMail extends PhpMail implements ContainerFactoryPluginInterface {
       '#recipient' => $to,
       '#subject' => $subject,
       '#body' => $body,
+      '#params' => $params,
       '#langcode' => $message['langcode'] ?? '',
     ];
 

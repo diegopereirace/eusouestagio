@@ -6,6 +6,7 @@ namespace Drupal\Tests\mimemail\Unit;
 
 use Drupal\mimemail\Plugin\Mail\MimeMail;
 use Drupal\Tests\Core\Mail\Plugin\Mail\PhpMailTest;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests the MimeMail plugin by adapting its parent class's tests.
@@ -14,6 +15,7 @@ use Drupal\Tests\Core\Mail\Plugin\Mail\PhpMailTest;
  *
  * @group mimemail
  */
+#[Group('mimemail')]
 class MimeMailTest extends PhpMailTest {
 
   /**

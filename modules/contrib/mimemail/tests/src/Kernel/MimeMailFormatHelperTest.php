@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Drupal\Tests\mimemail\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
-use Drupal\TestTools\Random;
-use Drupal\Tests\user\Traits\UserCreationTrait;
 use Drupal\mimemail\Utility\MimeMailFormatHelper;
+use Drupal\Tests\user\Traits\UserCreationTrait;
+use Drupal\TestTools\Random;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests that Mime Mail utility functions work properly.
@@ -16,6 +19,8 @@ use Drupal\mimemail\Utility\MimeMailFormatHelper;
  *
  * @group mimemail
  */
+#[Group('mimemail')]
+#[RunTestsInSeparateProcesses]
 class MimeMailFormatHelperTest extends KernelTestBase {
   use UserCreationTrait;
 
@@ -88,6 +93,9 @@ class MimeMailFormatHelperTest extends KernelTestBase {
    * @dataProvider providerAssociativeAddressArray
    * @covers ::mimeMailAddress
    */
+  #[DataProvider('providerAddress')]
+  #[DataProvider('providerArrayOfAddresses')]
+  #[DataProvider('providerAssociativeAddressArray')]
   public function testAddress($address, $result, $simplified_result): void {
     // Test not simplified.
     $formatted = MimeMailFormatHelper::mimeMailAddress($address);
@@ -295,6 +303,7 @@ class MimeMailFormatHelperTest extends KernelTestBase {
    * @dataProvider providerTestUrl
    * @covers ::mimeMailUrl
    */
+  #[DataProvider('providerTestUrl')]
   public function testUrl(string $url, bool $absolute, string $expected): void {
     $result = MimeMailFormatHelper::mimeMailUrl($url, $absolute);
     $this->assertSame($expected, $result);
@@ -404,6 +413,7 @@ class MimeMailFormatHelperTest extends KernelTestBase {
    * @dataProvider providerRfcHeaders
    * @covers ::mimeMailRfcHeaders
    */
+  #[DataProvider('providerRfcHeaders')]
   public function testRfcHeaders(array $headers, string $expected): void {
     $actual = MimeMailFormatHelper::mimeMailRfcHeaders($headers);
     $this->assertSame($expected, $actual);

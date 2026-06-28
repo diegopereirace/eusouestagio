@@ -2,6 +2,7 @@
 
 namespace Drupal\mimemail\Plugin\Mail;
 
+use Drupal\Component\Utility\DeprecationHelper;
 use Drupal\Component\Utility\EmailValidatorInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -11,6 +12,7 @@ use Drupal\Core\Mail\Plugin\Mail\PhpMail;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\filter\FilterFormatRepositoryInterface;
 use Drupal\mimemail\Utility\MimeMailFormatHelper;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -97,10 +99,10 @@ class MimeMail extends PhpMail implements ContainerFactoryPluginInterface {
     if (isset($message['headers']['Content-Type'])) {
       if (preg_match('/plain/', $message['headers']['Content-Type'])) {
         if (!$format = $this->configFactory->get('mimemail.settings')->get('format')) {
-          $format = filter_fallback_format();
+          $format = DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.4.0', fn() => \Drupal::service(FilterFormatRepositoryInterface::class)->getFallbackFormatId(), fn() => filter_fallback_format());
         }
         $langcode = $message['langcode'] ?? '';
-        $message['body'] = check_markup($message['body'], $format, $langcode);
+        $message['body'] = ['#type' => 'processed_text', '#text' => $message['body'], '#format' => $format, '#langcode' => $langcode];
       }
     }
 
@@ -182,7 +184,7 @@ class MimeMail extends PhpMail implements ContainerFactoryPluginInterface {
     // Try to determine recipient's text mail preference.
     elseif (is_null($plain)) {
       if (is_string($to) && $this->emailValidator->isValid($to)) {
-        if (is_object($account = user_load_by_mail($to))) {
+        if (is_object($account = array_values(\Drupal::entityTypeManager()->getStorage('user')->loadByProperties(['mail' => $to]))[0] ?? FALSE)) {
           // Might as well pass the user object to the address function.
           $to = $account;
           $user_plaintext_field = $this->configFactory->get('mimemail.settings')->get('user_plaintext_field');

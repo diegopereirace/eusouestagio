@@ -3,13 +3,15 @@ FROM drupal:11-php8.3-apache
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
+        git \
         libavif-dev \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
         libpng-dev \
         libpq-dev \
         libwebp-dev \
-        openssl; \
+        openssl \
+        unzip; \
     docker-php-ext-configure gd \
         --with-avif \
         --with-freetype \
@@ -27,6 +29,8 @@ RUN set -eux; \
     a2ensite default-ssl; \
     apt-get purge -y --auto-remove; \
     rm -rf /var/lib/apt/lists/*
+
+RUN composer --version
 
 COPY ./docker/php/custom.ini /usr/local/etc/php/conf.d/custom.ini
 COPY ./docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf

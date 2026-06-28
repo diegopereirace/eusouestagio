@@ -3,6 +3,7 @@
 namespace Drupal\mimemail\Form;
 
 use Drupal\Component\Utility\Crypt;
+use Drupal\Component\Utility\DeprecationHelper;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -13,6 +14,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Mail\MailManagerInterface;
 use Drupal\Core\Url;
 use Drupal\field\Entity\FieldConfig;
+use Drupal\filter\FilterFormatRepositoryInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -201,7 +203,7 @@ class AdminForm extends ConfigFormBase {
     }
 
     // Get a list of all formats.
-    $formats = filter_formats();
+    $formats = DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.4.0', fn() => \Drupal::service(FilterFormatRepositoryInterface::class)->getAllFormats(), fn() => filter_formats());
     $format_options = [];
     foreach ($formats as $format) {
       $format_options[$format->get('format')] = $format->get('name');
@@ -209,7 +211,7 @@ class AdminForm extends ConfigFormBase {
     $form['mimemail']['format'] = [
       '#type' => 'select',
       '#title' => $this->t('Email format'),
-      '#default_value' => $config->get('format') ?: filter_fallback_format(),
+      '#default_value' => $config->get('format') ?: DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.4.0', fn() => \Drupal::service(FilterFormatRepositoryInterface::class)->getFallbackFormatId(), fn() => filter_fallback_format()),
       '#options' => $format_options,
       '#access' => count($formats) > 1,
       '#attributes' => ['class' => ['filter-list']],

@@ -6,12 +6,16 @@ namespace Drupal\Tests\mimemail\Functional;
 
 use Drupal\mimemail\Utility\MimeMailFormatHelper;
 use Drupal\Tests\BrowserTestBase;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Mime Mail web tests.
  *
  * @group mimemail
  */
+#[Group('mimemail')]
+#[RunTestsInSeparateProcesses]
 class MimeMailWebTest extends BrowserTestBase {
 
   /**

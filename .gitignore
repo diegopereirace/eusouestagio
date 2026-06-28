@@ -20,6 +20,13 @@
 sites/*/settings*.php
 sites/*/services*.yml
 
+# Ignora configurações específicas do ambiente
+sites/default/settings.php
+sites/default/settings.local.php
+
+# Ignora todos os arquivos de upload, cache e estilos de imagem
+sites/default/files/
+
 # Ignore paths that contain user-generated content.
 sites/*/files
 sites/*/private

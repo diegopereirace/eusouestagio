@@ -15,11 +15,11 @@
         "drupal/bootstrap_barrio": "5.5.20",
         "drupal/captcha": "2.0.10",
         "drupal/coffee": "2.0.1",
-        "drupal/core-composer-scaffold": "^11.3",
-        "drupal/core-project-message": "^11.3",
-        "drupal/core-recommended": "^11.3",
+        "drupal/core-composer-scaffold": "^11.4",
+        "drupal/core-project-message": "^11.4",
+        "drupal/core-recommended": "^11.4",
         "drupal/devel": "5.5",
-        "drupal/devel_php": "2.0",
+        "drupal/devel_php": "2.0.1",
         "drupal/field_group": "4.0",
         "drupal/metatag": "2.2",
         "drupal/mimemail": "^2.0",
@@ -29,7 +29,7 @@
         "drupal/recaptcha_v3": "2.0.5",
         "drupal/smtp": "1.4",
         "drupal/twig_tweak": "^3.4",
-        "drupal/webform": "^6.3@RC",
+        "drupal/webform": "^6.3.0",
         "drush/drush": "^13.7",
         "google/recaptcha": "~1.3.0",
         "phpmailer/phpmailer": "v6.12.0"
@@ -44,7 +44,9 @@
         "composer/installers": true,
         "drupal/core-composer-scaffold": true,
         "drupal/core-project-message": true,
-        "php-http/discovery": true
+        "drupal/core-recipe-unpack": true,
+        "php-http/discovery": true,
+        "symfony/runtime": true
         },
         "sort-packages": true
     },

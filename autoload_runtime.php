@@ -19,4 +19,4 @@ use Drupal\Core\Runtime\DrupalRuntime;
 // expects to be prepared. Thus, we default Drupal applications to DrupalRuntime
 // instead to make this easily accessible.
 $_ENV['APP_RUNTIME'] ??= $_SERVER['APP_RUNTIME'] ?? DrupalRuntime::class;
-return require __DIR__ . '/../vendor/autoload_runtime.php';
+return require __DIR__ . '/vendor/autoload_runtime.php';

@@ -43,7 +43,14 @@ function default_form_system_theme_settings_alter(&$form, FormStateInterface $fo
 
 function default_preprocess(&$variables, $hook)
 {
-  $variables['logopath'] = \Drupal::service('file_url_generator')->transformRelative(\Drupal::service('file_url_generator')->generateAbsoluteString(theme_get_setting('logo.url')));
+  $logo_url = theme_get_setting('logo.url');
+  $variables['logopath'] = '';
+  if (!empty($logo_url)) {
+    $file_url_generator = \Drupal::service('file_url_generator');
+    $variables['logopath'] = $file_url_generator->transformRelative(
+      $file_url_generator->generateAbsoluteString($logo_url)
+    );
+  }
   $variables['path_to_theme'] = \Drupal::theme()->getActiveTheme()->getPath();
 }
 

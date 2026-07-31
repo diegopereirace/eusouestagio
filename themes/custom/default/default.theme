@@ -186,9 +186,23 @@ function default_preprocess_block__default_painelpageheader(&$variables)
  *
  * Injects breakpoint media queries from the active theme into drupalSettings
  * so block_breakpoint JS can evaluate data-breakpoint attributes.
+ *
+ * Also attaches a temporary noindex/nofollow robots meta until launch.
  */
 function default_page_attachments_alter(array &$attachments)
 {
+  // ponytail: noindex temporário até o lançamento; remover ao publicar.
+  $attachments['#attached']['html_head'][] = [
+    [
+      '#tag' => 'meta',
+      '#attributes' => [
+        'name' => 'robots',
+        'content' => 'noindex, nofollow',
+      ],
+    ],
+    'robots_noindex',
+  ];
+
   $active_theme = \Drupal::theme()->getActiveTheme()->getName();
 
   /** @var \Drupal\breakpoint\BreakpointManagerInterface $manager */

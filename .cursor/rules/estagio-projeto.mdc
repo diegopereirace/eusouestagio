@@ -1,0 +1,11 @@
+---
+description: Diretrizes gerais e arquitetura do portal Eu Sou Estágio
+globs: *
+alwaysApply: true
+---
+# Contexto do Projeto: Eu Sou Estágio
+
+- **Plataforma:** Drupal 11 lançado em 2025.
+- **Metodologia:** Utilizar sempre Spec Driven Development (SDD) para planejar e confirmar as etapas antes de gerar código.
+- **Objetivo:** Manter a integridade da plataforma, focando em performance de carregamento, segurança de dados e URLs limpas (Clean URLs).
+- **Atenção:** Nunca sugira alterações diretas em arquivos das pastas `core/` ou `vendor/`.

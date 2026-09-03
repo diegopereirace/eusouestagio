@@ -1,0 +1,10 @@
+---
+description: Padrões de desenvolvimento PHP e Drupal 11
+globs: *.php, *.module, *.theme, *.yml, composer.json
+---
+# Backend e Drupal 11
+
+- **Padrão de Código:** Siga estritamente o Drupal Coding Standards e as práticas modernas do PHP 8+.
+- **Desenvolvimento:** Toda nova funcionalidade deve ser encapsulada em módulos customizados (`modules/custom`).
+- **Dependências:** O gerenciamento de pacotes deve ser feito exclusivamente via `composer`.
+- **Configurações:** Utilize a Configuration API do Drupal para exportar e importar configurações entre ambientes.

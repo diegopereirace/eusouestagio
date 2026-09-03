@@ -1,0 +1,10 @@
+---
+description: Regras de deploy, servidor e variáveis de ambiente
+globs: .env, .htaccess, *.sh
+---
+# Infraestrutura e VPS de Produção
+
+- **Ambiente:** Servidor de produção em VPS rodando Apache.
+- **Caminho Web:** O diretório raiz público da aplicação está localizado em `/var/www/html`.
+- **Segurança:** O arquivo `.env` contém credenciais críticas e NUNCA deve ser commitado no Git. Modificações na estrutura do `.env` devem ser refletidas em um `.env.example`.
+- **SSL/TLS:** A aplicação roda sob HTTPS (Let's Encrypt). Certifique-se de não criar redirecionamentos de rota que quebrem a estrutura do certificado.

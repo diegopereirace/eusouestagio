@@ -1,0 +1,10 @@
+---
+description: Padrões de manipulação de dados e PostgreSQL
+globs: *.php, *.sql
+---
+# Banco de Dados
+
+- **Motor:** A infraestrutura utiliza PostgreSQL 16.
+- **Consultas:** Otimize consultas utilizando a Database API nativa do Drupal (ex: `\Drupal::entityQuery()`).
+- **Abstração:** Evite consultas SQL puras no banco de dados. Utilize sempre a camada de abstração do Drupal para garantir segurança contra injeção de SQL e compatibilidade.
+- **Encoding:** Garanta o tratamento correto de caracteres (UTF-8) nas transações com o banco.

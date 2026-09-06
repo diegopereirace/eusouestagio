@@ -57,7 +57,9 @@ _chave/
 
 .github/*
 
-docker/*
+# Pastas locais geradas no host (configs versionadas ficam em docker/apache e docker/php)
+docker/ssl/
+docker/*.local.*
 
 # Arquivos gerados pelo Drupal scaffold (composer install os recria automaticamente)
 /robots.txt

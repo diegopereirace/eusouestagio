@@ -376,10 +376,13 @@ class EmpresaRegistrationForm extends FormBase
             '#attributes' => ['class' => ['form-check-input']],
         ];
 
-        $form['captcha'] = [
-            '#type' => 'captcha',
-            '#captcha_type' => 'recaptcha/reCAPTCHA',
-        ];
+        // Local Docker: $settings['disable_captcha'] = TRUE em settings.php.
+        if (!\Drupal::settings()->get('disable_captcha')) {
+            $form['captcha'] = [
+                '#type' => 'captcha',
+                '#captcha_type' => 'recaptcha/reCAPTCHA',
+            ];
+        }
 
         $form['submit'] = [
             '#type' => 'submit',

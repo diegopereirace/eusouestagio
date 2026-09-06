@@ -1224,10 +1224,13 @@ class CandidatoRegistrationForm extends FormBase
 
         $form['#attached']['library'][] = 'custom_configs_users/registration_forms_validation';
 
-        $form['captcha'] = [
-            '#type' => 'captcha',
-            '#captcha_type' => 'recaptcha/reCAPTCHA',
-        ];
+        // Local Docker: $settings['disable_captcha'] = TRUE em settings.php.
+        if (!\Drupal::settings()->get('disable_captcha')) {
+            $form['captcha'] = [
+                '#type' => 'captcha',
+                '#captcha_type' => 'recaptcha/reCAPTCHA',
+            ];
+        }
 
         $form['actions'] = [
             '#type' => 'actions',

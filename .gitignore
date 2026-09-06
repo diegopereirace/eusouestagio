@@ -52,6 +52,7 @@ sites/simpletest
 /example.gitignore
 
 _arquivos/*
+_chave/
 .deploy-backups/
 
 .github/*

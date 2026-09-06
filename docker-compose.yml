@@ -17,6 +17,7 @@ services:
       DRUPAL_DB_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - ./:/var/www/html
+    working_dir: /var/www/html
     restart: unless-stopped
 
   postgres:

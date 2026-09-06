@@ -1,0 +1,35 @@
+========================================
+  Eu Sou Estagio — ambiente Windows
+========================================
+
+PRE-REQUISITO
+  1. Instale o Docker Desktop:
+     https://www.docker.com/products/docker-desktop/
+  2. Abra o Docker Desktop e espere ficar "Running".
+
+SUBIR O SITE (primeira vez e dias seguintes)
+  1. Abra a pasta do projeto no Explorer.
+  2. De duplo clique em:  dev-up.bat
+  3. Espere a mensagem "Pronto."
+  4. Abra no Chrome/Edge:
+     https://localhost:8082
+  5. Se o navegador avisar de certificado inseguro:
+     Avancado -> Continuar / Prosseguir para localhost
+     (e normal no ambiente local)
+
+PARAR O SITE
+  Duplo clique em:  dev-down.bat
+
+OBSERVACOES
+  - CAPTCHA fica DESLIGADO neste ambiente local.
+  - Na primeira vez o script importa o banco automaticamente
+    (pode demorar alguns minutos).
+  - Nao precisa instalar PHP, Composer nem Postgres na maquina.
+
+PROBLEMAS COMUNS
+  - "Docker nao esta rodando"
+    -> Abra o Docker Desktop e tente de novo.
+  - Porta 8082 ocupada
+    -> Feche outro programa usando essa porta, ou avise o time.
+  - Site nao abre apos o "Pronto"
+    -> Espere 20 segundos e atualize a pagina.

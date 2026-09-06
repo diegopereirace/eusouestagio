@@ -1,0 +1,14 @@
+---
+description: Guardião do Escopo — quando perguntar sobre atualizar PRD.md
+globs: composer.json,config/sync/**/*,**/*.schema.yml,**/*.routing.yml,modules/custom/**/*.module,modules/custom/**/*.services.yml,web/modules/custom/**/*
+alwaysApply: false
+---
+# Guardião do Escopo (PRD.md)
+
+Após mudanças **estruturais** nos arquivos cobertos por este rule, **não** atualize `PRD.md` automaticamente.
+
+Pergunte de forma concisa: "Essa alteração estrutural exige atualização no PRD.md?"
+
+**Ignorar** (não perguntar): CSS, JS, Twig, copy/UI e ajustes simples de frontend.
+
+Fonte canônica do produto: `PRD.md` na raiz do repositório.

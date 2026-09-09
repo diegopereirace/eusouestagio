@@ -32,6 +32,16 @@ block_breakpoint:
     - core/drupal
     - core/drupalSettings
     - core/once
+banner_carousel:
+  js:
+    assets/js/banner-carousel.js: {}
+  css:
+    component:
+      assets/css/banner-carousel.css: {}
+  dependencies:
+    - core/drupal
+    - core/once
+    - default/bootstrap
 jquery_mask:
   js:
     /libraries/jquery-mask/jquery.mask.min.js: {}

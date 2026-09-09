@@ -39,6 +39,20 @@ function default_form_system_theme_settings_alter(&$form, FormStateInterface $fo
     'bg-white' => t('White'),
     'bg-transparent' => t('Transparent'),
   ];
+
+  // Toggle: carrossel é o padrão; desmarque para voltar ao banner legado.
+  $form['banner_home'] = [
+    '#type' => 'details',
+    '#title' => t('Banner da home'),
+    '#open' => TRUE,
+    '#weight' => -20,
+  ];
+  $form['banner_home']['banner_carousel'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Usar carrossel responsivo (novo banner)'),
+    '#description' => t('Marcado (padrão) = carrossel com setas, dots e imagem mobile; busca fora do banner. Desmarcado = banner legado com busca embutida.'),
+    '#default_value' => theme_get_setting('banner_carousel') ?? 1,
+  ];
 }
 
 function default_preprocess(&$variables, $hook)
@@ -52,6 +66,82 @@ function default_preprocess(&$variables, $hook)
     );
   }
   $variables['path_to_theme'] = \Drupal::theme()->getActiveTheme()->getPath();
+}
+
+/**
+ * Implements hook_preprocess_html().
+ *
+ * Marca o body quando o carrossel da home está ativo (CSS da busca sobreposta).
+ */
+function default_preprocess_html(array &$variables): void
+{
+  // Carrossel é o padrão quando a setting ainda não foi gravada.
+  $carousel = theme_get_setting('banner_carousel');
+  if ($carousel === NULL || $carousel === '' || !empty($carousel)) {
+    $variables['attributes']['class'][] = 'banner-carousel-enabled';
+  }
+}
+
+/**
+ * Returns TRUE when the home banner carousel is enabled.
+ */
+function default_banner_carousel_enabled(): bool
+{
+  $carousel = theme_get_setting('banner_carousel');
+  // Default ON when unset (first install / before Appearance save).
+  return $carousel === NULL || $carousel === '' || !empty($carousel);
+}
+
+/**
+ * Implements hook_preprocess_block() for banner block_content.
+ *
+ * Monta slides a partir da entidade (mais confiável que #items do formatter).
+ */
+function default_preprocess_block(array &$variables): void
+{
+  $block_content = $variables['elements']['content']['#block_content'] ?? NULL;
+  if (!$block_content || $block_content->bundle() !== 'banner') {
+    return;
+  }
+
+  if (!default_banner_carousel_enabled()) {
+    return;
+  }
+
+  $file_url_generator = \Drupal::service('file_url_generator');
+  $slides = [];
+  $desktop_items = $block_content->hasField('field_image') ? $block_content->get('field_image') : [];
+  $mobile_items = $block_content->hasField('field_image_mobile') ? $block_content->get('field_image_mobile') : [];
+
+  foreach ($desktop_items as $delta => $item) {
+    if (empty($item->entity)) {
+      continue;
+    }
+    $desktop_uri = $item->entity->getFileUri();
+    if (!$desktop_uri) {
+      continue;
+    }
+
+    $mobile_uri = $desktop_uri;
+    if (isset($mobile_items[$delta]) && !empty($mobile_items[$delta]->entity)) {
+      $mobile_uri = $mobile_items[$delta]->entity->getFileUri() ?: $desktop_uri;
+    }
+
+    $desktop_url = \Drupal\image\Entity\ImageStyle::load('banner_carousel')?->buildUrl($desktop_uri);
+    $mobile_url = \Drupal\image\Entity\ImageStyle::load('banner_carousel_mobile')?->buildUrl($mobile_uri);
+    if (!$desktop_url) {
+      continue;
+    }
+
+    $slides[] = [
+      'desktop' => $file_url_generator->transformRelative($desktop_url),
+      'mobile' => $file_url_generator->transformRelative($mobile_url ?: $desktop_url),
+      'alt' => (string) ($item->alt ?? ''),
+    ];
+  }
+
+  $variables['banner_slides'] = $slides;
+  $variables['#cache']['tags'][] = 'config:default.settings';
 }
 
 /**
@@ -182,6 +272,16 @@ function default_preprocess_block__default_painelpageheader(&$variables)
 }
 
 /**
+ * Implements hook_preprocess_HOOK() for the front search block wrapper.
+ */
+function default_preprocess_block__default_banner_search_front(array &$variables): void
+{
+  $variables['attributes']['class'][] = 'banner-search-front';
+  // Cache must vary with the theme toggle.
+  $variables['#cache']['tags'][] = 'config:default.settings';
+}
+
+/**
  * Implements hook_page_attachments_alter().
  *
  * Injects breakpoint media queries from the active theme into drupalSettings
@@ -231,6 +331,10 @@ function default_theme_suggestions_block_alter(array &$suggestions, array $varia
   $block_content = $variables['elements']['content']['#block_content'];
   if ($block_content->bundle() === 'banner') {
     array_splice($suggestions, 1, 0, 'block__bundle__banner');
+    // ponytail: desligar "Usar carrossel" em Appearance restaura o legado.
+    if (!default_banner_carousel_enabled()) {
+      $suggestions[] = 'block__bundle__banner__legacy';
+    }
   }
 }
 

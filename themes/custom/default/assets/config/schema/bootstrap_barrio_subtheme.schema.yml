@@ -3,3 +3,11 @@
 bootstrap_barrio_subtheme.settings:
   type: bootstrap_barrio.settings
   label: 'Bootstrap Barrio settings'
+
+default.settings:
+  type: theme_settings
+  label: 'Default theme settings'
+  mapping:
+    banner_carousel:
+      type: integer
+      label: 'Usar carrossel responsivo no banner da home'

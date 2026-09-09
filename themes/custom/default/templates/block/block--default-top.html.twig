@@ -51,18 +51,18 @@
     <div{{ content_attributes.addClass('content', 'container') }}>
       <div class="top-content-desktop" data-breakpoint="default.desktop">
         <div class="row row-top">
-          <div class="col-md-4 col-9 col-top col-top-1 p-0">
+          <div class="col-top col-top-1 p-0">
             <div class="wrap-logo">
               <a href="{{ path('<front>') }}" title="Início">
                 <img src="{{ logopath }}" class="img-responsive" draggable="false" width="300" />
               </a>
             </div>
           </div>
-          <div class="col-md-8 col-3 col-top col-top-2 p-0 d-flex align-items-center justify-content-end">
+          <div class="col-top col-top-2 p-0 d-flex align-items-center justify-content-end">
             <div class="wrap-menu">
               {{ drupal_menu('main') }}
             </div>
-            <div class="d-flex top-actions-wrap {{ painel_url ? 'top-actions-wrap--has-painel' : 'top-actions-wrap--no-painel' }}">
+            <div class="d-flex top-actions-wrap {{ logged_in ? (painel_url ? 'top-actions-wrap--has-painel' : 'top-actions-wrap--no-painel') : 'top-actions-wrap--guest' }}">
               {% if logged_in is defined and logged_in %}
                 <div class="top-user-menu" aria-label="Menu do usuário logado">
                   <button type="button" class="top-user-menu-toggle" aria-label="Abrir menu do usuário">
@@ -87,7 +87,8 @@
                   </div>
                 </div>
               {% else %}
-                <a href="{{ path('user.login') }}" class="btn btn-outline-laranja btn-sm">Acesso</a>
+                <a href="{{ path('user.login') }}" class="btn btn-top-login">Login</a>
+                <a href="{{ path('custom_configs_users.candidato_registration') }}" class="btn btn-top-cadastrar">Cadastrar</a>
               {% endif %}
             </div>
           </div>
@@ -139,14 +140,16 @@
             </div>
           {% endif %}
           
-          <div class="mt-3 d-grid gap-2 top-mobile-actions {{ painel_url ? 'top-mobile-actions--has-painel' : 'top-mobile-actions--no-painel' }}">
+          <div class="mt-3 d-grid gap-2 top-mobile-actions {{ logged_in ? (painel_url ? 'top-mobile-actions--has-painel' : 'top-mobile-actions--no-painel') : 'top-mobile-actions--guest' }}">
             {% if logged_in is defined and logged_in %}
               {% if painel_url %}
                 <a href="{{ painel_url }}" class="btn btn-primary w-100">Acessar Painel</a>
               {% endif %}
               <a href="{{ path('user.logout') }}" class="btn btn-outline-secondary w-100">Sair</a>
             {% else %}
-              <a href="{{ path('user.login') }}" class="btn btn-outline-laranja w-100">Acesso</a>
+              <a href="{{ path('user.login') }}" class="btn btn-top-login w-100">Login</a>
+              <a href="{{ path('custom_configs_users.candidato_registration') }}" class="btn btn-top-cadastrar w-100">Cadastrar</a>
+              <a href="{{ path('custom_configs_users.empresa_registration') }}" class="btn btn-outline-azul-escuro w-100">Cadastro empresa</a>
             {% endif %}
           </div>
         </div>

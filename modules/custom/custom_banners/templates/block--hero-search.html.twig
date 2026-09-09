@@ -9,11 +9,17 @@
 <section class="hero-search">
   <div class="hero-search__inner">
     <h1 class="hero-search__title">Encontre seu estágio ideal hoje.</h1>
-    <p class="hero-search__subtitle">Conectamos talentos universitários às melhores oportunidades de estágio do mercado.</p>
+    <p class="hero-search__subtitle">Conectamos talentos universitários às melhores oportunidades do mercado através de uma plataforma moderna e intuitiva.</p>
 
     <form class="hero-search__form" method="get" action="{{ action|default('/para-estudantes')|e('html_attr') }}" role="search">
       <div class="hero-search__fields">
-        <div class="hero-search__field">
+        <div class="hero-search__field hero-search__field--curso">
+          <span class="hero-search__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+              <path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </span>
           <label class="visually-hidden" for="hero-search-cursos">{{ 'Qual o seu curso?'|t }}</label>
           <input
             id="hero-search-cursos"
@@ -25,7 +31,14 @@
             data-autocomplete-path="/api/cursos/autocomplete"
           >
         </div>
-        <div class="hero-search__field">
+        <div class="hero-search__divider" aria-hidden="true"></div>
+        <div class="hero-search__field hero-search__field--regime">
+          <span class="hero-search__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 21s7-5.2 7-11a7 7 0 10-14 0c0 5.8 7 11 7 11z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              <circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </span>
           <label class="visually-hidden" for="hero-search-regime">{{ 'Cidade ou Remoto'|t }}</label>
           <select id="hero-search-regime" class="hero-search__select" name="regime" aria-label="{{ 'Cidade ou Remoto'|t }}">
             {% for value, label_opt in regime_options %}
@@ -34,7 +47,10 @@
           </select>
         </div>
         <div class="hero-search__submit-wrap">
-          <button type="submit" class="hero-search__submit">{{ 'Buscar Vagas'|t }}</button>
+          <button type="submit" class="hero-search__submit">
+            {{ 'Buscar'|t }}
+            <span class="hero-search__submit-arrow" aria-hidden="true">→</span>
+          </button>
         </div>
       </div>
     </form>

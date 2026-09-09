@@ -1,0 +1,27 @@
+uuid: 507aa2f6-3103-4a0b-8a82-028bd6ed7f77
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_local_exibicao
+field_name: field_local_exibicao
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: home
+      label: Home
+    -
+      value: internas
+      label: Internas
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,21 @@
+uuid: df1d348f-e873-4cc5-94dc-b789c8ed7f5f
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - user
+id: user.field_endereco
+field_name: field_endereco
+entity_type: user
+type: string
+settings:
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

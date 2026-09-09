@@ -1,0 +1,19 @@
+uuid: 23d6553a-69cd-4607-900d-1bc7a0c480ae
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_nome_empresa
+    - paragraphs.paragraphs_type.experiencia_profissional
+id: paragraph.experiencia_profissional.field_nome_empresa
+field_name: field_nome_empresa
+entity_type: paragraph
+bundle: experiencia_profissional
+label: 'Nome da Empresa'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,8 @@
+uuid: c7b2fa71-e6c4-4e6c-accb-f6f343f4b154
+langcode: pt-br
+status: true
+dependencies: {  }
+id: moderador
+label: 'Painel Moderador'
+description: ''
+locked: false

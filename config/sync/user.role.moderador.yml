@@ -1,0 +1,82 @@
+uuid: 80c4be8d-90ca-4db1-9a35-c9fd19d7a20f
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.banner
+    - block_content.type.basic
+    - block_content.type.cto
+    - block_content.type.destaque
+    - block_content.type.footer
+    - block_content.type.whatsapp
+    - filter.format.full_html
+    - filter.format.restricted_html
+    - node.type.page
+    - node.type.vagas
+    - taxonomy.vocabulary.regime
+    - taxonomy.vocabulary.tags
+    - taxonomy.vocabulary.tecnologias
+  module:
+    - block_content
+    - contextual
+    - field_ui
+    - filter
+    - node
+    - system
+    - taxonomy
+    - toolbar
+id: moderador
+label: moderador
+weight: 6
+is_admin: false
+permissions:
+  - 'access administration pages'
+  - 'access block library'
+  - 'access content'
+  - 'access content overview'
+  - 'access contextual links'
+  - 'access toolbar'
+  - 'access user profiles'
+  - 'administer node published status'
+  - 'administer nodes'
+  - 'administer user display'
+  - 'administer users'
+  - 'bypass node access'
+  - 'change own username'
+  - 'create page content'
+  - 'create terms in regime'
+  - 'create terms in tags'
+  - 'create terms in tecnologias'
+  - 'create vagas content'
+  - 'delete any page content'
+  - 'delete any vagas content'
+  - 'delete own page content'
+  - 'delete own vagas content'
+  - 'delete page revisions'
+  - 'delete terms in regime'
+  - 'delete terms in tags'
+  - 'delete terms in tecnologias'
+  - 'delete vagas revisions'
+  - 'edit any banner block content'
+  - 'edit any basic block content'
+  - 'edit any cto block content'
+  - 'edit any destaque block content'
+  - 'edit any footer block content'
+  - 'edit any page content'
+  - 'edit any vagas content'
+  - 'edit any whatsapp block content'
+  - 'edit own page content'
+  - 'edit own vagas content'
+  - 'edit terms in regime'
+  - 'edit terms in tags'
+  - 'edit terms in tecnologias'
+  - 'revert page revisions'
+  - 'revert vagas revisions'
+  - 'use text format full_html'
+  - 'use text format restricted_html'
+  - 'view all revisions'
+  - 'view any banner block content history'
+  - 'view own unpublished content'
+  - 'view page revisions'
+  - 'view the administration theme'
+  - 'view vagas revisions'

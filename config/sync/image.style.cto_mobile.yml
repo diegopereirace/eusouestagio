@@ -1,0 +1,15 @@
+uuid: ee5cad80-d1c9-449b-9db3-95085d31b9b5
+langcode: pt-br
+status: true
+dependencies: {  }
+name: cto_mobile
+label: 'CTO Mobile'
+effects:
+  e1910de5-1e4d-4f2c-b700-7b569be40ce3:
+    uuid: e1910de5-1e4d-4f2c-b700-7b569be40ce3
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 500
+      height: 570
+      anchor: center-center

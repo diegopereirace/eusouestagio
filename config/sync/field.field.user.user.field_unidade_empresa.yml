@@ -1,0 +1,20 @@
+uuid: fe50c7fb-8a11-49a0-b8cb-a3a18cac217f
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_unidade_empresa
+  module:
+    - user
+id: user.user.field_unidade_empresa
+field_name: field_unidade_empresa
+entity_type: user
+bundle: user
+label: 'Unidade Empresa'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

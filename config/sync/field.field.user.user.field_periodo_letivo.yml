@@ -1,0 +1,20 @@
+uuid: e64ba43a-d197-448e-b66a-37c8c7a21b5e
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_periodo_letivo
+  module:
+    - user
+id: user.user.field_periodo_letivo
+field_name: field_periodo_letivo
+entity_type: user
+bundle: user
+label: 'Período Letivo'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

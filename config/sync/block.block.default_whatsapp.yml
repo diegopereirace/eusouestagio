@@ -1,0 +1,23 @@
+uuid: f64595d8-0d05-40f8-b4a8-42ac95d6a87e
+langcode: pt-br
+status: true
+dependencies:
+  content:
+    - 'block_content:whatsapp:1b69eb51-2716-4f7d-b59c-a2a7a687c8c9'
+  module:
+    - block_content
+  theme:
+    - default
+id: default_whatsapp
+theme: default
+region: footer_first
+weight: -4
+provider: null
+plugin: 'block_content:1b69eb51-2716-4f7d-b59c-a2a7a687c8c9'
+settings:
+  id: 'block_content:1b69eb51-2716-4f7d-b59c-a2a7a687c8c9'
+  label: Whatsapp
+  label_display: '0'
+  provider: block_content
+  view_mode: full
+visibility: {  }

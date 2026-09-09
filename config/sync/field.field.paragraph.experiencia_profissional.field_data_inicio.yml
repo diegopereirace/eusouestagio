@@ -1,0 +1,21 @@
+uuid: 45917110-34e8-46a2-a255-1904e993cecc
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_data_inicio
+    - paragraphs.paragraphs_type.experiencia_profissional
+  module:
+    - datetime
+id: paragraph.experiencia_profissional.field_data_inicio
+field_name: field_data_inicio
+entity_type: paragraph
+bundle: experiencia_profissional
+label: 'Data de Início'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

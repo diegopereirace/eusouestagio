@@ -1,0 +1,11 @@
+uuid: 8c637faf-0e33-4ac4-a375-775b5896e224
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.destaque
+id: block_content.destaque
+target_entity_type_id: block_content
+target_bundle: destaque
+default_langcode: site_default
+language_alterable: false

@@ -1,0 +1,21 @@
+uuid: fefff7fd-b0a0-493e-820f-3eb71c94cae9
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_identidade_genero
+  module:
+    - options
+    - user
+id: user.user.field_identidade_genero
+field_name: field_identidade_genero
+entity_type: user
+bundle: user
+label: 'Identidade de Gênero'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

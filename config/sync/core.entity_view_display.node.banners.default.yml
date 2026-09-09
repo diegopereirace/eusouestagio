@@ -1,0 +1,54 @@
+uuid: c00af9a4-2b8d-42c7-a52c-cc774d23ccff
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.node.banners.field_imagem_desktop
+    - field.field.node.banners.field_imagem_mobile
+    - field.field.node.banners.field_local_exibicao
+    - node.type.banners
+  module:
+    - image
+    - options
+    - user
+id: node.banners.default
+targetEntityType: node
+bundle: banners
+mode: default
+content:
+  field_imagem_desktop:
+    type: image
+    label: above
+    settings:
+      image_link: ''
+      image_style: ''
+      image_loading:
+        attribute: lazy
+    third_party_settings: {  }
+    weight: 101
+    region: content
+  field_imagem_mobile:
+    type: image
+    label: above
+    settings:
+      image_link: ''
+      image_style: ''
+      image_loading:
+        attribute: lazy
+    third_party_settings: {  }
+    weight: 102
+    region: content
+  field_local_exibicao:
+    type: list_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  langcode: true

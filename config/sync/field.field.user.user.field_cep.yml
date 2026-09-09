@@ -1,0 +1,20 @@
+uuid: 0d4ccd7e-3312-4475-8abd-c0b13cc0b2ef
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_cep
+  module:
+    - user
+id: user.user.field_cep
+field_name: field_cep
+entity_type: user
+bundle: user
+label: CEP
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

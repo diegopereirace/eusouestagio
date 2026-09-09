@@ -1,0 +1,14 @@
+uuid: 8b45ec65-e5a6-49e0-9dfe-969ff50e68bc
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - user.role.empresa
+  module:
+    - user
+id: user_remove_role_action.empresa
+label: 'Remover o papel Empresa dos usuários selecionados'
+type: user
+plugin: user_remove_role_action
+configuration:
+  rid: empresa

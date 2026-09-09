@@ -1,0 +1,19 @@
+uuid: 9d4d31ed-5098-446f-95d3-20ddc7710b52
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_carga_horaria
+    - paragraphs.paragraphs_type.curso_extracurricular
+id: paragraph.curso_extracurricular.field_carga_horaria
+field_name: field_carga_horaria
+entity_type: paragraph
+bundle: curso_extracurricular
+label: 'Carga Horária'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

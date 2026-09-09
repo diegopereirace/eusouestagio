@@ -1,0 +1,21 @@
+uuid: 4cf0a0da-c8ce-45fb-a4d6-cbf575e4ef8a
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - user
+id: user.field_orgao_emissor
+field_name: field_orgao_emissor
+entity_type: user
+type: string
+settings:
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

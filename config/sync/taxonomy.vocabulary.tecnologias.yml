@@ -1,0 +1,9 @@
+uuid: b0a53b63-2c84-48e3-9b83-9afe85529c3a
+langcode: pt-br
+status: true
+dependencies: {  }
+name: Tecnologias
+vid: tecnologias
+description: null
+weight: 0
+new_revision: false

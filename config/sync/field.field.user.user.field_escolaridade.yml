@@ -1,0 +1,21 @@
+uuid: ec9a0d6f-b043-42d7-8c19-7afd9dd13962
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_escolaridade
+  module:
+    - options
+    - user
+id: user.user.field_escolaridade
+field_name: field_escolaridade
+entity_type: user
+bundle: user
+label: Escolaridade
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

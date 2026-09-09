@@ -1,0 +1,22 @@
+uuid: 57714dbc-607a-4ced-b473-d1cadfe63735
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - default
+_core:
+  default_config_hash: erQSEZF2XUjNmgTl0uNRBzmg18ZGXwUcw2FhApoeuHk
+id: default_content
+theme: default
+region: content
+weight: -5
+provider: null
+plugin: system_main_block
+settings:
+  id: system_main_block
+  label: 'Conteúdo da página principal'
+  label_display: '0'
+  provider: system
+visibility: {  }

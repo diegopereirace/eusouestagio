@@ -1,0 +1,43 @@
+uuid: 5088d1bf-818f-43c6-a552-c86cbc33bedc
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.destaque
+    - field.field.block_content.destaque.field_icon_title_text_p
+    - field.field.block_content.destaque.field_text_simple
+    - field.field.block_content.destaque.field_text_simple_2
+  module:
+    - entity_reference_revisions
+id: block_content.destaque.default
+targetEntityType: block_content
+bundle: destaque
+mode: default
+content:
+  field_icon_title_text_p:
+    type: entity_reference_revisions_entity_view
+    label: hidden
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    weight: 4
+    region: content
+  field_text_simple:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_text_simple_2:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 3
+    region: content
+hidden:
+  langcode: true

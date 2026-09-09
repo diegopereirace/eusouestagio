@@ -1,0 +1,35 @@
+uuid: 80f112c2-1ba4-4130-8f30-95a570a2477d
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.icone_descricao.field_image
+    - field.field.paragraph.icone_descricao.field_text_simple
+    - image.style.thumbnail
+    - paragraphs.paragraphs_type.icone_descricao
+  module:
+    - image
+id: paragraph.icone_descricao.default
+targetEntityType: paragraph
+bundle: icone_descricao
+mode: default
+content:
+  field_image:
+    type: image_image
+    weight: 0
+    region: content
+    settings:
+      progress_indicator: throbber
+      preview_image_style: thumbnail
+    third_party_settings: {  }
+  field_text_simple:
+    type: string_textfield
+    weight: 1
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true

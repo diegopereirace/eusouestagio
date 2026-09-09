@@ -1,0 +1,29 @@
+uuid: 94054d5b-7840-4c85-9034-9d0d059f71ba
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_regime_t
+    - node.type.vagas
+    - taxonomy.vocabulary.regime
+id: node.vagas.field_regime_t
+field_name: field_regime_t
+entity_type: node
+bundle: vagas
+label: Regime
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      regime: regime
+    sort:
+      field: name
+      direction: asc
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

@@ -1,0 +1,27 @@
+uuid: 89f082ef-59d8-41a4-810d-9747fffa185c
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - options
+    - user
+id: user.field_tipo_curso
+field_name: field_tipo_curso
+entity_type: user
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: bacharelado
+      label: Bacharelado
+    -
+      value: licenciatura
+      label: Licenciatura
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

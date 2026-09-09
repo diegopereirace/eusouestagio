@@ -1,0 +1,17 @@
+uuid: 6e07e37d-2064-408a-9bd4-bf0ce0c1868d
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus: {  }
+    parent: ''
+name: 'Quem Somos'
+type: quem_somos
+description: null
+help: null
+new_revision: false
+preview_mode: 0
+display_submitted: false

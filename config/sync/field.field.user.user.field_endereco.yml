@@ -1,0 +1,20 @@
+uuid: 678311d8-62e4-4af8-9e59-b18da9a2fabe
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_endereco
+  module:
+    - user
+id: user.user.field_endereco
+field_name: field_endereco
+entity_type: user
+bundle: user
+label: Endereço
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

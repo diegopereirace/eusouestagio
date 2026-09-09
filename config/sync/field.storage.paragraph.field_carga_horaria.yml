@@ -1,0 +1,21 @@
+uuid: 1ca9db1b-9867-4fc4-a6c4-84af828b282c
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - paragraphs
+id: paragraph.field_carga_horaria
+field_name: field_carga_horaria
+entity_type: paragraph
+type: string
+settings:
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

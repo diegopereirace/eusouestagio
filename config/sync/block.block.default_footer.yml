@@ -1,0 +1,23 @@
+uuid: 0b3d500f-3775-4a02-80e4-0bc6e5043f83
+langcode: pt-br
+status: true
+dependencies:
+  content:
+    - 'block_content:footer:d0326db5-fc80-4cf5-a0b9-8f779dc4aeba'
+  module:
+    - block_content
+  theme:
+    - default
+id: default_footer
+theme: default
+region: footer_first
+weight: -5
+provider: null
+plugin: 'block_content:d0326db5-fc80-4cf5-a0b9-8f779dc4aeba'
+settings:
+  id: 'block_content:d0326db5-fc80-4cf5-a0b9-8f779dc4aeba'
+  label: Rodapé
+  label_display: '0'
+  provider: block_content
+  view_mode: full
+visibility: {  }

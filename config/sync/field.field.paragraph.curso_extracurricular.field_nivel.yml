@@ -1,0 +1,21 @@
+uuid: f27c3269-ddc4-47cf-b911-91befe92bc90
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_nivel
+    - paragraphs.paragraphs_type.curso_extracurricular
+  module:
+    - options
+id: paragraph.curso_extracurricular.field_nivel
+field_name: field_nivel
+entity_type: paragraph
+bundle: curso_extracurricular
+label: Nível
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

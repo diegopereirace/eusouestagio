@@ -1,0 +1,36 @@
+uuid: 7e8efbb1-e392-4723-b518-0f044dc92437
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - options
+    - user
+id: user.field_quantidade_filhos
+field_name: field_quantidade_filhos
+entity_type: user
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: nao_tenho_filhos
+      label: 'Não tenho filhos'
+    -
+      value: 1_filho
+      label: '1 filho'
+    -
+      value: 2_filhos
+      label: '2 filhos'
+    -
+      value: 3_ou_mais_filhos
+      label: '3 ou mais filhos'
+    -
+      value: prefiro_nao_informar
+      label: 'Prefiro não informar'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

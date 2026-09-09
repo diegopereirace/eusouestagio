@@ -1,0 +1,19 @@
+uuid: 63298d82-0f9e-4136-b249-62348e20b213
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_tipo_habilidade
+    - paragraphs.paragraphs_type.curso_extracurricular
+id: paragraph.curso_extracurricular.field_tipo_habilidade
+field_name: field_tipo_habilidade
+entity_type: paragraph
+bundle: curso_extracurricular
+label: 'Tipo de habilidade'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

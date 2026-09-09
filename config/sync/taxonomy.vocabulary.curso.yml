@@ -1,0 +1,9 @@
+uuid: 49ed65c2-cd5e-4429-b465-794baf8c0a6b
+langcode: pt-br
+status: true
+dependencies: {  }
+name: Curso
+vid: curso
+description: null
+weight: 0
+new_revision: false

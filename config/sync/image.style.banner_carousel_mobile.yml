@@ -1,0 +1,15 @@
+uuid: dcdb0e22-5755-4bef-ba03-65a6cacb2f4c
+langcode: pt-br
+status: true
+dependencies: {  }
+name: banner_carousel_mobile
+label: 'Banner carousel mobile'
+effects:
+  d2cbd98b-8d8a-4139-ad20-cfd7a08356f3:
+    uuid: d2cbd98b-8d8a-4139-ad20-cfd7a08356f3
+    id: image_scale
+    weight: 0
+    data:
+      width: 828
+      height: null
+      upscale: false

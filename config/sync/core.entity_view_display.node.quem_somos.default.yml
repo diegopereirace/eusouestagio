@@ -1,0 +1,80 @@
+uuid: da9eeb8e-3928-4261-8c66-56747a643633
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.node.quem_somos.field_imagem
+    - field.field.node.quem_somos.field_imagem_2
+    - field.field.node.quem_somos.field_text_long_formatted
+    - field.field.node.quem_somos.field_text_long_formatted_2
+    - field.field.node.quem_somos.field_titulo
+    - field.field.node.quem_somos.field_titulo_2
+    - node.type.quem_somos
+  module:
+    - image
+    - text
+    - user
+id: node.quem_somos.default
+targetEntityType: node
+bundle: quem_somos
+mode: default
+content:
+  field_imagem:
+    type: image
+    label: hidden
+    settings:
+      image_link: ''
+      image_style: ''
+      image_loading:
+        attribute: lazy
+    third_party_settings: {  }
+    weight: 101
+    region: content
+  field_imagem_2:
+    type: image
+    label: hidden
+    settings:
+      image_link: ''
+      image_style: ''
+      image_loading:
+        attribute: lazy
+    third_party_settings: {  }
+    weight: 103
+    region: content
+  field_text_long_formatted:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_text_long_formatted_2:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 102
+    region: content
+  field_titulo:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 104
+    region: content
+  field_titulo_2:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 105
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  langcode: true

@@ -1,0 +1,32 @@
+uuid: 7fdaa32a-e00f-4bdd-a918-0bce41d31c9f
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_candidatura_candidato
+    - node.type.candidatura
+  module:
+    - node
+    - user
+id: node.candidatura.field_candidatura_candidato
+field_name: field_candidatura_candidato
+entity_type: node
+bundle: candidatura
+label: Candidato
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:user'
+  handler_settings:
+    sort:
+      field: _none
+    auto_create: false
+    filter:
+      type: role
+      role:
+        candidato: candidato
+    include_anonymous: false
+field_type: entity_reference

@@ -1,0 +1,48 @@
+uuid: 110358b4-baac-415d-abb1-56f9a76dd3c9
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.instituicao_ensino.field_bairro
+    - field.field.paragraph.instituicao_ensino.field_cidade
+    - field.field.paragraph.instituicao_ensino.field_endereco
+    - field.field.paragraph.instituicao_ensino.field_nome_instituicao
+    - paragraphs.paragraphs_type.instituicao_ensino
+id: paragraph.instituicao_ensino.default
+targetEntityType: paragraph
+bundle: instituicao_ensino
+mode: default
+content:
+  field_bairro:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_cidade:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 3
+    region: content
+  field_endereco:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_nome_instituicao:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden: {  }

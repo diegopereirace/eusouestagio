@@ -1,0 +1,23 @@
+uuid: 50338249-1230-4a61-b612-c2ea4c38d9db
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - node.type.vagas
+  module:
+    - node
+id: para_estudants
+label: Vagas
+type: 'canonical_entities:node'
+pattern: '/para-estudantes/[node:title]'
+selection_criteria:
+  15e6fc8d-ab06-448a-acc0-b235db2802c8:
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: node
+    bundles:
+      vagas: vagas
+selection_logic: and
+weight: -5
+relationships: {  }

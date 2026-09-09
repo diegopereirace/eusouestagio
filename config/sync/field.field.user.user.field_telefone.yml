@@ -1,0 +1,20 @@
+uuid: 8d1bee21-042d-4f02-91d9-d9fb5f2fc8f1
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_telefone
+  module:
+    - user
+id: user.user.field_telefone
+field_name: field_telefone
+entity_type: user
+bundle: user
+label: Telefone/Whatsapp
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,19 @@
+uuid: ae49f2e5-debb-43be-88e4-b729710047b2
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.footer
+    - field.storage.block_content.field_phone_wpp
+id: block_content.footer.field_phone_wpp
+field_name: field_phone_wpp
+entity_type: block_content
+bundle: footer
+label: Telefone/Whatsapp
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

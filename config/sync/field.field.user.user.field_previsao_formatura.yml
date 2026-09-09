@@ -1,0 +1,21 @@
+uuid: 7880b4e0-06ec-43d3-8e10-713eb9c67605
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_previsao_formatura
+  module:
+    - datetime
+    - user
+id: user.user.field_previsao_formatura
+field_name: field_previsao_formatura
+entity_type: user
+bundle: user
+label: 'Previsão de Formatura'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

@@ -1,0 +1,28 @@
+uuid: a94ff2f1-1a4e-4582-97ca-ce612a174c94
+langcode: pt-br
+status: true
+dependencies:
+  content:
+    - 'block_content:cto:187f80ea-8ce2-496c-b3ef-32cb972aa41d'
+  module:
+    - block_content
+    - system
+  theme:
+    - default
+id: default_cto
+theme: default
+region: content_full
+weight: -5
+provider: null
+plugin: 'block_content:187f80ea-8ce2-496c-b3ef-32cb972aa41d'
+settings:
+  id: 'block_content:187f80ea-8ce2-496c-b3ef-32cb972aa41d'
+  label: CTO
+  label_display: '0'
+  provider: block_content
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: '<front>'

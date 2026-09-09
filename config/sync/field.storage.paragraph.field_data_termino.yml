@@ -1,0 +1,20 @@
+uuid: 12a7ce41-fd14-4fec-8384-ec8237ba6000
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - datetime
+    - paragraphs
+id: paragraph.field_data_termino
+field_name: field_data_termino
+entity_type: paragraph
+type: datetime
+settings:
+  datetime_type: date
+module: datetime
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

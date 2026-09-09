@@ -1,0 +1,8 @@
+uuid: 67c8224e-11fa-4f0f-b74e-fb13341c5c1e
+langcode: pt-br
+status: true
+dependencies: {  }
+id: whatsapp
+label: Whatsapp
+revision: false
+description: null

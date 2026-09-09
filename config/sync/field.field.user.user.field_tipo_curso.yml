@@ -1,0 +1,21 @@
+uuid: 1fe6bca0-5e75-428d-b9f1-85c518633ce7
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_tipo_curso
+  module:
+    - options
+    - user
+id: user.user.field_tipo_curso
+field_name: field_tipo_curso
+entity_type: user
+bundle: user
+label: 'Tipo de Curso'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

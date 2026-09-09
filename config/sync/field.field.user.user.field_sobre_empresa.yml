@@ -1,0 +1,20 @@
+uuid: bdfea486-012d-47ee-8ed2-5315fef0641a
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_sobre_empresa
+  module:
+    - user
+id: user.user.field_sobre_empresa
+field_name: field_sobre_empresa
+entity_type: user
+bundle: user
+label: 'Sobre a Empresa'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

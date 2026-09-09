@@ -1,0 +1,25 @@
+uuid: 4cd802f5-a5f5-46d9-8d6c-32f94650502d
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - custom_banners
+    - system
+  theme:
+    - default
+id: default_custom_banners_hero_search
+theme: default
+region: highlighted
+weight: -50
+provider: null
+plugin: custom_banners_hero_search
+settings:
+  id: custom_banners_hero_search
+  label: 'Hero: busca de vagas (home)'
+  label_display: '0'
+  provider: custom_banners
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: '<front>'

@@ -1,0 +1,21 @@
+uuid: 70dece55-be4d-4b1f-a2a4-713ba45cc081
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_estados
+    - node.type.vagas
+  module:
+    - options
+id: node.vagas.field_estados
+field_name: field_estados
+entity_type: node
+bundle: vagas
+label: Estado
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

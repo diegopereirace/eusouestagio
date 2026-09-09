@@ -1,0 +1,39 @@
+uuid: d587204c-76ec-454a-8cab-fd611f0475ee
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - options
+    - user
+id: user.field_escolaridade
+field_name: field_escolaridade
+entity_type: user
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: graduacao_superior
+      label: 'Graduação (ou Ensino Superior)'
+    -
+      value: medio
+      label: Médio
+    -
+      value: superior
+      label: Superior
+    -
+      value: tecnico
+      label: Técnico
+    -
+      value: pos_graduacao
+      label: Pós-graduação
+    -
+      value: medio_integrado
+      label: 'Médio Integrado'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,31 @@
+uuid: ba7d09cb-2cde-4941-8986-c9bedede86a3
+langcode: pt-br
+status: true
+dependencies:
+  content:
+    - 'block_content:basic:1e1afa90-ba36-4215-a3f9-051f99fa8428'
+  module:
+    - block_content
+    - node
+  theme:
+    - default
+id: default_vagasvoltar
+theme: default
+region: featured_full
+weight: -7
+provider: null
+plugin: 'block_content:1e1afa90-ba36-4215-a3f9-051f99fa8428'
+settings:
+  id: 'block_content:1e1afa90-ba36-4215-a3f9-051f99fa8428'
+  label: 'Vagas Voltar'
+  label_display: '0'
+  provider: block_content
+  view_mode: full
+visibility:
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      vagas: vagas

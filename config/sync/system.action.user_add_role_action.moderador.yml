@@ -1,0 +1,14 @@
+uuid: 7a31627d-e65f-41ec-9255-0a7468c328a6
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - user.role.moderador
+  module:
+    - user
+id: user_add_role_action.moderador
+label: 'Adiciona o papel moderador para o(s) usuário(s) selecionado(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: moderador

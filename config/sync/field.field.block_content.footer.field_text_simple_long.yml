@@ -1,0 +1,19 @@
+uuid: f4e9e217-557c-4944-bb41-14719c6aa141
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.footer
+    - field.storage.block_content.field_text_simple_long
+id: block_content.footer.field_text_simple_long
+field_name: field_text_simple_long
+entity_type: block_content
+bundle: footer
+label: Texto
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

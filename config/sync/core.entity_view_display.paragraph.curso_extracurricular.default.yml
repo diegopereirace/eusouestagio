@@ -1,0 +1,49 @@
+uuid: a97fadc4-f41a-44dd-8555-b1ea161d9028
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.curso_extracurricular.field_carga_horaria
+    - field.field.paragraph.curso_extracurricular.field_habilidade
+    - field.field.paragraph.curso_extracurricular.field_nivel
+    - field.field.paragraph.curso_extracurricular.field_tipo_habilidade
+    - paragraphs.paragraphs_type.curso_extracurricular
+  module:
+    - options
+id: paragraph.curso_extracurricular.default
+targetEntityType: paragraph
+bundle: curso_extracurricular
+mode: default
+content:
+  field_carga_horaria:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 3
+    region: content
+  field_habilidade:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_nivel:
+    type: list_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_tipo_habilidade:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden: {  }

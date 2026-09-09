@@ -1,0 +1,21 @@
+uuid: 43043843-bd43-4a6f-a213-d391bfeb345a
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_horario_curso
+  module:
+    - options
+    - user
+id: user.user.field_horario_curso
+field_name: field_horario_curso
+entity_type: user
+bundle: user
+label: 'Horário do Curso'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

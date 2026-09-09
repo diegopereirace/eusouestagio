@@ -1,0 +1,29 @@
+uuid: 1e8cff3b-7af0-497e-ac70-4cb32abc998b
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_cursos_t
+    - node.type.vagas
+    - taxonomy.vocabulary.curso
+id: node.vagas.field_cursos_t
+field_name: field_cursos_t
+entity_type: node
+bundle: vagas
+label: Cursos
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      curso: curso
+    sort:
+      field: name
+      direction: asc
+    auto_create: true
+    auto_create_bundle: ''
+field_type: entity_reference

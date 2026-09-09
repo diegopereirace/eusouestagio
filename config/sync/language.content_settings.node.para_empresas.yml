@@ -1,0 +1,11 @@
+uuid: 18b7f9a1-eb89-409b-a047-ca306b6e176e
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - node.type.para_empresas
+id: node.para_empresas
+target_entity_type_id: node
+target_bundle: para_empresas
+default_langcode: site_default
+language_alterable: false

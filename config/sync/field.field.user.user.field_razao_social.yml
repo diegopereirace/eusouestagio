@@ -1,0 +1,20 @@
+uuid: 20ffd4b8-1829-4757-8897-b466e99ac7e9
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_razao_social
+  module:
+    - user
+id: user.user.field_razao_social
+field_name: field_razao_social
+entity_type: user
+bundle: user
+label: 'Razão Social'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

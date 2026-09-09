@@ -1,0 +1,17 @@
+uuid: 9c4666b4-79ae-4648-a7a4-a3b5d2ce488e
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus: {  }
+    parent: ''
+name: 'Para Empresas'
+type: para_empresas
+description: null
+help: null
+new_revision: false
+preview_mode: 0
+display_submitted: false

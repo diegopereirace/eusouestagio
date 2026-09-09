@@ -1,0 +1,21 @@
+uuid: 1ae7ac5d-b2b6-443e-9c02-3e34b2747d91
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_quantidade_filhos
+  module:
+    - options
+    - user
+id: user.user.field_quantidade_filhos
+field_name: field_quantidade_filhos
+entity_type: user
+bundle: user
+label: 'Quantidade de Filhos'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

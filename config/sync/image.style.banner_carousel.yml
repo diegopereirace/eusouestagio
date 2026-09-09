@@ -1,0 +1,15 @@
+uuid: a5244976-3a64-46f7-ae40-35f823876a13
+langcode: pt-br
+status: true
+dependencies: {  }
+name: banner_carousel
+label: 'Banner carousel desktop'
+effects:
+  9cba67f7-6710-47b9-ad43-e8560e73b6d5:
+    uuid: 9cba67f7-6710-47b9-ad43-e8560e73b6d5
+    id: image_scale
+    weight: 0
+    data:
+      width: 1920
+      height: null
+      upscale: false

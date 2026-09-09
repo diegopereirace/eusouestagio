@@ -1,0 +1,19 @@
+uuid: 3b4622c1-c330-4df5-a17c-be334929448a
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_endereco
+    - paragraphs.paragraphs_type.instituicao_ensino
+id: paragraph.instituicao_ensino.field_endereco
+field_name: field_endereco
+entity_type: paragraph
+bundle: instituicao_ensino
+label: Endereço
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

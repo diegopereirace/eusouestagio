@@ -1,0 +1,64 @@
+uuid: 9e818a9b-f14b-4554-9e5d-eecb97139cec
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.experiencia_profissional.field_atividades
+    - field.field.paragraph.experiencia_profissional.field_cargo
+    - field.field.paragraph.experiencia_profissional.field_data_inicio
+    - field.field.paragraph.experiencia_profissional.field_data_termino
+    - field.field.paragraph.experiencia_profissional.field_nome_empresa
+    - field.field.paragraph.experiencia_profissional.field_regime_contrato
+    - paragraphs.paragraphs_type.experiencia_profissional
+  module:
+    - datetime
+id: paragraph.experiencia_profissional.default
+targetEntityType: paragraph
+bundle: experiencia_profissional
+mode: default
+content:
+  field_atividades:
+    type: string_textarea
+    weight: 6
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_cargo:
+    type: string_textfield
+    weight: 1
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_data_inicio:
+    type: datetime_default
+    weight: 2
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_data_termino:
+    type: datetime_default
+    weight: 3
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_nome_empresa:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_regime_contrato:
+    type: options_select
+    weight: 5
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true

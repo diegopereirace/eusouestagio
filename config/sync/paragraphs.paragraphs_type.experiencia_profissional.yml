@@ -1,0 +1,10 @@
+uuid: 72c31807-e310-4b25-b602-f1b8575d19fc
+langcode: pt-br
+status: true
+dependencies: {  }
+id: experiencia_profissional
+label: 'Experiência Profissional'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }

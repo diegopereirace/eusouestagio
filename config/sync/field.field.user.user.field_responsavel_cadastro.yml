@@ -1,0 +1,20 @@
+uuid: ed5ed7ab-961d-4928-bf05-0e0fb519db7d
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_responsavel_cadastro
+  module:
+    - user
+id: user.user.field_responsavel_cadastro
+field_name: field_responsavel_cadastro
+entity_type: user
+bundle: user
+label: 'Responsável pelo Cadastro'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

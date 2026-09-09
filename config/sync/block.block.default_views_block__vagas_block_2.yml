@@ -1,0 +1,29 @@
+uuid: 89bd36c3-0670-4600-94c4-68460e9d4e4f
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - views.view.vagas
+  module:
+    - system
+    - views
+  theme:
+    - default
+id: default_views_block__vagas_block_2
+theme: default
+region: content_full
+weight: 0
+provider: null
+plugin: 'views_block:vagas-block_2'
+settings:
+  id: 'views_block:vagas-block_2'
+  label: ''
+  label_display: '0'
+  provider: views
+  views_label: ''
+  items_per_page: null
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: '/vagas/*'

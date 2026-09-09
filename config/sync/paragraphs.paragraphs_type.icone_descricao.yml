@@ -1,0 +1,10 @@
+uuid: e93b3142-b7f0-4565-8e79-a85437366a46
+langcode: pt-br
+status: true
+dependencies: {  }
+id: icone_descricao
+label: 'Ícone Descrição'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }

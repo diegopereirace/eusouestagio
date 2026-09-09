@@ -1,0 +1,21 @@
+uuid: 563d3382-fc23-4efe-873e-f4db52773bff
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_estado_civil
+  module:
+    - options
+    - user
+id: user.user.field_estado_civil
+field_name: field_estado_civil
+entity_type: user
+bundle: user
+label: 'Estado Civil'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

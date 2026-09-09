@@ -1,0 +1,20 @@
+uuid: 5482979e-8b00-42a5-985c-ea1fbc0f6ba6
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_linkedin
+  module:
+    - user
+id: user.user.field_linkedin
+field_name: field_linkedin
+entity_type: user
+bundle: user
+label: LinkedIn
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

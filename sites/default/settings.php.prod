@@ -870,5 +870,5 @@ $databases['default']['default'] = array (
   'namespace' => 'Drupal\\pgsql\\Driver\\Database\\pgsql',
   'autoload' => 'core/modules/pgsql/src/Driver/Database/pgsql/',
 );
-$settings['config_sync_directory'] = 'sites/default/files/config_F1OKrujSfA2iXJVmaGOU_MvHmtaUInSi9VS1tlKbkzUEYEfl4GyWxIZXQAPHmM9y3GTE4HeIVA/sync';
+$settings['config_sync_directory'] = 'config/sync';
 $config['system.logging']['error_level'] = 'verbose';

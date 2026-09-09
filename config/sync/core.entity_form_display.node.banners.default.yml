@@ -6,6 +6,7 @@ dependencies:
     - field.field.node.banners.field_imagem_desktop
     - field.field.node.banners.field_imagem_mobile
     - field.field.node.banners.field_local_exibicao
+    - field.field.node.banners.field_peso
     - image.style.thumbnail
     - node.type.banners
   module:
@@ -44,9 +45,16 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
+  field_peso:
+    type: number
+    weight: 2
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
   langcode:
     type: language_select
-    weight: 2
+    weight: 3
     region: content
     settings:
       include_locked: true

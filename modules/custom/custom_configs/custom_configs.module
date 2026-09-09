@@ -1,8 +1,9 @@
 <?php
 
-use Drupal\block\Entity\Block;
-use Drupal\Core\Access\AccessResult;
-use Drupal\Core\Session\AccountInterface;
+/**
+ * @file
+ * Custom site configuration hooks.
+ */
 
 /**
  * Implements hook_webform_submission_form_alter().
@@ -11,24 +12,4 @@ function custom_configs_webform_submission_form_alter(array &$form, \Drupal\Core
   if ($form['#webform_id'] === 'contato') {
     $form['#attached']['library'][] = 'default/masks';
   }
-}
-
-/**
- * Implements hook_block_access().
- *
- * Busca da home (highlighted) só com carrossel ativo — evita duplicar o
- * formulário do banner legado. hook_block_access no tema NÃO é invocado.
- */
-function custom_configs_block_access(Block $block, $operation, AccountInterface $account) {
-  if ($operation !== 'view' || $block->id() !== 'default_banner_search_front') {
-    return AccessResult::neutral();
-  }
-
-  $carousel = theme_get_setting('banner_carousel');
-  // Default ON when unset.
-  $enabled = ($carousel === NULL || $carousel === '' || !empty($carousel));
-
-  return AccessResult::allowedIf($enabled)
-    ->addCacheableDependency($block)
-    ->addCacheTags(['config:default.settings']);
 }

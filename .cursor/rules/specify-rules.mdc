@@ -1,0 +1,14 @@
+---
+description: Spec Kit — feature ativa e artefatos SDD do projeto Eu Sou Estágio
+alwaysApply: false
+---
+<!-- SPECKIT START -->
+Spec Kit **deste projeto** (Eu Sou Estágio / Drupal 11).
+
+- Feature ativa: `001-banners-busca-home`
+- Spec: `specs/001-banners-busca-home/spec.md`
+- Plano de implementação: `specs/001-banners-busca-home/plan.md`
+- Artefatos: `research.md`, `data-model.md`, `contracts/`, `quickstart.md` no mesmo diretório
+
+Não assuma stack de outro produto. Não leia `specs/` de outro repositório.
+<!-- SPECKIT END -->

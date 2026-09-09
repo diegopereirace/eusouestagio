@@ -6,6 +6,7 @@ dependencies:
     - field.field.node.banners.field_imagem_desktop
     - field.field.node.banners.field_imagem_mobile
     - field.field.node.banners.field_local_exibicao
+    - field.field.node.banners.field_peso
     - node.type.banners
   module:
     - image
@@ -44,6 +45,15 @@ content:
     settings: {  }
     third_party_settings: {  }
     weight: 0
+    region: content
+  field_peso:
+    type: number_integer
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 1
     region: content
   links:
     settings: {  }

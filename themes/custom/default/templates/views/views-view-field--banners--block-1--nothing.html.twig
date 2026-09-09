@@ -1,36 +1,43 @@
 {#
 /**
  * @file
- * Banner de páginas internas.
+ * Banner de páginas internas — <picture> sem overlay (FR-5b).
  *
  * View: banners | Display: block_1 | Field: nothing
- *
- * Campos usados:
- *  - field_imagem           → imagem de fundo (image style: banner_internas)
- *  - field_text_simple_long → texto de destaque sobreposto
  */
 #}
 
 {% set entity = row._entity %}
-{% set image_url = '' %}
+{% set desktop_uri = '' %}
+{% set mobile_uri = '' %}
+{% set alt = entity.label|default('Banner') %}
 
-{% if entity.field_imagem is not empty
-    and entity.field_imagem.entity is defined
-    and entity.field_imagem.entity.uri.value is defined %}
-    {% set image_url = entity.field_imagem.entity.uri.value|image_style('banner_internas') %}
+{% if entity.field_imagem_desktop is not empty
+    and entity.field_imagem_desktop.entity is defined
+    and entity.field_imagem_desktop.entity.uri.value is defined %}
+  {% set desktop_uri = entity.field_imagem_desktop.entity.uri.value %}
+  {% set alt = entity.field_imagem_desktop.alt|default(alt) %}
 {% endif %}
 
-{% if image_url %}
-    <section
-        class="banner-image banner-image--interna"
-        style="background-image: url('{{ image_url|e('html_attr') }}');"
-    >
-        <div class="banner-overlay-content">
-            {% if entity.field_text_simple_long is not empty %}
-                <div class="banner-title banner-title--interna">
-                    {{ entity.field_text_simple_long.value }}
-                </div>
-            {% endif %}
-        </div>
-    </section>
+{% if entity.field_imagem_mobile is not empty
+    and entity.field_imagem_mobile.entity is defined
+    and entity.field_imagem_mobile.entity.uri.value is defined %}
+  {% set mobile_uri = entity.field_imagem_mobile.entity.uri.value %}
+{% else %}
+  {% set mobile_uri = desktop_uri %}
+{% endif %}
+
+{% if desktop_uri %}
+  <section class="banner-image banner-image--interna">
+    <picture>
+      <source media="(max-width: 767.98px)" srcset="{{ mobile_uri|image_style('banner_internas_mobile')|e('html_attr') }}">
+      <img
+        src="{{ desktop_uri|image_style('banner_internas')|e('html_attr') }}"
+        alt="{{ alt|e('html_attr') }}"
+        class="banner-interna-img d-block w-100"
+        loading="eager"
+        fetchpriority="high"
+      >
+    </picture>
+  </section>
 {% endif %}

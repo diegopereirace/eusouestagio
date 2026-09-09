@@ -1,0 +1,25 @@
+uuid: 57bf4bfb-4ae4-4cf7-b0d1-0c83ba9638e0
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_peso
+    - node.type.banners
+id: node.banners.field_peso
+field_name: field_peso
+entity_type: node
+bundle: banners
+label: Peso
+description: 'Quanto menor o valor, mais cedo o banner aparece na listagem.'
+required: true
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

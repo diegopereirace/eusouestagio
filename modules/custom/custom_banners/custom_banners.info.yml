@@ -1,0 +1,11 @@
+name: 'Custom Banners'
+description: 'Banners unificados e hero de busca da home (migração + bloco + autocomplete).'
+type: module
+core_version_requirement: ^11
+package: Custom
+dependencies:
+  - drupal:node
+  - drupal:block
+  - drupal:taxonomy
+  - drupal:image
+  - drupal:views

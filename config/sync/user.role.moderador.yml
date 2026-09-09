@@ -3,7 +3,6 @@ langcode: pt-br
 status: true
 dependencies:
   config:
-    - block_content.type.banner
     - block_content.type.basic
     - block_content.type.cto
     - block_content.type.destaque
@@ -57,7 +56,6 @@ permissions:
   - 'delete terms in tags'
   - 'delete terms in tecnologias'
   - 'delete vagas revisions'
-  - 'edit any banner block content'
   - 'edit any basic block content'
   - 'edit any cto block content'
   - 'edit any destaque block content'
@@ -75,7 +73,6 @@ permissions:
   - 'use text format full_html'
   - 'use text format restricted_html'
   - 'view all revisions'
-  - 'view any banner block content history'
   - 'view own unpublished content'
   - 'view page revisions'
   - 'view the administration theme'

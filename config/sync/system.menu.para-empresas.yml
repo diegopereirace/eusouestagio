@@ -1,0 +1,8 @@
+uuid: 3bbf311a-e32e-449d-b570-d1585a7ad662
+langcode: pt-br
+status: true
+dependencies: {  }
+id: para-empresas
+label: 'Para Empresas'
+description: ''
+locked: false

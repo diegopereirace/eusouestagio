@@ -1,0 +1,14 @@
+uuid: 2dae650b-408f-4a3e-925a-ed8c7c9807a4
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - user.role.empresa
+  module:
+    - user
+id: user_add_role_action.empresa
+label: 'Adiciona o papel Empresa para o(s) usuário(s) selecionado(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: empresa

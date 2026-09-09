@@ -1,0 +1,28 @@
+uuid: 70d851c9-cccb-4169-b961-2c2d44d6ac37
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - views.view.vagas
+  module:
+    - system
+    - views
+  theme:
+    - default
+id: default_formularioexpostovagaspage_1
+theme: default
+region: highlighted
+weight: 0
+provider: null
+plugin: 'views_exposed_filter_block:vagas-page_1'
+settings:
+  id: 'views_exposed_filter_block:vagas-page_1'
+  label: ''
+  label_display: visible
+  provider: views
+  views_label: ''
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /para-estudantes

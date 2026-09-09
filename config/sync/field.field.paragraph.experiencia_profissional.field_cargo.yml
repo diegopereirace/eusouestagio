@@ -1,0 +1,19 @@
+uuid: 1532ff94-1293-4c44-9796-7cac51b4b7f2
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_cargo
+    - paragraphs.paragraphs_type.experiencia_profissional
+id: paragraph.experiencia_profissional.field_cargo
+field_name: field_cargo
+entity_type: paragraph
+bundle: experiencia_profissional
+label: Cargo
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

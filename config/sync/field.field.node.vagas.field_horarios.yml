@@ -1,0 +1,21 @@
+uuid: 883de3a1-e459-402e-b56c-26129bfbb162
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_horarios
+    - node.type.vagas
+  module:
+    - options
+id: node.vagas.field_horarios
+field_name: field_horarios
+entity_type: node
+bundle: vagas
+label: Horários
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

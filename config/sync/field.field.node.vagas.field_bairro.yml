@@ -1,0 +1,19 @@
+uuid: 2f446539-716a-4b7b-8ad4-90d02a9b8988
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_bairro
+    - node.type.vagas
+id: node.vagas.field_bairro
+field_name: field_bairro
+entity_type: node
+bundle: vagas
+label: Bairro
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

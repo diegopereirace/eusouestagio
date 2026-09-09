@@ -1,0 +1,33 @@
+uuid: 90101475-2724-4334-b5a6-67f64c44a4ce
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - system.menu.moderador
+  module:
+    - system
+    - user
+  theme:
+    - default
+id: default_painelmoderador
+theme: default
+region: sidebar_painel
+weight: 0
+provider: null
+plugin: 'system_menu_block:moderador'
+settings:
+  id: 'system_menu_block:moderador'
+  label: 'Painel Moderador'
+  label_display: '0'
+  provider: system
+  level: 1
+  depth: null
+  expand_all_items: false
+visibility:
+  user_role:
+    id: user_role
+    negate: false
+    context_mapping:
+      user: '@user.current_user_context:current_user'
+    roles:
+      moderador: moderador

@@ -1,0 +1,9 @@
+uuid: ca7fa6da-109e-4773-841b-0ba7b3b6e161
+langcode: pt-br
+status: true
+dependencies: {  }
+name: Regime
+vid: regime
+description: null
+weight: 0
+new_revision: false

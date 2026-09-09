@@ -1,0 +1,8 @@
+uuid: f43a277b-0db0-4930-b952-063c8e1079c1
+langcode: pt-br
+status: true
+dependencies: {  }
+id: painel-empresa
+label: 'Painel Empresa'
+description: ''
+locked: false

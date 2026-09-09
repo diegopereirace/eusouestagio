@@ -1,0 +1,8 @@
+uuid: 767896bc-ed8d-42fc-ad1d-43fb5c6c76d4
+langcode: pt-br
+status: true
+dependencies: {  }
+id: destaque
+label: Destaque
+revision: false
+description: null

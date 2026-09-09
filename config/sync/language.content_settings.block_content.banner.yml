@@ -1,0 +1,11 @@
+uuid: 39778384-ce45-4fbf-b1c7-f7dc6276d165
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.banner
+id: block_content.banner
+target_entity_type_id: block_content
+target_bundle: banner
+default_langcode: site_default
+language_alterable: false

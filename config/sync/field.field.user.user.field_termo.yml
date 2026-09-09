@@ -1,0 +1,22 @@
+uuid: 36c31a06-a5b7-4b02-80f9-0e4a8caa3fd4
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_termo
+  module:
+    - user
+id: user.user.field_termo
+field_name: field_termo
+entity_type: user
+bundle: user
+label: Termo
+description: 'Li e concordo com os <a href="#">Termos de Uso</a> e a <a href="#">Política de Privacidade</a>'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: Habilitado
+  off_label: Desligado
+field_type: boolean

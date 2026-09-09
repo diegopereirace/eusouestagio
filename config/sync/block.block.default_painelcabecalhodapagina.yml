@@ -1,0 +1,25 @@
+uuid: a272799f-e177-4291-9b8c-20dd6b276bec
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - custom_panel
+    - system
+  theme:
+    - default
+id: default_painelcabecalhodapagina
+theme: default
+region: painel_page_header
+weight: 0
+provider: null
+plugin: custom_panel_page_header
+settings:
+  id: custom_panel_page_header
+  label: 'Painel: cabeçalho da página'
+  label_display: '0'
+  provider: custom_panel
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: "/painel\r\n/painel/*"

@@ -1,0 +1,15 @@
+uuid: c7aa98de-1d98-408e-acf6-08d79c4f283c
+langcode: pt-br
+status: true
+dependencies: {  }
+name: cto
+label: CTO
+effects:
+  cc59119a-8e73-4e68-a261-3d2283c2df1c:
+    uuid: cc59119a-8e73-4e68-a261-3d2283c2df1c
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 1800
+      height: 520
+      anchor: center-center

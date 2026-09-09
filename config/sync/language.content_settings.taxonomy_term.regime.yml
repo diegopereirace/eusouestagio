@@ -1,0 +1,11 @@
+uuid: a3aa24bb-72e8-498c-b8f9-45a7d9cde385
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - taxonomy.vocabulary.regime
+id: taxonomy_term.regime
+target_entity_type_id: taxonomy_term
+target_bundle: regime
+default_langcode: site_default
+language_alterable: false

@@ -1,0 +1,21 @@
+uuid: 1b73405e-8ad0-4b30-9d99-069906345761
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_estado
+  module:
+    - options
+    - user
+id: user.user.field_estado
+field_name: field_estado
+entity_type: user
+bundle: user
+label: Estado
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

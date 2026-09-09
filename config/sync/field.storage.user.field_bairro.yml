@@ -1,0 +1,21 @@
+uuid: 525825d8-d111-4622-8fe1-bf34219d6fd8
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - user
+id: user.field_bairro
+field_name: field_bairro
+entity_type: user
+type: string
+settings:
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

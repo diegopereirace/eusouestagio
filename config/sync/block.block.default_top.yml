@@ -1,0 +1,23 @@
+uuid: 5ead51db-1984-4224-9dac-ba74521750df
+langcode: pt-br
+status: true
+dependencies:
+  content:
+    - 'block_content:basic:1929b858-c43d-40a2-84fc-96909300bba4'
+  module:
+    - block_content
+  theme:
+    - default
+id: default_top
+theme: default
+region: header
+weight: -5
+provider: null
+plugin: 'block_content:1929b858-c43d-40a2-84fc-96909300bba4'
+settings:
+  id: 'block_content:1929b858-c43d-40a2-84fc-96909300bba4'
+  label: Top
+  label_display: '0'
+  provider: block_content
+  view_mode: full
+visibility: {  }

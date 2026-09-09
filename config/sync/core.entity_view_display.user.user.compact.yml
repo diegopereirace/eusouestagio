@@ -1,0 +1,114 @@
+uuid: 6113785f-2afc-48b6-89b0-6852ccc650ac
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.user.compact
+    - field.field.user.user.field_bairro
+    - field.field.user.user.field_cep
+    - field.field.user.user.field_cidade
+    - field.field.user.user.field_cnpj
+    - field.field.user.user.field_complemento
+    - field.field.user.user.field_cpf
+    - field.field.user.user.field_cpf_empresa
+    - field.field.user.user.field_data_nascimento
+    - field.field.user.user.field_disponibilidade_estagio
+    - field.field.user.user.field_endereco
+    - field.field.user.user.field_escolaridade
+    - field.field.user.user.field_estado
+    - field.field.user.user.field_estado_civil
+    - field.field.user.user.field_estado_natal
+    - field.field.user.user.field_experiencias_profissionais
+    - field.field.user.user.field_horario_curso
+    - field.field.user.user.field_identidade_genero
+    - field.field.user.user.field_inscricao_municipal
+    - field.field.user.user.field_instagram
+    - field.field.user.user.field_instituicao_ensino
+    - field.field.user.user.field_linkedin
+    - field.field.user.user.field_nacionalidade
+    - field.field.user.user.field_nome_completo
+    - field.field.user.user.field_nome_fantasia
+    - field.field.user.user.field_nome_mae
+    - field.field.user.user.field_nome_pai
+    - field.field.user.user.field_numero
+    - field.field.user.user.field_numero_cid
+    - field.field.user.user.field_orgao_emissor
+    - field.field.user.user.field_periodo_letivo
+    - field.field.user.user.field_possui_deficiencia
+    - field.field.user.user.field_previsao_formatura
+    - field.field.user.user.field_quantidade_filhos
+    - field.field.user.user.field_razao_social
+    - field.field.user.user.field_responsavel_cadastro
+    - field.field.user.user.field_sexo
+    - field.field.user.user.field_sobre_empresa
+    - field.field.user.user.field_telefone
+    - field.field.user.user.field_termo
+    - field.field.user.user.field_tipo_curso
+    - field.field.user.user.field_unidade_empresa
+    - field.field.user.user.user_picture
+    - image.style.thumbnail
+  module:
+    - image
+    - user
+_core:
+  default_config_hash: 00zr_RBdTjPjBGITD3h4c1ESQZimjdVCcHGt1trLqIY
+id: user.user.compact
+targetEntityType: user
+bundle: user
+mode: compact
+content:
+  user_picture:
+    type: image
+    label: hidden
+    settings:
+      image_link: content
+      image_style: thumbnail
+      image_loading:
+        attribute: lazy
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden:
+  field_bairro: true
+  field_cep: true
+  field_cidade: true
+  field_cnpj: true
+  field_complemento: true
+  field_cpf: true
+  field_cpf_empresa: true
+  field_data_nascimento: true
+  field_disponibilidade_estagio: true
+  field_endereco: true
+  field_escolaridade: true
+  field_estado: true
+  field_estado_civil: true
+  field_estado_natal: true
+  field_experiencias_profissionais: true
+  field_horario_curso: true
+  field_identidade_genero: true
+  field_inscricao_municipal: true
+  field_instagram: true
+  field_instituicao_ensino: true
+  field_linkedin: true
+  field_nacionalidade: true
+  field_nome_completo: true
+  field_nome_fantasia: true
+  field_nome_mae: true
+  field_nome_pai: true
+  field_numero: true
+  field_numero_cid: true
+  field_orgao_emissor: true
+  field_periodo_letivo: true
+  field_possui_deficiencia: true
+  field_previsao_formatura: true
+  field_quantidade_filhos: true
+  field_razao_social: true
+  field_responsavel_cadastro: true
+  field_sexo: true
+  field_sobre_empresa: true
+  field_telefone: true
+  field_termo: true
+  field_tipo_curso: true
+  field_unidade_empresa: true
+  langcode: true
+  member_for: true

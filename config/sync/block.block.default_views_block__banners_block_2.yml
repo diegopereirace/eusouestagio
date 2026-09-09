@@ -1,0 +1,29 @@
+uuid: ee4ea098-7677-4ec6-a0be-cf6c180f0200
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - views.view.banners
+  module:
+    - system
+    - views
+  theme:
+    - default
+id: default_views_block__banners_block_2
+theme: default
+region: banner
+weight: 0
+provider: null
+plugin: 'views_block:banners-block_2'
+settings:
+  id: 'views_block:banners-block_2'
+  label: ''
+  label_display: '0'
+  provider: views
+  views_label: ''
+  items_per_page: null
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /cadastro/candidato

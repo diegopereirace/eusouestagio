@@ -1,0 +1,13 @@
+uuid: aa529b3d-7cad-4247-ac86-2b900b4cf7b3
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - webform
+_core:
+  default_config_hash: begZ0-RmTzO_zDAwEKA2lKvtGYw1vbFOzbQOJzUbZX0
+id: webform_submission_make_unlock_action
+label: 'Destravar submissão'
+type: webform_submission
+plugin: webform_submission_make_unlock_action
+configuration: {  }

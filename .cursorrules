@@ -1,0 +1,16 @@
+# Mensagens de commit (Source Control / Generate Commit Message)
+
+Quando o Cursor gerar mensagem de commit neste repositório (botão de estrela no painel Source Control):
+
+- Escreva SEMPRE em português do Brasil (pt-BR).
+- Nunca gere a mensagem em inglês.
+- Use Conventional Commits: feat:, fix:, docs:, style:, refactor:, test:, chore:
+- Assunto em uma linha, no infinitivo, sem ponto final; foque no porquê da mudança.
+- Corpo opcional, curto, só se a mudança não for óbvia.
+- Evite: "ajustes", "correções", "update", "WIP", "Enhance", "Updated", "Introduced".
+- Sem emoji e sem hashtags.
+
+Exemplos:
+- feat: adiciona busca de banners na home
+- fix: corrige layout do bloco superior no mobile
+- style: melhora responsividade do topo com flex

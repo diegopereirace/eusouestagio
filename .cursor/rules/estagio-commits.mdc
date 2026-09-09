@@ -1,0 +1,43 @@
+---
+description: Mensagens de commit geradas por plugins do Cursor — práticas e português (Brasil)
+globs: *
+alwaysApply: true
+---
+# Mensagens de commit (plugins Cursor)
+
+Toda mensagem de commit gerada por plugins do Cursor (Git, GitLens, Generate Commit Message, Composer, etc.) **deve** seguir as melhores práticas abaixo e ser escrita **sempre em português do Brasil**.
+
+> **Painel Source Control (estrela):** o botão de gerar commit na lateral do Cursor lê o arquivo legado `.cursorrules` na raiz do repo — não as regras em `.cursor/rules`. Mantenha as duas alinhadas.
+
+## Idioma
+
+- Use somente português brasileiro (pt-BR).
+- Não misture inglês na mensagem (exceto nomes próprios de tecnologias: Drupal, Twig, Composer).
+
+## Formato
+
+- Preferir Conventional Commits com tipo em português ou tipo curto + descrição em pt-BR:
+  - `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, `chore:`
+- Assunto em uma linha, no imperativo/infinitivo, sem ponto final.
+- Foque no **porquê** da mudança, não só na lista de arquivos.
+- Se precisar de corpo: linha em branco após o assunto; frases curtas e objetivas.
+
+## Boas práticas
+
+- Uma intenção por commit (não misturar feature + refactor não relacionado).
+- Seja específico: evite "ajustes", "correções", "update", "wip".
+- Não cite senhas, tokens, `.env` ou dados sensíveis.
+- Não use emoji nem hashtags na mensagem.
+
+## Exemplos
+
+```text
+✅ feat: adiciona busca de banners na home
+✅ fix: corrige URL limpa do formulário de estágio
+✅ refactor: simplifica renderização do bloco hero
+
+❌ Update files
+❌ fix stuff
+❌ Ajustes diversos
+❌ WIP
+```

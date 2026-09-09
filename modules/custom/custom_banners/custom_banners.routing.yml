@@ -1,0 +1,7 @@
+custom_banners.cursos_autocomplete:
+  path: '/api/cursos/autocomplete'
+  defaults:
+    _controller: '\Drupal\custom_banners\Controller\CursosAutocompleteController::autocomplete'
+  requirements:
+    _permission: 'access content'
+  methods: [GET]

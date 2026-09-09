@@ -1,0 +1,124 @@
+/**
+ * Hero search (home) — form + pills.
+ */
+
+.hero-search {
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 0.5rem;
+}
+
+.hero-search__inner {
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.hero-search__title {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 700;
+  color: #003f69;
+  line-height: 1.25;
+}
+
+.hero-search__subtitle {
+  margin: 0 0 1.25rem;
+  font-size: 1rem;
+  color: #37474f;
+  line-height: 1.45;
+}
+
+.hero-search__form {
+  background: rgba(255, 255, 255, 0.97);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
+}
+
+.hero-search__fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  align-items: flex-end;
+}
+
+.hero-search__field {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.hero-search__input,
+.hero-search__select {
+  width: 100%;
+  border: 2px solid #b0bec5;
+  border-radius: 8px;
+  padding: 0.65rem 0.875rem;
+  font-size: 0.9375rem;
+  color: #111;
+  background: #fff;
+  outline: none;
+}
+
+.hero-search__input:focus,
+.hero-search__select:focus {
+  border-color: #003f69;
+}
+
+.hero-search__submit-wrap {
+  flex: 0 0 auto;
+}
+
+.hero-search__submit {
+  display: inline-block;
+  border: 0;
+  border-radius: 8px;
+  padding: 0.7rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #fff;
+  background: #e85d04;
+  cursor: pointer;
+}
+
+.hero-search__submit:hover,
+.hero-search__submit:focus {
+  background: #d45103;
+}
+
+.hero-search__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+}
+
+.hero-search__pill {
+  display: inline-block;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid #90a4ae;
+  background: #fff;
+  color: #003f69;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.hero-search__pill:hover,
+.hero-search__pill:focus {
+  border-color: #003f69;
+  background: #e3f2fd;
+}
+
+@media (max-width: 767.98px) {
+  .hero-search__fields {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-search__submit {
+    width: 100%;
+  }
+}

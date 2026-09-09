@@ -1,7 +1,0 @@
-uuid: 8ef64416-3a2d-497b-8311-0bf1fba924ee
-langcode: pt-br
-status: false
-dependencies: {  }
-formId: node_banner_internas_form
-captchaType: default
-label: node_banner_internas_form

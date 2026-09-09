@@ -135,6 +135,7 @@ Atribuição no cadastro: forms de registro adicionam `candidato` ou `empresa` s
 |--------|--------------|--------|
 | Vaga | `vagas` | Anúncio de estágio |
 | Candidatura | `candidatura` | Relação candidato ↔ vaga + status |
+| Banners | `banners` | Banners unificados (home + internas) |
 | Quem somos | `quem-somos` | Institucional |
 | Para empresas | `para-empresas` | Landing empresas |
 
@@ -154,6 +155,19 @@ Atribuição no cadastro: forms de registro adicionam `candidato` ou `empresa` s
 | `field_text_simple_multiple`, `_2` | Listas auxiliares |
 | `field_auxilio_transporte` | Auxílio |
 | `field_horarios` | Horários |
+
+#### 3.1.1b `banners`
+
+Tipo único de banners do site (absorve o legado `banner_internas` e o antigo block bundle `banner`). Ordenação das listagens: `field_peso` ASC (menor primeiro), desempate `created` DESC.
+
+| Campo | Tipo / uso |
+|-------|------------|
+| `field_imagem_desktop` | Image (obrigatório; alt obrigatório) |
+| `field_imagem_mobile` | Image (opcional; fallback para desktop) |
+| `field_local_exibicao` | list_string obrigatório: `home` \| `internas` |
+| `field_peso` | Integer obrigatório (default 0); quanto menor, mais cedo aparece |
+
+Legado removido: `node.type.banner_internas` e block type `banner` (Release 2 / 2b).
 
 #### 3.1.2 `candidatura`
 
@@ -203,7 +217,12 @@ Paragraphs de layout em blocos/páginas (`field_icon_title_text_p`, `field_itens
 
 ### 3.4 Taxonomies
 
-Vocabulários referenciados pelos campos `field_cursos_t`, `field_regime_t`, `field_tecnologias_t`. **Machine names exatos não estão no repositório** (config só no DB). Ação obrigatória no milestone de Config Management: exportar `taxonomy.vocabulary.*` e documentar aqui.
+| Vocabulário | Machine name (`vid`) | Campos / uso |
+|-------------|----------------------|--------------|
+| Curso | `curso` | `field_cursos_t`; filtro exposto `cursos` na View `vagas`; pills TI/Administração/Design/Marketing; autocomplete `/api/cursos/autocomplete` |
+| Regime | `regime` | `field_regime_t`; filtro exposto `regime` na View `vagas`; pill Remoto |
+| Tecnologias | `tecnologias` | `field_tecnologias_t` (fallback/exibição) |
+| Tags | `tags` | Genérico |
 
 ### 3.5 Tabelas custom
 
@@ -213,7 +232,10 @@ Vocabulários referenciados pelos campos `field_cursos_t`, `field_regime_t`, `fi
 
 ### 3.6 Block content / Views (produto)
 
-- Block bundle `banner`; Views `banners`, `vagas` (`page_1`, `block_1`, `block_2` similares).
+- View `banners`: display `block_home` (carrossel home, `field_local_exibicao=home`) + `block_1`/`block_2`/`block_3` (internas).
+- View `vagas` `page_1` (`/para-estudantes`): filtros expostos `nid`, `cursos`, `estado`, `cidade`, `escolaridade`, `regime`.
+- Bloco plugin `custom_banners_hero_search` (região `highlighted`, somente `<front>`).
+- View `banners` display `block_home` (região `banner`, `<front>`).
 - Tema `default`: regiões `sidebar_painel`, `painel_page_header`.
 
 ### 3.7 Diagrama lógico (resumo)
@@ -265,6 +287,7 @@ User(candidato) ──< candidatura >── Node(vagas) ──> User(empresa)
 | `custom_panel` | Painéis, candidatura node, vagas salvas/aplicadas, erros 403/404, forms edição |
 | `custom_candidaturas` | Service legado `field_candidatos_u` + mail moderadores — **candidatar a consolidação** |
 | `custom_notifications` | E-mails: nova vaga, nova empresa, novo candidato |
+| `custom_banners` | Migração de banners legados; bloco hero de busca da home; autocomplete `/api/cursos/autocomplete` |
 
 **Tema:** `themes/custom/default` (Barrio).
 
@@ -410,8 +433,8 @@ Pergunta padrão: *“Essa alteração estrutural exige atualização no PRD.md?
 |----|------|---------|-------------------|
 | R1 | `rascunho_requisitos.md` ausente | Possível desalinhamento com intenção original | Validar este PRD com o product owner |
 | R2 | Dual model candidatura | Dados inconsistentes | M6 — node `candidatura` canônico |
-| R3 | Sem `config/sync` | Drift entre ambientes | M1 prioritário |
-| R4 | Machine names de taxonomies só no DB | PRD incompleto em §3.4 | Export + atualizar tabela |
+| R3 | ~~Sem `config/sync`~~ | Resolvido em `001-banners-busca-home` — sync em `config/sync/` | Manter `drush cex` no fluxo |
+| R4 | ~~Machine names de taxonomies só no DB~~ | Resolvido — `curso`, `regime`, `tecnologias`, `tags` em §3.4 | — |
 | R5 | Devel em Composer | Risco se ativo em prod | Bloquear em M7 |
 
 ---
@@ -435,6 +458,7 @@ Pergunta padrão: *“Essa alteração estrutural exige atualização no PRD.md?
 | `/painel/moderador/candidaturas` | moderador+admin |
 | `/vaga/apply/{node}` | candidato POST |
 | `/api/cep/{cep}` | público GET |
+| `/api/cursos/autocomplete` | público GET (`access content`) |
 | `/acesso-negado` / `/pagina-nao-encontrada` | público |
 
 \*Rota estudante de senha hoje exige apenas login; alinhar a `_role: candidato` se desejado (ajuste estrutural de routing → dispara Guardião do Escopo).

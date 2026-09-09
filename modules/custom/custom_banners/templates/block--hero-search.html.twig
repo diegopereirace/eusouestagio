@@ -1,0 +1,52 @@
+{#
+/**
+ * @file
+ * Hero de busca da home — textos 100% fixos em código (FR-6, SC-6).
+ *
+ * Theme hook: custom_banners_hero_search
+ */
+#}
+<section class="hero-search">
+  <div class="hero-search__inner">
+    <h1 class="hero-search__title">Encontre seu estágio ideal hoje.</h1>
+    <p class="hero-search__subtitle">Conectamos talentos universitários às melhores oportunidades de estágio do mercado.</p>
+
+    <form class="hero-search__form" method="get" action="{{ action|default('/para-estudantes')|e('html_attr') }}" role="search">
+      <div class="hero-search__fields">
+        <div class="hero-search__field">
+          <label class="visually-hidden" for="hero-search-cursos">{{ 'Qual o seu curso?'|t }}</label>
+          <input
+            id="hero-search-cursos"
+            class="form-autocomplete hero-search__input"
+            type="text"
+            name="cursos"
+            placeholder="{{ 'Qual o seu curso?'|t }}"
+            autocomplete="off"
+            data-autocomplete-path="/api/cursos/autocomplete"
+          >
+        </div>
+        <div class="hero-search__field">
+          <label class="visually-hidden" for="hero-search-regime">{{ 'Cidade ou Remoto'|t }}</label>
+          <select id="hero-search-regime" class="hero-search__select" name="regime" aria-label="{{ 'Cidade ou Remoto'|t }}">
+            {% for value, label_opt in regime_options %}
+              <option value="{{ value|e('html_attr') }}">{{ label_opt }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="hero-search__submit-wrap">
+          <button type="submit" class="hero-search__submit">{{ 'Buscar Vagas'|t }}</button>
+        </div>
+      </div>
+    </form>
+
+    {% if pills %}
+      <ul class="hero-search__pills" role="list">
+        {% for pill in pills %}
+          <li>
+            <a class="hero-search__pill" href="{{ pill.url|e('html_attr') }}">{{ pill.label }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+</section>

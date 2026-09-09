@@ -1,14 +1,19 @@
 ---
-description: Guardião do Escopo — quando perguntar sobre atualizar PRD.md
-globs: composer.json,config/sync/**/*,**/*.schema.yml,**/*.routing.yml,modules/custom/**/*.module,modules/custom/**/*.services.yml,web/modules/custom/**/*
+description: Guardião do Escopo — dispara atualização do PRD.md somente em alterações estruturais (content types, fields, taxonomias, rotas, dependências, config/sync)
+globs: PRD.md, composer.json, config/sync/**, modules/custom/**/*.module, modules/custom/**/*.routing.yml, modules/custom/**/*.services.yml, modules/custom/**/*.install
 alwaysApply: false
 ---
-# Guardião do Escopo (PRD.md)
+# Guardião do Escopo — PRD.md
 
-Após mudanças **estruturais** nos arquivos cobertos por este rule, **não** atualize `PRD.md` automaticamente.
+O `PRD.md` é o documento canônico do produto. Para economia de tokens, **não** revise o PRD em mudanças de frontend (CSS/JS/Twig) ou ajustes simples de copy/UI.
 
-Pergunte de forma concisa: "Essa alteração estrutural exige atualização no PRD.md?"
+Ao detectar alteração **estrutural** em:
 
-**Ignorar** (não perguntar): CSS, JS, Twig, copy/UI e ajustes simples de frontend.
+- `composer.json` (novas dependências);
+- `config/sync/` ou `*.schema.yml` / `*.routing.yml` / `*.services.yml`;
+- `*.module`, `*.install` ou serviços em `modules/custom/`;
+- content types, fields, taxonomias, Views ou roles;
 
-Fonte canônica do produto: `PRD.md` na raiz do repositório.
+pergunte: *"Essa alteração estrutural exige atualização no PRD.md?"* (governança §8 do PRD).
+
+Quando a resposta for sim (ou a mudança já tiver sido aprovada em spec), atualize o `PRD.md` com precisão cirúrgica — apenas as seções afetadas (ex.: §3.1 content types, §3.4 taxonomias, §3.6 blocos/Views, §4.2 dependências, §10 rotas). Nunca reescreva o documento inteiro.

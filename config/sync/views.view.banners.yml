@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.storage.node.field_imagem_desktop
     - field.storage.node.field_imagem_mobile
+    - field.storage.node.field_peso
     - node.type.banners
   module:
     - image
@@ -140,6 +141,19 @@ display:
         options: {  }
       empty: {  }
       sorts:
+        field_peso_value:
+          id: field_peso_value
+          table: node__field_peso
+          field: field_peso_value
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: numeric
+          order: ASC
+          expose:
+            label: ''
+            field_identifier: ''
+          exposed: false
         created:
           id: created
           table: node_field_data
@@ -240,6 +254,7 @@ display:
       tags:
         - 'config:field.storage.node.field_imagem_desktop'
         - 'config:field.storage.node.field_imagem_mobile'
+        - 'config:field.storage.node.field_peso'
   block_1:
     id: block_1
     display_title: 'Banners Internas'
@@ -322,6 +337,7 @@ display:
       tags:
         - 'config:field.storage.node.field_imagem_desktop'
         - 'config:field.storage.node.field_imagem_mobile'
+        - 'config:field.storage.node.field_peso'
   block_2:
     id: block_2
     display_title: 'Banners Internas - Cadastro Estudantes'
@@ -405,6 +421,7 @@ display:
       tags:
         - 'config:field.storage.node.field_imagem_desktop'
         - 'config:field.storage.node.field_imagem_mobile'
+        - 'config:field.storage.node.field_peso'
   block_3:
     id: block_3
     display_title: 'Banners Internas - Cadastro Empresa'
@@ -488,6 +505,7 @@ display:
       tags:
         - 'config:field.storage.node.field_imagem_desktop'
         - 'config:field.storage.node.field_imagem_mobile'
+        - 'config:field.storage.node.field_peso'
   block_home:
     id: block_home
     display_title: 'Banners Home (carrossel)'
@@ -588,3 +606,4 @@ display:
       tags:
         - 'config:field.storage.node.field_imagem_desktop'
         - 'config:field.storage.node.field_imagem_mobile'
+        - 'config:field.storage.node.field_peso'

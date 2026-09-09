@@ -1,0 +1,375 @@
+<?php
+
+/**
+ * @file
+ * Install and update hooks for Custom Banners.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Implements hook_install().
+ *
+ * Fresh enable (cim/en) sets schema to max update_N without running updates —
+ * migration must also run from install.
+ */
+function custom_banners_install(): void {
+  _custom_banners_migrate_legacy();
+}
+
+/**
+ * Migrate legacy banner_internas nodes and banner blocks into banners nodes.
+ *
+ * Idempotent: skips when key_value marker custom_banners.migration_11001 is set.
+ */
+function custom_banners_update_11001(): string {
+  $created = _custom_banners_migrate_legacy();
+  if ($created < 0) {
+    return (string) t('Migração de banners já executada anteriormente — nada a fazer.');
+  }
+  return (string) t('Migração de banners concluída: @count nodes criados.', ['@count' => $created]);
+}
+
+/**
+ * Shared migration body.
+ *
+ * @return int
+ *   Nodes created, or -1 if already migrated.
+ */
+function _custom_banners_migrate_legacy(): int {
+  $state = \Drupal::keyValue('custom_banners');
+  if ($state->get('migration_11001')) {
+    return -1;
+  }
+
+  $entity_type_manager = \Drupal::entityTypeManager();
+  $node_storage = $entity_type_manager->getStorage('node');
+  $created = 0;
+
+  // --- banner_internas → banners (local = internas) ---
+  $internas_ids = $node_storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('type', 'banner_internas')
+    ->execute();
+
+  if ($internas_ids) {
+    /** @var \Drupal\node\NodeInterface[] $internas_nodes */
+    $internas_nodes = $node_storage->loadMultiple($internas_ids);
+    foreach ($internas_nodes as $source) {
+      if (!$source->hasField('field_imagem') || $source->get('field_imagem')->isEmpty()) {
+        continue;
+      }
+
+      $desktop = $source->get('field_imagem')->first();
+      $fid = (int) $desktop->target_id;
+      if ($fid && _custom_banners_banners_exists_for_fid($fid)) {
+        $source->setUnpublished()->save();
+        continue;
+      }
+
+      $alt = '';
+      if ($source->hasField('field_text_simple_long') && !$source->get('field_text_simple_long')->isEmpty()) {
+        $alt = trim(strip_tags((string) $source->get('field_text_simple_long')->value));
+      }
+      if ($alt === '' && $desktop) {
+        $alt = (string) ($desktop->alt ?? '');
+      }
+
+      $values = [
+        'type' => 'banners',
+        'title' => $source->label(),
+        'uid' => $source->getOwnerId(),
+        'status' => $source->isPublished() ? 1 : 0,
+        'created' => $source->getCreatedTime(),
+        'field_local_exibicao' => 'internas',
+        'field_peso' => 0,
+        'field_imagem_desktop' => [
+          'target_id' => $desktop->target_id,
+          'alt' => $alt !== '' ? $alt : ($source->label() ?: 'Banner'),
+        ],
+      ];
+
+      foreach (['field_imagem_mobile', 'field_image_mobile'] as $mobile_field) {
+        if ($source->hasField($mobile_field) && !$source->get($mobile_field)->isEmpty()) {
+          $mobile = $source->get($mobile_field)->first();
+          $values['field_imagem_mobile'] = [
+            'target_id' => $mobile->target_id,
+            'alt' => (string) ($mobile->alt ?? $alt),
+          ];
+          break;
+        }
+      }
+
+      $node = $node_storage->create($values);
+      $node->save();
+      $created++;
+
+      $source->setUnpublished()->save();
+    }
+  }
+
+  // --- block_content banner → banners (local = home), 1 node per slide ---
+  if ($entity_type_manager->hasDefinition('block_content')) {
+    $block_storage = $entity_type_manager->getStorage('block_content');
+    $block_ids = $block_storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('type', 'banner')
+      ->execute();
+
+    if ($block_ids) {
+      /** @var \Drupal\block_content\BlockContentInterface[] $blocks */
+      $blocks = $block_storage->loadMultiple($block_ids);
+      foreach ($blocks as $block) {
+        if (!$block->hasField('field_image') || $block->get('field_image')->isEmpty()) {
+          continue;
+        }
+
+        $desktop_items = $block->get('field_image');
+        $mobile_items = $block->hasField('field_image_mobile') ? $block->get('field_image_mobile') : NULL;
+        $base_created = (int) (\Drupal::time()->getRequestTime());
+        if ($block->hasField('changed') && !$block->get('changed')->isEmpty()) {
+          $base_created = (int) $block->get('changed')->value;
+        }
+        $info = (string) ($block->label() ?: 'Banner home');
+        $uid = 1;
+        if ($block->hasField('uid') && !$block->get('uid')->isEmpty()) {
+          $uid = (int) $block->get('uid')->target_id;
+        }
+
+        foreach ($desktop_items as $delta => $item) {
+          if (empty($item->target_id)) {
+            continue;
+          }
+          if (_custom_banners_banners_exists_for_fid((int) $item->target_id)) {
+            continue;
+          }
+          $alt = (string) ($item->alt ?? '');
+          $title = $alt !== '' ? "$info — $alt" : "$info — #$delta";
+
+          $values = [
+            'type' => 'banners',
+            'title' => $title,
+            'uid' => $uid,
+            'status' => 1,
+            // Lower delta = lower peso so ASC keeps visual order.
+            'created' => $base_created - (int) $delta,
+            'field_local_exibicao' => 'home',
+            'field_peso' => (int) $delta,
+            'field_imagem_desktop' => [
+              'target_id' => $item->target_id,
+              'alt' => $alt !== '' ? $alt : $title,
+            ],
+          ];
+
+          if ($mobile_items && isset($mobile_items[$delta]) && !empty($mobile_items[$delta]->target_id)) {
+            $mobile = $mobile_items[$delta];
+            $values['field_imagem_mobile'] = [
+              'target_id' => $mobile->target_id,
+              'alt' => (string) ($mobile->alt ?? $alt),
+            ];
+          }
+
+          $node = $node_storage->create($values);
+          $node->save();
+          $created++;
+        }
+
+        if ($block->hasField('status')) {
+          $block->set('status', 0)->save();
+        }
+      }
+    }
+  }
+
+  $state->set('migration_11001', TRUE);
+  return $created;
+}
+
+/**
+ * Whether a banners node already uses this file as desktop image.
+ */
+function _custom_banners_banners_exists_for_fid(int $fid): bool {
+  if ($fid <= 0) {
+    return FALSE;
+  }
+  $ids = \Drupal::entityQuery('node')
+    ->accessCheck(FALSE)
+    ->condition('type', 'banners')
+    ->condition('field_imagem_desktop.target_id', $fid)
+    ->range(0, 1)
+    ->execute();
+  return !empty($ids);
+}
+
+/**
+ * Release 2: delete remaining block_content of type banner before cim removes the type.
+ *
+ * Deploy order: drush updb -y → drush cim -y → drush cr.
+ */
+function custom_banners_update_11002(): string {
+  if (!\Drupal::entityTypeManager()->hasDefinition('block_content')) {
+    return (string) t('Entity block_content indisponível — nada a fazer.');
+  }
+
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $ids = $storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('type', 'banner')
+    ->execute();
+
+  if (!$ids) {
+    return (string) t('Nenhum block_content banner restante — pronto para cim remover o tipo.');
+  }
+
+  $entities = $storage->loadMultiple($ids);
+  $storage->delete($entities);
+  return (string) t('Removidos @count block_content do tipo banner.', ['@count' => count($entities)]);
+}
+
+/**
+ * Release 2b: delete remaining banner_internas nodes before cim removes the type.
+ *
+ * Deploy order: drush updb -y → drush cim -y → drush cr.
+ */
+function custom_banners_update_11003(): string {
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $ids = $storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('type', 'banner_internas')
+    ->execute();
+
+  if (!$ids) {
+    return (string) t('Nenhum node banner_internas restante — pronto para cim remover o tipo.');
+  }
+
+  $entities = $storage->loadMultiple($ids);
+  $storage->delete($entities);
+  return (string) t('Removidos @count nodes do tipo banner_internas.', ['@count' => count($entities)]);
+}
+
+/**
+ * Ensure field_peso exists and backfill weights (preserves created DESC order).
+ *
+ * Deploy: drush updb -y → drush cim -y → drush cr
+ * (cria o campo se ainda não existir; cim alinha displays/View).
+ */
+function custom_banners_update_11004(): string {
+  $created_field = _custom_banners_ensure_field_peso();
+
+  $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+  $updated = 0;
+
+  foreach (['home', 'internas'] as $local) {
+    $ids = $node_storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('type', 'banners')
+      ->condition('field_local_exibicao', $local)
+      ->sort('created', 'DESC')
+      ->execute();
+
+    if (!$ids) {
+      continue;
+    }
+
+    $weight = 0;
+    /** @var \Drupal\node\NodeInterface[] $nodes */
+    $nodes = $node_storage->loadMultiple($ids);
+    foreach ($ids as $nid) {
+      $node = $nodes[$nid] ?? NULL;
+      if (!$node || !$node->hasField('field_peso')) {
+        continue;
+      }
+      if (!$node->get('field_peso')->isEmpty() && (int) $node->get('field_peso')->value === $weight) {
+        $weight++;
+        continue;
+      }
+      $node->set('field_peso', $weight);
+      $node->save();
+      $updated++;
+      $weight++;
+    }
+  }
+
+  $prefix = $created_field
+    ? (string) t('Campo field_peso criado. ')
+    : '';
+  return $prefix . (string) t('field_peso preenchido em @count banners (ordem atual preservada).', ['@count' => $updated]);
+}
+
+/**
+ * Creates field_peso storage + instance if missing (UUIDs match config/sync).
+ *
+ * @return bool
+ *   TRUE if the field was created in this call.
+ */
+function _custom_banners_ensure_field_peso(): bool {
+  if (\Drupal\field\Entity\FieldStorageConfig::loadByName('node', 'field_peso')) {
+    return FALSE;
+  }
+
+  $storage = \Drupal\field\Entity\FieldStorageConfig::create([
+    'uuid' => '0815e767-b5b1-4034-bdef-cdf10aed18df',
+    'field_name' => 'field_peso',
+    'entity_type' => 'node',
+    'type' => 'integer',
+    'cardinality' => 1,
+    'translatable' => TRUE,
+    'settings' => [
+      'unsigned' => FALSE,
+      'size' => 'normal',
+    ],
+  ]);
+  $storage->save();
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName('node', 'banners', 'field_peso')) {
+    $field = \Drupal\field\Entity\FieldConfig::create([
+      'uuid' => '57bf4bfb-4ae4-4cf7-b0d1-0c83ba9638e0',
+      'field_storage' => $storage,
+      'bundle' => 'banners',
+      'label' => 'Peso',
+      'description' => 'Quanto menor o valor, mais cedo o banner aparece na listagem.',
+      'required' => TRUE,
+      'translatable' => FALSE,
+      'default_value' => [['value' => 0]],
+      'settings' => [
+        'min' => NULL,
+        'max' => NULL,
+        'prefix' => '',
+        'suffix' => '',
+      ],
+    ]);
+    $field->save();
+  }
+
+  // Expose on form/view displays if present.
+  foreach (['entity_form_display', 'entity_view_display'] as $display_type) {
+    $display = \Drupal::entityTypeManager()
+      ->getStorage($display_type)
+      ->load('node.banners.default');
+    if ($display && !$display->getComponent('field_peso')) {
+      if ($display_type === 'entity_form_display') {
+        $display->setComponent('field_peso', [
+          'type' => 'number',
+          'weight' => 2,
+          'region' => 'content',
+          'settings' => ['placeholder' => ''],
+        ]);
+      }
+      else {
+        $display->setComponent('field_peso', [
+          'type' => 'number_integer',
+          'weight' => 1,
+          'region' => 'content',
+          'label' => 'above',
+          'settings' => [
+            'thousand_separator' => '',
+            'prefix_suffix' => TRUE,
+          ],
+        ]);
+      }
+      $display->save();
+    }
+  }
+
+  return TRUE;
+}

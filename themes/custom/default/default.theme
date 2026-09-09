@@ -39,20 +39,6 @@ function default_form_system_theme_settings_alter(&$form, FormStateInterface $fo
     'bg-white' => t('White'),
     'bg-transparent' => t('Transparent'),
   ];
-
-  // Toggle: carrossel é o padrão; desmarque para voltar ao banner legado.
-  $form['banner_home'] = [
-    '#type' => 'details',
-    '#title' => t('Banner da home'),
-    '#open' => TRUE,
-    '#weight' => -20,
-  ];
-  $form['banner_home']['banner_carousel'] = [
-    '#type' => 'checkbox',
-    '#title' => t('Usar carrossel responsivo (novo banner)'),
-    '#description' => t('Marcado (padrão) = carrossel com setas, dots e imagem mobile; busca fora do banner. Desmarcado = banner legado com busca embutida.'),
-    '#default_value' => theme_get_setting('banner_carousel') ?? 1,
-  ];
 }
 
 function default_preprocess(&$variables, $hook)
@@ -71,77 +57,65 @@ function default_preprocess(&$variables, $hook)
 /**
  * Implements hook_preprocess_html().
  *
- * Marca o body quando o carrossel da home está ativo (CSS da busca sobreposta).
+ * Classe legada do carrossel da home (CSS de layout da região highlighted).
  */
 function default_preprocess_html(array &$variables): void
 {
-  // Carrossel é o padrão quando a setting ainda não foi gravada.
-  $carousel = theme_get_setting('banner_carousel');
-  if ($carousel === NULL || $carousel === '' || !empty($carousel)) {
-    $variables['attributes']['class'][] = 'banner-carousel-enabled';
-  }
+  $variables['attributes']['class'][] = 'banner-carousel-enabled';
 }
 
 /**
- * Returns TRUE when the home banner carousel is enabled.
- */
-function default_banner_carousel_enabled(): bool
-{
-  $carousel = theme_get_setting('banner_carousel');
-  // Default ON when unset (first install / before Appearance save).
-  return $carousel === NULL || $carousel === '' || !empty($carousel);
-}
-
-/**
- * Implements hook_preprocess_block() for banner block_content.
+ * Implements hook_preprocess_HOOK() for View banners block_home (carrossel).
  *
- * Monta slides a partir da entidade (mais confiável que #items do formatter).
+ * Monta banner_slides a partir dos nodes do tipo banners (local=home).
  */
-function default_preprocess_block(array &$variables): void
+function default_preprocess_views_view__banners__block_home(array &$variables): void
 {
-  $block_content = $variables['elements']['content']['#block_content'] ?? NULL;
-  if (!$block_content || $block_content->bundle() !== 'banner') {
-    return;
-  }
-
-  if (!default_banner_carousel_enabled()) {
+  /** @var \Drupal\views\ViewExecutable|null $view */
+  $view = $variables['view'] ?? NULL;
+  if (!$view) {
     return;
   }
 
   $file_url_generator = \Drupal::service('file_url_generator');
+  $style_desktop = \Drupal\image\Entity\ImageStyle::load('banner_carousel');
+  $style_mobile = \Drupal\image\Entity\ImageStyle::load('banner_carousel_mobile');
   $slides = [];
-  $desktop_items = $block_content->hasField('field_image') ? $block_content->get('field_image') : [];
-  $mobile_items = $block_content->hasField('field_image_mobile') ? $block_content->get('field_image_mobile') : [];
 
-  foreach ($desktop_items as $delta => $item) {
-    if (empty($item->entity)) {
+  foreach ($view->result as $row) {
+    /** @var \Drupal\node\NodeInterface|null $node */
+    $node = $row->_entity ?? NULL;
+    if (!$node || !$node->hasField('field_imagem_desktop') || $node->get('field_imagem_desktop')->isEmpty()) {
       continue;
     }
-    $desktop_uri = $item->entity->getFileUri();
-    if (!$desktop_uri) {
+    $desktop_item = $node->get('field_imagem_desktop')->first();
+    if (empty($desktop_item->entity)) {
+      continue;
+    }
+    $desktop_uri = $desktop_item->entity->getFileUri();
+    if (!$desktop_uri || !$style_desktop) {
       continue;
     }
 
     $mobile_uri = $desktop_uri;
-    if (isset($mobile_items[$delta]) && !empty($mobile_items[$delta]->entity)) {
-      $mobile_uri = $mobile_items[$delta]->entity->getFileUri() ?: $desktop_uri;
+    if ($node->hasField('field_imagem_mobile') && !$node->get('field_imagem_mobile')->isEmpty()) {
+      $mobile_item = $node->get('field_imagem_mobile')->first();
+      if (!empty($mobile_item->entity)) {
+        $mobile_uri = $mobile_item->entity->getFileUri() ?: $desktop_uri;
+      }
     }
 
-    $desktop_url = \Drupal\image\Entity\ImageStyle::load('banner_carousel')?->buildUrl($desktop_uri);
-    $mobile_url = \Drupal\image\Entity\ImageStyle::load('banner_carousel_mobile')?->buildUrl($mobile_uri);
-    if (!$desktop_url) {
-      continue;
-    }
+    $desktop_url = $style_desktop->buildUrl($desktop_uri);
+    $mobile_url = $style_mobile ? $style_mobile->buildUrl($mobile_uri) : $desktop_url;
 
     $slides[] = [
       'desktop' => $file_url_generator->transformRelative($desktop_url),
       'mobile' => $file_url_generator->transformRelative($mobile_url ?: $desktop_url),
-      'alt' => (string) ($item->alt ?? ''),
+      'alt' => (string) ($desktop_item->alt ?? $node->label()),
     ];
   }
 
   $variables['banner_slides'] = $slides;
-  $variables['#cache']['tags'][] = 'config:default.settings';
 }
 
 /**
@@ -272,16 +246,6 @@ function default_preprocess_block__default_painelpageheader(&$variables)
 }
 
 /**
- * Implements hook_preprocess_HOOK() for the front search block wrapper.
- */
-function default_preprocess_block__default_banner_search_front(array &$variables): void
-{
-  $variables['attributes']['class'][] = 'banner-search-front';
-  // Cache must vary with the theme toggle.
-  $variables['#cache']['tags'][] = 'config:default.settings';
-}
-
-/**
  * Implements hook_page_attachments_alter().
  *
  * Injects breakpoint media queries from the active theme into drupalSettings
@@ -316,25 +280,6 @@ function default_page_attachments_alter(array &$attachments)
 
   if (!empty($map)) {
     $attachments['#attached']['drupalSettings']['blockBreakpoint']['breakpoints'] = $map;
-  }
-}
-
-/**
- * Implements hook_theme_suggestions_HOOK_alter() for block templates.
- */
-function default_theme_suggestions_block_alter(array &$suggestions, array $variables)
-{
-  if (!isset($variables['elements']['content']['#block_content'])) {
-    return;
-  }
-
-  $block_content = $variables['elements']['content']['#block_content'];
-  if ($block_content->bundle() === 'banner') {
-    array_splice($suggestions, 1, 0, 'block__bundle__banner');
-    // ponytail: desligar "Usar carrossel" em Appearance restaura o legado.
-    if (!default_banner_carousel_enabled()) {
-      $suggestions[] = 'block__bundle__banner__legacy';
-    }
   }
 }
 

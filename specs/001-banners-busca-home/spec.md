@@ -72,7 +72,7 @@
 
 **Bloco de busca (hero)**
 
-- **FR-6**: O bloco de busca DEVE ser customizado (código), com título ("Encontre seu estágio ideal hoje.") e subtítulo ("Conectamos talentos universitários...") **fixos no template/lógica de renderização** — NENHUM campo administrável no banco de dados para esses textos.
+- **FR-6**: O bloco de busca DEVE ser customizado (código), com título ("Encontre seu estágio ideal hoje.") e subtítulo ("Conectamos talentos universitários às melhores oportunidades do mercado através de uma plataforma moderna e intuitiva.") **fixos no template/lógica de renderização** — NENHUM campo administrável no banco de dados para esses textos.
 - **FR-7**: O campo "Qual o seu curso?" DEVE filtrar vagas pela área de estudo/curso, mapeado ao campo `field_cursos_t` da vaga (taxonomia), com interface de busca moderna (ex.: autocomplete).
 - **FR-8**: O campo com placeholder "Cidade ou Remoto" DEVE aplicar a regra de negócio "Presencial ou Remoto", filtrando estritamente pelo campo `field_regime_t` da vaga. O campo NÃO filtra por `field_cidade` (decisão Q2 da sessão 2026-09-09); a busca por cidade permanece disponível apenas no filtro exposto `cidade` já existente na listagem `/para-estudantes`.
 - **FR-9**: Os dois filtros DEVEM funcionar de forma combinada na View `vagas` (exposed filters), redirecionando à listagem filtrada.

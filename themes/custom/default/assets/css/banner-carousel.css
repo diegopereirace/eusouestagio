@@ -112,13 +112,13 @@
 	background-color: #e55a24;
 }
 
-/* Busca na região highlighted, sobreposta à base do banner */
+/* Hero de busca abaixo do carrossel (layout centralizado, sem overlay). */
 .path-frontpage.banner-carousel-enabled .highlighted {
 	position: relative;
 	z-index: 4;
-	margin-top: -4.5rem;
+	margin-top: 0;
 	padding: 0;
-	background: transparent;
+	background: #fff;
 }
 
 .path-frontpage.banner-carousel-enabled .highlighted > .section {
@@ -154,10 +154,6 @@
 	.banner-carousel .carousel-indicators {
 		right: 0.75rem;
 		bottom: 0.75rem;
-	}
-
-	.path-frontpage.banner-carousel-enabled .highlighted {
-		margin-top: -2rem;
 	}
 
 	.path-frontpage.banner-carousel-enabled .banner-search-front {

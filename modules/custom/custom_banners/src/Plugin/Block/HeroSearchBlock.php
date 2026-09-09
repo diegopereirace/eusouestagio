@@ -80,7 +80,7 @@ class HeroSearchBlock extends BlockBase implements ContainerFactoryPluginInterfa
    * @return array<int|string, string>
    */
   private function loadRegimeOptions(): array {
-    $options = ['' => (string) $this->t('- Selecione -')];
+    $options = ['' => (string) $this->t('Cidade ou Remoto')];
     try {
       $storage = $this->entityTypeManager->getStorage('taxonomy_term');
       $terms = $storage->loadByProperties(['vid' => 'regime', 'status' => 1]);

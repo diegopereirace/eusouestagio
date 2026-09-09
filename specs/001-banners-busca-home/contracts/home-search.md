@@ -44,10 +44,10 @@ Pills são links server-side (sem JS). Clique = submissão automática.
 | Elemento | Valor | Local |
 |----------|-------|-------|
 | Título | `Encontre seu estágio ideal hoje.` | hardcoded no Twig |
-| Subtítulo | `Conectamos talentos universitários às melhores oportunidades de estágio do mercado.` | hardcoded no Twig |
+| Subtítulo | `Conectamos talentos universitários às melhores oportunidades do mercado através de uma plataforma moderna e intuitiva.` | hardcoded no Twig |
 | Placeholder curso | `Qual o seu curso?` | hardcoded no Twig |
-| Placeholder/label regime | `Cidade ou Remoto` | hardcoded no Twig (rótulo de UI; filtra só regime — FR-8) |
-| Botão | `Buscar Vagas` | hardcoded no Twig |
+| Placeholder/label regime | `Cidade ou Remoto` | hardcoded no Twig (rótulo de UI; filtra só regime — FR-8); também é a option vazia do select |
+| Botão | `Buscar` (+ seta →) | hardcoded no Twig |
 
 Nenhum desses textos pode existir como campo administrável no banco (SC-6: zero linhas no DB).
 

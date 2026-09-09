@@ -64,3 +64,5 @@ docker/*.local.*
 # Arquivos gerados pelo Drupal scaffold (composer install os recria automaticamente)
 /robots.txt
 /autoload.php
+
+/tmp/*

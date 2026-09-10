@@ -1,10 +1,16 @@
 /**
- * Banner home — carrossel (ativado via Appearance → Banner da home).
- * Full-bleed: região Barrio ainda injeta .container; carrossel ocupa 100vw útil.
- * Busca: região highlighted (.banner-search-front), sobreposta à base.
+ * Banner home — carrossel full-width.
+ * Busca: região highlighted abaixo (.hero-search).
  */
 
-/* Barrio region--full-width: outer full-width + inner .container (max 1320px). */
+:root {
+	--brand-green: #5eb344;
+	--brand-navy: #003060;
+	--brand-orange: #ff8a22;
+	--hero-bg: #f5f7f8;
+}
+
+/* Barrio region--full-width: outer full-width + inner .container. */
 .region-wrapper-banner.full-width > .container {
 	max-width: none;
 	width: 100%;
@@ -17,13 +23,29 @@
 	max-width: none;
 }
 
-.block-banner-carousel .banner-carousel-wrap {
+.home-hero {
+	position: relative;
+	width: 100%;
+	overflow: hidden;
+	background-color: var(--hero-bg, #f5f7f8);
+}
+
+.home-hero__inner {
+	width: 100%;
+	max-width: none;
+	margin-inline: 0;
+	padding: 0;
+}
+
+.home-hero__media,
+.banner-carousel-wrap {
 	position: relative;
 	width: 100%;
 	max-width: 100%;
 	min-width: 0;
 }
 
+.home-hero__carousel,
 .banner-carousel {
 	position: relative;
 	width: 100%;
@@ -32,6 +54,9 @@
 	overflow: hidden;
 }
 
+.home-hero__carousel .carousel-inner,
+.home-hero__carousel .carousel-item,
+.home-hero__carousel picture,
 .banner-carousel .carousel-inner,
 .banner-carousel .carousel-item,
 .banner-carousel picture {
@@ -39,15 +64,19 @@
 	line-height: 0;
 }
 
+.home-hero__img,
 .banner-slide-img {
 	display: block;
 	width: 100% !important;
 	max-width: 100%;
 	height: auto;
 	margin-inline: 0;
+	object-fit: cover;
 }
 
-/* Setas brancas laterais */
+/* Setas laterais */
+.home-hero__carousel .carousel-control-prev,
+.home-hero__carousel .carousel-control-next,
 .banner-carousel .carousel-control-prev,
 .banner-carousel .carousel-control-next {
 	width: 3.5rem;
@@ -55,6 +84,8 @@
 	z-index: 3;
 }
 
+.home-hero__carousel .carousel-control-prev-icon,
+.home-hero__carousel .carousel-control-next-icon,
 .banner-carousel .carousel-control-prev-icon,
 .banner-carousel .carousel-control-next-icon {
 	width: 1.75rem;
@@ -63,6 +94,10 @@
 	background-size: 100% 100%;
 }
 
+.home-hero__carousel .carousel-control-prev:hover,
+.home-hero__carousel .carousel-control-next:hover,
+.home-hero__carousel .carousel-control-prev:focus,
+.home-hero__carousel .carousel-control-next:focus,
 .banner-carousel .carousel-control-prev:hover,
 .banner-carousel .carousel-control-next:hover,
 .banner-carousel .carousel-control-prev:focus,
@@ -70,7 +105,8 @@
 	opacity: 1;
 }
 
-/* Dots: canto inferior direito — inativo círculo branco, ativo pill laranja */
+/* Dots: canto inferior direito */
+.home-hero__carousel .carousel-indicators,
 .banner-carousel .carousel-indicators {
 	position: absolute;
 	left: auto;
@@ -86,6 +122,7 @@
 	gap: 0.45rem;
 }
 
+.home-hero__carousel .carousel-indicators [data-bs-target],
 .banner-carousel .carousel-indicators [data-bs-target] {
 	box-sizing: border-box;
 	flex: 0 0 auto;
@@ -107,24 +144,30 @@
 	transition: width 0.2s ease, background-color 0.2s ease;
 }
 
+.home-hero__carousel .carousel-indicators .active,
 .banner-carousel .carousel-indicators .active {
 	width: 1.75rem;
-	background-color: #e55a24;
+	background-color: var(--brand-orange, #ff8a22);
 }
 
-/* Hero de busca abaixo do carrossel (layout centralizado, sem overlay). */
+/* Hero de busca abaixo do carrossel */
 .path-frontpage.banner-carousel-enabled .highlighted {
 	position: relative;
 	z-index: 4;
 	margin-top: 0;
 	padding: 0;
 	background: #fff;
+	scroll-margin-top: calc(var(--header-h, 87px) + 0.75rem);
 }
 
 .path-frontpage.banner-carousel-enabled .highlighted > .section {
 	padding-top: 0;
 	padding-bottom: 0;
 	max-width: none;
+}
+
+.path-frontpage.banner-carousel-enabled .hero-search {
+	scroll-margin-top: calc(var(--header-h, 87px) + 0.75rem);
 }
 
 .path-frontpage.banner-carousel-enabled .banner-search-front {
@@ -140,17 +183,22 @@
 }
 
 @media (max-width: 767.98px) {
+	.home-hero__carousel .carousel-control-prev,
+	.home-hero__carousel .carousel-control-next,
 	.banner-carousel .carousel-control-prev,
 	.banner-carousel .carousel-control-next {
 		width: 2.5rem;
 	}
 
+	.home-hero__carousel .carousel-control-prev-icon,
+	.home-hero__carousel .carousel-control-next-icon,
 	.banner-carousel .carousel-control-prev-icon,
 	.banner-carousel .carousel-control-next-icon {
 		width: 1.25rem;
 		height: 1.25rem;
 	}
 
+	.home-hero__carousel .carousel-indicators,
 	.banner-carousel .carousel-indicators {
 		right: 0.75rem;
 		bottom: 0.75rem;
@@ -162,10 +210,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+	.home-hero__carousel.carousel,
 	.banner-carousel.carousel {
 		scroll-behavior: auto;
 	}
 
+	.home-hero__carousel .carousel-indicators [data-bs-target],
 	.banner-carousel .carousel-indicators [data-bs-target] {
 		transition: none;
 	}

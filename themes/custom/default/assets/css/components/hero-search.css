@@ -7,6 +7,7 @@
   margin: 0 auto;
   padding: 2.5rem 1.25rem 1.5rem;
   background: #fff;
+  scroll-margin-top: calc(var(--header-h, 87px) + 0.75rem);
 }
 
 .hero-search__inner {

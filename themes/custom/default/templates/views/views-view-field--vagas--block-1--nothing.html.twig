@@ -1,78 +1,90 @@
-<div class="item-vaga">
-    <div class="item-inner">
-        <div class="row-custom row-1 d-flex justify-content-between">
-            <div class="col-custom">
-                <h3 class="text-title-xs me-3">{{ row._entity.title.value }}</h3>
-                {% if row._entity.field_text_simple_2.value is not empty %}
-                    <div class="dv-empresa">{{ row._entity.field_text_simple_2.value }}</div>
-                {% endif %}
-            </div>
-            <div class="col-custom">
-                {% if row._entity.field_regime_t is not empty %}
-                    {% set regime_labels = [] %}
-                    {% for item in row._entity.field_regime_t %}
-                        {% if item.entity %}
-                            {% set regime_labels = regime_labels|merge([item.entity.label]) %}
-                        {% endif %}
-                    {% endfor %}
-                    {% if regime_labels is not empty %}
-                        <div class="item-regime">{{ regime_labels|join(', ') }}</div>
-                    {% endif %}
-                {% endif %}
-            </div>
-        </div>
-        <div class="row-custom row-2">
-            <div class="col-custom d-flex text-align-center pb-3">
-                {% if row._entity.field_text_simple.value is not empty %}
-                    <i class="fa-solid fa-dollar-sign"></i>
-                    <div class="dv-salario">{{ row._entity.field_text_simple.value }}</div>
-                {% endif %}
-            </div>
-            {% set bairro = row._entity.field_bairro.value ?? '' %}
-            {% set cidade = row._entity.field_cidade.value %}
-            {% set estado = row._entity.field_estados.value %}
-            {% if bairro or cidade or estado %}
-            <div class="col-custom d-flex align-items-center gap-1 pb-3 text-muted small">
-                <i class="fa-solid fa-location-dot"></i>
-                <span class="dv-localizacao">
-                    {%- if bairro and cidade and estado -%}
-                        {{ bairro }} – {{ cidade }} – {{ estado }}
-                    {%- elseif bairro and cidade -%}
-                        {{ bairro }} – {{ cidade }}
-                    {%- elseif bairro and estado -%}
-                        {{ bairro }} – {{ estado }}
-                    {%- elseif cidade and estado -%}
-                        {{ cidade }} – {{ estado }}
-                    {%- elseif bairro -%}
-                        {{ bairro }}
-                    {%- elseif cidade -%}
-                        {{ cidade }}
-                    {%- else -%}
-                        {{ estado }}
-                    {%- endif -%}
-                </span>
-            </div>
+{#
+/**
+ * @file
+ * Card de vaga — bloco Home (anexo1).
+ */
+#}
+{% set vaga_url = path('entity.node.canonical', {'node': row._entity.id}) %}
+{% set cursos_items = row._entity.field_cursos_t is defined and row._entity.field_cursos_t is not empty
+  ? row._entity.field_cursos_t
+  : [] %}
+{% set icon_class = 'briefcase' %}
+{% if cursos_items is not empty and cursos_items.0.entity %}
+  {% set curso_term = cursos_items.0.entity %}
+  {% if curso_term.hasField('field_icone_fa') and not curso_term.field_icone_fa.isEmpty %}
+    {% set icon_class = curso_term.field_icone_fa.value %}
+  {% endif %}
+{% endif %}
+
+{% set empresa = '' %}
+{% if row._entity.field_empresa_u is defined and row._entity.field_empresa_u is not empty and row._entity.field_empresa_u.entity %}
+  {% set empresa_user = row._entity.field_empresa_u.entity %}
+  {% if empresa_user.hasField('field_nome_fantasia') and not empresa_user.field_nome_fantasia.isEmpty %}
+    {% set empresa = empresa_user.field_nome_fantasia.value %}
+  {% endif %}
+{% endif %}
+
+{% set cidade = row._entity.field_cidade.value ?? '' %}
+{% set estado = row._entity.field_estados.value ?? '' %}
+{% set local = '' %}
+{% if cidade and estado %}
+  {% set local = cidade ~ ', ' ~ estado %}
+{% elseif cidade %}
+  {% set local = cidade %}
+{% elseif estado %}
+  {% set local = estado %}
+{% endif %}
+
+{% set meta_parts = [] %}
+{% if empresa %}
+  {% set meta_parts = meta_parts|merge([empresa]) %}
+{% endif %}
+{% if local %}
+  {% set meta_parts = meta_parts|merge([local]) %}
+{% endif %}
+
+<div class="item-vaga item-vaga--destaque">
+  <div class="item-inner">
+    <div class="row-custom row-1 d-flex justify-content-between align-items-start">
+      <div class="col-custom vaga-destaque__icon" aria-hidden="true">
+        <i class="fa-solid fa-{{ icon_class }}"></i>
+      </div>
+      <div class="col-custom">
+        {% if row._entity.field_regime_t is not empty %}
+          {% set regime_labels = [] %}
+          {% for item in row._entity.field_regime_t %}
+            {% if item.entity %}
+              {% set regime_labels = regime_labels|merge([item.entity.label]) %}
             {% endif %}
-            <div class="col-custom d-flex text-align-center">
-                {% set cursos_items = row._entity.field_cursos_t is defined and row._entity.field_cursos_t is not empty
-                    ? row._entity.field_cursos_t
-                    : (row._entity.field_tecnologias_t is defined and row._entity.field_tecnologias_t is not empty ? row._entity.field_tecnologias_t : []) %}
-                {% if cursos_items is not empty %}
-                    <div class="tag-list">
-                        {% for item in cursos_items|slice(0, 2) %}
-                            {% if item.entity %}
-                                <span class="tag-pill">{{ item.entity.label }}</span>
-                            {% endif %}
-                        {% endfor %}
-                        {% if cursos_items|length > 2 %}
-                            <span class="tag-pill tag-pill--more">...</span>
-                        {% endif %}
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-        <div class="row-custom row-3">
-            <a href="{{ path('entity.node.canonical', {'node': row._entity.id}) }}" class="ui-btn ui-btn--primary w-100">{{ 'Ver Detalhes'|t }}</a>
-        </div>
+          {% endfor %}
+          {% if regime_labels is not empty %}
+            <div class="item-regime">{{ regime_labels|join(', ') }}</div>
+          {% endif %}
+        {% endif %}
+      </div>
     </div>
+
+    <div class="row-custom row-body">
+      <h3 class="text-title-xs vaga-destaque__title">{{ row._entity.title.value }}</h3>
+      {% if meta_parts is not empty %}
+        <div class="dv-empresa vaga-destaque__meta">{{ meta_parts|join(' • ') }}</div>
+      {% endif %}
+    </div>
+
+    <div class="row-custom row-2 vaga-destaque__salary-row">
+      <div class="col-custom">
+        {% if row._entity.field_text_simple.value is not empty %}
+          <div class="dv-salario">{{ row._entity.field_text_simple.value }}</div>
+        {% endif %}
+      </div>
+      <div class="col-custom">
+        <a href="{{ vaga_url }}" class="vaga-destaque__ver-mais">{{ 'Ver Mais'|t }}</a>
+      </div>
+    </div>
+
+    <div class="row-custom row-3 vaga-destaque__actions">
+      <a href="{{ vaga_url }}" class="ui-btn ui-btn--destaque">{{ 'Inscreva-se'|t }}</a>
+      <a href="{{ path('view.vagas.page_1') }}" class="ui-btn ui-btn--destaque">{{ 'Buscar mais vagas'|t }}</a>
+    </div>
+  </div>
 </div>

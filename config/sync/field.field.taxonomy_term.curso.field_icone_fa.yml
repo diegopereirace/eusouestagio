@@ -1,0 +1,23 @@
+uuid: 665b380f-ed63-470d-bfdd-61211ce5cc17
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_icone_fa
+    - taxonomy.vocabulary.curso
+  module:
+    - options
+id: taxonomy_term.curso.field_icone_fa
+field_name: field_icone_fa
+entity_type: taxonomy_term
+bundle: curso
+label: Ícone
+description: 'Ícone exibido nos cards de Vagas de Destaque na Home (Font Awesome).'
+required: false
+translatable: false
+default_value:
+  -
+    value: briefcase
+default_value_callback: ''
+settings: {  }
+field_type: list_string

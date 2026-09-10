@@ -1,0 +1,113 @@
+<?php
+
+/**
+ * @file
+ * Install and update hooks for Custom Configs.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Seed Font Awesome icons on known Curso taxonomy terms.
+ */
+function custom_configs_update_11001(): string {
+  return _custom_configs_seed_curso_icons();
+}
+
+/**
+ * Placeholder kept for environments that already ran 11002.
+ */
+function custom_configs_update_11002(): string {
+  return (string) t('Nenhuma alteração — seed movido para 11003.');
+}
+
+/**
+ * Re-seed curso icons with keyword heuristics (fills empty only).
+ */
+function custom_configs_update_11003(): string {
+  return _custom_configs_seed_curso_icons();
+}
+
+/**
+ * Apply default FA icons to known Curso terms.
+ */
+function _custom_configs_seed_curso_icons(): string {
+  $exact = [
+    'TI' => 'code',
+    'Tecnologia' => 'code',
+    'Design' => 'pen-ruler',
+    'Administração' => 'briefcase',
+    'Administracao' => 'briefcase',
+    'Marketing' => 'bullhorn',
+  ];
+
+  // Keyword heuristics for real course titles in this vocabulary.
+  $keywords = [
+    'code' => [
+      'comput', 'software', 'sistemas', 'program', 'node', 'sql', 'python',
+      'tailwind', 'aws', 'linux', 'flutter', 'dart', 'cypress', 'test',
+      'hacking', 'security', 'devops', 'java', 'php', 'javascript', 'react',
+      'dados', 'data ', 'power bi',
+    ],
+    'pen-ruler' => ['design', 'figma', 'ux', 'ui '],
+    'bullhorn' => ['marketing', 'publicidade', 'propaganda', 'ads', 'conteúdo', 'conteudo'],
+    'users' => [' rh', 'recursos humanos', 'gestão de pessoas', 'gestao de pessoas'],
+    'scale-balanced' => ['direito'],
+    'helmet-safety' => ['engenharia'],
+    'graduation-cap' => ['educação', 'educacao', 'pedagog'],
+    'stethoscope' => ['saúde', 'saude', 'enferm', 'medicina'],
+    'building' => ['arquitetura', 'construção', 'construcao'],
+    'calculator' => ['contabil', 'finanç', 'financ'],
+  ];
+
+  $storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+  $ids = $storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('vid', 'curso')
+    ->execute();
+
+  if (!$ids) {
+    return (string) t('Nenhum termo de curso encontrado para seed de ícones.');
+  }
+
+  /** @var \Drupal\taxonomy\TermInterface[] $terms */
+  $terms = $storage->loadMultiple($ids);
+  $updated = 0;
+
+  foreach ($terms as $term) {
+    if (!$term->hasField('field_icone_fa')) {
+      continue;
+    }
+
+    $name = trim((string) $term->label());
+    $icon = $exact[$name] ?? NULL;
+
+    if ($icon === NULL) {
+      $haystack = ' ' . mb_strtolower($name) . ' ';
+      foreach ($keywords as $candidate => $needles) {
+        foreach ($needles as $needle) {
+          if (mb_strpos($haystack, mb_strtolower($needle)) !== FALSE) {
+            $icon = $candidate;
+            break 2;
+          }
+        }
+      }
+    }
+
+    if ($icon === NULL) {
+      $icon = 'briefcase';
+    }
+
+    $current = (string) ($term->get('field_icone_fa')->value ?? '');
+    // Only fill empty values so editorial overrides are preserved.
+    if ($current !== '') {
+      continue;
+    }
+
+    $term->set('field_icone_fa', $icon);
+    $term->save();
+    $updated++;
+  }
+
+  return (string) t('Ícones de curso atualizados em @count termo(s).', ['@count' => $updated]);
+}

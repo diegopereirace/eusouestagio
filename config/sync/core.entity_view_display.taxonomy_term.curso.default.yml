@@ -1,0 +1,22 @@
+uuid: 5743ae52-68de-462c-970a-1052d67ecd7a
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.taxonomy_term.curso.field_icone_fa
+    - taxonomy.vocabulary.curso
+id: taxonomy_term.curso.default
+targetEntityType: taxonomy_term
+bundle: curso
+mode: default
+content:
+  description:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden:
+  field_icone_fa: true
+  langcode: true

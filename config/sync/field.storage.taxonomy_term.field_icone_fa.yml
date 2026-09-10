@@ -1,0 +1,57 @@
+uuid: 46cac822-18d4-47cd-80f0-c5344bc11348
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - options
+    - taxonomy
+id: taxonomy_term.field_icone_fa
+field_name: field_icone_fa
+entity_type: taxonomy_term
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: briefcase
+      label: 'Administração / Negócios'
+    -
+      value: code
+      label: 'Tecnologia / TI'
+    -
+      value: pen-ruler
+      label: Design
+    -
+      value: bullhorn
+      label: Marketing
+    -
+      value: helmet-safety
+      label: Engenharia
+    -
+      value: stethoscope
+      label: Saúde
+    -
+      value: graduation-cap
+      label: Educação
+    -
+      value: scale-balanced
+      label: Direito
+    -
+      value: calculator
+      label: Contabilidade / Finanças
+    -
+      value: flask
+      label: Ciências
+    -
+      value: building
+      label: Arquitetura / Construção
+    -
+      value: users
+      label: 'Recursos Humanos'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

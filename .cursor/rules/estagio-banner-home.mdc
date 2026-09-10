@@ -1,0 +1,32 @@
+---
+description: Banner da home — carrossel full-width; consultar ao mexer em hero/banners/Figma do topo
+globs: themes/custom/default/templates/views/*banner*,themes/custom/default/assets/css/banner*,themes/custom/default/default.theme,modules/custom/custom_banners/**,specs/002-topo-figma-home/**
+alwaysApply: false
+---
+
+# Banner da home (regra de negócio)
+
+## Regra canônica
+
+1. O hero da home (View `banners` / `block_home`, região `banner`) é o carrossel `#banner-carousel-home-slides` em **full-width**.
+2. **Não** há coluna de copy HTML (`.home-hero__copy`) nem overlay sobre a arte.
+3. As imagens vêm do content type `banners` (`field_local_exibicao=home`).
+4. A busca (`#hero-search`) fica **abaixo** do hero, na região `highlighted` — não faz parte do carrossel.
+5. Banners de páginas internas permanecem arte completa (feature `001` / FR-5b).
+
+## Anti-padrão (não fazer)
+
+- Overlay de texto sobre a imagem do carrossel (`.home-hero__overlay`).
+- Reintroduzir copy fixa “ENCONTRE SUA CARREIRA” no Twig do hero sem pedido explícito.
+- Reduzir o carrossel a um card inset flutuante.
+
+## Onde está no código
+
+- Twig: `themes/custom/default/templates/views/views-view--banners--block-home.html.twig`
+- CSS: `themes/custom/default/assets/css/banner-carousel.css`
+- Spec: `specs/002-topo-figma-home/spec.md`
+- PRD: §3.6 (bloco banners home)
+
+## Tokens de marca (topo)
+
+`--brand-green`, `--brand-navy`, `--brand-orange`, `--header-h`, `--hero-bg` em `style.css` / `banner-carousel.css`.

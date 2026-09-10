@@ -235,7 +235,7 @@ Paragraphs de layout em blocos/páginas (`field_icon_title_text_p`, `field_itens
 - View `banners`: display `block_home` (carrossel home, `field_local_exibicao=home`) + `block_1`/`block_2`/`block_3` (internas).
 - View `vagas` `page_1` (`/para-estudantes`): filtros expostos `nid`, `cursos`, `estado`, `cidade`, `escolaridade`, `regime`.
 - Bloco plugin `custom_banners_hero_search` (região `highlighted`, somente `<front>`).
-- View `banners` display `block_home` (região `banner`, `<front>`).
+- View `banners` display `block_home` (região `banner`, `<front>`): carrossel `#banner-carousel-home-slides` **full-bleed** na região; texto do hero (título/CTA/contatos) **contido no banner** via overlay — não ao lado da imagem. Detalhe operacional: regra `.cursor/rules/estagio-banner-home.mdc` (sob demanda).
 - Tema `default`: regiões `sidebar_painel`, `painel_page_header`.
 
 ### 3.7 Diagrama lógico (resumo)

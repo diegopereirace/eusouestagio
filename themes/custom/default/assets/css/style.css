@@ -6,7 +6,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
 :root {
-	--header-h: 100px;
+	--header-h: 87px;
+	--brand-green: #5eb344;
+	--brand-navy: #003060;
+	--brand-orange: #ff8a22;
+	--hero-bg: #f5f7f8;
 	--feedback-status: #198754;
 	--feedback-warning: #b78103;
 	--feedback-error: #dc3545;
@@ -166,9 +170,15 @@ h6 {
 	top: 0;
 	z-index: 1000;
 	background-color: #fff;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+	box-shadow: 0 1px 0 rgba(0, 48, 96, 0.06);
 	max-width: 100%;
 	width: 100%;
+	min-height: var(--header-h);
+}
+
+/* Figma TopNavBar: logo 166×77 + padding ≈ header 87px */
+#header .block-default-top > .content.container {
+	padding-block: 5px;
 }
 
 #navbar-main.navbar {
@@ -198,17 +208,19 @@ h6 {
 }
 
 .col-top-1 {
-	flex: 0 1 auto;
+	flex: 0 0 auto;
 	width: auto;
-	max-width: min(280px, 32%);
+	max-width: 166px;
 	min-width: 0;
 }
 
 .col-top-1 .wrap-logo img {
 	display: block;
-	width: 100%;
-	max-width: 260px;
+	width: 166px;
 	height: auto;
+	max-width: 166px;
+	max-height: 77px;
+	object-fit: contain;
 }
 
 .col-top-2 {
@@ -248,10 +260,10 @@ h6 {
 
 .wrap-menu .nav-link {
 	position: relative;
-	color: #2f3a45;
+	color: var(--brand-navy);
 	font-weight: 500;
 	font-size: 0.95rem;
-	padding: 0.55rem 0.7rem;
+	padding: 0.5rem 0.75rem;
 	white-space: nowrap;
 	transition: color 0.2s ease;
 }
@@ -259,11 +271,11 @@ h6 {
 .wrap-menu .nav-link::after {
 	content: '';
 	position: absolute;
-	left: 0.7rem;
-	right: 0.7rem;
-	bottom: 0.3rem;
+	left: 0.75rem;
+	right: 0.75rem;
+	bottom: 0.2rem;
 	height: 2px;
-	background-color: #de7420;
+	background-color: var(--brand-orange);
 	transform: scaleX(0);
 	transform-origin: center;
 	transition: transform 0.2s ease;
@@ -273,7 +285,7 @@ h6 {
 .wrap-menu .nav-link:focus,
 .wrap-menu .nav-link.active,
 .wrap-menu .nav-link.is-active {
-	color: #de7420;
+	color: var(--brand-orange);
 }
 
 .wrap-menu .nav-link:hover::after,
@@ -297,14 +309,14 @@ h6 {
 	white-space: nowrap;
 }
 
-/* Auth CTAs — usuário deslogado (Login + Cadastrar) */
+/* Auth CTAs — usuário deslogado (Login + Cadastrar) — Figma TopNavBar (radius 8px) */
 .btn-top-login,
 .btn-top-cadastrar {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	min-height: 40px;
-	padding: 0.45rem 1.05rem;
+	padding: 12px 24px;
 	border-radius: 8px;
 	font-size: 0.875rem;
 	line-height: 1.2;
@@ -314,7 +326,7 @@ h6 {
 
 .btn-top-login {
 	background-color: #eef1f4;
-	color: #1a2b4c;
+	color: var(--brand-navy);
 	border: 1px solid #e1e5ea;
 	font-weight: 500;
 }
@@ -322,21 +334,21 @@ h6 {
 .btn-top-login:hover,
 .btn-top-login:focus {
 	background-color: #e3e7ec;
-	color: #122033;
+	color: var(--brand-navy);
 	border-color: #d0d6dd;
 }
 
 .btn-top-cadastrar {
-	background-color: #de7420;
+	background-color: var(--brand-orange);
 	color: #fff;
-	border: 1px solid #de7420;
+	border: 1px solid var(--brand-orange);
 	font-weight: 600;
 }
 
 .btn-top-cadastrar:hover,
 .btn-top-cadastrar:focus {
-	background-color: #c8661a;
-	border-color: #c8661a;
+	background-color: #e67812;
+	border-color: #e67812;
 	color: #fff;
 	filter: none;
 }
@@ -1495,14 +1507,6 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 }
 
 @media (max-width: 1399.98px) {
-	.col-top-1 {
-		max-width: min(240px, 28%);
-	}
-
-	.col-top-1 .wrap-logo img {
-		max-width: 220px;
-	}
-
 	.wrap-menu .nav-link {
 		padding-left: 0.5rem;
 		padding-right: 0.5rem;
@@ -1532,11 +1536,13 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 	}
 
 	.col-top-1 {
-		max-width: min(200px, 26%);
+		max-width: 140px;
 	}
 
 	.col-top-1 .wrap-logo img {
-		max-width: 190px;
+		width: 140px;
+		max-width: 140px;
+		max-height: 65px;
 	}
 
 	.col-top-2 {
@@ -1565,7 +1571,6 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 		min-height: 36px;
 		padding: 0.35rem 0.75rem;
 		font-size: 0.8rem;
-		border-radius: 7px;
 	}
 
 	.top-user-badge {
@@ -1580,11 +1585,13 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 	}
 
 	.col-top-1 {
-		max-width: min(170px, 24%);
+		max-width: 120px;
 	}
 
 	.col-top-1 .wrap-logo img {
-		max-width: 160px;
+		width: 120px;
+		max-width: 120px;
+		max-height: 56px;
 	}
 
 	.col-top-2 {
@@ -1624,11 +1631,19 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 		display: inline-flex;
 	}
 
+	.top-content-mobile .wrap-logo img {
+		width: 120px;
+		max-width: 120px;
+		max-height: 56px;
+		height: auto;
+	}
+
 	.top-mobile-actions--guest .btn-top-login,
 	.top-mobile-actions--guest .btn-top-cadastrar {
 		min-height: 46px;
 		font-size: 0.95rem;
-		padding: 0.65rem 1rem;
+		padding: 12px 24px;
+		border-radius: 8px;
 	}
 
 	.top-mobile-actions--guest .btn-outline-azul-escuro {

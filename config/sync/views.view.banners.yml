@@ -589,6 +589,19 @@ display:
         arguments: false
         filters: false
         filter_groups: false
+        empty: false
+      empty:
+        area_text_custom:
+          id: area_text_custom
+          table: views
+          field: area_text_custom
+          relationship: none
+          group_type: group
+          admin_label: 'Placeholder hero (sem banners)'
+          plugin_id: text_custom
+          empty: true
+          content: '<!-- home-hero -->'
+          tokenize: false
       css_class: css-banners-home
       display_description: 'Carrossel da home — local=home'
       display_extenders:

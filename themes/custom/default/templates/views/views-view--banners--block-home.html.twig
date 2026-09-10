@@ -1,9 +1,12 @@
 {#
 /**
  * @file
- * Carrossel de banners da home (View banners / block_home).
+ * Hero da home (View banners / block_home) — carrossel de banners.
  *
- * Variável banner_slides montada em default_preprocess_views_view__banners__block_home().
+ * Regra: carrossel #banner-carousel-home-slides na região banner.
+ * Busca permanece abaixo (#hero-search).
+ *
+ * Variáveis: banner_slides (default.theme).
  */
 #}
 {%
@@ -13,6 +16,7 @@
     'view-id-' ~ id,
     'view-display-id-' ~ display_id,
     'block-banner-carousel',
+    'home-hero-view',
     dom_id ? 'js-view-dom-id-' ~ dom_id,
   ]
 %}
@@ -31,54 +35,56 @@
   {{ title_suffix }}
 
   {% if slides %}
-    <div class="view-content banner-carousel-wrap">
-      <div
-        id="{{ carousel_id }}"
-        class="banner-carousel carousel slide{{ multi ? '' : ' banner-carousel--single' }}"
-        {% if multi %}data-bs-ride="carousel" data-bs-interval="6000" data-bs-touch="true"{% endif %}
-      >
-        {% if multi %}
-          <div class="carousel-indicators">
-            {% for slide in slides %}
-              <button
-                type="button"
-                data-bs-target="#{{ carousel_id }}"
-                data-bs-slide-to="{{ loop.index0 }}"
-                class="{{ loop.first ? 'active' }}"
-                {% if loop.first %}aria-current="true"{% endif %}
-                aria-label="{{ 'Slide @n'|t({'@n': loop.index}) }}"
-              ></button>
-            {% endfor %}
-          </div>
-        {% endif %}
-
-        <div class="carousel-inner">
-          {% for slide in slides %}
-            <div class="carousel-item{{ loop.first ? ' active' }}">
-              <picture>
-                <source media="(max-width: 767.98px)" srcset="{{ slide.mobile|e('html_attr') }}">
-                <img
-                  src="{{ slide.desktop|e('html_attr') }}"
-                  alt="{{ slide.alt|e('html_attr') }}"
-                  class="banner-slide-img d-block"
-                  {% if loop.first %}fetchpriority="high" loading="eager"{% else %}loading="lazy"{% endif %}
-                >
-              </picture>
+    <section class="home-hero" aria-label="{{ 'Destaque da home'|t }}">
+      <div class="home-hero__inner">
+        <div class="home-hero__media banner-carousel-wrap">
+          <div
+            id="{{ carousel_id }}"
+            class="banner-carousel home-hero__carousel carousel slide{{ multi ? '' : ' banner-carousel--single' }}"
+            {% if multi %}data-bs-ride="carousel" data-bs-interval="6000" data-bs-touch="true"{% endif %}
+          >
+            <div class="carousel-inner">
+              {% for slide in slides %}
+                <div class="carousel-item{{ loop.first ? ' active' }}">
+                  <picture>
+                    <source media="(max-width: 767.98px)" srcset="{{ slide.mobile|e('html_attr') }}">
+                    <img
+                      src="{{ slide.desktop|e('html_attr') }}"
+                      alt="{{ slide.alt|e('html_attr') }}"
+                      class="banner-slide-img home-hero__img d-block"
+                      {% if loop.first %}fetchpriority="high" loading="eager"{% else %}loading="lazy"{% endif %}
+                    >
+                  </picture>
+                </div>
+              {% endfor %}
             </div>
-          {% endfor %}
-        </div>
 
-        {% if multi %}
-          <button class="carousel-control-prev" type="button" data-bs-target="#{{ carousel_id }}" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">{{ 'Anterior'|t }}</span>
-          </button>
-          <button class="carousel-control-next" type="button" data-bs-target="#{{ carousel_id }}" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">{{ 'Próximo'|t }}</span>
-          </button>
-        {% endif %}
+            {% if multi %}
+              <button class="carousel-control-prev" type="button" data-bs-target="#{{ carousel_id }}" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">{{ 'Anterior'|t }}</span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#{{ carousel_id }}" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">{{ 'Próximo'|t }}</span>
+              </button>
+
+              <div class="carousel-indicators">
+                {% for slide in slides %}
+                  <button
+                    type="button"
+                    data-bs-target="#{{ carousel_id }}"
+                    data-bs-slide-to="{{ loop.index0 }}"
+                    class="{{ loop.first ? 'active' }}"
+                    {% if loop.first %}aria-current="true"{% endif %}
+                    aria-label="{{ 'Slide @n'|t({'@n': loop.index}) }}"
+                  ></button>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   {% endif %}
 </div>

@@ -1,0 +1,31 @@
+uuid: b2d00862-b3ed-4656-b533-b3b92343ceb1
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.nossa_metodologia
+    - field.storage.block_content.field_metodologia_passos
+    - paragraphs.paragraphs_type.metodologia_passo_p
+  module:
+    - entity_reference_revisions
+id: block_content.nossa_metodologia.field_metodologia_passos
+field_name: field_metodologia_passos
+entity_type: block_content
+bundle: nossa_metodologia
+label: Passos
+description: 'Passos do fluxograma (ícone + título).'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      metodologia_passo_p: metodologia_passo_p
+    negate: 0
+    target_bundles_drag_drop:
+      metodologia_passo_p:
+        weight: 0
+        enabled: true
+field_type: entity_reference_revisions

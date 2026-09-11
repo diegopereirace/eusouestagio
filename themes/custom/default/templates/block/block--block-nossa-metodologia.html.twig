@@ -1,0 +1,64 @@
+{#
+/**
+ * @file
+ * Bloco Nossa Metodologia (bundle nossa_metodologia).
+ *
+ * Suggestion Barrio: block__block_nossa_metodologia.
+ */
+#}
+{%
+  set classes = [
+    'block',
+    'block-' ~ configuration.provider|clean_class,
+    'block-' ~ plugin_id|clean_class,
+    'block-nossa-metodologia',
+  ]
+%}
+{% set title = content.field_text_simple|render|striptags|trim %}
+{% set subtitle = content.field_text_simple_long|render|striptags|trim %}
+{% set etapa_items = content.field_image['#items']|default([]) %}
+{% set has_etapas = etapa_items is iterable and etapa_items|length > 0 %}
+{% set passo_items = content.field_metodologia_passos['#items']|default([]) %}
+{% set has_passos = passo_items is iterable and passo_items|length > 0 %}
+
+<section{{ attributes.addClass(classes) }}>
+  {{ title_prefix }}{{ title_suffix }}
+  {% block content %}
+    <div{{ content_attributes.addClass('content') }}>
+      <div class="container">
+        {% if title or subtitle %}
+          <header class="nm-header text-center text-md-end">
+            {% if title %}
+              <h2 class="nm-header__title">{{ title }}</h2>
+            {% endif %}
+            {% if subtitle %}
+              <p class="nm-header__subtitle">{{ subtitle }}</p>
+            {% endif %}
+          </header>
+        {% endif %}
+
+        {% if has_etapas %}
+          <div class="nm-etapas" role="list">
+            {% for item in etapa_items %}
+              {% if item.entity.uri.value is defined %}
+                {% set etapa_uri = item.entity.uri.value %}
+                {% set etapa_alt = item.alt|default('') %}
+                <div class="nm-etapas__item" role="listitem">
+                  <img class="nm-etapas__image img-fluid" src="{{ file_url(etapa_uri)|e('html_attr') }}" alt="{{ etapa_alt }}" loading="lazy">
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% if has_passos %}
+          <div class="nm-passos row justify-content-center">
+            <div class="col-11 col-lg-10 col-xl-9">
+              {{ content.field_metodologia_passos }}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endblock %}
+</section>

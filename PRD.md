@@ -237,6 +237,7 @@ Paragraphs de layout em blocos/páginas (`field_icon_title_text_p`, `field_itens
 - Bloco plugin `custom_banners_hero_search` (região `highlighted`, somente `<front>`).
 - View `banners` display `block_home` (região `banner`, `<front>`): carrossel `#banner-carousel-home-slides` **full-bleed** na região; texto do hero (título/CTA/contatos) **contido no banner** via overlay — não ao lado da imagem. Detalhe operacional: regra `.cursor/rules/estagio-banner-home.mdc` (sob demanda).
 - Tema `default`: regiões `sidebar_painel`, `painel_page_header`.
+- Bloco `nossa_metodologia` (`block_content`): título (`field_text_simple`), subtítulo (`field_text_simple_long`), etapas superiores (`field_image` multi), passos (`field_metodologia_passos` → paragraph `metodologia_passo_p` com ícone + título); placement `default_nossametodologia` em `content_full`, weight `-3`, somente `<front>` (após `nossos_diferenciais` weight `-4`); seed idempotente `custom_configs_update_11005` (bloco) + `11006` (títulos dos passos) + `11007` (imagens versionadas em `modules/custom/custom_configs/assets/nossa-metodologia/`, só se campos vazios); UUID `1f9b40ca-aa77-4e7e-a450-5aa94888e274`.
 
 ### 3.7 Diagrama lógico (resumo)
 

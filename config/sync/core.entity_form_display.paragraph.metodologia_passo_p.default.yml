@@ -1,0 +1,35 @@
+uuid: 39e3f218-cb8e-4043-acdf-bfbf6fde9cb0
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.metodologia_passo_p.field_image
+    - field.field.paragraph.metodologia_passo_p.field_text_simple
+    - image.style.thumbnail
+    - paragraphs.paragraphs_type.metodologia_passo_p
+  module:
+    - image
+id: paragraph.metodologia_passo_p.default
+targetEntityType: paragraph
+bundle: metodologia_passo_p
+mode: default
+content:
+  field_image:
+    type: image_image
+    weight: 0
+    region: content
+    settings:
+      progress_indicator: throbber
+      preview_image_style: thumbnail
+    third_party_settings: {  }
+  field_text_simple:
+    type: string_textfield
+    weight: 1
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true

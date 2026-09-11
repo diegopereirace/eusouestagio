@@ -1,0 +1,29 @@
+{#
+/**
+ * @file
+ * Paragraph Passo da Metodologia (metodologia_passo_p).
+ */
+#}
+{%
+  set classes = [
+    'paragraph',
+    'paragraph--type--' ~ paragraph.bundle|clean_class,
+    view_mode ? 'paragraph--view-mode--' ~ view_mode|clean_class,
+    'nm-passo',
+  ]
+%}
+{% set title = content.field_text_simple|render|striptags|trim %}
+{% set has_icon = content.field_image['#items'] is defined and content.field_image['#items'][0] is defined and content.field_image['#items'][0].entity.uri.value is defined %}
+
+<div{{ attributes.addClass(classes) }}>
+  {% if has_icon %}
+    {% set icon_uri = content.field_image['#items'][0].entity.uri.value %}
+    {% set icon_alt = content.field_image['#items'][0].alt|default(title) %}
+    <div class="nm-passo__icon">
+      <img src="{{ file_url(icon_uri)|e('html_attr') }}" alt="{{ icon_alt }}" loading="lazy">
+    </div>
+  {% endif %}
+  {% if title %}
+    <p class="nm-passo__title">{{ title }}</p>
+  {% endif %}
+</div>

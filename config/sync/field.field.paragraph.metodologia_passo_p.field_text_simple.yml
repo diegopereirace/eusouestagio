@@ -1,0 +1,19 @@
+uuid: 78c96cd2-f6da-4c8d-8a00-32f28a58893a
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_text_simple
+    - paragraphs.paragraphs_type.metodologia_passo_p
+id: paragraph.metodologia_passo_p.field_text_simple
+field_name: field_text_simple
+entity_type: paragraph
+bundle: metodologia_passo_p
+label: Título
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -41,6 +41,42 @@ function custom_configs_update_11004(): string {
 }
 
 /**
+ * Seed idempotente do bloco Nossa Metodologia (UUID fixo).
+ *
+ * UUID: 1f9b40ca-aa77-4e7e-a450-5aa94888e274
+ * Placement: block.block.default_nossametodologia (mesma UUID).
+ * Deploy destino: git pull → drush cim -y → drush updb -y → drush cr
+ * (cim antes do updb — seed precisa dos fields já importados).
+ * Em ambiente limpo, se o placement falhar no 1º cim por UUID inexistente,
+ * repetir: drush cim -y → drush cr após o seed.
+ */
+function custom_configs_update_11005(): string {
+  return _custom_configs_seed_nossa_metodologia();
+}
+
+/**
+ * Seed idempotente dos passos do bloco Nossa Metodologia (títulos de referência).
+ *
+ * Só preenche field_metodologia_passos se o bloco existir e o campo estiver
+ * vazio. Ícones e imagens de etapas permanecem upload editorial.
+ * Deploy: drush cim -y → drush updb -y → drush cr
+ */
+function custom_configs_update_11006(): string {
+  return _custom_configs_seed_nossa_metodologia_passos();
+}
+
+/**
+ * Seed idempotente das imagens do bloco Nossa Metodologia.
+ *
+ * Copia artes versionadas em modules/custom/custom_configs/assets/nossa-metodologia/
+ * para public:// e anexa ao bloco/passos somente se os campos ainda estiverem vazios.
+ * Deploy: drush cim -y → drush updb -y → drush cr
+ */
+function custom_configs_update_11007(): string {
+  return _custom_configs_seed_nossa_metodologia_images();
+}
+
+/**
  * Cria block_content nossos_diferenciais + 3 itens de referência (FR-013).
  */
 function _custom_configs_seed_nossos_diferenciais(): string {
@@ -108,6 +144,338 @@ function _custom_configs_seed_nossos_diferenciais(): string {
     '@uuid' => $uuid,
     '@count' => count($paragraphs),
   ]);
+}
+
+/**
+ * Cria block_content nossa_metodologia com título/subtítulo (FR-015).
+ *
+ * Etapas (imagens) e ícones dos passos permanecem vazios para upload editorial.
+ * No-op se o UUID já existir.
+ */
+function _custom_configs_seed_nossa_metodologia(): string {
+  $uuid = '1f9b40ca-aa77-4e7e-a450-5aa94888e274';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+  if ($existing) {
+    return (string) t('Bloco Nossa Metodologia (@uuid) já existe — seed ignorado.', ['@uuid' => $uuid]);
+  }
+
+  if (!\Drupal::entityTypeManager()->getDefinition('block_content', FALSE)) {
+    return (string) t('Entity block_content indisponível — seed abortado.');
+  }
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
+  if (!isset($bundle_info['nossa_metodologia'])) {
+    return (string) t('Bundle nossa_metodologia ausente — rode drush cim -y antes do updb.');
+  }
+
+  $passos = _custom_configs_nossa_metodologia_passo_titles();
+  $paragraphs = [];
+  if (\Drupal::entityTypeManager()->getDefinition('paragraph', FALSE)) {
+    $paragraph_bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('paragraph');
+    if (isset($paragraph_bundles['metodologia_passo_p'])) {
+      $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
+      foreach ($passos as $title) {
+        /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
+        $paragraph = $paragraph_storage->create([
+          'type' => 'metodologia_passo_p',
+          'field_text_simple' => $title,
+        ]);
+        $paragraph->save();
+        $paragraphs[] = [
+          'target_id' => $paragraph->id(),
+          'target_revision_id' => $paragraph->getRevisionId(),
+        ];
+      }
+    }
+  }
+
+  $values = [
+    'type' => 'nossa_metodologia',
+    'uuid' => $uuid,
+    'info' => 'Nossa Metodologia',
+    'status' => TRUE,
+    'field_text_simple' => 'Nossa Metodologia',
+    'field_text_simple_long' => 'Transformamos potencial em performance por meio de uma metodologia que une autoconhecimento, alinhamento cultural e desenvolvimento contínuo.',
+  ];
+  if ($paragraphs !== []) {
+    $values['field_metodologia_passos'] = $paragraphs;
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = $storage->create($values);
+  $block->save();
+
+  return (string) t('Bloco Nossa Metodologia seed criado (@uuid) com @count passos.', [
+    '@uuid' => $uuid,
+    '@count' => count($paragraphs),
+  ]);
+}
+
+/**
+ * Títulos de referência dos passos da metodologia (FR-015).
+ *
+ * @return string[]
+ */
+function _custom_configs_nossa_metodologia_passo_titles(): array {
+  return [
+    'A pessoa conhece suas habilidades',
+    'Encontra o ambiente correto',
+    'Entrega resultados',
+    'Cresce',
+    'A empresa evolui',
+  ];
+}
+
+/**
+ * Preenche passos do bloco Nossa Metodologia se o campo estiver vazio.
+ *
+ * Idempotente: não sobrescreve conteúdo editorial já cadastrado.
+ */
+function _custom_configs_seed_nossa_metodologia_passos(): string {
+  $uuid = '1f9b40ca-aa77-4e7e-a450-5aa94888e274';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+  if (!$existing) {
+    return (string) t('Bloco Nossa Metodologia (@uuid) ausente — rode 11005 / cim antes.', ['@uuid' => $uuid]);
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = reset($existing);
+
+  if (!$block->hasField('field_metodologia_passos')) {
+    return (string) t('Campo field_metodologia_passos ausente — rode drush cim -y antes do updb.');
+  }
+
+  if (!$block->get('field_metodologia_passos')->isEmpty()) {
+    return (string) t('Passos da Metodologia já preenchidos — seed ignorado.');
+  }
+
+  $paragraph_bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('paragraph');
+  if (!isset($paragraph_bundles['metodologia_passo_p'])) {
+    return (string) t('Bundle metodologia_passo_p ausente — rode drush cim -y antes do updb.');
+  }
+
+  $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
+  $paragraphs = [];
+  foreach (_custom_configs_nossa_metodologia_passo_titles() as $title) {
+    /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
+    $paragraph = $paragraph_storage->create([
+      'type' => 'metodologia_passo_p',
+      'field_text_simple' => $title,
+    ]);
+    $paragraph->save();
+    $paragraphs[] = [
+      'target_id' => $paragraph->id(),
+      'target_revision_id' => $paragraph->getRevisionId(),
+    ];
+  }
+
+  $block->set('field_metodologia_passos', $paragraphs);
+  $block->save();
+
+  return (string) t('Passos da Metodologia seed criados (@count) no bloco @uuid.', [
+    '@count' => count($paragraphs),
+    '@uuid' => $uuid,
+  ]);
+}
+
+/**
+ * Anexa imagens seed (etapas + ícones de passos) se os campos estiverem vazios.
+ */
+function _custom_configs_seed_nossa_metodologia_images(): string {
+  $uuid = '1f9b40ca-aa77-4e7e-a450-5aa94888e274';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+  if (!$existing) {
+    return (string) t('Bloco Nossa Metodologia (@uuid) ausente — rode 11005/11006 antes.', ['@uuid' => $uuid]);
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = reset($existing);
+  $messages = [];
+  $changed = FALSE;
+
+  // --- Etapas superiores (field_image multi) ---
+  if ($block->hasField('field_image') && $block->get('field_image')->isEmpty()) {
+    $etapas = [
+      ['file' => 'identidade.png', 'alt' => 'Identidade'],
+      ['file' => 'pertencimento.png', 'alt' => 'Pertencimento'],
+      ['file' => 'performance.png', 'alt' => 'Performance'],
+    ];
+    $items = [];
+    foreach ($etapas as $etapa) {
+      $file = _custom_configs_seed_file_from_module_asset(
+        'nossa-metodologia/etapas/' . $etapa['file'],
+        'public://block/nossa-metodologia/seed/' . $etapa['file'],
+        'block_content',
+        (int) $block->id()
+      );
+      if ($file) {
+        $items[] = [
+          'target_id' => $file->id(),
+          'alt' => $etapa['alt'],
+        ];
+      }
+    }
+    if ($items !== []) {
+      $block->set('field_image', $items);
+      $changed = TRUE;
+      $messages[] = (string) t('@count etapa(s) anexada(s).', ['@count' => count($items)]);
+    }
+    else {
+      $messages[] = (string) t('Nenhuma arte de etapa encontrada em assets — etapas ignoradas.');
+    }
+  }
+  else {
+    $messages[] = (string) t('Etapas já preenchidas — seed de imagens ignorado.');
+  }
+
+  // --- Ícones dos passos (por ordem) ---
+  $passo_files = [
+    'pessoa-habilidades.png',
+    'ambiente-correto.png',
+    'entrega-resultados.png',
+    'cresce.png',
+    'empresa-evolui.png',
+  ];
+  $icons_attached = 0;
+  $icons_skipped = 0;
+  $icons_missing = 0;
+
+  if ($block->hasField('field_metodologia_passos') && !$block->get('field_metodologia_passos')->isEmpty()) {
+    $new_refs = [];
+    $delta = 0;
+    foreach ($block->get('field_metodologia_passos') as $item) {
+      /** @var \Drupal\paragraphs\ParagraphInterface|null $paragraph */
+      $paragraph = $item->entity;
+      if (!$paragraph || !$paragraph->hasField('field_image')) {
+        $new_refs[] = [
+          'target_id' => $item->target_id,
+          'target_revision_id' => $item->target_revision_id,
+        ];
+        $delta++;
+        continue;
+      }
+
+      if (!$paragraph->get('field_image')->isEmpty()) {
+        $icons_skipped++;
+        $new_refs[] = [
+          'target_id' => $paragraph->id(),
+          'target_revision_id' => $paragraph->getRevisionId(),
+        ];
+        $delta++;
+        continue;
+      }
+
+      $filename = $passo_files[$delta] ?? NULL;
+      if ($filename === NULL) {
+        $new_refs[] = [
+          'target_id' => $paragraph->id(),
+          'target_revision_id' => $paragraph->getRevisionId(),
+        ];
+        $delta++;
+        continue;
+      }
+
+      $alt = (string) ($paragraph->get('field_text_simple')->value ?? '');
+      $file = _custom_configs_seed_file_from_module_asset(
+        'nossa-metodologia/passos/' . $filename,
+        'public://paragraph/metodologia-passo/seed/' . $filename,
+        'paragraph',
+        (int) $paragraph->id()
+      );
+      if ($file) {
+        $paragraph->set('field_image', [
+          'target_id' => $file->id(),
+          'alt' => $alt,
+        ]);
+        $paragraph->save();
+        $icons_attached++;
+        $changed = TRUE;
+      }
+      else {
+        $icons_missing++;
+      }
+
+      $new_refs[] = [
+        'target_id' => $paragraph->id(),
+        'target_revision_id' => $paragraph->getRevisionId(),
+      ];
+      $delta++;
+    }
+
+    if ($icons_attached > 0) {
+      $block->set('field_metodologia_passos', $new_refs);
+    }
+
+    $messages[] = (string) t('Ícones: @ok anexado(s), @skip já preenchido(s), @miss asset ausente.', [
+      '@ok' => $icons_attached,
+      '@skip' => $icons_skipped,
+      '@miss' => $icons_missing,
+    ]);
+  }
+  else {
+    $messages[] = (string) t('Passos ausentes — rode 11006 antes para títulos; ícones ignorados.');
+  }
+
+  if ($changed) {
+    $block->save();
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
+ * Copia um asset do módulo para public:// e cria File permanente.
+ *
+ * @return \Drupal\file\FileInterface|null
+ *   Arquivo criado/reutilizado, ou NULL se o asset não existir.
+ */
+function _custom_configs_seed_file_from_module_asset(
+  string $relative_asset,
+  string $destination_uri,
+  string $usage_type,
+  int $usage_id,
+): ?\Drupal\file\FileInterface {
+  $module_path = \Drupal::service('extension.list.module')->getPath('custom_configs');
+  $source = DRUPAL_ROOT . '/' . $module_path . '/assets/' . ltrim($relative_asset, '/');
+  if (!is_readable($source)) {
+    return NULL;
+  }
+
+  /** @var \Drupal\Core\File\FileSystemInterface $fs */
+  $fs = \Drupal::service('file_system');
+  $directory = dirname($destination_uri);
+  $fs->prepareDirectory($directory, \Drupal\Core\File\FileSystemInterface::CREATE_DIRECTORY | \Drupal\Core\File\FileSystemInterface::MODIFY_PERMISSIONS);
+
+  // Reuse existing managed file at the same URI when present.
+  $existing = \Drupal::entityTypeManager()->getStorage('file')->loadByProperties([
+    'uri' => $destination_uri,
+  ]);
+  if ($existing) {
+    /** @var \Drupal\file\FileInterface $file */
+    $file = reset($existing);
+    $fs->copy($source, $destination_uri, \Drupal\Core\File\FileExists::Replace);
+    $file->setPermanent();
+    $file->save();
+  }
+  else {
+    $fs->copy($source, $destination_uri, \Drupal\Core\File\FileExists::Replace);
+    /** @var \Drupal\file\FileInterface $file */
+    $file = \Drupal\file\Entity\File::create([
+      'uri' => $destination_uri,
+      'uid' => 1,
+      'status' => \Drupal\file\FileInterface::STATUS_PERMANENT,
+      'filename' => basename($destination_uri),
+    ]);
+    $file->save();
+  }
+
+  \Drupal::service('file.usage')->add($file, 'custom_configs', $usage_type, $usage_id);
+  return $file;
 }
 
 /**

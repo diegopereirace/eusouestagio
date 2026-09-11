@@ -1,0 +1,8 @@
+uuid: a1b2c3d4-e5f6-4789-a012-3456789abcde
+langcode: pt-br
+status: true
+dependencies: {  }
+id: nossa_metodologia
+label: 'Nossa Metodologia'
+revision: false
+description: null

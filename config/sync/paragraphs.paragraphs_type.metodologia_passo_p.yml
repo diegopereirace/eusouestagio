@@ -1,0 +1,10 @@
+uuid: d3b670d9-79ba-409e-ba36-376df413c5b7
+langcode: pt-br
+status: true
+dependencies: {  }
+id: metodologia_passo_p
+label: 'Passo da Metodologia'
+icon_uuid: null
+icon_default: null
+description: 'Ícone + título para os passos do fluxograma Nossa Metodologia.'
+behavior_plugins: {  }

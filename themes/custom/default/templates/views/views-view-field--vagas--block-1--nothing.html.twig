@@ -42,47 +42,54 @@
 {% if local %}
   {% set meta_parts = meta_parts|merge([local]) %}
 {% endif %}
+{% set meta_text = meta_parts|join(' • ') %}
+{% set title_text = row._entity.title.value|default('') %}
+{% set salario_text = row._entity.field_text_simple.value|default('') %}
+{% set regime_label = '' %}
+{% if row._entity.field_regime_t is not empty and row._entity.field_regime_t.0.entity %}
+  {% set regime_label = row._entity.field_regime_t.0.entity.label %}
+{% endif %}
+
+{# Limites de caracteres alinhados à altura fixa do card (Figma). #}
+{% if title_text|length > 42 %}
+  {% set title_text = title_text|slice(0, 41)|trim ~ '…' %}
+{% endif %}
+{% if meta_text|length > 48 %}
+  {% set meta_text = meta_text|slice(0, 47)|trim ~ '…' %}
+{% endif %}
+{% if salario_text|length > 28 %}
+  {% set salario_text = salario_text|slice(0, 27)|trim ~ '…' %}
+{% endif %}
+{% if regime_label|length > 14 %}
+  {% set regime_label = regime_label|slice(0, 13)|trim ~ '…' %}
+{% endif %}
 
 <div class="item-vaga item-vaga--destaque">
   <div class="item-inner">
-    <div class="row-custom row-1 d-flex justify-content-between align-items-start">
-      <div class="col-custom vaga-destaque__icon" aria-hidden="true">
+    <div class="vaga-destaque__top">
+      <span class="vaga-destaque__icon" aria-hidden="true">
         <i class="fa-solid fa-{{ icon_class }}"></i>
-      </div>
-      <div class="col-custom">
-        {% if row._entity.field_regime_t is not empty %}
-          {% set regime_labels = [] %}
-          {% for item in row._entity.field_regime_t %}
-            {% if item.entity %}
-              {% set regime_labels = regime_labels|merge([item.entity.label]) %}
-            {% endif %}
-          {% endfor %}
-          {% if regime_labels is not empty %}
-            <div class="item-regime">{{ regime_labels|join(', ') }}</div>
-          {% endif %}
-        {% endif %}
-      </div>
-    </div>
-
-    <div class="row-custom row-body">
-      <h3 class="text-title-xs vaga-destaque__title">{{ row._entity.title.value }}</h3>
-      {% if meta_parts is not empty %}
-        <div class="dv-empresa vaga-destaque__meta">{{ meta_parts|join(' • ') }}</div>
+      </span>
+      {% if regime_label %}
+        <span class="item-regime">{{ regime_label }}</span>
+      {% else %}
+        <span class="item-regime item-regime--empty" aria-hidden="true">&nbsp;</span>
       {% endif %}
     </div>
 
-    <div class="row-custom row-2 vaga-destaque__salary-row">
-      <div class="col-custom">
-        {% if row._entity.field_text_simple.value is not empty %}
-          <div class="dv-salario">{{ row._entity.field_text_simple.value }}</div>
-        {% endif %}
-      </div>
-      <div class="col-custom">
-        <a href="{{ vaga_url }}" class="vaga-destaque__ver-mais">{{ 'Ver Mais'|t }}</a>
-      </div>
+    <div class="vaga-destaque__body">
+      <h3 class="vaga-destaque__title" title="{{ row._entity.title.value }}">{{ title_text }}</h3>
+      <p class="vaga-destaque__meta" title="{{ meta_parts|join(' • ') }}">{% if meta_text %}{{ meta_text }}{% else %}&nbsp;{% endif %}</p>
     </div>
 
-    <div class="row-custom row-3 vaga-destaque__actions">
+    <hr class="vaga-destaque__divider" aria-hidden="true">
+
+    <div class="vaga-destaque__salary-row">
+      <span class="dv-salario" title="{{ row._entity.field_text_simple.value|default('') }}">{% if salario_text %}{{ salario_text }}{% else %}&nbsp;{% endif %}</span>
+      <a href="{{ vaga_url }}" class="vaga-destaque__ver-mais">{{ 'Ver Mais'|t }}</a>
+    </div>
+
+    <div class="vaga-destaque__actions">
       <a href="{{ vaga_url }}" class="ui-btn ui-btn--destaque">{{ 'Inscreva-se'|t }}</a>
       <a href="{{ path('view.vagas.page_1') }}" class="ui-btn ui-btn--destaque">{{ 'Buscar mais vagas'|t }}</a>
     </div>

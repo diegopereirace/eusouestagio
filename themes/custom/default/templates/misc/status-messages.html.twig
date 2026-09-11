@@ -52,16 +52,51 @@
       document.body.style.removeProperty('padding-right');
     }
 
-    function openMsg() {
+    function focusInvalidField() {
+      var invalidField = document.querySelector('.is-invalid, [aria-invalid="true"]');
+      if (invalidField && typeof invalidField.focus === 'function') {
+        invalidField.focus();
+      }
+    }
+
+    function openMsg(attempt) {
       var el = document.getElementById('modal-system-messages');
-      if (!el || typeof bootstrap === 'undefined') {
+      var tries = typeof attempt === 'number' ? attempt : 0;
+      var existing;
+      var modal;
+
+      if (!el) {
         cleanupModalState();
         return;
       }
 
+      // BigPipe pode injetar as mensagens antes do Bootstrap global estar pronto.
+      if (typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+        if (tries < 40) {
+          window.setTimeout(function () {
+            openMsg(tries + 1);
+          }, 50);
+        }
+        else {
+          cleanupModalState();
+        }
+        return;
+      }
+
+      // Backdrop do Bootstrap vai para o body; o modal precisa ser irmão dele
+      // para não ficar atrás do overlay (regiões Drupal / off-canvas / sticky).
+      if (el.parentElement !== document.body) {
+        document.body.appendChild(el);
+      }
+
+      existing = bootstrap.Modal.getInstance(el);
+      if (existing) {
+        existing.dispose();
+      }
+
       cleanupModalState();
 
-      var modal = bootstrap.Modal.getOrCreateInstance(el, {
+      modal = new bootstrap.Modal(el, {
         backdrop: true,
         focus: true,
         keyboard: true
@@ -69,28 +104,22 @@
 
       el.addEventListener('hidden.bs.modal', function () {
         cleanupModalState();
-
-        var invalidField = document.querySelector('.is-invalid, [aria-invalid="true"]');
-        if (invalidField && typeof invalidField.focus === 'function') {
-          invalidField.focus();
+        focusInvalidField();
+        if (el.parentElement) {
+          el.remove();
         }
       }, { once: true });
 
-      el.querySelectorAll('[data-bs-dismiss="modal"]').forEach(function (button) {
-        button.addEventListener('click', function () {
-          modal.hide();
-        }, { once: true });
-      });
-
-      if (typeof bootstrap !== 'undefined') {
-        modal.show();
-      }
+      modal.show();
     }
 
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', openMsg);
-    } else {
-      openMsg();
+      document.addEventListener('DOMContentLoaded', function () {
+        openMsg(0);
+      });
+    }
+    else {
+      openMsg(0);
     }
   })();
   </script>

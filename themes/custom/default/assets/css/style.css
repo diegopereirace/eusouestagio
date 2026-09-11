@@ -18,6 +18,17 @@
 	--feedback-muted: #667a8f;
 }
 
+/* Garante o modal acima do backdrop (body) e da toolbar admin. */
+.app-feedback-modal {
+	--bs-modal-zindex: 2005;
+	z-index: 2005;
+}
+
+body:has(.app-feedback-modal.show) > .modal-backdrop {
+	--bs-backdrop-zindex: 2000;
+	z-index: 2000;
+}
+
 .app-feedback-modal .modal-dialog {
 	max-width: 520px;
 }

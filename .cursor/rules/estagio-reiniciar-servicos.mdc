@@ -1,0 +1,22 @@
+---
+description: Reiniciar serviços ou limpar cache (drush cr / docker) quando a mudança exigir para o efeito aparecer
+globs: themes/custom/**,modules/custom/**,config/sync/**,docker-compose.yml,Dockerfile,sites/default/settings*.php
+alwaysApply: false
+---
+# Reinício de serviços e cache
+
+Sempre que uma alteração depender de serviço, container, PHP-FPM, Apache/Nginx, opcache, agregação de CSS/JS ou cache do Drupal para surtir efeito:
+
+1. **Não deixe para o usuário** — execute o reinício/limpeza na mesma entrega.
+2. **Drupal (este projeto):** `docker compose exec -T drupal vendor/bin/drush cr` (ou equivalente no container ativo).
+3. **Container/serviço:** `docker compose restart <serviço>` quando a mudança for de env, Dockerfile, vhost, PHP ini, etc.
+4. Confirme brevemente que o comando rodou com sucesso.
+
+Exemplos que **exigem** ação imediata:
+- CSS/JS do tema (`themes/custom/**`, agregação)
+- Twig/templates
+- Config import (`drush cim`) / update (`drush updb`)
+- Módulos custom, services.yml, settings.php
+- Alterações em `docker-compose.yml` / Dockerfile
+
+Não basta editar o arquivo e reportar “pronto” se o site ainda serve artefato em cache.

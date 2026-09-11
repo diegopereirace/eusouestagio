@@ -7,6 +7,7 @@ dependencies:
     - block_content.type.cto
     - block_content.type.destaque
     - block_content.type.footer
+    - block_content.type.nossos_diferenciais
     - block_content.type.whatsapp
     - filter.format.full_html
     - filter.format.restricted_html
@@ -42,11 +43,13 @@ permissions:
   - 'administer users'
   - 'bypass node access'
   - 'change own username'
+  - 'create nossos_diferenciais block content'
   - 'create page content'
   - 'create terms in regime'
   - 'create terms in tags'
   - 'create terms in tecnologias'
   - 'create vagas content'
+  - 'delete any nossos_diferenciais block content'
   - 'delete any page content'
   - 'delete any vagas content'
   - 'delete own page content'
@@ -60,6 +63,7 @@ permissions:
   - 'edit any cto block content'
   - 'edit any destaque block content'
   - 'edit any footer block content'
+  - 'edit any nossos_diferenciais block content'
   - 'edit any page content'
   - 'edit any vagas content'
   - 'edit any whatsapp block content'

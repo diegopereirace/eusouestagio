@@ -1,0 +1,40 @@
+{#
+/**
+ * @file
+ * Paragraph Item de Diferencial (diferencial_item_p).
+ */
+#}
+{%
+  set classes = [
+    'paragraph',
+    'paragraph--type--' ~ paragraph.bundle|clean_class,
+    view_mode ? 'paragraph--view-mode--' ~ view_mode|clean_class,
+    'nd-item',
+    'd-flex',
+    'align-items-start',
+    'gap-3',
+  ]
+%}
+{% set title = content.field_text_simple|render|striptags|trim %}
+{% set description = content.field_text_simple_long|render|striptags|trim %}
+{% set has_icon = content.field_image['#items'] is defined and content.field_image['#items'][0] is defined and content.field_image['#items'][0].entity.uri.value is defined %}
+
+<div{{ attributes.addClass(classes) }}>
+  {% if has_icon %}
+    {% set icon_uri = content.field_image['#items'][0].entity.uri.value %}
+    {% set icon_alt = content.field_image['#items'][0].alt|default(title) %}
+    <div class="nd-item__icon">
+      <img src="{{ file_url(icon_uri) }}" alt="{{ icon_alt }}" loading="lazy" width="48" height="48">
+    </div>
+  {% else %}
+    <div class="nd-item__icon nd-item__icon--placeholder" aria-hidden="true"></div>
+  {% endif %}
+  <div class="nd-item__body">
+    {% if title %}
+      <h3 class="nd-item__title">{{ title }}</h3>
+    {% endif %}
+    {% if description %}
+      <p class="nd-item__desc">{{ description }}</p>
+    {% endif %}
+  </div>
+</div>

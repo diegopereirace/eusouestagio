@@ -5,10 +5,10 @@ alwaysApply: false
 <!-- SPECKIT START -->
 Spec Kit **deste projeto** (Eu Sou Estágio / Drupal 11).
 
-- Feature ativa: `003-vagas-destaque-home`
-- Spec: `specs/003-vagas-destaque-home/spec.md`
-- Plan: `specs/003-vagas-destaque-home/plan.md`
-- Features relacionadas: `002-topo-figma-home`, `001-banners-busca-home`
+- Feature ativa: `004-nossos-diferenciais`
+- Spec: `specs/004-nossos-diferenciais/spec.md`
+- Plan: `specs/004-nossos-diferenciais/plan.md`
+- Features relacionadas: `003-vagas-destaque-home`, `002-topo-figma-home`, `001-banners-busca-home`
 
 Não assuma stack de outro produto. Não leia `specs/` de outro repositório.
 <!-- SPECKIT END -->

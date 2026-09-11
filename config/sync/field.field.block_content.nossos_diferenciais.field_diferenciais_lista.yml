@@ -1,0 +1,31 @@
+uuid: 0c4d7a8b-2d9e-4f5a-b7c8-d9e0f1a2b3c4
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.nossos_diferenciais
+    - field.storage.block_content.field_diferenciais_lista
+    - paragraphs.paragraphs_type.diferencial_item_p
+  module:
+    - entity_reference_revisions
+id: block_content.nossos_diferenciais.field_diferenciais_lista
+field_name: field_diferenciais_lista
+entity_type: block_content
+bundle: nossos_diferenciais
+label: Diferenciais
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      diferencial_item_p: diferencial_item_p
+    negate: 0
+    target_bundles_drag_drop:
+      diferencial_item_p:
+        weight: 0
+        enabled: true
+field_type: entity_reference_revisions

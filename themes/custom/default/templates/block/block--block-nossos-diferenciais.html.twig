@@ -1,0 +1,58 @@
+{#
+/**
+ * @file
+ * Bloco Nossos Diferenciais (bundle nossos_diferenciais).
+ *
+ * Suggestion Barrio: block__block_nossos_diferenciais.
+ */
+#}
+{%
+  set classes = [
+    'block',
+    'block-' ~ configuration.provider|clean_class,
+    'block-' ~ plugin_id|clean_class,
+    'block-nossos-diferenciais',
+  ]
+%}
+{% set title = content.field_text_simple|render|striptags|trim %}
+{% set subtitle = content.field_text_simple_long|render|striptags|trim %}
+{% set has_image = content.field_image['#items'] is defined and content.field_image['#items'][0] is defined and content.field_image['#items'][0].entity.uri.value is defined %}
+
+<section{{ attributes.addClass(classes) }}>
+  {{ title_prefix }}{{ title_suffix }}
+  {% block content %}
+    <div{{ content_attributes.addClass('content') }}>
+      <div class="container">
+        {% if title or subtitle %}
+          <header class="nd-header text-center">
+            {% if title %}
+              <h2 class="nd-header__title">{{ title }}</h2>
+            {% endif %}
+            {% if subtitle %}
+              <p class="nd-header__subtitle">{{ subtitle }}</p>
+            {% endif %}
+          </header>
+        {% endif %}
+
+        <div class="row align-items-center nd-grid">
+          <div class="col-lg-6">
+            <div class="nd-media">
+              {% if has_image %}
+                {% set img_uri = content.field_image['#items'][0].entity.uri.value %}
+                {% set img_alt = content.field_image['#items'][0].alt|default('') %}
+                <img class="img-fluid nd-media__img" src="{{ file_url(img_uri) }}" alt="{{ img_alt }}" loading="lazy">
+              {% else %}
+                <div class="nd-media__placeholder" aria-hidden="true"></div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="nd-list">
+              {{ content.field_diferenciais_lista }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endblock %}
+</section>

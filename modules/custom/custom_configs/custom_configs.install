@@ -29,6 +29,88 @@ function custom_configs_update_11003(): string {
 }
 
 /**
+ * Seed idempotente do bloco Nossos Diferenciais (UUID fixo).
+ *
+ * UUID: b0a1c2d3-e4f5-4678-9abc-def012345678
+ * Placement: block.block.default_nossosdiferenciais (mesma UUID).
+ * Deploy destino: git pull → drush cim -y → drush updb -y → drush cr
+ * (cim antes do updb — seed precisa dos fields já importados).
+ */
+function custom_configs_update_11004(): string {
+  return _custom_configs_seed_nossos_diferenciais();
+}
+
+/**
+ * Cria block_content nossos_diferenciais + 3 itens de referência (FR-013).
+ */
+function _custom_configs_seed_nossos_diferenciais(): string {
+  $uuid = 'b0a1c2d3-e4f5-4678-9abc-def012345678';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+  if ($existing) {
+    return (string) t('Bloco Nossos Diferenciais (@uuid) já existe — seed ignorado.', ['@uuid' => $uuid]);
+  }
+
+  if (!\Drupal::entityTypeManager()->getDefinition('block_content', FALSE)) {
+    return (string) t('Entity block_content indisponível — seed abortado.');
+  }
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
+  if (!isset($bundle_info['nossos_diferenciais'])) {
+    return (string) t('Bundle nossos_diferenciais ausente — rode drush cim -y antes do updb.');
+  }
+
+  $items = [
+    [
+      'title' => 'Encontramos',
+      'desc' => 'Selecionamos candidatos com aderência técnica e comportamental.',
+    ],
+    [
+      'title' => 'Gerenciamos',
+      'desc' => 'Assumimos toda a gestão administrativa e legal do estágio.',
+    ],
+    [
+      'title' => 'Desenvolvemos',
+      'desc' => 'Acompanhamos continuamente a evolução do estudante para garantir desempenho e permanência.',
+    ],
+  ];
+
+  $paragraphs = [];
+  $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
+  foreach ($items as $item) {
+    /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
+    $paragraph = $paragraph_storage->create([
+      'type' => 'diferencial_item_p',
+      'field_text_simple' => $item['title'],
+      'field_text_simple_long' => $item['desc'],
+    ]);
+    $paragraph->save();
+    $paragraphs[] = [
+      'target_id' => $paragraph->id(),
+      'target_revision_id' => $paragraph->getRevisionId(),
+    ];
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = $storage->create([
+    'type' => 'nossos_diferenciais',
+    'uuid' => $uuid,
+    'info' => 'Nossos Diferenciais',
+    'status' => TRUE,
+    'field_text_simple' => 'Nossos Diferenciais',
+    'field_text_simple_long' => 'Não conectamos apenas estudantes e empresas. Criamos relações duradouras por meio de uma seleção inteligente, gestão completa e desenvolvimento contínuo.',
+    'field_diferenciais_lista' => $paragraphs,
+  ]);
+  $block->save();
+
+  return (string) t('Bloco Nossos Diferenciais seed criado (@uuid) com @count itens.', [
+    '@uuid' => $uuid,
+    '@count' => count($paragraphs),
+  ]);
+}
+
+/**
  * Apply default FA icons to known Curso terms.
  */
 function _custom_configs_seed_curso_icons(): string {

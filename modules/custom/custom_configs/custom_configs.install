@@ -105,6 +105,28 @@ function custom_configs_update_11009(): string {
 }
 
 /**
+ * Seed idempotente do rodapé: bloco footer, logo e links dos menus.
+ *
+ * UUID do bloco: d0326db5-fc80-4cf5-a0b9-8f779dc4aeba
+ * Placement: block.block.default_footer (mesma UUID).
+ * Logo: asset versionado em modules/custom/custom_configs/assets/footer/.
+ * Menus: rodape---sobre, rodape---para-estudantes e para-empresas
+ * (links criados só se ausentes — checagem por menu + URI).
+ * Deploy destino: git pull → drush cim -y → drush updb -y → drush cr
+ * (cim antes do updb — seed precisa dos fields já importados).
+ * Em ambiente limpo, se o placement falhar no 1º cim por UUID inexistente,
+ * repetir: drush cim -y → drush cr após o seed.
+ */
+function custom_configs_update_11010(): string {
+  $messages = [
+    _custom_configs_seed_footer_block(),
+    _custom_configs_seed_footer_logo(),
+    _custom_configs_seed_footer_menu_links(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
  * Cria block_content nossos_diferenciais + 3 itens de referência (FR-013).
  */
 function _custom_configs_seed_nossos_diferenciais(): string {
@@ -347,6 +369,140 @@ function _custom_configs_seed_como_funciona(): string {
     '@uuid' => $uuid,
     '@count' => count($paragraphs),
   ]);
+}
+
+/**
+ * Cria block_content footer com conteúdo de referência. No-op se UUID existir.
+ */
+function _custom_configs_seed_footer_block(): string {
+  $uuid = 'd0326db5-fc80-4cf5-a0b9-8f779dc4aeba';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+  if ($existing) {
+    return (string) t('Bloco Rodapé (@uuid) já existe — seed ignorado.', ['@uuid' => $uuid]);
+  }
+
+  if (!\Drupal::entityTypeManager()->getDefinition('block_content', FALSE)) {
+    return (string) t('Entity block_content indisponível — seed abortado.');
+  }
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
+  if (!isset($bundle_info['footer'])) {
+    return (string) t('Bundle footer ausente — rode drush cim -y antes do updb.');
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = $storage->create([
+    'type' => 'footer',
+    'uuid' => $uuid,
+    'info' => 'Rodapé',
+    'status' => TRUE,
+    'field_text_simple_long' => 'Pessoas certas, no lugar certo.',
+    'field_text_simple_2' => 'Fortaleza, CE - Brasil',
+    'field_email' => 'contato@eusousestagio.com',
+    'field_phone_wpp' => '(11) 99999-9999',
+    'field_instagram' => ['uri' => 'https://www.instagram.com/', 'title' => 'Instagram'],
+    'field_linkedin' => ['uri' => 'https://linkedin.com', 'title' => 'LinkedIn'],
+  ]);
+  $block->save();
+
+  return (string) t('Bloco Rodapé seed criado (@uuid).', ['@uuid' => $uuid]);
+}
+
+/**
+ * Anexa a logo do rodapé ao field_image se estiver vazio.
+ *
+ * Copia o asset versionado do módulo para public://block/footer/.
+ */
+function _custom_configs_seed_footer_logo(): string {
+  $uuid = 'd0326db5-fc80-4cf5-a0b9-8f779dc4aeba';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+  if (!$existing) {
+    return (string) t('Bloco Rodapé (@uuid) ausente — logo ignorada.', ['@uuid' => $uuid]);
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = reset($existing);
+
+  if (!$block->hasField('field_image')) {
+    return (string) t('Campo field_image ausente no rodapé — rode drush cim -y antes do updb.');
+  }
+
+  if (!$block->get('field_image')->isEmpty()) {
+    return (string) t('Logo do rodapé já preenchida — seed ignorado.');
+  }
+
+  $file = _custom_configs_seed_file_from_module_asset(
+    'footer/logo-rodape.png',
+    'public://block/footer/logo-rodape.png',
+    'block_content',
+    (int) $block->id()
+  );
+  if (!$file) {
+    return (string) t('Asset footer/logo-rodape.png não encontrado no módulo — logo ignorada.');
+  }
+
+  $block->set('field_image', [
+    'target_id' => $file->id(),
+    'alt' => 'Eu Sou Estágio',
+  ]);
+  $block->save();
+
+  return (string) t('Logo do rodapé anexada ao bloco @uuid.', ['@uuid' => $uuid]);
+}
+
+/**
+ * Cria links dos menus do rodapé se ausentes (checagem por menu + URI).
+ *
+ * Não sobrescreve links existentes (conteúdo editorial preservado).
+ */
+function _custom_configs_seed_footer_menu_links(): string {
+  $menus = [
+    'rodape---sobre' => [
+      ['title' => 'Quem somos', 'uri' => 'internal:/quem-somos', 'weight' => 0],
+      ['title' => 'Nossos Diferenciais', 'uri' => 'internal:/#nossos-diferenciais', 'weight' => 1],
+      ['title' => 'Nossa Metodologia', 'uri' => 'internal:/#nossa-metodologia', 'weight' => 2],
+    ],
+    'rodape---para-estudantes' => [
+      ['title' => 'Buscar vagas', 'uri' => 'internal:/para-estudantes', 'weight' => 0],
+      ['title' => 'Cadastro de Estudantes', 'uri' => 'internal:/cadastro/candidato', 'weight' => 1],
+      ['title' => 'Acessar', 'uri' => 'internal:/user/login', 'weight' => 2],
+    ],
+    'para-empresas' => [
+      ['title' => 'Cadastro de Empresas', 'uri' => 'internal:/cadastro/empresa', 'weight' => 0],
+      ['title' => 'Contratar Estagiário', 'uri' => 'internal:/node/add/vagas', 'weight' => 1],
+      ['title' => 'Acessar', 'uri' => 'internal:/user/login', 'weight' => 2],
+    ],
+  ];
+
+  $storage = \Drupal::entityTypeManager()->getStorage('menu_link_content');
+  $created = 0;
+
+  foreach ($menus as $menu_name => $links) {
+    foreach ($links as $link) {
+      $existing = $storage->loadByProperties([
+        'menu_name' => $menu_name,
+        'link__uri' => $link['uri'],
+      ]);
+      if ($existing) {
+        continue;
+      }
+
+      $storage->create([
+        'menu_name' => $menu_name,
+        'title' => $link['title'],
+        'link' => ['uri' => $link['uri']],
+        'weight' => $link['weight'],
+        'enabled' => TRUE,
+        'expanded' => FALSE,
+      ])->save();
+      $created++;
+    }
+  }
+
+  return (string) t('Links de menu do rodapé: @count criado(s) (existentes preservados).', ['@count' => $created]);
 }
 
 /**

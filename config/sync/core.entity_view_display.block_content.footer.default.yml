@@ -5,6 +5,7 @@ dependencies:
   config:
     - block_content.type.footer
     - field.field.block_content.footer.field_email
+    - field.field.block_content.footer.field_image
     - field.field.block_content.footer.field_instagram
     - field.field.block_content.footer.field_linkedin
     - field.field.block_content.footer.field_phone_wpp
@@ -72,4 +73,5 @@ content:
     weight: 0
     region: content
 hidden:
+  field_image: true
   langcode: true

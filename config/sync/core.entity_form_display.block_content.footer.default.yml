@@ -5,18 +5,29 @@ dependencies:
   config:
     - block_content.type.footer
     - field.field.block_content.footer.field_email
+    - field.field.block_content.footer.field_image
     - field.field.block_content.footer.field_instagram
     - field.field.block_content.footer.field_linkedin
     - field.field.block_content.footer.field_phone_wpp
     - field.field.block_content.footer.field_text_simple_2
     - field.field.block_content.footer.field_text_simple_long
+    - image.style.thumbnail
   module:
+    - image
     - link
 id: block_content.footer.default
 targetEntityType: block_content
 bundle: footer
 mode: default
 content:
+  field_image:
+    type: image_image
+    weight: 0
+    region: content
+    settings:
+      progress_indicator: throbber
+      preview_image_style: thumbnail
+    third_party_settings: {  }
   field_email:
     type: email_default
     weight: 27

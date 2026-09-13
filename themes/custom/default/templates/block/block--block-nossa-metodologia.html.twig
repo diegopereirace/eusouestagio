@@ -21,7 +21,7 @@
 {% set passo_items = content.field_metodologia_passos['#items']|default([]) %}
 {% set has_passos = passo_items is iterable and passo_items|length > 0 %}
 
-<section{{ attributes.addClass(classes) }}>
+<section{{ attributes.addClass(classes).setAttribute('id', 'nossa-metodologia') }}>
   {{ title_prefix }}{{ title_suffix }}
   {% block content %}
     <div{{ content_attributes.addClass('content') }}>

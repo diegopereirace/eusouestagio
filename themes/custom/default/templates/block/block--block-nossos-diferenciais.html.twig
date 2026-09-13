@@ -18,7 +18,7 @@
 {% set subtitle = content.field_text_simple_long|render|striptags|trim %}
 {% set has_image = content.field_image['#items'] is defined and content.field_image['#items'][0] is defined and content.field_image['#items'][0].entity.uri.value is defined %}
 
-<section{{ attributes.addClass(classes) }}>
+<section{{ attributes.addClass(classes).setAttribute('id', 'nossos-diferenciais') }}>
   {{ title_prefix }}{{ title_suffix }}
   {% block content %}
     <div{{ content_attributes.addClass('content') }}>

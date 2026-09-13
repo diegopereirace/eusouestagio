@@ -91,6 +91,20 @@ function custom_configs_update_11008(): string {
 }
 
 /**
+ * Seed idempotente do bloco Como funciona (UUID fixo).
+ *
+ * UUID: c8d4e0f2-3a5b-4c6d-8e9f-0a1b2c3d4e5f
+ * Placement: block.block.default_comofunciona (mesma UUID).
+ * Deploy destino: git pull → drush cim -y → drush updb -y → drush cr
+ * (cim antes do updb — seed precisa dos fields já importados).
+ * Em ambiente limpo, se o placement falhar no 1º cim por UUID inexistente,
+ * repetir: drush cim -y → drush cr após o seed.
+ */
+function custom_configs_update_11009(): string {
+  return _custom_configs_seed_como_funciona();
+}
+
+/**
  * Cria block_content nossos_diferenciais + 3 itens de referência (FR-013).
  */
 function _custom_configs_seed_nossos_diferenciais(): string {
@@ -257,6 +271,79 @@ function _custom_configs_seed_o_que_fazemos(): string {
   $block->save();
 
   return (string) t('Bloco O que fazemos seed criado (@uuid) com @count cards.', [
+    '@uuid' => $uuid,
+    '@count' => count($paragraphs),
+  ]);
+}
+
+/**
+ * Cria block_content como_funciona_bt + 7 etapas de referência (FR-010).
+ */
+function _custom_configs_seed_como_funciona(): string {
+  $uuid = 'c8d4e0f2-3a5b-4c6d-8e9f-0a1b2c3d4e5f';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+  if ($existing) {
+    return (string) t('Bloco Como funciona (@uuid) já existe — seed ignorado.', ['@uuid' => $uuid]);
+  }
+
+  if (!\Drupal::entityTypeManager()->getDefinition('block_content', FALSE)) {
+    return (string) t('Entity block_content indisponível — seed abortado.');
+  }
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
+  if (!isset($bundle_info['como_funciona_bt'])) {
+    return (string) t('Bundle como_funciona_bt ausente — rode drush cim -y antes do updb.');
+  }
+
+  $steps = [
+    'Entendimento da empresa',
+    'Mapeamento da vaga',
+    'Seleção estratégica',
+    'Apresentação dos melhores candidatos',
+    'Contratação',
+    'Gestão completa',
+    'Desenvolvimento contínuo',
+  ];
+
+  $paragraphs = [];
+  if (\Drupal::entityTypeManager()->getDefinition('paragraph', FALSE)) {
+    $paragraph_bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('paragraph');
+    if (isset($paragraph_bundles['como_funciona_item_p'])) {
+      $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
+      foreach ($steps as $step_text) {
+        /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
+        $paragraph = $paragraph_storage->create([
+          'type' => 'como_funciona_item_p',
+          'field_text_simple' => $step_text,
+        ]);
+        $paragraph->save();
+        $paragraphs[] = [
+          'target_id' => $paragraph->id(),
+          'target_revision_id' => $paragraph->getRevisionId(),
+        ];
+      }
+    }
+  }
+
+  $values = [
+    'type' => 'como_funciona_bt',
+    'uuid' => $uuid,
+    'info' => 'Como funciona',
+    'status' => TRUE,
+    'field_text_simple' => 'Como funciona',
+    'field_text_simple_long' => 'Da definição da vaga ao desenvolvimento contínuo do estagiário, conduzimos cada etapa com metodologia, agilidade e segurança.',
+  ];
+  if ($paragraphs !== []) {
+    $values['field_como_funciona_itens'] = $paragraphs;
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = $storage->create($values);
+  $block->save();
+
+  return (string) t('Bloco Como funciona seed criado (@uuid) com @count etapas.', [
     '@uuid' => $uuid,
     '@count' => count($paragraphs),
   ]);

@@ -1,0 +1,28 @@
+uuid: c8d4e0f2-3a5b-4c6d-8e9f-0a1b2c3d4e5f
+langcode: pt-br
+status: true
+dependencies:
+  content:
+    - 'block_content:como_funciona_bt:c8d4e0f2-3a5b-4c6d-8e9f-0a1b2c3d4e5f'
+  module:
+    - block_content
+    - system
+  theme:
+    - default
+id: default_comofunciona
+theme: default
+region: content_full
+weight: -1
+provider: null
+plugin: 'block_content:c8d4e0f2-3a5b-4c6d-8e9f-0a1b2c3d4e5f'
+settings:
+  id: 'block_content:c8d4e0f2-3a5b-4c6d-8e9f-0a1b2c3d4e5f'
+  label: 'Como funciona'
+  label_display: '0'
+  provider: block_content
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: '<front>'

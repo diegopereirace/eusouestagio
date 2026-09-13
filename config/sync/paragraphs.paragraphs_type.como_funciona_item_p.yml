@@ -1,0 +1,10 @@
+uuid: f2a3b4c5-d6e7-4890-f123-456789abcdef
+langcode: pt-br
+status: true
+dependencies: {  }
+id: como_funciona_item_p
+label: 'Item Como funciona'
+icon_uuid: null
+icon_default: null
+description: 'Texto de uma etapa do fluxo Como funciona.'
+behavior_plugins: {  }

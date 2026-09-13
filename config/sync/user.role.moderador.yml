@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - block_content.type.basic
+    - block_content.type.como_funciona_bt
     - block_content.type.cto
     - block_content.type.destaque
     - block_content.type.footer
@@ -45,6 +46,7 @@ permissions:
   - 'administer users'
   - 'bypass node access'
   - 'change own username'
+  - 'create como_funciona_bt block content'
   - 'create nossa_metodologia block content'
   - 'create nossos_diferenciais block content'
   - 'create o_que_fazemos_bt block content'
@@ -53,6 +55,7 @@ permissions:
   - 'create terms in tags'
   - 'create terms in tecnologias'
   - 'create vagas content'
+  - 'delete any como_funciona_bt block content'
   - 'delete any nossa_metodologia block content'
   - 'delete any nossos_diferenciais block content'
   - 'delete any o_que_fazemos_bt block content'
@@ -69,6 +72,7 @@ permissions:
   - 'edit any cto block content'
   - 'edit any destaque block content'
   - 'edit any footer block content'
+  - 'edit any como_funciona_bt block content'
   - 'edit any nossa_metodologia block content'
   - 'edit any nossos_diferenciais block content'
   - 'edit any o_que_fazemos_bt block content'

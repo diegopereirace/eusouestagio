@@ -1,0 +1,31 @@
+uuid: b4c5d6e7-f8a9-4012-b345-6789abcdef01
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.como_funciona_bt
+    - field.storage.block_content.field_como_funciona_itens
+    - paragraphs.paragraphs_type.como_funciona_item_p
+  module:
+    - entity_reference_revisions
+id: block_content.como_funciona_bt.field_como_funciona_itens
+field_name: field_como_funciona_itens
+entity_type: block_content
+bundle: como_funciona_bt
+label: Etapas
+description: 'Até 7 textos de etapas. Números, chevrons e setas são gerados pelo tema via CSS.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      como_funciona_item_p: como_funciona_item_p
+    negate: 0
+    target_bundles_drag_drop:
+      como_funciona_item_p:
+        weight: 0
+        enabled: true
+field_type: entity_reference_revisions

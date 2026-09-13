@@ -1,0 +1,59 @@
+{#
+/**
+ * @file
+ * Bloco Como funciona (bundle como_funciona_bt).
+ *
+ * Suggestion Barrio: block__block_como_funciona_bt.
+ * Números, chevrons e setas via CSS; só o texto da etapa é editorial.
+ */
+#}
+{%
+  set classes = [
+    'block',
+    'block-' ~ configuration.provider|clean_class,
+    'block-' ~ plugin_id|clean_class,
+    'block-como-funciona-bt',
+  ]
+%}
+{% set title = content.field_text_simple|render|striptags|trim %}
+{% set subtitle = content.field_text_simple_long|render|striptags|trim %}
+{% set step_items = content.field_como_funciona_itens['#items']|default([]) %}
+{% set has_steps = step_items is iterable and step_items|length > 0 %}
+
+<section{{ attributes.addClass(classes) }}>
+  {{ title_prefix }}{{ title_suffix }}
+  {% block content %}
+    <div{{ content_attributes.addClass('content') }}>
+      <div class="container">
+        {% if title or subtitle %}
+          <header class="cf-header">
+            {% if title %}
+              <h2 class="cf-header__title">{{ title }}</h2>
+            {% endif %}
+            {% if subtitle %}
+              <p class="cf-header__subtitle">{{ subtitle }}</p>
+            {% endif %}
+          </header>
+        {% endif %}
+
+        {% if has_steps %}
+          <ol class="cf-flow list-unstyled mb-0">
+            {% set step_index = 0 %}
+            {% for key, item in step_items %}
+              {% set paragraph = content.field_como_funciona_itens[key]['#paragraph']|default(item.entity) %}
+              {% set step_label = paragraph.field_text_simple.value|default('')|trim %}
+              {% if step_label %}
+                {% set step_index = step_index + 1 %}
+                <li class="cf-step" data-step="{{ step_index }}">
+                  <span class="cf-step__shape" aria-hidden="true"></span>
+                  <span class="cf-step__num" aria-hidden="true">{{ step_index }}</span>
+                  <span class="cf-step__label">{{ step_label }}</span>
+                </li>
+              {% endif %}
+            {% endfor %}
+          </ol>
+        {% endif %}
+      </div>
+    </div>
+  {% endblock %}
+</section>

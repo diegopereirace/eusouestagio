@@ -1,0 +1,19 @@
+uuid: e7f8a9b0-c1d2-4345-e678-9abcdef01234
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_text_simple
+    - paragraphs.paragraphs_type.como_funciona_item_p
+id: paragraph.como_funciona_item_p.field_text_simple
+field_name: field_text_simple
+entity_type: paragraph
+bundle: como_funciona_item_p
+label: Texto
+description: 'Texto da etapa (ex.: Entendimento da empresa).'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

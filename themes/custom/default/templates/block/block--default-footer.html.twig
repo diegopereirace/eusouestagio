@@ -1,20 +1,19 @@
 {#
 /**
  * @file
- * Rodapé customizado (bundle footer) — layout Figma em 5 colunas.
+ * Rodapé customizado (bundle footer) — layout 5 colunas + accordion mobile.
  *
- * Colunas: marca (logo/tagline/social) | Institucional | Para Estudantes |
- * Para Empresas | Contato. Barra inferior: copyright + links legais.
+ * Colunas: marca (logo + sociais) | Institucional | Para Estudantes |
+ * Para Empresas | Contato. Links das colunas 2–4 hardcoded (rotas canônicas).
+ * Tagline e endereço não são exibidos. Barra inferior centralizada.
  *
  * Campos do bloco (content['#block_content']):
  * - field_image: logo branca do rodapé
- * - field_text_simple_long: tagline
- * - field_text_simple_2: endereço (não exibido no layout atual)
- * - field_email / field_phone_wpp: contato
+ * - field_email / field_phone_wpp: social + contato
  * - field_instagram / field_linkedin: redes sociais
+ * - field_text_simple_long / field_text_simple_2: preservados, fora do layout
  *
- * Menus (Twig Tweak): rodape---sobre, rodape---para-estudantes, para-empresas.
- * Links criados via seed custom_configs_update_11010 (deploy automático).
+ * Seed: custom_configs_update_11011 (bloco + logo). Menus legados não usados.
  */
 #}
 {%
@@ -25,6 +24,24 @@
   ]
 %}
 {% set footer_entity = content['#block_content'] %}
+{% set phone_digits = '' %}
+{% if footer_entity and footer_entity.field_phone_wpp.value %}
+  {% set phone_digits = footer_entity.field_phone_wpp.value|replace({' ': '', '(': '', ')': '', '-': '', '+': ''}) %}
+{% endif %}
+{% set institucional_links = [
+  {'label': 'Sobre Nós', 'href': '/sobre-nos'},
+  {'label': 'Política de Privacidade', 'href': '/politica-de-privacidade'},
+  {'label': 'Termos de Uso', 'href': '/termos-de-uso'},
+] %}
+{% set estudantes_links = [
+  {'label': 'Buscar Vagas', 'href': '/para-estudantes'},
+  {'label': 'Cadastro de Estudantes', 'href': '/cadastro/candidato'},
+  {'label': 'Blog', 'href': '/blog'},
+] %}
+{% set empresas_links = [
+  {'label': 'Cadastre sua Empresa', 'href': '/cadastro/empresa'},
+  {'label': 'Abrir Vaga', 'href': '/painel/empresa/vagas/nova'},
+] %}
 <div{{ attributes.addClass(classes) }}>
   {{ title_prefix }}
   {% if label %}
@@ -39,69 +56,122 @@
             {% set logo_url = file_url(footer_entity.field_image.entity.uri.value) %}
             {% set logo_alt = footer_entity.field_image.alt|default('Eu Sou Estágio') %}
           {% else %}
-            {# Fallback versionado no módulo (seed anexa ao campo após updb). #}
             {% set logo_url = path('<front>') ~ 'modules/custom/custom_configs/assets/footer/logo-rodape.png' %}
             {% set logo_alt = 'Eu Sou Estágio' %}
           {% endif %}
           <a href="{{ path('<front>') }}" title="Eu Sou Estágio" class="footer-logo-link d-inline-block">
             <img src="{{ logo_url }}" alt="{{ logo_alt }}" class="footer-logo-img">
           </a>
-          {% if footer_entity and footer_entity.field_text_simple_long.value %}
-            <p class="footer-tagline">{{ footer_entity.field_text_simple_long.value }}</p>
-          {% endif %}
           {% if footer_entity %}
-            <div class="footer-social">
+            <div class="footer-social d-flex gap-2">
+              {% if footer_entity.field_email.value %}
+                <a href="mailto:{{ footer_entity.field_email.value }}" class="footer-social-link footer-social-link--email" title="{{ 'E-mail'|t }}" aria-label="{{ 'E-mail'|t }}">
+                  <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                </a>
+              {% endif %}
               {% if footer_entity.field_instagram.uri %}
-                <a href="{{ footer_entity.field_instagram.uri }}" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="{{ 'Instagram'|t }}">
+                <a href="{{ footer_entity.field_instagram.uri }}" target="_blank" rel="noopener noreferrer" class="footer-social-link footer-social-link--instagram" title="{{ 'Instagram'|t }}" aria-label="{{ 'Instagram'|t }}">
                   <i class="fa-brands fa-instagram" aria-hidden="true"></i>
                 </a>
               {% endif %}
               {% if footer_entity.field_linkedin.uri %}
-                <a href="{{ footer_entity.field_linkedin.uri }}" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="{{ 'LinkedIn'|t }}">
+                <a href="{{ footer_entity.field_linkedin.uri }}" target="_blank" rel="noopener noreferrer" class="footer-social-link footer-social-link--linkedin" title="{{ 'LinkedIn'|t }}" aria-label="{{ 'LinkedIn'|t }}">
                   <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
                 </a>
               {% endif %}
-              {% if footer_entity.field_phone_wpp.value %}
-                {% set phone = footer_entity.field_phone_wpp.value|replace({' ': '', '(': '', ')': '', '-': '', '+': ''}) %}
-                <a href="https://wa.me/{{ phone }}" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="{{ 'WhatsApp'|t }}">
+              {% if phone_digits %}
+                <a href="https://wa.me/{{ phone_digits }}" target="_blank" rel="noopener noreferrer" class="footer-social-link footer-social-link--whatsapp" title="{{ 'WhatsApp'|t }}" aria-label="{{ 'WhatsApp'|t }}">
                   <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
                 </a>
               {% endif %}
             </div>
           {% endif %}
         </div>
-        <div class="col-lg-2 col-12 footer-menu-section">
-          <h3 class="footer-menu-title">{{ 'Institucional'|t }}</h3>
-          <div class="footer-links-menu">
-            {{ drupal_menu('rodape---sobre') }}
+
+        <section class="col-lg-2 col-12 footer-menu-section" data-footer-section="institucional">
+          <div class="d-none d-lg-block">
+            <h3 class="footer-menu-title">{{ 'Institucional'|t }}</h3>
+            <ul class="footer-links list-unstyled mb-0">
+              {% for item in institucional_links %}
+                <li><a href="{{ item.href }}">{{ item.label|t }}</a></li>
+              {% endfor %}
+            </ul>
           </div>
-        </div>
-        <div class="col-lg-2 col-12 footer-menu-section">
-          <h3 class="footer-menu-title">{{ 'Para Estudantes'|t }}</h3>
-          <div class="footer-links-menu">
-            {{ drupal_menu('rodape---para-estudantes') }}
+          <div class="d-lg-none footer-accordion-item">
+            <button class="footer-accordion-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#footer-collapse-institucional" aria-expanded="false" aria-controls="footer-collapse-institucional">
+              <span class="footer-menu-title">{{ 'Institucional'|t }}</span>
+              <i class="fa-solid fa-chevron-down footer-accordion-icon" aria-hidden="true"></i>
+            </button>
+            <div id="footer-collapse-institucional" class="collapse">
+              <ul class="footer-links list-unstyled mb-0">
+                {% for item in institucional_links %}
+                  <li><a href="{{ item.href }}">{{ item.label|t }}</a></li>
+                {% endfor %}
+              </ul>
+            </div>
           </div>
-        </div>
-        <div class="col-lg-2 col-12 footer-menu-section">
-          <h3 class="footer-menu-title">{{ 'Para Empresas'|t }}</h3>
-          <div class="footer-links-menu">
-            {{ drupal_menu('para-empresas') }}
+        </section>
+
+        <section class="col-lg-2 col-12 footer-menu-section" data-footer-section="estudantes">
+          <div class="d-none d-lg-block">
+            <h3 class="footer-menu-title">{{ 'Para Estudantes'|t }}</h3>
+            <ul class="footer-links list-unstyled mb-0">
+              {% for item in estudantes_links %}
+                <li><a href="{{ item.href }}">{{ item.label|t }}</a></li>
+              {% endfor %}
+            </ul>
           </div>
-        </div>
-        <div class="col-lg-3 col-12 footer-menu-section footer-contact-col">
+          <div class="d-lg-none footer-accordion-item">
+            <button class="footer-accordion-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#footer-collapse-estudantes" aria-expanded="false" aria-controls="footer-collapse-estudantes">
+              <span class="footer-menu-title">{{ 'Para Estudantes'|t }}</span>
+              <i class="fa-solid fa-chevron-down footer-accordion-icon" aria-hidden="true"></i>
+            </button>
+            <div id="footer-collapse-estudantes" class="collapse">
+              <ul class="footer-links list-unstyled mb-0">
+                {% for item in estudantes_links %}
+                  <li><a href="{{ item.href }}">{{ item.label|t }}</a></li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="col-lg-2 col-12 footer-menu-section" data-footer-section="empresas">
+          <div class="d-none d-lg-block">
+            <h3 class="footer-menu-title">{{ 'Para Empresas'|t }}</h3>
+            <ul class="footer-links list-unstyled mb-0">
+              {% for item in empresas_links %}
+                <li><a href="{{ item.href }}">{{ item.label|t }}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+          <div class="d-lg-none footer-accordion-item">
+            <button class="footer-accordion-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#footer-collapse-empresas" aria-expanded="false" aria-controls="footer-collapse-empresas">
+              <span class="footer-menu-title">{{ 'Para Empresas'|t }}</span>
+              <i class="fa-solid fa-chevron-down footer-accordion-icon" aria-hidden="true"></i>
+            </button>
+            <div id="footer-collapse-empresas" class="collapse">
+              <ul class="footer-links list-unstyled mb-0">
+                {% for item in empresas_links %}
+                  <li><a href="{{ item.href }}">{{ item.label|t }}</a></li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <div class="col-lg-3 col-12 footer-contact-col">
           <h3 class="footer-menu-title">{{ 'Contato'|t }}</h3>
           {% if footer_entity %}
             <ul class="footer-contact list-unstyled mb-0">
-              {% if footer_entity.field_phone_wpp.value %}
-                <li class="footer-contact-item">
-                  <i class="fa-solid fa-phone" aria-hidden="true"></i>
-                  <span>{{ footer_entity.field_phone_wpp.value }}</span>
-                </li>
-              {% endif %}
               {% if footer_entity.field_email.value %}
                 <li class="footer-contact-item">
-                  <i class="fa-regular fa-envelope" aria-hidden="true"></i>
                   <a href="mailto:{{ footer_entity.field_email.value }}" class="footer-contact-link">{{ footer_entity.field_email.value }}</a>
+                </li>
+              {% endif %}
+              {% if footer_entity.field_phone_wpp.value and phone_digits %}
+                <li class="footer-contact-item">
+                  <a href="tel:{{ phone_digits }}" class="footer-contact-link">{{ footer_entity.field_phone_wpp.value }}</a>
                 </li>
               {% endif %}
             </ul>
@@ -109,17 +179,9 @@
         </div>
       </div>
       <hr class="footer-divider">
-      <div class="row footer-bottom">
-        <div class="col-md-8 col-12">
-          <span class="footer-copy">© {{ "now"|date("Y") }} Eu Sou Estágio. {{ 'Todos os direitos reservados.'|t }}</span>
-          <div class="footer-dev">
-            {{ 'Desenvolvido por'|t }} <a href="https://diegopereirace.com.br" target="_blank" rel="noopener noreferrer">Diego Pereira</a>
-          </div>
-        </div>
-        <div class="col-md-4 col-12 text-md-end footer-legal">
-          <a href="#" class="footer-legal-link">{{ 'Termos de uso'|t }}</a>
-          <a href="#" class="footer-legal-link">{{ 'Políticas de privacidade'|t }}</a>
-        </div>
+      <div class="footer-bottom text-center">
+        <div class="footer-copy">© {{ "now"|date("Y") }} Eu Sou Estágio. {{ 'Todos os direitos reservados.'|t }}</div>
+        <div class="footer-dev">{{ 'Desenvolvido por'|t }} <a href="https://diegopereirace.com.br/" target="_blank" rel="noopener noreferrer">Diego Pereira</a></div>
       </div>
     </div>
   {% endblock %}

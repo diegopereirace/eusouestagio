@@ -1,0 +1,42 @@
+---
+description: Fluxo padrão de desenvolvimento — SDD obrigatório, Configuration Management via config/sync, reuso de campos e hooks de deploy idempotentes
+globs: modules/custom/**/*, themes/custom/**/*, config/sync/**/*
+---
+# Fluxo de Desenvolvimento — Eu Sou Estágio
+
+Regras de arquitetura aplicadas sempre que editar código customizado (`modules/custom`), tema (`themes/custom`) ou configuração exportada (`config/sync`).
+
+## Spec Driven Development (obrigatório)
+
+- Toda feature começa por `/speckit-specify` e segue o fluxo Spec Kit: `specify → clarify → plan → tasks → implement`.
+- Não gere código de feature sem spec aprovada em `specs/NNN-<nome>/`.
+- A feature ativa está em `.specify/feature.json` (`feature_directory`).
+
+## Configuration Management (obrigatório)
+
+- Toda alteração estrutural (content types, fields, displays, blocos, menus, views, roles) DEVE ser exportada com `drush cex` para `config/sync` e versionada.
+- Deploy em qualquer ambiente: `git pull` → `drush cim -y` → `drush updb -y` → `drush cr` (cim **antes** do updb — seeds dependem dos fields já importados).
+- Nunca edite arquivos de `config/sync` manualmente para "criar" config nova; altere no admin/drush e exporte.
+
+## Reuso de campos (obrigatório)
+
+- Antes de criar field storage novo, verifique se já existe equivalente no projeto (ex.: `field_text_simple`, `field_text_simple_long`, `field_image`) e **reutilize o storage** criando apenas a field instance no bundle.
+- Nomes paralelos duplicados para o mesmo propósito são proibidos.
+
+## Deploy de dados/conteúdo (obrigatório)
+
+- Conteúdo e seeds (blocos, links de menu, termos, arquivos) NÃO são exportáveis via `config/sync` — use `hook_update_N` no `custom_configs.install` com **idempotência obrigatória**: checar existência/estado antes de criar ou alterar (padrão `custom_configs_update_11001+`).
+- Hooks de deploy nunca sobrescrevem conteúdo editorial divergente do seed; preenchem apenas o que está vazio/ausente.
+- UUIDs fixos para blocos seedados; placement exportado em `block.block.*` com o mesmo UUID.
+- Assets de seed ficam versionados em `modules/custom/custom_configs/assets/` e copiados para `public://` pelo hook.
+
+## Links e rotas
+
+- Links estruturais de layout (ex.: colunas do rodapé) ficam hardcoded no Twig com rotas canônicas/URLs limpas; se a página ainda não existir, aponte para a futura rota planejada.
+- Menus gerenciáveis (`drupal_menu`) só quando o editorial precisar controlar os links sem deploy.
+
+## Proibições
+
+- Nunca alterar `core/` ou `vendor/`.
+- Nunca criar migração de dados fora de `hook_update_N` idempotente.
+- Nunca depender de ajuste manual no admin como etapa de deploy.

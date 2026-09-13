@@ -1,0 +1,24 @@
+{#
+/**
+ * @file
+ * Paragraph Item Como funciona (como_funciona_item_p).
+ *
+ * Renderização principal ocorre no Twig do bloco; este template cobre
+ * view modes / embeds diretos do paragraph.
+ */
+#}
+{%
+  set classes = [
+    'paragraph',
+    'paragraph--type--' ~ paragraph.bundle|clean_class,
+    view_mode ? 'paragraph--view-mode--' ~ view_mode|clean_class,
+    'cf-step',
+  ]
+%}
+{% set step_label = content.field_text_simple|render|striptags|trim %}
+
+<div{{ attributes.addClass(classes) }}>
+  {% if step_label %}
+    <span class="cf-step__label">{{ step_label }}</span>
+  {% endif %}
+</div>

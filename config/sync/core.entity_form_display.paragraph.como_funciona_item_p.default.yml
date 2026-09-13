@@ -1,0 +1,23 @@
+uuid: b0c1d2e3-f4a5-4678-b901-cdef01234567
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.como_funciona_item_p.field_text_simple
+    - paragraphs.paragraphs_type.como_funciona_item_p
+id: paragraph.como_funciona_item_p.default
+targetEntityType: paragraph
+bundle: como_funciona_item_p
+mode: default
+content:
+  field_text_simple:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true

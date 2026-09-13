@@ -1,0 +1,8 @@
+uuid: e1f2a3b4-c5d6-4789-e012-3456789abcde
+langcode: pt-br
+status: true
+dependencies: {  }
+id: como_funciona_bt
+label: 'Como funciona'
+revision: false
+description: 'Seção institucional com até 7 etapas textuais do fluxo (chevrons via CSS).'

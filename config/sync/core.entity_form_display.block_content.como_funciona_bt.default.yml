@@ -1,0 +1,60 @@
+uuid: f8a9b0c1-d2e3-4456-f789-abcdef012345
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.como_funciona_bt
+    - field.field.block_content.como_funciona_bt.field_como_funciona_itens
+    - field.field.block_content.como_funciona_bt.field_text_simple
+    - field.field.block_content.como_funciona_bt.field_text_simple_long
+  module:
+    - paragraphs
+id: block_content.como_funciona_bt.default
+targetEntityType: block_content
+bundle: como_funciona_bt
+mode: default
+content:
+  field_como_funciona_itens:
+    type: paragraphs
+    weight: 3
+    region: content
+    settings:
+      title: Etapa
+      title_plural: Etapas
+      edit_mode: open
+      closed_mode: summary
+      autocollapse: none
+      closed_mode_threshold: 0
+      add_mode: dropdown
+      form_display_mode: default
+      default_paragraph_type: como_funciona_item_p
+      features:
+        collapse_edit_all: collapse_edit_all
+        duplicate: duplicate
+    third_party_settings: {  }
+  field_text_simple:
+    type: string_textfield
+    weight: 1
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_text_simple_long:
+    type: string_textarea
+    weight: 2
+    region: content
+    settings:
+      rows: 4
+      placeholder: ''
+    third_party_settings: {  }
+  info:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  langcode: true

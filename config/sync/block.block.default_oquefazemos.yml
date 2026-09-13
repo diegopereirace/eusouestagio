@@ -1,0 +1,28 @@
+uuid: a7c3e9f1-2b4d-4e8a-9c6f-1d2e3f4a5b6c
+langcode: pt-br
+status: true
+dependencies:
+  content:
+    - 'block_content:o_que_fazemos_bt:a7c3e9f1-2b4d-4e8a-9c6f-1d2e3f4a5b6c'
+  module:
+    - block_content
+    - system
+  theme:
+    - default
+id: default_oquefazemos
+theme: default
+region: content_full
+weight: -2
+provider: null
+plugin: 'block_content:a7c3e9f1-2b4d-4e8a-9c6f-1d2e3f4a5b6c'
+settings:
+  id: 'block_content:a7c3e9f1-2b4d-4e8a-9c6f-1d2e3f4a5b6c'
+  label: 'O que fazemos'
+  label_display: '0'
+  provider: block_content
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: '<front>'

@@ -9,6 +9,7 @@ dependencies:
     - block_content.type.footer
     - block_content.type.nossos_diferenciais
     - block_content.type.nossa_metodologia
+    - block_content.type.o_que_fazemos_bt
     - block_content.type.whatsapp
     - filter.format.full_html
     - filter.format.restricted_html
@@ -46,6 +47,7 @@ permissions:
   - 'change own username'
   - 'create nossa_metodologia block content'
   - 'create nossos_diferenciais block content'
+  - 'create o_que_fazemos_bt block content'
   - 'create page content'
   - 'create terms in regime'
   - 'create terms in tags'
@@ -53,6 +55,7 @@ permissions:
   - 'create vagas content'
   - 'delete any nossa_metodologia block content'
   - 'delete any nossos_diferenciais block content'
+  - 'delete any o_que_fazemos_bt block content'
   - 'delete any page content'
   - 'delete any vagas content'
   - 'delete own page content'
@@ -68,6 +71,7 @@ permissions:
   - 'edit any footer block content'
   - 'edit any nossa_metodologia block content'
   - 'edit any nossos_diferenciais block content'
+  - 'edit any o_que_fazemos_bt block content'
   - 'edit any page content'
   - 'edit any vagas content'
   - 'edit any whatsapp block content'

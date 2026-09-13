@@ -77,6 +77,20 @@ function custom_configs_update_11007(): string {
 }
 
 /**
+ * Seed idempotente do bloco O que fazemos (UUID fixo).
+ *
+ * UUID: a7c3e9f1-2b4d-4e8a-9c6f-1d2e3f4a5b6c
+ * Placement: block.block.default_oquefazemos (mesma UUID).
+ * Deploy destino: git pull → drush cim -y → drush updb -y → drush cr
+ * (cim antes do updb — seed precisa dos fields já importados).
+ * Em ambiente limpo, se o placement falhar no 1º cim por UUID inexistente,
+ * repetir: drush cim -y → drush cr após o seed.
+ */
+function custom_configs_update_11008(): string {
+  return _custom_configs_seed_o_que_fazemos();
+}
+
+/**
  * Cria block_content nossos_diferenciais + 3 itens de referência (FR-013).
  */
 function _custom_configs_seed_nossos_diferenciais(): string {
@@ -141,6 +155,108 @@ function _custom_configs_seed_nossos_diferenciais(): string {
   $block->save();
 
   return (string) t('Bloco Nossos Diferenciais seed criado (@uuid) com @count itens.', [
+    '@uuid' => $uuid,
+    '@count' => count($paragraphs),
+  ]);
+}
+
+/**
+ * Cria block_content o_que_fazemos_bt + 3 cards de referência (FR-010).
+ */
+function _custom_configs_seed_o_que_fazemos(): string {
+  $uuid = 'a7c3e9f1-2b4d-4e8a-9c6f-1d2e3f4a5b6c';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+  if ($existing) {
+    return (string) t('Bloco O que fazemos (@uuid) já existe — seed ignorado.', ['@uuid' => $uuid]);
+  }
+
+  if (!\Drupal::entityTypeManager()->getDefinition('block_content', FALSE)) {
+    return (string) t('Entity block_content indisponível — seed abortado.');
+  }
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
+  if (!isset($bundle_info['o_que_fazemos_bt'])) {
+    return (string) t('Bundle o_que_fazemos_bt ausente — rode drush cim -y antes do updb.');
+  }
+
+  $cards = [
+    [
+      'title' => 'Recrutamento Estratégico',
+      'items' => [
+        'Divulgação',
+        'Triagem',
+        'Avaliação',
+        'Entrevistas',
+        'Parecer',
+      ],
+    ],
+    [
+      'title' => 'Gestão',
+      'items' => [
+        'Convênios',
+        'Seguro',
+        'Aditivos',
+        'TCE',
+        'Distratos',
+        'Assinaturas',
+        'Relatórios',
+        'Recesso',
+        'Controle documental',
+      ],
+    ],
+    [
+      'title' => 'Desenvolvimento',
+      'items' => [
+        'Acompanhamento',
+        'Avaliações periódicas',
+        'Feedbacks',
+        'Relatórios de desempenho',
+        'Indicadores',
+        'Desenvolvimento profissional',
+      ],
+    ],
+  ];
+
+  $paragraphs = [];
+  if (\Drupal::entityTypeManager()->getDefinition('paragraph', FALSE)) {
+    $paragraph_bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('paragraph');
+    if (isset($paragraph_bundles['o_que_fazemos_item_p'])) {
+      $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
+      foreach ($cards as $card) {
+        /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
+        $paragraph = $paragraph_storage->create([
+          'type' => 'o_que_fazemos_item_p',
+          'field_text_simple' => $card['title'],
+          'field_text_simple_multiple' => $card['items'],
+        ]);
+        $paragraph->save();
+        $paragraphs[] = [
+          'target_id' => $paragraph->id(),
+          'target_revision_id' => $paragraph->getRevisionId(),
+        ];
+      }
+    }
+  }
+
+  $values = [
+    'type' => 'o_que_fazemos_bt',
+    'uuid' => $uuid,
+    'info' => 'O que fazemos',
+    'status' => TRUE,
+    'field_text_simple' => 'O que fazemos',
+    'field_text_simple_long' => 'Reunimos recrutamento estratégico, gestão administrativa e desenvolvimento contínuo em uma solução completa que simplifica processos e potencializa resultados.',
+  ];
+  if ($paragraphs !== []) {
+    $values['field_o_que_fazemos_itens'] = $paragraphs;
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = $storage->create($values);
+  $block->save();
+
+  return (string) t('Bloco O que fazemos seed criado (@uuid) com @count cards.', [
     '@uuid' => $uuid,
     '@count' => count($paragraphs),
   ]);

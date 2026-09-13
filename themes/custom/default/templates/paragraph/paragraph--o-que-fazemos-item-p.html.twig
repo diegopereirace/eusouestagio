@@ -1,0 +1,37 @@
+{#
+/**
+ * @file
+ * Paragraph Item O que fazemos (o_que_fazemos_item_p).
+ *
+ * Renderização principal ocorre no Twig do bloco; este template cobre
+ * view modes / embeds diretos do paragraph.
+ */
+#}
+{%
+  set classes = [
+    'paragraph',
+    'paragraph--type--' ~ paragraph.bundle|clean_class,
+    view_mode ? 'paragraph--view-mode--' ~ view_mode|clean_class,
+    'oqf-card',
+  ]
+%}
+{% set card_title = content.field_text_simple|render|striptags|trim %}
+{% set bullet_items = content.field_text_simple_multiple['#items']|default([]) %}
+
+<div{{ attributes.addClass(classes) }}>
+  {% if card_title %}
+    <div class="oqf-card__header">{{ card_title }}</div>
+  {% endif %}
+  {% if bullet_items is iterable and bullet_items|length > 0 %}
+    <div class="oqf-card__body">
+      <ul class="oqf-card__items list-unstyled mb-0">
+        {% for item in bullet_items %}
+          {% set text = item.value|default('')|trim %}
+          {% if text %}
+            <li>{{ text }}</li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+</div>

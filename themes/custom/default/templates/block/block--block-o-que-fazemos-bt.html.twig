@@ -1,0 +1,97 @@
+{#
+/**
+ * @file
+ * Bloco O que fazemos (bundle o_que_fazemos_bt).
+ *
+ * Suggestion Barrio: block__block_o_que_fazemos_bt.
+ */
+#}
+{%
+  set classes = [
+    'block',
+    'block-' ~ configuration.provider|clean_class,
+    'block-' ~ plugin_id|clean_class,
+    'block-o-que-fazemos-bt',
+  ]
+%}
+{% set title = content.field_text_simple|render|striptags|trim %}
+{% set subtitle = content.field_text_simple_long|render|striptags|trim %}
+{% set card_items = content.field_o_que_fazemos_itens['#items']|default([]) %}
+{% set has_cards = card_items is iterable and card_items|length > 0 %}
+
+<section{{ attributes.addClass(classes) }}>
+  {{ title_prefix }}{{ title_suffix }}
+  {% block content %}
+    <div{{ content_attributes.addClass('content') }}>
+      <div class="container">
+        {% if title or subtitle %}
+          <header class="oqf-header text-center">
+            {% if title %}
+              <h2 class="oqf-header__title">{{ title }}</h2>
+            {% endif %}
+            {% if subtitle %}
+              <p class="oqf-header__subtitle">{{ subtitle }}</p>
+            {% endif %}
+          </header>
+        {% endif %}
+
+        {% if has_cards %}
+          <div class="row oqf-cards">
+            {% for key, item in card_items %}
+              {% set paragraph = content.field_o_que_fazemos_itens[key]['#paragraph']|default(item.entity) %}
+              {% set card_title = paragraph.field_text_simple.value|default('')|trim %}
+              {% set bullet_field = paragraph.field_text_simple_multiple %}
+              {% set bullets = [] %}
+              {% if bullet_field %}
+                {% for bullet in bullet_field %}
+                  {% set bullet_text = bullet.value|default('')|trim %}
+                  {% if bullet_text %}
+                    {% set bullets = bullets|merge([bullet_text]) %}
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+              {% set is_middle = loop.index0 == 1 %}
+              {% set mid = (bullets|length / 2)|round(0, 'ceil') %}
+
+              {% if card_title or bullets|length > 0 %}
+                <div class="col-12 col-md-4 oqf-card{{ is_middle ? ' oqf-card--middle' : '' }}">
+                  {% if card_title %}
+                    <div class="oqf-card__header">{{ card_title }}</div>
+                  {% endif %}
+                  {% if bullets|length > 0 %}
+                    <div class="oqf-card__body">
+                      {% if is_middle and bullets|length > 1 %}
+                        <div class="row g-2">
+                          <div class="col-6">
+                            <ul class="oqf-card__items list-unstyled mb-0">
+                              {% for bullet in bullets|slice(0, mid) %}
+                                <li>{{ bullet }}</li>
+                              {% endfor %}
+                            </ul>
+                          </div>
+                          <div class="col-6">
+                            <ul class="oqf-card__items list-unstyled mb-0">
+                              {% for bullet in bullets|slice(mid) %}
+                                <li>{{ bullet }}</li>
+                              {% endfor %}
+                            </ul>
+                          </div>
+                        </div>
+                      {% else %}
+                        <ul class="oqf-card__items list-unstyled mb-0">
+                          {% for bullet in bullets %}
+                            <li>{{ bullet }}</li>
+                          {% endfor %}
+                        </ul>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endblock %}
+</section>

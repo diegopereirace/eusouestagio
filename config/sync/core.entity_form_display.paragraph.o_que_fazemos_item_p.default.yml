@@ -1,0 +1,32 @@
+uuid: a2b3c4d5-e6f7-4890-a123-ef0123456789
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.o_que_fazemos_item_p.field_text_simple
+    - field.field.paragraph.o_que_fazemos_item_p.field_text_simple_multiple
+    - paragraphs.paragraphs_type.o_que_fazemos_item_p
+id: paragraph.o_que_fazemos_item_p.default
+targetEntityType: paragraph
+bundle: o_que_fazemos_item_p
+mode: default
+content:
+  field_text_simple:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_text_simple_multiple:
+    type: string_textfield
+    weight: 1
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true

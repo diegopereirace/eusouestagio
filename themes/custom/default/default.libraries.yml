@@ -48,6 +48,12 @@ banner_quem_somos:
       assets/css/banner-quem-somos.css: {}
   dependencies:
     - default/bootstrap
+layout_sobre_nos:
+  css:
+    component:
+      assets/css/layout-sobre-nos.css: {}
+  dependencies:
+    - default/bootstrap
 hero_search:
   js:
     assets/js/hero-search.js: {}

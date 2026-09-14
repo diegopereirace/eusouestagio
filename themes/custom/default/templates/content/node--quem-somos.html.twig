@@ -60,6 +60,7 @@
  */
 #}
 {{ attach_library('bootstrap_barrio/node') }}
+{{ attach_library('default/layout_sobre_nos') }}
 
 {%
   set classes = [
@@ -94,19 +95,21 @@
     {% endif %}
   </header>
   <div{{ content_attributes.addClass('node__content', 'clearfix', 'container') }}>
-    <div class="row row-custom-1 pb-5">
-      <div class="col-md-7 col-12">
-        <h3 class="text-title-sm pb-3">{{ content.field_titulo }}</h3>
-        <div class="dv-wraper text-wrapper">{{ content.field_text_long_formatted }}</div>
-      </div>
-      <div class="col-md-5 col-12">
-        <div class="dv-wraper image-wrapper text-center">
-          {% if node.field_imagem.entity %}
-            <img loading="lazy" src="{{ file_url(node.field_imagem.entity.uri.value) }}" alt="{{ node.field_imagem.alt }}" class="img-fluid">
-          {% endif %}
+    {# 1ª seção: wrap float (imagem antes do corpo). #}
+    <section class="sobre-nos clearfix pb-5">
+      {% if not node.field_titulo.isEmpty %}
+        <h3 class="sobre-nos__title text-title-sm pb-3">{{ content.field_titulo }}</h3>
+      {% endif %}
+      {% if node.field_imagem.entity %}
+        <div class="sobre-nos__media position-relative float-md-end ms-md-4 mb-3">
+          <img loading="lazy" src="{{ file_url(node.field_imagem.entity.uri.value) }}" alt="{{ node.field_imagem.alt }}" class="sobre-nos__img img-fluid">
         </div>
-      </div>
-    </div>
+      {% endif %}
+      {% if not node.field_text_long_formatted.isEmpty %}
+        <div class="sobre-nos__body">{{ content.field_text_long_formatted }}</div>
+      {% endif %}
+    </section>
+    {# 2ª seção: grid duas colunas (inalterada). #}
     <div class="row row-custom-2 py-5">
       <div class="col-md-5 col-12">
         <div class="dv-wraper image-wrapper text-center">

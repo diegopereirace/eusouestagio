@@ -1,4 +1,4 @@
-uuid: 88fe8240-9950-40ba-adef-6e0f0e55a71c
+uuid: e8f9a0b1-c2d3-4e5f-9678-90abcdef1234
 langcode: pt-br
 status: true
 dependencies:
@@ -9,14 +9,14 @@ dependencies:
     - views
   theme:
     - default
-id: default_views_block__banners_block_1
+id: default_views_block__banners_block_quem_somos
 theme: default
 region: banner
 weight: 0
 provider: null
-plugin: 'views_block:banners-block_1'
+plugin: 'views_block:banners-block_quem_somos'
 settings:
-  id: 'views_block:banners-block_1'
+  id: 'views_block:banners-block_quem_somos'
   label: ''
   label_display: '0'
   provider: views
@@ -27,4 +27,4 @@ visibility:
   request_path:
     id: request_path
     negate: false
-    pages: "/para-estudantes\r\n/para-empresas\r\n/contato"
+    pages: /quem-somos

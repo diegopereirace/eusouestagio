@@ -1,0 +1,220 @@
+/**
+ * Banner Quem Somos — layout Figma bipartido.
+ * Tokens locais sob .banner-quem-somos-wrapper (não muta --brand-orange).
+ */
+
+/* Região banner: permite overflow inferior da figura (home carrossel usa overflow hidden). */
+body.node--type-quem-somos .banner,
+body.node--type-quem-somos .banner > .region-banner,
+body.node--type-quem-somos .banner .region-wrapper-banner {
+	overflow: visible;
+}
+
+.banner-quem-somos-wrapper {
+	--bqs-orange: #fd7b1a;
+	--bqs-title: #0f172a;
+	--bqs-tag-bg: rgba(253, 123, 26, 0.12);
+	--bqs-radius: 16px;
+	position: relative;
+	overflow: visible;
+	padding-block: 1.5rem 2rem;
+	background: transparent;
+}
+
+.banner-quem-somos-wrapper .banner-quem-somos {
+	position: relative;
+	background: #fff;
+	border-radius: var(--bqs-radius);
+	box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
+	padding: 1.75rem 1.5rem;
+	overflow: visible;
+	row-gap: 1.5rem;
+}
+
+.banner-quem-somos-wrapper .banner-quem-somos__copy {
+	position: relative;
+	z-index: 2;
+}
+
+.banner-quem-somos-wrapper .banner-quem-somos__tag {
+	display: inline-block;
+	margin-bottom: 0.75rem;
+	padding: 0.35rem 0.75rem;
+	border-radius: 999px;
+	background: var(--bqs-tag-bg);
+	color: var(--bqs-orange);
+	font-family: Poppins, sans-serif;
+	font-size: 0.75rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.banner-quem-somos-wrapper .banner-quem-somos__title {
+	margin: 0 0 1rem;
+	font-family: Poppins, sans-serif;
+	font-size: clamp(1.75rem, 3vw, 2.5rem);
+	font-weight: 700;
+	line-height: 1.15;
+}
+
+.banner-quem-somos-wrapper .banner-quem-somos__title-dark {
+	color: var(--bqs-title);
+}
+
+.banner-quem-somos-wrapper .banner-quem-somos__title-orange {
+	color: var(--bqs-orange);
+}
+
+.banner-quem-somos-wrapper .banner-quem-somos__lead {
+	margin: 0 0 1.5rem;
+	max-width: 32rem;
+	color: #334155;
+	font-family: Poppins, sans-serif;
+	font-size: 1rem;
+	line-height: 1.55;
+}
+
+.banner-quem-somos-wrapper .banner-quem-somos__ctas {
+	align-items: center;
+}
+
+.banner-quem-somos-wrapper .banner-quem-somos__btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 44px;
+	padding: 0.65rem 1.25rem;
+	border-radius: 8px;
+	font-family: Poppins, sans-serif;
+	font-size: 0.95rem;
+	font-weight: 600;
+	line-height: 1.2;
+	text-decoration: none;
+	transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.banner-quem-somos-wrapper .banner-quem-somos__btn--primary {
+	background: var(--bqs-orange);
+	border: 1px solid var(--bqs-orange);
+	color: #fff;
+}
+
+.banner-quem-somos-wrapper .banner-quem-somos__btn--primary:hover,
+.banner-quem-somos-wrapper .banner-quem-somos__btn--primary:focus-visible {
+	background: #e56c10;
+	border-color: #e56c10;
+	color: #fff;
+}
+
+.banner-quem-somos-wrapper .banner-quem-somos__btn--secondary {
+	background: #fff;
+	border: 1px solid #0f172a;
+	color: var(--bqs-title);
+}
+
+.banner-quem-somos-wrapper .banner-quem-somos__btn--secondary:hover,
+.banner-quem-somos-wrapper .banner-quem-somos__btn--secondary:focus-visible {
+	border-color: var(--bqs-orange);
+	color: var(--bqs-orange);
+}
+
+.banner-quem-somos-wrapper .banner-quem-somos__media {
+	position: relative;
+	z-index: 1;
+	text-align: center;
+	line-height: 0;
+	background: transparent;
+}
+
+.banner-quem-somos-wrapper .banner-quem-somos__media picture,
+.banner-quem-somos-wrapper .banner-quem-somos__img {
+	display: block;
+	width: 100%;
+	max-width: 100%;
+	height: auto;
+	background: transparent;
+}
+
+/* Desktop: figura inteira, coluna de mídia maior, overflow só na base */
+@media (min-width: 768px) {
+	.banner-quem-somos-wrapper .banner-quem-somos {
+		padding: 1.5rem 1rem 0 2rem;
+		min-height: 24rem;
+		align-items: center !important;
+	}
+
+	.banner-quem-somos-wrapper .banner-quem-somos__copy {
+		padding-bottom: 1.75rem;
+		padding-right: 0.75rem;
+	}
+
+	.banner-quem-somos-wrapper .banner-quem-somos__media {
+		margin-bottom: -2rem;
+		align-self: flex-end;
+	}
+
+	.banner-quem-somos-wrapper .banner-quem-somos__img {
+		width: 100%;
+		max-width: none;
+		height: auto;
+		max-height: 28rem;
+		margin-inline: 0;
+		object-fit: contain;
+		object-position: bottom right;
+	}
+}
+
+@media (min-width: 992px) {
+	.banner-quem-somos-wrapper .banner-quem-somos {
+		min-height: 26rem;
+	}
+
+	.banner-quem-somos-wrapper .banner-quem-somos__img {
+		max-height: 32rem;
+	}
+}
+
+@media (min-width: 1200px) {
+	.banner-quem-somos-wrapper .banner-quem-somos {
+		min-height: 28rem;
+		padding-left: 2.5rem;
+	}
+
+	.banner-quem-somos-wrapper .banner-quem-somos__img {
+		max-height: 34rem;
+	}
+}
+
+/* Mobile: empilha copy → mídia; sem crop nem scroll horizontal */
+@media (max-width: 767.98px) {
+	.banner-quem-somos-wrapper {
+		overflow-x: clip;
+		padding-block: 1rem 1.25rem;
+	}
+
+	.banner-quem-somos-wrapper .banner-quem-somos {
+		padding: 1.25rem 1rem;
+		margin-inline: 0;
+	}
+
+	.banner-quem-somos-wrapper .banner-quem-somos__media {
+		margin: 0;
+	}
+
+	.banner-quem-somos-wrapper .banner-quem-somos__img {
+		max-width: 18rem;
+		max-height: 18rem;
+		margin-inline: auto;
+		object-fit: contain;
+		object-position: bottom center;
+	}
+
+	.banner-quem-somos-wrapper .banner-quem-somos__ctas {
+		flex-wrap: wrap;
+	}
+
+	.banner-quem-somos-wrapper .banner-quem-somos__btn {
+		flex: 1 1 auto;
+	}
+}

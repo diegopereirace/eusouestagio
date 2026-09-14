@@ -516,6 +516,18 @@ display:
         type: none
         options:
           offset: 0
+      empty:
+        area_text_custom:
+          id: area_text_custom
+          table: views
+          field: area_text_custom
+          relationship: none
+          group_type: group
+          admin_label: 'Placeholder hero (sem banners)'
+          plugin_id: text_custom
+          empty: true
+          content: '<!-- home-hero -->'
+          tokenize: false
       arguments: {  }
       filters:
         status:
@@ -582,6 +594,7 @@ display:
       row:
         type: fields
       defaults:
+        empty: false
         css_class: false
         pager: false
         style: false
@@ -589,19 +602,6 @@ display:
         arguments: false
         filters: false
         filter_groups: false
-        empty: false
-      empty:
-        area_text_custom:
-          id: area_text_custom
-          table: views
-          field: area_text_custom
-          relationship: none
-          group_type: group
-          admin_label: 'Placeholder hero (sem banners)'
-          plugin_id: text_custom
-          empty: true
-          content: '<!-- home-hero -->'
-          tokenize: false
       css_class: css-banners-home
       display_description: 'Carrossel da home — local=home'
       display_extenders:
@@ -609,6 +609,110 @@ display:
           metatags: {  }
           tokenize: false
       block_description: 'Banners Home (carrossel)'
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - 'user.node_grants:view'
+        - user.permissions
+      tags:
+        - 'config:field.storage.node.field_imagem_desktop'
+        - 'config:field.storage.node.field_imagem_mobile'
+        - 'config:field.storage.node.field_peso'
+  block_quem_somos:
+    id: block_quem_somos
+    display_title: 'Banners Quem Somos'
+    display_plugin: block
+    position: 3
+    display_options:
+      pager:
+        type: some
+        options:
+          offset: 0
+          items_per_page: 1
+      empty: {  }
+      arguments: {  }
+      filters:
+        status:
+          id: status
+          table: node_field_data
+          field: status
+          entity_type: node
+          entity_field: status
+          plugin_id: boolean
+          value: '1'
+          group: 1
+          expose:
+            operator: ''
+        type:
+          id: type
+          table: node_field_data
+          field: type
+          entity_type: node
+          entity_field: type
+          plugin_id: bundle
+          value:
+            banners: banners
+          group: 1
+        field_local_exibicao_value:
+          id: field_local_exibicao_value
+          table: node__field_local_exibicao
+          field: field_local_exibicao_value
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: list_field
+          operator: or
+          value:
+            quem_somos: quem_somos
+          group: 1
+          exposed: false
+          expose:
+            operator_id: ''
+            label: ''
+            description: ''
+            use_operator: false
+            operator: ''
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: ''
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+            reduce: false
+          is_grouped: false
+          reduce_duplicates: false
+      filter_groups:
+        operator: AND
+        groups:
+          1: AND
+      style:
+        type: default
+        options:
+          row_class: ''
+          default_row_class: false
+          uses_fields: false
+      row:
+        type: fields
+      defaults:
+        empty: false
+        css_class: false
+        pager: false
+        style: false
+        row: false
+        arguments: false
+        filters: false
+        filter_groups: false
+      css_class: css-banners-quem-somos
+      display_description: 'Banner Quem Somos — local=quem_somos'
+      display_extenders:
+        metatag_display_extender:
+          metatags: {  }
+          tokenize: false
+      block_description: 'Banners Quem Somos'
     cache_metadata:
       max-age: -1
       contexts:

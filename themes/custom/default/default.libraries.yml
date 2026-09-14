@@ -42,6 +42,12 @@ banner_carousel:
     - core/drupal
     - core/once
     - default/bootstrap
+banner_quem_somos:
+  css:
+    component:
+      assets/css/banner-quem-somos.css: {}
+  dependencies:
+    - default/bootstrap
 hero_search:
   js:
     assets/js/hero-search.js: {}

@@ -163,6 +163,252 @@ function custom_configs_update_11012(): string {
 }
 
 /**
+ * Garante fields/displays do layout Sobre nós (bundle quem_somos) — defensivo.
+ *
+ * Instances: field_titulo, field_text_long_formatted, field_imagem.
+ * Displays: form + view default (Primeiro Bloco / content).
+ * Não altera conteúdo editorial do node.
+ * Deploy destino: git pull → drush cim -y → drush updb -y → drush cr
+ * (cim antes do updb — estrutura primária via config/sync).
+ */
+function custom_configs_update_11013(): string {
+  $messages = [
+    _custom_configs_ensure_quem_somos_sobre_nos_fields(),
+    _custom_configs_ensure_quem_somos_sobre_nos_displays(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Garante field instances do Primeiro Bloco em quem_somos (reusa storages).
+ */
+function _custom_configs_ensure_quem_somos_sobre_nos_fields(): string {
+  $bundle = 'quem_somos';
+  $fields = [
+    'field_titulo' => [
+      'label' => 'Título',
+      'required' => FALSE,
+      'settings' => [],
+    ],
+    'field_text_long_formatted' => [
+      'label' => 'Primeiro Texto',
+      'required' => TRUE,
+      'settings' => [
+        'allowed_formats' => ['basic_html', 'full_html'],
+      ],
+    ],
+    'field_imagem' => [
+      'label' => 'Imagem',
+      'required' => TRUE,
+      'settings' => [
+        'handler' => 'default:file',
+        'handler_settings' => [],
+        'file_directory' => 'quem-somos/imagem/[date:custom:Y]-[date:custom:m]',
+        'file_extensions' => 'png gif jpg jpeg webp',
+        'max_filesize' => '',
+        'max_resolution' => '',
+        'min_resolution' => '',
+        'alt_field' => TRUE,
+        'alt_field_required' => FALSE,
+        'title_field' => TRUE,
+        'title_field_required' => FALSE,
+        'default_image' => [
+          'uuid' => '',
+          'alt' => '',
+          'title' => '',
+          'width' => NULL,
+          'height' => NULL,
+        ],
+      ],
+    ],
+  ];
+
+  $created = [];
+  $missing_storage = [];
+
+  foreach ($fields as $field_name => $definition) {
+    $existing = \Drupal\field\Entity\FieldConfig::loadByName('node', $bundle, $field_name);
+    if ($existing) {
+      continue;
+    }
+
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('node', $field_name);
+    if (!$storage) {
+      $missing_storage[] = $field_name;
+      continue;
+    }
+
+    $field = \Drupal\field\Entity\FieldConfig::create([
+      'field_storage' => $storage,
+      'bundle' => $bundle,
+      'label' => $definition['label'],
+      'required' => $definition['required'],
+      'settings' => $definition['settings'],
+      'translatable' => FALSE,
+    ]);
+    $field->save();
+    $created[] = $field_name;
+  }
+
+  $parts = [];
+  if ($missing_storage) {
+    $parts[] = (string) t('Storages ausentes (@fields) — rode drush cim -y antes do updb.', [
+      '@fields' => implode(', ', $missing_storage),
+    ]);
+  }
+  if ($created) {
+    $parts[] = (string) t('Instances criadas em quem_somos: @fields.', [
+      '@fields' => implode(', ', $created),
+    ]);
+  }
+  if (!$parts) {
+    $parts[] = (string) t('Instances Sobre nós (quem_somos) já presentes.');
+  }
+
+  return implode(' ', $parts);
+}
+
+/**
+ * Garante form/view display default com campos do Primeiro Bloco visíveis.
+ */
+function _custom_configs_ensure_quem_somos_sobre_nos_displays(): string {
+  $bundle = 'quem_somos';
+  $field_names = ['field_titulo', 'field_text_long_formatted', 'field_imagem'];
+  $messages = [];
+
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null $form_display */
+  $form_display = \Drupal::entityTypeManager()
+    ->getStorage('entity_form_display')
+    ->load("node.$bundle.default");
+  if (!$form_display) {
+    $messages[] = (string) t('Form display node.quem_somos.default ausente — rode drush cim -y.');
+  }
+  else {
+    $form_changed = FALSE;
+    $form_defaults = [
+      'field_titulo' => [
+        'type' => 'string_textfield',
+        'weight' => 26,
+        'settings' => ['size' => 60, 'placeholder' => ''],
+      ],
+      'field_text_long_formatted' => [
+        'type' => 'text_textarea',
+        'weight' => 27,
+        'settings' => ['rows' => 5, 'placeholder' => ''],
+      ],
+      'field_imagem' => [
+        'type' => 'image_image',
+        'weight' => 28,
+        'settings' => [
+          'progress_indicator' => 'throbber',
+          'preview_image_style' => 'thumbnail',
+        ],
+      ],
+    ];
+    foreach ($field_names as $field_name) {
+      $component = $form_display->getComponent($field_name);
+      if ($component) {
+        continue;
+      }
+      $defaults = $form_defaults[$field_name];
+      $form_display->setComponent($field_name, [
+        'type' => $defaults['type'],
+        'weight' => $defaults['weight'],
+        'region' => 'content',
+        'settings' => $defaults['settings'],
+        'third_party_settings' => [],
+      ]);
+      $form_changed = TRUE;
+    }
+
+    // Garante field_group “Primeiro Bloco” inclui os três campos (se o grupo existir).
+    $tps = $form_display->getThirdPartySettings('field_group');
+    if (isset($tps['group_primeiro_bloco'])) {
+      $children = $tps['group_primeiro_bloco']['children'] ?? [];
+      $needed = $field_names;
+      $merged = array_values(array_unique(array_merge($children, $needed)));
+      if ($merged !== array_values($children)) {
+        $tps['group_primeiro_bloco']['children'] = $merged;
+        $tps['group_primeiro_bloco']['region'] = 'content';
+        $form_display->setThirdPartySetting('field_group', 'group_primeiro_bloco', $tps['group_primeiro_bloco']);
+        $form_changed = TRUE;
+      }
+    }
+
+    if ($form_changed) {
+      $form_display->save();
+      $messages[] = (string) t('Form display quem_somos atualizado (Primeiro Bloco).');
+    }
+    else {
+      $messages[] = (string) t('Form display quem_somos já ok.');
+    }
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null $view_display */
+  $view_display = \Drupal::entityTypeManager()
+    ->getStorage('entity_view_display')
+    ->load("node.$bundle.default");
+  if (!$view_display) {
+    $messages[] = (string) t('View display node.quem_somos.default ausente — rode drush cim -y.');
+  }
+  else {
+    $view_changed = FALSE;
+    $view_defaults = [
+      'field_titulo' => [
+        'type' => 'string',
+        'weight' => 104,
+        'settings' => ['link_to_entity' => FALSE],
+      ],
+      'field_text_long_formatted' => [
+        'type' => 'text_default',
+        'weight' => 1,
+        'settings' => [],
+      ],
+      'field_imagem' => [
+        'type' => 'image',
+        'weight' => 101,
+        'settings' => [
+          'image_link' => '',
+          'image_style' => '',
+          'image_loading' => ['attribute' => 'lazy'],
+        ],
+      ],
+    ];
+    foreach ($field_names as $field_name) {
+      $component = $view_display->getComponent($field_name);
+      if ($component) {
+        continue;
+      }
+      // Remover de hidden se estiver oculto.
+      $hidden = $view_display->get('hidden') ?: [];
+      if (isset($hidden[$field_name])) {
+        unset($hidden[$field_name]);
+        $view_display->set('hidden', $hidden);
+      }
+      $defaults = $view_defaults[$field_name];
+      $view_display->setComponent($field_name, [
+        'type' => $defaults['type'],
+        'label' => 'hidden',
+        'weight' => $defaults['weight'],
+        'region' => 'content',
+        'settings' => $defaults['settings'],
+        'third_party_settings' => [],
+      ]);
+      $view_changed = TRUE;
+    }
+    if ($view_changed) {
+      $view_display->save();
+      $messages[] = (string) t('View display quem_somos atualizado.');
+    }
+    else {
+      $messages[] = (string) t('View display quem_somos já ok.');
+    }
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
  * Garante allowed value quem_somos em field_local_exibicao (defensivo pós-cim).
  */
 function _custom_configs_ensure_local_exibicao_quem_somos(): string {

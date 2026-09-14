@@ -136,8 +136,23 @@ Atribuição no cadastro: forms de registro adicionam `candidato` ou `empresa` s
 | Vaga | `vagas` | Anúncio de estágio |
 | Candidatura | `candidatura` | Relação candidato ↔ vaga + status |
 | Banners | `banners` | Banners unificados (home + internas) |
-| Quem somos | `quem-somos` | Institucional |
+| Quem somos | `quem_somos` | Institucional |
 | Para empresas | `para-empresas` | Landing empresas |
+
+#### 3.1.0 `quem_somos` (página institucional / Sobre nós)
+
+Rota pública `/quem-somos`. Layout da **1ª seção** (“Sobre nós”): título + único corpo WYSIWYG contornando a imagem à direita (`float-md-end` em viewport ≥768px), com anel verde e círculo laranja no wrapper da foto (CSS). A 2ª seção (`*_2`) permanece em grid de duas colunas. Banner da página: ver §3.6 (`block_quem_somos`).
+
+| Campo | Tipo / uso |
+|-------|------------|
+| `field_titulo` | String — heading da 1ª seção |
+| `field_text_long_formatted` | Text long (HTML) — corpo único que envolve a imagem |
+| `field_imagem` | Image — foto ~432×269; float à direita em `md+` |
+| `field_titulo_2` | String — heading da 2ª seção |
+| `field_text_long_formatted_2` | Text long — corpo da 2ª seção |
+| `field_imagem_2` | Image — imagem da 2ª seção |
+
+Deploy defensivo: `custom_configs_update_11013` (ensure instances/displays; sem seed editorial). Tema: library `layout_sobre_nos` + Twig `node--quem-somos.html.twig`.
 
 #### 3.1.1 `vagas` (campos usados no tema/código)
 

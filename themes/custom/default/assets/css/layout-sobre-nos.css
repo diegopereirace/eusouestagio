@@ -1,0 +1,101 @@
+/**
+ * Layout “Sobre nós” — wrap texto + imagem (quem_somos).
+ * Tokens locais sob .sobre-nos (não muta --brand-orange global).
+ */
+
+.node--type-quem-somos .sobre-nos {
+	--sobre-nos-green: var(--brand-green, #5eb344);
+	--sobre-nos-orange: #fd7b1a;
+	font-family: Poppins, sans-serif;
+	/* Espaço para anel/círculo sem gerar scroll horizontal. */
+	padding-top: 3rem;
+	padding-right: 3.5rem;
+	padding-bottom: 1.25rem;
+	overflow-x: clip;
+}
+
+.node--type-quem-somos .sobre-nos__title {
+	font-family: Poppins, sans-serif;
+}
+
+.node--type-quem-somos .sobre-nos__media {
+	max-width: 432px;
+	z-index: 1;
+}
+
+.node--type-quem-somos .sobre-nos__img {
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 432 / 269;
+	object-fit: cover;
+	border-radius: 12px;
+	position: relative;
+	z-index: 2;
+}
+
+.node--type-quem-somos .sobre-nos__body {
+	font-family: Poppins, sans-serif;
+	color: #334155;
+	line-height: 1.6;
+}
+
+.node--type-quem-somos .sobre-nos__body p:last-child {
+	margin-bottom: 0;
+}
+
+/* Decorativos: anel verde (topo direito) + círculo laranja (canto inferior direito). */
+.node--type-quem-somos .sobre-nos__media::before {
+	content: '';
+	position: absolute;
+	width: 185px;
+	height: 185px;
+	border-radius: 50%;
+	border: 14px solid var(--sobre-nos-green);
+	background: transparent;
+	top: -48px;
+	right: -56px;
+	pointer-events: none;
+	z-index: 0;
+}
+
+.node--type-quem-somos .sobre-nos__media::after {
+	content: '';
+	position: absolute;
+	width: 72px;
+	height: 72px;
+	border-radius: 50%;
+	background: var(--sobre-nos-orange);
+	bottom: -18px;
+	right: -22px;
+	pointer-events: none;
+	z-index: 3;
+}
+
+@media (max-width: 767.98px) {
+	.node--type-quem-somos .sobre-nos {
+		overflow-x: clip;
+	}
+
+	.node--type-quem-somos .sobre-nos__media {
+		float: none;
+		max-width: 100%;
+		margin-inline: auto 0;
+		margin-bottom: 1rem;
+	}
+
+	.node--type-quem-somos .sobre-nos__media::before {
+		width: 120px;
+		height: 120px;
+		border-width: 10px;
+		top: -28px;
+		right: -24px;
+	}
+
+	.node--type-quem-somos .sobre-nos__media::after {
+		width: 48px;
+		height: 48px;
+		bottom: -10px;
+		right: -8px;
+	}
+}

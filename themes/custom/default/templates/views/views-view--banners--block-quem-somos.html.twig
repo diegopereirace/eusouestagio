@@ -1,0 +1,31 @@
+{#
+/**
+ * @file
+ * View banners / block_quem_somos — wrapper + library.
+ *
+ * Omite markup quando não há rows (SC-007).
+ */
+#}
+{%
+  set classes = [
+    'view',
+    'view-' ~ id|clean_class,
+    'view-id-' ~ id,
+    'view-display-id-' ~ display_id,
+    'block-banner-quem-somos',
+    dom_id ? 'js-view-dom-id-' ~ dom_id,
+  ]
+%}
+
+{{ attach_library('default/banner_quem_somos') }}
+
+{% if rows %}
+  <div{{ attributes.addClass(classes) }}>
+    {{ title_prefix }}
+    {% if title %}
+      {{ title }}
+    {% endif %}
+    {{ title_suffix }}
+    {{ rows }}
+  </div>
+{% endif %}

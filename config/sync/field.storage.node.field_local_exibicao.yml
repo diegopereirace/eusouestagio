@@ -17,6 +17,9 @@ settings:
     -
       value: internas
       label: Internas
+    -
+      value: quem_somos
+      label: 'Quem Somos'
   allowed_values_function: ''
 module: options
 locked: false

@@ -145,6 +145,144 @@ function custom_configs_update_11011(): string {
 }
 
 /**
+ * Seed idempotente do banner Quem Somos (UUID fixo) + allowed value defensivo.
+ *
+ * UUID: e9f0a1b2-c3d4-4e5f-8690-1234567890ab
+ * Local: field_local_exibicao = quem_somos
+ * Asset: modules/custom/custom_configs/assets/banner-quem-somos/quem-somos-img.png
+ * Deploy destino: git pull → drush cim -y → drush updb -y → drush cr
+ * (cim antes do updb — display/placement/allowed value via config/sync).
+ */
+function custom_configs_update_11012(): string {
+  $messages = [
+    _custom_configs_ensure_local_exibicao_quem_somos(),
+    _custom_configs_seed_banner_quem_somos(),
+    _custom_configs_ensure_block1_without_quem_somos(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Garante allowed value quem_somos em field_local_exibicao (defensivo pós-cim).
+ */
+function _custom_configs_ensure_local_exibicao_quem_somos(): string {
+  /** @var \Drupal\field\FieldStorageConfigInterface|null $storage */
+  $storage = \Drupal::entityTypeManager()
+    ->getStorage('field_storage_config')
+    ->load('node.field_local_exibicao');
+  if (!$storage) {
+    return (string) t('field_local_exibicao ausente — rode drush cim -y antes do updb.');
+  }
+
+  $settings = $storage->getSetting('allowed_values') ?: [];
+
+  // Formato canônico em runtime: mapa value => label.
+  if (isset($settings['quem_somos'])) {
+    return (string) t('Allowed value quem_somos já presente.');
+  }
+
+  // Formato de export YAML (lista de value/label) — só leitura defensiva.
+  foreach ($settings as $item) {
+    if (is_array($item) && ($item['value'] ?? '') === 'quem_somos') {
+      return (string) t('Allowed value quem_somos já presente.');
+    }
+  }
+
+  $settings['quem_somos'] = 'Quem Somos';
+  $storage->setSetting('allowed_values', $settings);
+  $storage->save();
+
+  return (string) t('Allowed value quem_somos adicionado a field_local_exibicao.');
+}
+
+/**
+ * Cria node banners Quem Somos com imagem seed se ainda não existir.
+ */
+function _custom_configs_seed_banner_quem_somos(): string {
+  $uuid = 'e9f0a1b2-c3d4-4e5f-8690-1234567890ab';
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+
+  $by_uuid = $storage->loadByProperties(['uuid' => $uuid]);
+  if ($by_uuid) {
+    return (string) t('Banner Quem Somos (@uuid) já existe — seed ignorado.', ['@uuid' => $uuid]);
+  }
+
+  $existing_local = $storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('type', 'banners')
+    ->condition('field_local_exibicao', 'quem_somos')
+    ->range(0, 1)
+    ->execute();
+  if ($existing_local) {
+    return (string) t('Já existe banner com local=quem_somos — seed ignorado.');
+  }
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('node');
+  if (!isset($bundle_info['banners'])) {
+    return (string) t('Bundle banners ausente — rode drush cim -y antes do updb.');
+  }
+
+  /** @var \Drupal\node\NodeInterface $node */
+  $node = $storage->create([
+    'type' => 'banners',
+    'uuid' => $uuid,
+    'title' => 'Banner Quem Somos',
+    'status' => 1,
+    'uid' => 1,
+    'field_local_exibicao' => 'quem_somos',
+    'field_peso' => 0,
+  ]);
+  $node->save();
+
+  $file = _custom_configs_seed_file_from_module_asset(
+    'banner-quem-somos/quem-somos-img.png',
+    'public://banners/quem-somos/quem-somos-img.png',
+    'node',
+    (int) $node->id()
+  );
+  if (!$file) {
+    return (string) t('Node Quem Somos (@uuid) criado sem imagem — asset ausente.', ['@uuid' => $uuid]);
+  }
+
+  if ($node->hasField('field_imagem_desktop') && $node->get('field_imagem_desktop')->isEmpty()) {
+    $node->set('field_imagem_desktop', [
+      'target_id' => $file->id(),
+      'alt' => 'Mulher com prancheta — Eu Sou Estágio',
+    ]);
+    $node->save();
+  }
+
+  return (string) t('Banner Quem Somos seed criado (@uuid).', ['@uuid' => $uuid]);
+}
+
+/**
+ * Remove /quem-somos das pages do bloco legado banners-block_1 se ainda listado.
+ */
+function _custom_configs_ensure_block1_without_quem_somos(): string {
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = \Drupal::entityTypeManager()
+    ->getStorage('block')
+    ->load('default_views_block__banners_block_1');
+  if (!$block) {
+    return '';
+  }
+
+  $visibility = $block->getVisibility();
+  $pages = (string) ($visibility['request_path']['pages'] ?? '');
+  if ($pages === '' || !str_contains($pages, '/quem-somos')) {
+    return (string) t('Bloco legado banners-block_1 já sem /quem-somos.');
+  }
+
+  $lines = preg_split('/\r\n|\r|\n/', $pages) ?: [];
+  $filtered = array_values(array_filter($lines, static fn(string $line): bool => trim($line) !== '/quem-somos'));
+  $visibility['request_path']['pages'] = implode("\r\n", $filtered);
+  $block->setVisibilityConfig('request_path', $visibility['request_path']);
+  $block->save();
+
+  return (string) t('Removido /quem-somos do bloco legado banners-block_1.');
+}
+
+/**
  * Cria block_content nossos_diferenciais + 3 itens de referência (FR-013).
  */
 function _custom_configs_seed_nossos_diferenciais(): string {

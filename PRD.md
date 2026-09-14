@@ -164,7 +164,7 @@ Tipo único de banners do site (absorve o legado `banner_internas` e o antigo bl
 |-------|------------|
 | `field_imagem_desktop` | Image (obrigatório; alt obrigatório) |
 | `field_imagem_mobile` | Image (opcional; fallback para desktop) |
-| `field_local_exibicao` | list_string obrigatório: `home` \| `internas` |
+| `field_local_exibicao` | list_string obrigatório: `home` \| `internas` \| `quem_somos` |
 | `field_peso` | Integer obrigatório (default 0); quanto menor, mais cedo aparece |
 
 Legado removido: `node.type.banner_internas` e block type `banner` (Release 2 / 2b).
@@ -232,10 +232,11 @@ Paragraphs de layout em blocos/páginas (`field_icon_title_text_p`, `field_itens
 
 ### 3.6 Block content / Views (produto)
 
-- View `banners`: display `block_home` (carrossel home, `field_local_exibicao=home`) + `block_1`/`block_2`/`block_3` (internas).
+- View `banners`: display `block_home` (carrossel home, `field_local_exibicao=home`) + `block_1`/`block_2`/`block_3` (internas) + `block_quem_somos` (`field_local_exibicao=quem_somos`, região `banner`, pages só `/quem-somos`; `block_1` sem `/quem-somos`).
 - View `vagas` `page_1` (`/para-estudantes`): filtros expostos `nid`, `cursos`, `estado`, `cidade`, `escolaridade`, `regime`.
 - Bloco plugin `custom_banners_hero_search` (região `highlighted`, somente `<front>`).
 - View `banners` display `block_home` (região `banner`, `<front>`): carrossel `#banner-carousel-home-slides` **full-bleed** na região; texto do hero (título/CTA/contatos) **contido no banner** via overlay — não ao lado da imagem. Detalhe operacional: regra `.cursor/rules/estagio-banner-home.mdc` (sob demanda).
+- View `banners` display `block_quem_somos` (região `banner`, `/quem-somos`): caixa branca bipartida (copy/CTAs fixos no Twig + imagem editorial); seed idempotente `custom_configs_update_11012` (UUID `e9f0a1b2-c3d4-4e5f-8690-1234567890ab`; asset `modules/custom/custom_configs/assets/banner-quem-somos/quem-somos-img.png`).
 - Tema `default`: regiões `sidebar_painel`, `painel_page_header`.
 - Bloco `nossa_metodologia` (`block_content`): título (`field_text_simple`), subtítulo (`field_text_simple_long`), etapas superiores (`field_image` multi), passos (`field_metodologia_passos` → paragraph `metodologia_passo_p` com ícone + título); placement `default_nossametodologia` em `content_full`, weight `-3`, somente `<front>` (após `nossos_diferenciais` weight `-4`); seed idempotente `custom_configs_update_11005` (bloco) + `11006` (títulos dos passos) + `11007` (imagens versionadas em `modules/custom/custom_configs/assets/nossa-metodologia/`, só se campos vazios); UUID `1f9b40ca-aa77-4e7e-a450-5aa94888e274`.
 - Bloco `o_que_fazemos_bt` (`block_content`): título (`field_text_simple`), descrição (`field_text_simple_long`), cards (`field_o_que_fazemos_itens` cardinality 3 → paragraph `o_que_fazemos_item_p` com título + `field_text_simple_multiple` itens ilimitados); card do meio em duas colunas no front; cores por CSS (navy/green/orange); placement `default_oquefazemos` em `content_full`, weight `-2`, somente `<front>` (após `nossa_metodologia` weight `-3`); seed idempotente `custom_configs_update_11008`; UUID `a7c3e9f1-2b4d-4e8a-9c6f-1d2e3f4a5b6c`.

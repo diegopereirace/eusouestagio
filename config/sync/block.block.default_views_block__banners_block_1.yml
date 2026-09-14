@@ -27,4 +27,4 @@ visibility:
   request_path:
     id: request_path
     negate: false
-    pages: "/para-estudantes\r\n/para-empresas\r\n/contato\r\n/quem-somos"
+    pages: "/para-estudantes\r\n/para-empresas\r\n/contato"

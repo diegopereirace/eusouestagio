@@ -119,6 +119,53 @@ function default_preprocess_views_view__banners__block_home(array &$variables): 
 }
 
 /**
+ * Implements hook_preprocess_HOOK() for View banners block_quem_somos.
+ *
+ * Monta banner_media (URI crua — preserva alpha PNG) a partir do 1º row.
+ */
+function default_preprocess_views_view_unformatted__banners__block_quem_somos(array &$variables): void
+{
+  $variables['banner_media'] = NULL;
+
+  /** @var \Drupal\views\ViewExecutable|null $view */
+  $view = $variables['view'] ?? NULL;
+  if (!$view || empty($view->result)) {
+    return;
+  }
+
+  /** @var \Drupal\node\NodeInterface|null $node */
+  $node = $view->result[0]->_entity ?? NULL;
+  if (!$node || !$node->hasField('field_imagem_desktop') || $node->get('field_imagem_desktop')->isEmpty()) {
+    return;
+  }
+
+  $desktop_item = $node->get('field_imagem_desktop')->first();
+  if (empty($desktop_item->entity)) {
+    return;
+  }
+
+  $desktop_uri = $desktop_item->entity->getFileUri();
+  if (!$desktop_uri) {
+    return;
+  }
+
+  $mobile_uri = $desktop_uri;
+  if ($node->hasField('field_imagem_mobile') && !$node->get('field_imagem_mobile')->isEmpty()) {
+    $mobile_item = $node->get('field_imagem_mobile')->first();
+    if (!empty($mobile_item->entity)) {
+      $mobile_uri = $mobile_item->entity->getFileUri() ?: $desktop_uri;
+    }
+  }
+
+  $file_url_generator = \Drupal::service('file_url_generator');
+  $variables['banner_media'] = [
+    'desktop' => $file_url_generator->generateString($desktop_uri),
+    'mobile' => $file_url_generator->generateString($mobile_uri),
+    'alt' => (string) ($desktop_item->alt ?? $node->label()),
+  ];
+}
+
+/**
  * Implements hook_preprocess_node() for vagas nodes.
  *
  * Verifica se a vaga já está salva pelo estudante logado.

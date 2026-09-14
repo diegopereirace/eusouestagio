@@ -7,6 +7,10 @@
 
 declare(strict_types=1);
 
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element;
+use Drupal\node\NodeInterface;
+
 /**
  * Implements hook_theme().
  */
@@ -22,4 +26,93 @@ function custom_banners_theme($existing, $type, $theme, $path): array {
       'path' => $path . '/templates',
     ],
   ];
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter() for node forms.
+ *
+ * When Local de exibição = Quem Somos, hide Peso and Imagem Mobile; mobile
+ * stays required for Home/Internas via entity constraints, but those errors
+ * are cleared for Quem Somos (single desktop image).
+ */
+function custom_banners_form_node_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
+  $form_object = $form_state->getFormObject();
+  if (!method_exists($form_object, 'getEntity')) {
+    return;
+  }
+  $entity = $form_object->getEntity();
+  if (!$entity instanceof NodeInterface || $entity->bundle() !== 'banners') {
+    return;
+  }
+
+  $local_selector = ':input[name="field_local_exibicao[0][value]"]';
+  $hide_for_quem_somos = [
+    'invisible' => [
+      $local_selector => ['value' => 'quem_somos'],
+    ],
+  ];
+
+  foreach (['field_peso', 'field_imagem_mobile'] as $field_name) {
+    if (isset($form[$field_name])) {
+      $form[$field_name]['#states'] = $hide_for_quem_somos;
+    }
+  }
+
+  // Avoid HTML5/browser required on a field that may be hidden.
+  if (isset($form['field_imagem_mobile']['widget'])) {
+    _custom_banners_set_widget_required($form['field_imagem_mobile']['widget'], FALSE);
+  }
+
+  $form['#entity_builders'][] = 'custom_banners_banners_node_entity_builder';
+  $form['#validate'][] = 'custom_banners_banners_node_form_validate';
+}
+
+/**
+ * Sets #required on a field widget and its deltas.
+ */
+function _custom_banners_set_widget_required(array &$widget, bool $required): void {
+  $widget['#required'] = $required;
+  foreach (Element::children($widget) as $delta) {
+    $widget[$delta]['#required'] = $required;
+  }
+}
+
+/**
+ * Entity builder: default weight for Quem Somos when the field is hidden.
+ */
+function custom_banners_banners_node_entity_builder(string $entity_type, NodeInterface $node, array &$form, FormStateInterface $form_state): void {
+  $local = $form_state->getValue(['field_local_exibicao', 0, 'value']);
+  if ($local !== 'quem_somos') {
+    return;
+  }
+  if ($node->hasField('field_peso') && $node->get('field_peso')->isEmpty()) {
+    $node->set('field_peso', 0);
+  }
+}
+
+/**
+ * Clears required errors for Imagem Mobile when local is Quem Somos.
+ *
+ * Home/Internas keep the field-config required constraint; only Quem Somos
+ * is allowed to save with desktop image alone.
+ */
+function custom_banners_banners_node_form_validate(array &$form, FormStateInterface $form_state): void {
+  $local = $form_state->getValue(['field_local_exibicao', 0, 'value']);
+  if ($local !== 'quem_somos') {
+    return;
+  }
+
+  $errors = $form_state->getErrors();
+  if ($errors === []) {
+    return;
+  }
+
+  $form_state->clearErrors();
+  foreach ($errors as $name => $message) {
+    $name_str = (string) $name;
+    if (str_starts_with($name_str, 'field_imagem_mobile')) {
+      continue;
+    }
+    $form_state->setErrorByName($name_str, $message);
+  }
 }

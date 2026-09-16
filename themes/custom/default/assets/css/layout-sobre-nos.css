@@ -40,6 +40,16 @@
 	line-height: 1.6;
 }
 
+/* ponytail: WYSIWYG colado do Word/Google Docs injeta font-family/color inline
+ * (maior especificidade que qualquer seletor de classe). Força a tipografia da
+ * marca nos descendentes; teto: não normaliza font-size/negrito colados — se
+ * isso voltar a divergir do Figma, tratar na origem (reeditar o conteúdo). */
+.node--type-quem-somos .sobre-nos__body,
+.node--type-quem-somos .sobre-nos__body * {
+	font-family: Poppins, sans-serif !important;
+	color: #334155 !important;
+}
+
 .node--type-quem-somos .sobre-nos__body p:last-child {
 	margin-bottom: 0;
 }
@@ -62,12 +72,13 @@
 .node--type-quem-somos .sobre-nos__media::after {
 	content: '';
 	position: absolute;
-	width: 72px;
-	height: 72px;
+	width: 64px;
+	height: 64px;
 	border-radius: 50%;
 	background: var(--sobre-nos-orange);
-	bottom: -18px;
-	right: -22px;
+	/* Centro do círculo ~78% da largura (não no canto) e sobre a borda inferior da imagem. */
+	bottom: -20px;
+	right: 15%;
 	pointer-events: none;
 	z-index: 3;
 }
@@ -93,9 +104,9 @@
 	}
 
 	.node--type-quem-somos .sobre-nos__media::after {
-		width: 48px;
-		height: 48px;
-		bottom: -10px;
-		right: -8px;
+		width: 44px;
+		height: 44px;
+		bottom: -14px;
+		right: 15%;
 	}
 }

@@ -4,11 +4,11 @@ status: true
 dependencies:
   config:
     - field.field.node.quem_somos.field_imagem
-    - field.field.node.quem_somos.field_imagem_2
+    - field.field.node.quem_somos.field_imagem_desktop
     - field.field.node.quem_somos.field_text_long_formatted
-    - field.field.node.quem_somos.field_text_long_formatted_2
+    - field.field.node.quem_somos.field_text_simple_long
+    - field.field.node.quem_somos.field_text_simple_long_2
     - field.field.node.quem_somos.field_titulo
-    - field.field.node.quem_somos.field_titulo_2
     - node.type.quem_somos
   module:
     - image
@@ -30,7 +30,7 @@ content:
     third_party_settings: {  }
     weight: 101
     region: content
-  field_imagem_2:
+  field_imagem_desktop:
     type: image
     label: hidden
     settings:
@@ -39,7 +39,7 @@ content:
       image_loading:
         attribute: lazy
     third_party_settings: {  }
-    weight: 103
+    weight: 106
     region: content
   field_text_long_formatted:
     type: text_default
@@ -48,12 +48,19 @@ content:
     third_party_settings: {  }
     weight: 1
     region: content
-  field_text_long_formatted_2:
-    type: text_default
+  field_text_simple_long:
+    type: basic_string
     label: hidden
     settings: {  }
     third_party_settings: {  }
-    weight: 102
+    weight: 107
+    region: content
+  field_text_simple_long_2:
+    type: basic_string
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 108
     region: content
   field_titulo:
     type: string
@@ -62,14 +69,6 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     weight: 104
-    region: content
-  field_titulo_2:
-    type: string
-    label: hidden
-    settings:
-      link_to_entity: false
-    third_party_settings: {  }
-    weight: 105
     region: content
   links:
     settings: {  }

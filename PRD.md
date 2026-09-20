@@ -141,18 +141,18 @@ Atribuição no cadastro: forms de registro adicionam `candidato` ou `empresa` s
 
 #### 3.1.0 `quem_somos` (página institucional / Sobre nós)
 
-Rota pública `/quem-somos`. Layout da **1ª seção** (“Sobre nós”): título + único corpo WYSIWYG contornando a imagem à direita (`float-md-end` em viewport ≥768px), com anel verde e círculo laranja no wrapper da foto (CSS). A 2ª seção (`*_2`) permanece em grid de duas colunas. Banner da página: ver §3.6 (`block_quem_somos`). Faixa Missão/Visão abaixo do node: ver §3.6 (`missao_visao`).
+Rota pública `/quem-somos`. Layout da **1ª seção** (“Sobre nós”): título + único corpo WYSIWYG contornando a imagem à direita (`float-md-end` em viewport ≥768px), com anel verde e círculo laranja no wrapper da foto (CSS). Banner da página: ver §3.6 (`block_quem_somos`). Faixa Missão | Visão: fields no próprio Node (`group_missao_visao`); placement do bloco `missao_visao` desabilitado nessa rota (ver §3.6).
 
 | Campo | Tipo / uso |
 |-------|------------|
 | `field_titulo` | String — heading da 1ª seção |
 | `field_text_long_formatted` | Text long (HTML) — corpo único que envolve a imagem |
 | `field_imagem` | Image — foto ~432×269; float à direita em `md+` |
-| `field_titulo_2` | String — heading da 2ª seção |
-| `field_text_long_formatted_2` | Text long — corpo da 2ª seção |
-| `field_imagem_2` | Image — imagem da 2ª seção |
+| `field_imagem_desktop` | Image — fundo da seção Missão e Visão (cover) |
+| `field_text_simple_long` | String long — corpo “Nossa Missão” (título H2 fixo no Twig) |
+| `field_text_simple_long_2` | String long — corpo “Nossa Visão” (título H2 fixo no Twig) |
 
-Deploy defensivo: `custom_configs_update_11013` (ensure instances/displays; sem seed editorial). Tema: library `layout_sobre_nos` + Twig `node--quem-somos.html.twig`.
+Deploy: `custom_configs_update_11013` (Sobre nós) + `custom_configs_update_11015` (Missão/Visão no Node: remove legado `*_2`, ensure fields/displays/`group_missao_visao`, seed condicional, disable `default_missaovisao`). Tema: libraries `layout_sobre_nos` + `quem_somos_missao_visao`; Twig `node--quem-somos.html.twig`.
 
 #### 3.1.1 `vagas` (campos usados no tema/código)
 
@@ -252,7 +252,7 @@ Paragraphs de layout em blocos/páginas (`field_icon_title_text_p`, `field_itens
 - Bloco plugin `custom_banners_hero_search` (região `highlighted`, somente `<front>`).
 - View `banners` display `block_home` (região `banner`, `<front>`): carrossel `#banner-carousel-home-slides` **full-bleed** na região; texto do hero (título/CTA/contatos) **contido no banner** via overlay — não ao lado da imagem. Detalhe operacional: regra `.cursor/rules/estagio-banner-home.mdc` (sob demanda).
 - View `banners` display `block_quem_somos` (região `banner`, `/quem-somos`): caixa branca bipartida (copy/CTAs fixos no Twig + imagem editorial); seed idempotente `custom_configs_update_11012` (UUID `e9f0a1b2-c3d4-4e5f-8690-1234567890ab`; asset `modules/custom/custom_configs/assets/banner-quem-somos/quem-somos-img.png`).
-- Bloco `missao_visao` (`block_content`): imagem de fundo (`field_image`), itens (`field_itens_lista` cardinality 2 → paragraph `missao_visao_item_p` com `field_text_simple` + `field_text_simple_long`); faixa full-width com overlay e duas colunas Missão | Visão; placement `default_missaovisao` em `content_full`, weight `0`, somente `/quem-somos`; seed idempotente `custom_configs_update_11014` (UUID `b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e`; asset `modules/custom/custom_configs/assets/missao-visao/fundo-missao-visao.jpg`).
+- Bloco `missao_visao` (`block_content`): tipos/conteúdo seed da feature 011 permanecem; **placement `default_missaovisao` desabilitado** em `/quem-somos` (faixa pública passou para o Node — §3.1.0). Seed histórico `custom_configs_update_11014`; aposentadoria na rota via `custom_configs_update_11015` (UUID bloco `b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e`; asset `modules/custom/custom_configs/assets/missao-visao/fundo-missao-visao.jpg` reutilizado no seed do Node).
 - Tema `default`: regiões `sidebar_painel`, `painel_page_header`.
 - Bloco `nossa_metodologia` (`block_content`): título (`field_text_simple`), subtítulo (`field_text_simple_long`), etapas superiores (`field_image` multi), passos (`field_metodologia_passos` → paragraph `metodologia_passo_p` com ícone + título); placement `default_nossametodologia` em `content_full`, weight `-3`, somente `<front>` (após `nossos_diferenciais` weight `-4`); seed idempotente `custom_configs_update_11005` (bloco) + `11006` (títulos dos passos) + `11007` (imagens versionadas em `modules/custom/custom_configs/assets/nossa-metodologia/`, só se campos vazios); UUID `1f9b40ca-aa77-4e7e-a450-5aa94888e274`.
 - Bloco `o_que_fazemos_bt` (`block_content`): título (`field_text_simple`), descrição (`field_text_simple_long`), cards (`field_o_que_fazemos_itens` cardinality 3 → paragraph `o_que_fazemos_item_p` com título + `field_text_simple_multiple` itens ilimitados); card do meio em duas colunas no front; cores por CSS (navy/green/orange); placement `default_oquefazemos` em `content_full`, weight `-2`, somente `<front>` (após `nossa_metodologia` weight `-3`); seed idempotente `custom_configs_update_11008`; UUID `a7c3e9f1-2b4d-4e8a-9c6f-1d2e3f4a5b6c`.

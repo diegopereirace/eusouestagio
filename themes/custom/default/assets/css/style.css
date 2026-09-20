@@ -18,19 +18,25 @@
 	--feedback-muted: #667a8f;
 }
 
-/* Garante o modal acima do backdrop (body) e da toolbar admin. */
+/*
+ * Modal de status acima de toolbar (1250), WhatsApp (1050) e LGPD (2000).
+ * z-index também é reforçado via JS em status-messages.html.twig.
+ */
 .app-feedback-modal {
-	--bs-modal-zindex: 2005;
-	z-index: 2005;
+	--bs-modal-zindex: 10505;
+	z-index: 10505 !important;
 }
 
-body:has(.app-feedback-modal.show) > .modal-backdrop {
-	--bs-backdrop-zindex: 2000;
-	z-index: 2000;
+body:has(.app-feedback-modal) > .modal-backdrop {
+	--bs-backdrop-zindex: 10500;
+	z-index: 10500 !important;
 }
 
 .app-feedback-modal .modal-dialog {
 	max-width: 520px;
+	pointer-events: auto;
+	position: relative;
+	z-index: 1;
 }
 
 .app-feedback-modal__content {

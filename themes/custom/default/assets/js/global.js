@@ -228,4 +228,40 @@
       }
     },
   };
+
+  /**
+   * Remove backdrop Bootstrap órfão (ex.: após cache clear / BigPipe) que
+   * deixa a página com overlay e sem modal clicável.
+   */
+  function purgeOrphanModalBackdrops() {
+    if (document.querySelector('.modal.show, .app-feedback-modal.show')) {
+      return;
+    }
+
+    const orphans = document.querySelectorAll('.modal-backdrop');
+    if (!orphans.length && !document.body.classList.contains('modal-open')) {
+      return;
+    }
+
+    orphans.forEach((backdrop) => backdrop.remove());
+    document.body.classList.remove('modal-open');
+    document.body.style.removeProperty('overflow');
+    document.body.style.removeProperty('padding-right');
+  }
+
+  Drupal.behaviors.defaultPurgeOrphanModalBackdrops = {
+    attach(context) {
+      if (context !== document) {
+        return;
+      }
+
+      once('purge-orphan-modal-backdrops', 'body', context).forEach(() => {
+        purgeOrphanModalBackdrops();
+        window.addEventListener('load', purgeOrphanModalBackdrops, { once: true });
+        // BigPipe / mensagem tardia: se o modal sumir e o backdrop ficar, libera.
+        window.setTimeout(purgeOrphanModalBackdrops, 1500);
+        window.setTimeout(purgeOrphanModalBackdrops, 4000);
+      });
+    },
+  };
 })(Drupal, drupalSettings, once);

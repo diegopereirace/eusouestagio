@@ -1,0 +1,21 @@
+uuid: e34e1619-992a-4585-b6a8-3d0379fd4bf1
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_local_exibicao
+    - node.type.banners
+  module:
+    - options
+id: node.banners.field_local_exibicao
+field_name: field_local_exibicao
+entity_type: node
+bundle: banners
+label: 'Local de exibição'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

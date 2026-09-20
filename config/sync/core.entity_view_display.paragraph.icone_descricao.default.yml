@@ -1,0 +1,35 @@
+uuid: c778364f-6aee-48b4-b135-1a503c9432fc
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.icone_descricao.field_image
+    - field.field.paragraph.icone_descricao.field_text_simple
+    - paragraphs.paragraphs_type.icone_descricao
+  module:
+    - image
+id: paragraph.icone_descricao.default
+targetEntityType: paragraph
+bundle: icone_descricao
+mode: default
+content:
+  field_image:
+    type: image
+    label: hidden
+    settings:
+      image_link: ''
+      image_style: ''
+      image_loading:
+        attribute: lazy
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_text_simple:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 1
+    region: content
+hidden: {  }

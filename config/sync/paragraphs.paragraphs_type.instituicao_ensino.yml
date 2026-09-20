@@ -1,0 +1,10 @@
+uuid: d0af13af-88db-495f-a30d-4de120c8babe
+langcode: pt-br
+status: true
+dependencies: {  }
+id: instituicao_ensino
+label: 'Instituição de Ensino'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }

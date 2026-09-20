@@ -1,0 +1,11 @@
+uuid: afdc5890-81ed-4e85-bcd3-bd3670369152
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - node.type.quem_somos
+id: node.quem_somos
+target_entity_type_id: node
+target_bundle: quem_somos
+default_langcode: site_default
+language_alterable: false

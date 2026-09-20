@@ -1,0 +1,31 @@
+uuid: 42379105-615f-4c99-bf99-6cd541c4ba0e
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.destaque
+    - field.storage.block_content.field_icon_title_text_p
+    - paragraphs.paragraphs_type.icone_titulo_descricao
+  module:
+    - entity_reference_revisions
+id: block_content.destaque.field_icon_title_text_p
+field_name: field_icon_title_text_p
+entity_type: block_content
+bundle: destaque
+label: Itens
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      icone_titulo_descricao: icone_titulo_descricao
+    negate: 0
+    target_bundles_drag_drop:
+      icone_titulo_descricao:
+        weight: 2
+        enabled: true
+field_type: entity_reference_revisions

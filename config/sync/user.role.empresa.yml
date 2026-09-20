@@ -1,0 +1,21 @@
+uuid: 0c5963c1-ca43-492a-a1fc-7c34744e63a4
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - filter.format.full_html
+    - filter.format.restricted_html
+    - node.type.vagas
+  module:
+    - filter
+    - node
+id: empresa
+label: Empresa
+weight: 5
+is_admin: false
+permissions:
+  - 'create vagas content'
+  - 'delete own vagas content'
+  - 'edit own vagas content'
+  - 'use text format full_html'
+  - 'use text format restricted_html'

@@ -1,0 +1,10 @@
+uuid: d7f39f74-046a-48fa-a48d-d2d501a22e22
+langcode: pt-br
+status: true
+dependencies: {  }
+id: icone_titulo_descricao
+label: 'Icone + Titulo + Descrição'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }

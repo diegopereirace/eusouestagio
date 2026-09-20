@@ -1,0 +1,38 @@
+uuid: 9878067e-2578-4b91-a377-117e9a05b4b2
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.cto
+    - field.storage.block_content.field_image
+  module:
+    - image
+id: block_content.cto.field_image
+field_name: field_image
+entity_type: block_content
+bundle: cto
+label: 'Imagem Desktop'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: 'block/banner/image-desktop/[date:custom:Y]-[date:custom:m]'
+  file_extensions: 'png gif jpg jpeg webp'
+  max_filesize: ''
+  max_resolution: ''
+  min_resolution: ''
+  alt_field: true
+  alt_field_required: false
+  title_field: true
+  title_field_required: false
+  default_image:
+    uuid: ''
+    alt: ''
+    title: ''
+    width: null
+    height: null
+field_type: image

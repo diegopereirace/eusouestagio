@@ -1,0 +1,21 @@
+uuid: cc01c19f-d83f-4858-86e5-b992c364beef
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - entity_reference_revisions
+    - paragraphs
+    - user
+id: user.field_experiencias_profissionais
+field_name: field_experiencias_profissionais
+entity_type: user
+type: entity_reference_revisions
+settings:
+  target_type: paragraph
+module: entity_reference_revisions
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

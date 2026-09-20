@@ -1,0 +1,19 @@
+uuid: f5a6b7c8-d9e0-4123-f456-789abcdef012
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.o_que_fazemos_bt
+    - field.storage.block_content.field_text_simple
+id: block_content.o_que_fazemos_bt.field_text_simple
+field_name: field_text_simple
+entity_type: block_content
+bundle: o_que_fazemos_bt
+label: 'Título da seção'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

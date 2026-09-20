@@ -1,0 +1,21 @@
+uuid: e4f5a6b7-c8d9-4012-e345-6789abcdef01
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - paragraphs
+id: paragraph.field_text_simple_multiple
+field_name: field_text_simple_multiple
+entity_type: paragraph
+type: string
+settings:
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

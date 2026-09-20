@@ -1,0 +1,19 @@
+uuid: d9e0f1a2-b3c4-4567-d890-bcdef0123456
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_text_simple_multiple
+    - paragraphs.paragraphs_type.o_que_fazemos_item_p
+id: paragraph.o_que_fazemos_item_p.field_text_simple_multiple
+field_name: field_text_simple_multiple
+entity_type: paragraph
+bundle: o_que_fazemos_item_p
+label: Itens
+description: 'Lista ilimitada de itens do card.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

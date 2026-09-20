@@ -1,0 +1,69 @@
+uuid: 21c20715-9f1f-4ddc-a7ca-6f0e91922d8c
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.experiencia_profissional.field_atividades
+    - field.field.paragraph.experiencia_profissional.field_cargo
+    - field.field.paragraph.experiencia_profissional.field_data_inicio
+    - field.field.paragraph.experiencia_profissional.field_data_termino
+    - field.field.paragraph.experiencia_profissional.field_nome_empresa
+    - field.field.paragraph.experiencia_profissional.field_regime_contrato
+    - paragraphs.paragraphs_type.experiencia_profissional
+  module:
+    - datetime
+    - options
+id: paragraph.experiencia_profissional.default
+targetEntityType: paragraph
+bundle: experiencia_profissional
+mode: default
+content:
+  field_atividades:
+    type: basic_string
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 6
+    region: content
+  field_cargo:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_data_inicio:
+    type: datetime_default
+    label: above
+    settings:
+      timezone_override: ''
+      format_type: medium
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_data_termino:
+    type: datetime_default
+    label: above
+    settings:
+      timezone_override: ''
+      format_type: medium
+    third_party_settings: {  }
+    weight: 3
+    region: content
+  field_nome_empresa:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_regime_contrato:
+    type: list_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 5
+    region: content
+hidden: {  }

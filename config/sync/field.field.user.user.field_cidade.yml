@@ -1,0 +1,20 @@
+uuid: 24c77f70-34d7-4abf-88d0-ef4ba98bf6f4
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_cidade
+  module:
+    - user
+id: user.user.field_cidade
+field_name: field_cidade
+entity_type: user
+bundle: user
+label: Cidade
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

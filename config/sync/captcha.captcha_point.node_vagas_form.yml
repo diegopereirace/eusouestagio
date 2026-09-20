@@ -1,0 +1,7 @@
+uuid: 3ace1eac-ba24-4508-8d9c-1934467abfdf
+langcode: pt-br
+status: false
+dependencies: {  }
+formId: node_vagas_form
+captchaType: default
+label: node_vagas_form

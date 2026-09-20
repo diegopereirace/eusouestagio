@@ -1,0 +1,10 @@
+uuid: 5d9e2b3c-7e4f-4a0b-c2d3-e4f5a6b7c8d9
+langcode: pt-br
+status: true
+dependencies: {  }
+id: diferencial_item_p
+label: 'Item de Diferencial'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }

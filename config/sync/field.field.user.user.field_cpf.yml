@@ -1,0 +1,20 @@
+uuid: 7f4fad41-1797-451a-83c9-a8e825f3bb93
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_cpf
+  module:
+    - user
+id: user.user.field_cpf
+field_name: field_cpf
+entity_type: user
+bundle: user
+label: CPF
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

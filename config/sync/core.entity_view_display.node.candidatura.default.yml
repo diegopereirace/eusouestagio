@@ -1,0 +1,48 @@
+uuid: 6bf49397-8dc1-47c2-8a4c-5c2b374cc626
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.node.candidatura.field_candidatura_candidato
+    - field.field.node.candidatura.field_candidatura_status
+    - field.field.node.candidatura.field_candidatura_vaga
+    - node.type.candidatura
+  module:
+    - node
+    - options
+    - user
+id: node.candidatura.default
+targetEntityType: node
+bundle: candidatura
+mode: default
+content:
+  field_candidatura_candidato:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: false
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_candidatura_status:
+    type: list_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 3
+    region: content
+  field_candidatura_vaga:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  langcode: true

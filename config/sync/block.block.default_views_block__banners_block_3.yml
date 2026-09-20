@@ -1,0 +1,29 @@
+uuid: 966c67ed-a614-42b4-bfa0-657d4a30fd87
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - views.view.banners
+  module:
+    - system
+    - views
+  theme:
+    - default
+id: default_views_block__banners_block_3
+theme: default
+region: banner
+weight: 0
+provider: null
+plugin: 'views_block:banners-block_3'
+settings:
+  id: 'views_block:banners-block_3'
+  label: ''
+  label_display: '0'
+  provider: views
+  views_label: ''
+  items_per_page: null
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /cadastro/empresa

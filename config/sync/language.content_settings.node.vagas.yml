@@ -1,0 +1,11 @@
+uuid: e650e3fb-0c3a-4c91-8c92-9e72974ef492
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - node.type.vagas
+id: node.vagas
+target_entity_type_id: node
+target_bundle: vagas
+default_langcode: site_default
+language_alterable: false

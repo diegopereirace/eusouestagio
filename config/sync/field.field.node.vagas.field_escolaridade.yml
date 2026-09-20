@@ -1,0 +1,21 @@
+uuid: fdf6e034-55a0-4e7f-bbcf-80ac36171c9a
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_escolaridade
+    - node.type.vagas
+  module:
+    - options
+id: node.vagas.field_escolaridade
+field_name: field_escolaridade
+entity_type: node
+bundle: vagas
+label: Escolaridade
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

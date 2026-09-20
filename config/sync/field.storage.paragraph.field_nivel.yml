@@ -1,0 +1,30 @@
+uuid: 5ffe9864-c9ff-4a78-a532-5303a25a0976
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+id: paragraph.field_nivel
+field_name: field_nivel
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: basico
+      label: Básico
+    -
+      value: intermediario
+      label: Intermediário
+    -
+      value: avancado
+      label: Avançado
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

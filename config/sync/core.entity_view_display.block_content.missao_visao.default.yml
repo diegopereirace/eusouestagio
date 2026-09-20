@@ -1,0 +1,38 @@
+uuid: e1f2a3b4-c5d6-4789-e012-def012345678
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.missao_visao
+    - field.field.block_content.missao_visao.field_image
+    - field.field.block_content.missao_visao.field_itens_lista
+  module:
+    - entity_reference_revisions
+    - image
+id: block_content.missao_visao.default
+targetEntityType: block_content
+bundle: missao_visao
+mode: default
+content:
+  field_image:
+    type: image
+    label: hidden
+    settings:
+      image_link: ''
+      image_style: ''
+      image_loading:
+        attribute: lazy
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_itens_lista:
+    type: entity_reference_revisions_entity_view
+    label: hidden
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    weight: 1
+    region: content
+hidden:
+  langcode: true

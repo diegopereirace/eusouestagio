@@ -1,0 +1,29 @@
+uuid: 6a93f985-8e70-4ed1-bcc6-e0de314faf7a
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - views.view.banners
+  module:
+    - system
+    - views
+  theme:
+    - default
+id: default_views_block__banners_block_home
+theme: default
+region: banner
+weight: -6
+provider: null
+plugin: 'views_block:banners-block_home'
+settings:
+  id: 'views_block:banners-block_home'
+  label: ''
+  label_display: '0'
+  provider: views
+  views_label: ''
+  items_per_page: null
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: '<front>'

@@ -1,0 +1,19 @@
+uuid: e0815ecb-2171-46e5-9310-1bcc2c233f51
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_cidade
+    - paragraphs.paragraphs_type.instituicao_ensino
+id: paragraph.instituicao_ensino.field_cidade
+field_name: field_cidade
+entity_type: paragraph
+bundle: instituicao_ensino
+label: Cidade
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

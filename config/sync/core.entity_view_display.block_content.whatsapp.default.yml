@@ -1,0 +1,22 @@
+uuid: baccf539-0591-4e42-bdae-4853caee3b1c
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.whatsapp
+    - field.field.block_content.whatsapp.field_text_simple
+id: block_content.whatsapp.default
+targetEntityType: block_content
+bundle: whatsapp
+mode: default
+content:
+  field_text_simple:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden:
+  langcode: true

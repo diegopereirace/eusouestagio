@@ -1,0 +1,8 @@
+uuid: 361577e4-c121-4505-b544-c089e502a31d
+langcode: pt-br
+status: true
+dependencies: {  }
+id: rodape---para-estudantes
+label: 'Rodapé - Para Estudantes'
+description: ''
+locked: false

@@ -1,0 +1,28 @@
+uuid: f2a3b4c5-d6e7-4890-f123-ef0123456789
+langcode: pt-br
+status: true
+dependencies:
+  content:
+    - 'block_content:missao_visao:b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e'
+  module:
+    - block_content
+    - system
+  theme:
+    - default
+id: default_missaovisao
+theme: default
+region: content_full
+weight: 0
+provider: null
+plugin: 'block_content:b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e'
+settings:
+  id: 'block_content:b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e'
+  label: 'Missão e Visão'
+  label_display: '0'
+  provider: block_content
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /quem-somos

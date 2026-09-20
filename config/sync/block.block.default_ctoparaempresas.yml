@@ -1,0 +1,28 @@
+uuid: 8f6b0d30-b136-491f-99e3-68dadc221adb
+langcode: pt-br
+status: true
+dependencies:
+  content:
+    - 'block_content:cto:f37cafe0-f69a-4581-9844-764550595162'
+  module:
+    - block_content
+    - system
+  theme:
+    - default
+id: default_ctoparaempresas
+theme: default
+region: content_full
+weight: 0
+provider: null
+plugin: 'block_content:f37cafe0-f69a-4581-9844-764550595162'
+settings:
+  id: 'block_content:f37cafe0-f69a-4581-9844-764550595162'
+  label: 'CTO Para Empresas'
+  label_display: '0'
+  provider: block_content
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /para-empresas

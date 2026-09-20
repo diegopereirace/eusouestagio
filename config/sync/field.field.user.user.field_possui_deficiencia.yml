@@ -1,0 +1,22 @@
+uuid: 4145ba26-561d-438d-8870-908b40b1b9f7
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_possui_deficiencia
+  module:
+    - user
+id: user.user.field_possui_deficiencia
+field_name: field_possui_deficiencia
+entity_type: user
+bundle: user
+label: 'Possui Deficiência'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: Habilitado
+  off_label: Desligado
+field_type: boolean

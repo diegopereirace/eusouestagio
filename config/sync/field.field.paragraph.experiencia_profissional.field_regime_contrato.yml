@@ -1,0 +1,21 @@
+uuid: 9838459c-a6d9-4173-94e5-ea97931c5b28
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_regime_contrato
+    - paragraphs.paragraphs_type.experiencia_profissional
+  module:
+    - options
+id: paragraph.experiencia_profissional.field_regime_contrato
+field_name: field_regime_contrato
+entity_type: paragraph
+bundle: experiencia_profissional
+label: 'Regime de Contrato'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

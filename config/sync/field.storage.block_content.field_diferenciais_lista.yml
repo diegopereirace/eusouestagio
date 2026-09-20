@@ -1,0 +1,21 @@
+uuid: 6e0f3c4d-8f5a-4b1c-d3e4-f5a6b7c8d9e0
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - block_content
+    - entity_reference_revisions
+    - paragraphs
+id: block_content.field_diferenciais_lista
+field_name: field_diferenciais_lista
+entity_type: block_content
+type: entity_reference_revisions
+settings:
+  target_type: paragraph
+module: entity_reference_revisions
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

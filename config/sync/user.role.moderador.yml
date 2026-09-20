@@ -1,0 +1,99 @@
+uuid: 80c4be8d-90ca-4db1-9a35-c9fd19d7a20f
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.basic
+    - block_content.type.como_funciona_bt
+    - block_content.type.cto
+    - block_content.type.destaque
+    - block_content.type.footer
+    - block_content.type.missao_visao
+    - block_content.type.nossos_diferenciais
+    - block_content.type.nossa_metodologia
+    - block_content.type.o_que_fazemos_bt
+    - block_content.type.whatsapp
+    - filter.format.full_html
+    - filter.format.restricted_html
+    - node.type.page
+    - node.type.vagas
+    - taxonomy.vocabulary.regime
+    - taxonomy.vocabulary.tags
+    - taxonomy.vocabulary.tecnologias
+  module:
+    - block_content
+    - contextual
+    - field_ui
+    - filter
+    - node
+    - system
+    - taxonomy
+    - toolbar
+id: moderador
+label: moderador
+weight: 6
+is_admin: false
+permissions:
+  - 'access administration pages'
+  - 'access block library'
+  - 'access content'
+  - 'access content overview'
+  - 'access contextual links'
+  - 'access toolbar'
+  - 'access user profiles'
+  - 'administer node published status'
+  - 'administer nodes'
+  - 'administer user display'
+  - 'administer users'
+  - 'bypass node access'
+  - 'change own username'
+  - 'create como_funciona_bt block content'
+  - 'create missao_visao block content'
+  - 'create nossa_metodologia block content'
+  - 'create nossos_diferenciais block content'
+  - 'create o_que_fazemos_bt block content'
+  - 'create page content'
+  - 'create terms in regime'
+  - 'create terms in tags'
+  - 'create terms in tecnologias'
+  - 'create vagas content'
+  - 'delete any como_funciona_bt block content'
+  - 'delete any missao_visao block content'
+  - 'delete any nossa_metodologia block content'
+  - 'delete any nossos_diferenciais block content'
+  - 'delete any o_que_fazemos_bt block content'
+  - 'delete any page content'
+  - 'delete any vagas content'
+  - 'delete own page content'
+  - 'delete own vagas content'
+  - 'delete page revisions'
+  - 'delete terms in regime'
+  - 'delete terms in tags'
+  - 'delete terms in tecnologias'
+  - 'delete vagas revisions'
+  - 'edit any basic block content'
+  - 'edit any cto block content'
+  - 'edit any destaque block content'
+  - 'edit any footer block content'
+  - 'edit any como_funciona_bt block content'
+  - 'edit any missao_visao block content'
+  - 'edit any nossa_metodologia block content'
+  - 'edit any nossos_diferenciais block content'
+  - 'edit any o_que_fazemos_bt block content'
+  - 'edit any page content'
+  - 'edit any vagas content'
+  - 'edit any whatsapp block content'
+  - 'edit own page content'
+  - 'edit own vagas content'
+  - 'edit terms in regime'
+  - 'edit terms in tags'
+  - 'edit terms in tecnologias'
+  - 'revert page revisions'
+  - 'revert vagas revisions'
+  - 'use text format full_html'
+  - 'use text format restricted_html'
+  - 'view all revisions'
+  - 'view own unpublished content'
+  - 'view page revisions'
+  - 'view the administration theme'
+  - 'view vagas revisions'

@@ -1,0 +1,30 @@
+uuid: a9370baf-4f2f-46af-bffc-f6758e88cdc0
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_horarios
+field_name: field_horarios
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: manha
+      label: Manhã
+    -
+      value: tarde
+      label: Tarde
+    -
+      value: noite
+      label: Noite
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,31 @@
+uuid: c603ba68-50e1-4d32-a400-8ea1ec2048ae
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_candidatos_u
+    - node.type.vagas
+_core:
+  default_config_hash: nepeQNqM5Rm23BolF5JekY2iUMUJb9_d1U6Inn-c8E0
+id: node.vagas.field_candidatos_u
+field_name: field_candidatos_u
+entity_type: node
+bundle: vagas
+label: Candidatos
+description: 'Usuários (candidatos) que se candidataram a esta vaga.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:user'
+  handler_settings:
+    include_anonymous: false
+    filter:
+      type: role
+      role:
+        candidato: candidato
+    sort:
+      field: _none
+    auto_create: false
+field_type: entity_reference

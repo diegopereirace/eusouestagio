@@ -1,0 +1,20 @@
+uuid: f90aaeaf-a1a4-4992-8988-cf3255a56c05
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - datetime
+    - user
+id: user.field_previsao_formatura
+field_name: field_previsao_formatura
+entity_type: user
+type: datetime
+settings:
+  datetime_type: date
+module: datetime
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,19 @@
+uuid: 146cc494-4b7a-4be8-97ff-450d89d5c217
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.destaque
+    - field.storage.block_content.field_text_simple_2
+id: block_content.destaque.field_text_simple_2
+field_name: field_text_simple_2
+entity_type: block_content
+bundle: destaque
+label: 'Sub título'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

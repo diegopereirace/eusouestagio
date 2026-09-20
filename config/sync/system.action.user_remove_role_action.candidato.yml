@@ -1,0 +1,14 @@
+uuid: 3d664f2c-2980-4a99-ac3d-0d13daf8364b
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - user.role.candidato
+  module:
+    - user
+id: user_remove_role_action.candidato
+label: 'Remover o papel Candidato dos usuários selecionados'
+type: user
+plugin: user_remove_role_action
+configuration:
+  rid: candidato

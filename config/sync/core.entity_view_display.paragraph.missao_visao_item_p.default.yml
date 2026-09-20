@@ -1,0 +1,29 @@
+uuid: 3db36716-672c-4650-b0e0-80aed4545b64
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.missao_visao_item_p.field_text_simple
+    - field.field.paragraph.missao_visao_item_p.field_text_simple_long
+    - paragraphs.paragraphs_type.missao_visao_item_p
+id: paragraph.missao_visao_item_p.default
+targetEntityType: paragraph
+bundle: missao_visao_item_p
+mode: default
+content:
+  field_text_simple:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_text_simple_long:
+    type: basic_string
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
+hidden: {  }

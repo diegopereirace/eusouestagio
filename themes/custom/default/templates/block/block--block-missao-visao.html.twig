@@ -1,0 +1,53 @@
+{#
+/**
+ * @file
+ * Bloco Missão e Visão (bundle missao_visao).
+ *
+ * Suggestion Barrio: block__block_missao_visao.
+ * Colunas renderizadas no Twig do bloco (sem wrappers .field__item).
+ */
+#}
+{{ attach_library('default/missao_visao') }}
+{%
+  set classes = [
+    'block',
+    'block-' ~ configuration.provider|clean_class,
+    'block-' ~ plugin_id|clean_class,
+    'block-missao-visao',
+  ]
+%}
+{% set bg_uri = '' %}
+{% if content.field_image['#items'] is defined and content.field_image['#items'][0] is defined and content.field_image['#items'][0].entity.uri.value is defined %}
+  {% set bg_uri = content.field_image['#items'][0].entity.uri.value %}
+{% endif %}
+{% set item_items = content.field_itens_lista['#items']|default([]) %}
+{% set has_items = item_items is iterable and item_items|length > 0 %}
+
+<section{{ attributes.addClass(classes) }}{% if bg_uri %} style="background-image: url('{{ file_url(bg_uri)|e('html_attr') }}');"{% endif %}>
+  {{ title_prefix }}{{ title_suffix }}
+  {% block content %}
+    <div{{ content_attributes.addClass('block-missao-visao__inner') }}>
+      <div class="container px-4 px-lg-5">
+        {% if has_items %}
+          <div class="row">
+            {% for key, item in item_items %}
+              {% set paragraph = content.field_itens_lista[key]['#paragraph']|default(item.entity) %}
+              {% set item_title = paragraph.field_text_simple.value|default('')|trim %}
+              {% set item_text = paragraph.field_text_simple_long.value|default('')|trim %}
+              {% if item_title or item_text %}
+                <div class="col-md-6 text-center text-white block-missao-visao__col{{ loop.first ? ' block-missao-visao__col--first' : '' }}">
+                  {% if item_title %}
+                    <h2 class="block-missao-visao__title">{{ item_title }}</h2>
+                  {% endif %}
+                  {% if item_text %}
+                    <p class="block-missao-visao__text">{{ item_text }}</p>
+                  {% endif %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endblock %}
+</section>

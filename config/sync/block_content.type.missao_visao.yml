@@ -1,0 +1,8 @@
+uuid: b2c3d4e5-f6a7-4890-b123-456789abcdef
+langcode: pt-br
+status: true
+dependencies: {  }
+id: missao_visao
+label: 'Missão e Visão'
+revision: false
+description: 'Faixa institucional Missão | Visão com imagem de fundo.'

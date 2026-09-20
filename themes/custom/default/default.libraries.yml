@@ -54,6 +54,12 @@ layout_sobre_nos:
       assets/css/layout-sobre-nos.css: {}
   dependencies:
     - default/bootstrap
+missao_visao:
+  css:
+    component:
+      assets/css/block-missao-visao.css: {}
+  dependencies:
+    - default/bootstrap
 hero_search:
   js:
     assets/js/hero-search.js: {}

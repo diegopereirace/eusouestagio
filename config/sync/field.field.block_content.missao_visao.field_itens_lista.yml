@@ -1,0 +1,31 @@
+uuid: a7b8c9d0-e1f2-4345-a678-9abcdef01234
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.missao_visao
+    - field.storage.block_content.field_itens_lista
+    - paragraphs.paragraphs_type.missao_visao_item_p
+  module:
+    - entity_reference_revisions
+id: block_content.missao_visao.field_itens_lista
+field_name: field_itens_lista
+entity_type: block_content
+bundle: missao_visao
+label: Itens
+description: 'Até dois itens (Missão e Visão).'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      missao_visao_item_p: missao_visao_item_p
+    negate: 0
+    target_bundles_drag_drop:
+      missao_visao_item_p:
+        weight: 0
+        enabled: true
+field_type: entity_reference_revisions

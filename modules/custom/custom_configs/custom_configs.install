@@ -180,6 +180,24 @@ function custom_configs_update_11013(): string {
 }
 
 /**
+ * Seed idempotente do bloco Missão e Visão (UUID fixo) + estrutura defensiva.
+ *
+ * UUID: b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e
+ * Placement: block.block.default_missaovisao (mesma UUID), região content_full, /quem-somos.
+ * Asset: modules/custom/custom_configs/assets/missao-visao/fundo-missao-visao.jpg
+ * Deploy destino: git pull → drush cim -y → drush updb -y → drush cr
+ * (cim antes do updb — tipos/fields/displays/placement via config/sync).
+ */
+function custom_configs_update_11014(): string {
+  $messages = [
+    _custom_configs_ensure_missao_visao_structure(),
+    _custom_configs_seed_missao_visao(),
+    _custom_configs_ensure_missao_visao_placement(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
  * Garante field instances do Primeiro Bloco em quem_somos (reusa storages).
  */
 function _custom_configs_ensure_quem_somos_sobre_nos_fields(): string {
@@ -1187,6 +1205,507 @@ function _custom_configs_seed_nossa_metodologia_images(): string {
   }
 
   return implode(' ', $messages);
+}
+
+/**
+ * Garante tipos/storage/instances/displays do bloco Missão e Visão (defensivo pós-cim).
+ */
+function _custom_configs_ensure_missao_visao_structure(): string {
+  $parts = [];
+
+  if (!\Drupal\paragraphs\Entity\ParagraphsType::load('missao_visao_item_p')) {
+    \Drupal\paragraphs\Entity\ParagraphsType::create([
+      'id' => 'missao_visao_item_p',
+      'label' => 'Item Missão/Visão',
+      'description' => 'Título e descrição de um item do bloco Missão e Visão.',
+    ])->save();
+    $parts[] = (string) t('Paragraph type missao_visao_item_p criado.');
+  }
+
+  if (!\Drupal\block_content\Entity\BlockContentType::load('missao_visao')) {
+    \Drupal\block_content\Entity\BlockContentType::create([
+      'id' => 'missao_visao',
+      'label' => 'Missão e Visão',
+      'revision' => FALSE,
+      'description' => 'Faixa institucional Missão | Visão com imagem de fundo.',
+    ])->save();
+    $parts[] = (string) t('Block type missao_visao criado.');
+  }
+
+  if (!\Drupal\field\Entity\FieldStorageConfig::loadByName('block_content', 'field_itens_lista')) {
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => 'field_itens_lista',
+      'entity_type' => 'block_content',
+      'type' => 'entity_reference_revisions',
+      'settings' => ['target_type' => 'paragraph'],
+      'cardinality' => 2,
+      'translatable' => TRUE,
+    ])->save();
+    $parts[] = (string) t('Storage field_itens_lista criado.');
+  }
+
+  $paragraph_fields = [
+    'field_text_simple' => [
+      'label' => 'Título',
+      'required' => FALSE,
+      'settings' => [],
+    ],
+    'field_text_simple_long' => [
+      'label' => 'Descrição',
+      'required' => FALSE,
+      'settings' => [],
+    ],
+  ];
+  foreach ($paragraph_fields as $field_name => $definition) {
+    if (\Drupal\field\Entity\FieldConfig::loadByName('paragraph', 'missao_visao_item_p', $field_name)) {
+      continue;
+    }
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('paragraph', $field_name);
+    if (!$storage) {
+      $parts[] = (string) t('Storage @field ausente — rode drush cim -y.', ['@field' => $field_name]);
+      continue;
+    }
+    \Drupal\field\Entity\FieldConfig::create([
+      'field_storage' => $storage,
+      'bundle' => 'missao_visao_item_p',
+      'label' => $definition['label'],
+      'required' => $definition['required'],
+      'settings' => $definition['settings'],
+      'translatable' => FALSE,
+    ])->save();
+    $parts[] = (string) t('Instance paragraph.missao_visao_item_p.@field criada.', ['@field' => $field_name]);
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName('block_content', 'missao_visao', 'field_image')) {
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('block_content', 'field_image');
+    if ($storage) {
+      \Drupal\field\Entity\FieldConfig::create([
+        'field_storage' => $storage,
+        'bundle' => 'missao_visao',
+        'label' => 'Imagem de fundo',
+        'required' => FALSE,
+        'translatable' => FALSE,
+        'settings' => [
+          'handler' => 'default:file',
+          'handler_settings' => [],
+          'file_directory' => 'block/missao-visao/[date:custom:Y]-[date:custom:m]',
+          'file_extensions' => 'png gif jpg jpeg webp',
+          'max_filesize' => '',
+          'max_resolution' => '',
+          'min_resolution' => '',
+          'alt_field' => TRUE,
+          'alt_field_required' => FALSE,
+          'title_field' => TRUE,
+          'title_field_required' => FALSE,
+          'default_image' => [
+            'uuid' => '',
+            'alt' => '',
+            'title' => '',
+            'width' => NULL,
+            'height' => NULL,
+          ],
+        ],
+      ])->save();
+      $parts[] = (string) t('Instance block_content.missao_visao.field_image criada.');
+    }
+    else {
+      $parts[] = (string) t('Storage field_image ausente — rode drush cim -y.');
+    }
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName('block_content', 'missao_visao', 'field_itens_lista')) {
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('block_content', 'field_itens_lista');
+    if ($storage) {
+      \Drupal\field\Entity\FieldConfig::create([
+        'field_storage' => $storage,
+        'bundle' => 'missao_visao',
+        'label' => 'Itens',
+        'required' => FALSE,
+        'translatable' => FALSE,
+        'settings' => [
+          'handler' => 'default:paragraph',
+          'handler_settings' => [
+            'target_bundles' => ['missao_visao_item_p' => 'missao_visao_item_p'],
+            'negate' => 0,
+            'target_bundles_drag_drop' => [
+              'missao_visao_item_p' => [
+                'weight' => 0,
+                'enabled' => TRUE,
+              ],
+            ],
+          ],
+        ],
+      ])->save();
+      $parts[] = (string) t('Instance block_content.missao_visao.field_itens_lista criada.');
+    }
+  }
+
+  // Form/view displays — cria mínimos se ausentes; senão garante componentes.
+  $parts[] = _custom_configs_ensure_missao_visao_displays();
+
+  if (!$parts) {
+    $parts[] = (string) t('Estrutura Missão e Visão já presente.');
+  }
+
+  return implode(' ', array_filter($parts));
+}
+
+/**
+ * Garante form/view displays do bloco e do paragraph Missão/Visão.
+ */
+function _custom_configs_ensure_missao_visao_displays(): string {
+  $messages = [];
+  $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+  $view_storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null $p_form */
+  $p_form = $form_storage->load('paragraph.missao_visao_item_p.default');
+  if (!$p_form) {
+    $p_form = $form_storage->create([
+      'targetEntityType' => 'paragraph',
+      'bundle' => 'missao_visao_item_p',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $p_form_changed = FALSE;
+  foreach ([
+    'field_text_simple' => ['type' => 'string_textfield', 'weight' => 0, 'settings' => ['size' => 60, 'placeholder' => '']],
+    'field_text_simple_long' => ['type' => 'string_textarea', 'weight' => 1, 'settings' => ['rows' => 4, 'placeholder' => '']],
+  ] as $field_name => $defaults) {
+    if ($p_form->getComponent($field_name)) {
+      continue;
+    }
+    $p_form->setComponent($field_name, [
+      'type' => $defaults['type'],
+      'weight' => $defaults['weight'],
+      'region' => 'content',
+      'settings' => $defaults['settings'],
+      'third_party_settings' => [],
+    ]);
+    $p_form_changed = TRUE;
+  }
+  if ($p_form_changed || $p_form->isNew()) {
+    $p_form->save();
+    $messages[] = (string) t('Form display paragraph.missao_visao_item_p atualizado.');
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null $p_view */
+  $p_view = $view_storage->load('paragraph.missao_visao_item_p.default');
+  if (!$p_view) {
+    $p_view = $view_storage->create([
+      'targetEntityType' => 'paragraph',
+      'bundle' => 'missao_visao_item_p',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $p_view_changed = FALSE;
+  foreach ([
+    'field_text_simple' => ['type' => 'string', 'weight' => 0, 'settings' => ['link_to_entity' => FALSE]],
+    'field_text_simple_long' => ['type' => 'basic_string', 'weight' => 1, 'settings' => []],
+  ] as $field_name => $defaults) {
+    if ($p_view->getComponent($field_name)) {
+      continue;
+    }
+    $p_view->setComponent($field_name, [
+      'type' => $defaults['type'],
+      'label' => 'hidden',
+      'weight' => $defaults['weight'],
+      'region' => 'content',
+      'settings' => $defaults['settings'],
+      'third_party_settings' => [],
+    ]);
+    $p_view_changed = TRUE;
+  }
+  if ($p_view_changed || $p_view->isNew()) {
+    $p_view->save();
+    $messages[] = (string) t('View display paragraph.missao_visao_item_p atualizado.');
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null $b_form */
+  $b_form = $form_storage->load('block_content.missao_visao.default');
+  if (!$b_form) {
+    $b_form = $form_storage->create([
+      'targetEntityType' => 'block_content',
+      'bundle' => 'missao_visao',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $b_form_changed = FALSE;
+  $b_form_defaults = [
+    'info' => [
+      'type' => 'string_textfield',
+      'weight' => 0,
+      'settings' => ['size' => 60, 'placeholder' => ''],
+    ],
+    'field_image' => [
+      'type' => 'image_image',
+      'weight' => 1,
+      'settings' => [
+        'progress_indicator' => 'throbber',
+        'preview_image_style' => 'thumbnail',
+      ],
+    ],
+    'field_itens_lista' => [
+      'type' => 'paragraphs',
+      'weight' => 2,
+      'settings' => [
+        'title' => 'Item',
+        'title_plural' => 'Itens',
+        'edit_mode' => 'open',
+        'closed_mode' => 'summary',
+        'autocollapse' => 'none',
+        'closed_mode_threshold' => 0,
+        'add_mode' => 'dropdown',
+        'form_display_mode' => 'default',
+        'default_paragraph_type' => 'missao_visao_item_p',
+        'features' => [
+          'collapse_edit_all' => 'collapse_edit_all',
+          'duplicate' => 'duplicate',
+        ],
+      ],
+    ],
+  ];
+  foreach ($b_form_defaults as $field_name => $defaults) {
+    if ($b_form->getComponent($field_name)) {
+      continue;
+    }
+    $b_form->setComponent($field_name, [
+      'type' => $defaults['type'],
+      'weight' => $defaults['weight'],
+      'region' => 'content',
+      'settings' => $defaults['settings'],
+      'third_party_settings' => [],
+    ]);
+    $b_form_changed = TRUE;
+  }
+  if ($b_form_changed || $b_form->isNew()) {
+    $b_form->save();
+    $messages[] = (string) t('Form display block_content.missao_visao atualizado.');
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null $b_view */
+  $b_view = $view_storage->load('block_content.missao_visao.default');
+  if (!$b_view) {
+    $b_view = $view_storage->create([
+      'targetEntityType' => 'block_content',
+      'bundle' => 'missao_visao',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $b_view_changed = FALSE;
+  $b_view_defaults = [
+    'field_image' => [
+      'type' => 'image',
+      'weight' => 0,
+      'settings' => [
+        'image_link' => '',
+        'image_style' => '',
+        'image_loading' => ['attribute' => 'lazy'],
+      ],
+    ],
+    'field_itens_lista' => [
+      'type' => 'entity_reference_revisions_entity_view',
+      'weight' => 1,
+      'settings' => [
+        'view_mode' => 'default',
+        'link' => '',
+      ],
+    ],
+  ];
+  foreach ($b_view_defaults as $field_name => $defaults) {
+    if ($b_view->getComponent($field_name)) {
+      continue;
+    }
+    $b_view->setComponent($field_name, [
+      'type' => $defaults['type'],
+      'label' => 'hidden',
+      'weight' => $defaults['weight'],
+      'region' => 'content',
+      'settings' => $defaults['settings'],
+      'third_party_settings' => [],
+    ]);
+    $b_view_changed = TRUE;
+  }
+  if ($b_view_changed || $b_view->isNew()) {
+    $b_view->save();
+    $messages[] = (string) t('View display block_content.missao_visao atualizado.');
+  }
+
+  if (!$messages) {
+    $messages[] = (string) t('Displays Missão e Visão já ok.');
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
+ * Cria/preenche seed do bloco Missão e Visão (UUID fixo) sem sobrescrever editorial.
+ */
+function _custom_configs_seed_missao_visao(): string {
+  $uuid = 'b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $messages = [];
+
+  if (!\Drupal::entityTypeManager()->getDefinition('block_content', FALSE)) {
+    return (string) t('Entity block_content indisponível — seed abortado.');
+  }
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
+  if (!isset($bundle_info['missao_visao'])) {
+    return (string) t('Bundle missao_visao ausente — rode drush cim -y antes do updb.');
+  }
+
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+  /** @var \Drupal\block_content\BlockContentInterface|null $block */
+  $block = $existing ? reset($existing) : NULL;
+  $created = FALSE;
+
+  if (!$block) {
+    $block = $storage->create([
+      'type' => 'missao_visao',
+      'uuid' => $uuid,
+      'info' => 'Missão e Visão',
+      'status' => TRUE,
+    ]);
+    $block->save();
+    $created = TRUE;
+    $messages[] = (string) t('Bloco Missão e Visão seed criado (@uuid).', ['@uuid' => $uuid]);
+  }
+  else {
+    $messages[] = (string) t('Bloco Missão e Visão (@uuid) já existe.', ['@uuid' => $uuid]);
+  }
+
+  $seed_items = [
+    [
+      'title' => 'Nossa Missão',
+      'desc' => 'Conectar empresas e estudantes por meio de experiências de estágio que geram aprendizado real, crescimento profissional e resultados sustentáveis para todos os envolvidos.',
+    ],
+    [
+      'title' => 'Nossa Visão',
+      'desc' => 'Ser referência nacional em estágio, reconhecida pela qualidade da seleção, pela gestão responsável e pelo desenvolvimento contínuo de talentos.',
+    ],
+  ];
+
+  if ($block->hasField('field_itens_lista') && $block->get('field_itens_lista')->isEmpty()) {
+    $paragraph_bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('paragraph');
+    if (isset($paragraph_bundles['missao_visao_item_p'])) {
+      $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
+      $paragraphs = [];
+      foreach ($seed_items as $item) {
+        /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
+        $paragraph = $paragraph_storage->create([
+          'type' => 'missao_visao_item_p',
+          'field_text_simple' => $item['title'],
+          'field_text_simple_long' => $item['desc'],
+        ]);
+        $paragraph->save();
+        $paragraphs[] = [
+          'target_id' => $paragraph->id(),
+          'target_revision_id' => $paragraph->getRevisionId(),
+        ];
+      }
+      $block->set('field_itens_lista', $paragraphs);
+      $block->save();
+      $messages[] = (string) t('Itens seed (@count) anexados.', ['@count' => count($paragraphs)]);
+    }
+  }
+
+  if ($block->hasField('field_image') && $block->get('field_image')->isEmpty()) {
+    $file = _custom_configs_seed_file_from_module_asset(
+      'missao-visao/fundo-missao-visao.jpg',
+      'public://missao-visao/fundo-missao-visao.jpg',
+      'block_content',
+      (int) $block->id()
+    );
+    if ($file) {
+      $block->set('field_image', [
+        'target_id' => $file->id(),
+        'alt' => 'Fundo institucional — Missão e Visão',
+      ]);
+      $block->save();
+      $messages[] = (string) t('Imagem de fundo seed anexada.');
+    }
+    else {
+      $messages[] = (string) t('Asset de fundo ausente — imagem não anexada.');
+    }
+  }
+
+  if ($created === FALSE && count($messages) === 1) {
+    $messages[] = (string) t('Conteúdo editorial preservado (sem re-seed).');
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
+ * Garante placement default_missaovisao em content_full só em /quem-somos.
+ */
+function _custom_configs_ensure_missao_visao_placement(): string {
+  $plugin = 'block_content:b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e';
+  $block_id = 'default_missaovisao';
+  $storage = \Drupal::entityTypeManager()->getStorage('block');
+
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = $storage->load($block_id);
+  if (!$block) {
+    $block = $storage->create([
+      'id' => $block_id,
+      'theme' => 'default',
+      'region' => 'content_full',
+      'weight' => 0,
+      'provider' => NULL,
+      'plugin' => $plugin,
+      'settings' => [
+        'id' => $plugin,
+        'label' => 'Missão e Visão',
+        'label_display' => '0',
+        'provider' => 'block_content',
+        'view_mode' => 'full',
+      ],
+      'visibility' => [
+        'request_path' => [
+          'id' => 'request_path',
+          'negate' => FALSE,
+          'pages' => '/quem-somos',
+        ],
+      ],
+    ]);
+    $block->save();
+    return (string) t('Placement default_missaovisao criado.');
+  }
+
+  $changed = FALSE;
+  if ($block->getRegion() !== 'content_full') {
+    $block->setRegion('content_full');
+    $changed = TRUE;
+  }
+  $settings = $block->get('settings') ?: [];
+  if (($settings['label_display'] ?? NULL) !== '0') {
+    $settings['label_display'] = '0';
+    $block->set('settings', $settings);
+    $changed = TRUE;
+  }
+  $visibility = $block->getVisibility();
+  $pages = (string) ($visibility['request_path']['pages'] ?? '');
+  if (trim($pages) !== '/quem-somos') {
+    $block->setVisibilityConfig('request_path', [
+      'id' => 'request_path',
+      'negate' => FALSE,
+      'pages' => '/quem-somos',
+    ]);
+    $changed = TRUE;
+  }
+
+  if ($changed) {
+    $block->save();
+    return (string) t('Placement default_missaovisao atualizado (região/visibilidade).');
+  }
+
+  return (string) t('Placement default_missaovisao já ok.');
 }
 
 /**

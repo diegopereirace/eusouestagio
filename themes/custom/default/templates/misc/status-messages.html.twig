@@ -42,6 +42,9 @@
   </div>
   <script>
   (function () {
+    var MODAL_Z = '10505';
+    var BACKDROP_Z = '10500';
+
     function cleanupModalState() {
       document.querySelectorAll('.modal-backdrop').forEach(function (backdrop) {
         backdrop.remove();
@@ -57,6 +60,28 @@
       if (invalidField && typeof invalidField.focus === 'function') {
         invalidField.focus();
       }
+    }
+
+    function elevateStacking(modalEl) {
+      modalEl.style.setProperty('z-index', MODAL_Z);
+      modalEl.style.setProperty('--bs-modal-zindex', MODAL_Z);
+
+      document.querySelectorAll('.modal-backdrop').forEach(function (backdrop) {
+        backdrop.style.setProperty('z-index', BACKDROP_Z);
+        backdrop.style.setProperty('--bs-backdrop-zindex', BACKDROP_Z);
+      });
+    }
+
+    function bindDismiss(modalEl, modal) {
+      modalEl.querySelectorAll('[data-bs-dismiss="modal"]').forEach(function (button) {
+        button.addEventListener('click', function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          modal.hide();
+          // Garante liberação mesmo se o hide do Bootstrap falhar no stacking.
+          window.setTimeout(cleanupModalState, 50);
+        }, { once: true });
+      });
     }
 
     function openMsg(attempt) {
@@ -84,7 +109,7 @@
       }
 
       // Backdrop do Bootstrap vai para o body; o modal precisa ser irmão dele
-      // para não ficar atrás do overlay (regiões Drupal / off-canvas / sticky).
+      // para não ficar atrás do overlay (regiões Drupal / toolbar / LGPD).
       if (el.parentElement !== document.body) {
         document.body.appendChild(el);
       }
@@ -102,6 +127,10 @@
         keyboard: true
       });
 
+      el.addEventListener('shown.bs.modal', function () {
+        elevateStacking(el);
+      }, { once: true });
+
       el.addEventListener('hidden.bs.modal', function () {
         cleanupModalState();
         focusInvalidField();
@@ -110,7 +139,9 @@
         }
       }, { once: true });
 
+      bindDismiss(el, modal);
       modal.show();
+      elevateStacking(el);
     }
 
     if (document.readyState === 'loading') {

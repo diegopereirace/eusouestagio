@@ -1,0 +1,39 @@
+uuid: 5ea0b01e-fb3e-42aa-98ae-bbf51ca31cd2
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+id: paragraph.field_regime_contrato
+field_name: field_regime_contrato
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: clt
+      label: CLT
+    -
+      value: estagio
+      label: Estágio
+    -
+      value: PJ
+      label: 'Pessoa Jurídica (PJ)'
+    -
+      value: autonomo
+      label: Autônomo
+    -
+      value: temporario
+      label: Temporário
+    -
+      value: outros
+      label: Outros
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

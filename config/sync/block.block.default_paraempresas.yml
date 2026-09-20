@@ -1,0 +1,37 @@
+uuid: 17c51b47-62ee-484a-ad87-bd406b6df801
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - system.menu.para-empresas
+  module:
+    - system
+    - user
+  theme:
+    - default
+id: default_paraempresas
+theme: default
+region: sidebar_painel
+weight: -9
+provider: null
+plugin: 'system_menu_block:para-empresas'
+settings:
+  id: 'system_menu_block:para-empresas'
+  label: 'Menu - Para Empresas'
+  label_display: '0'
+  provider: system
+  level: 1
+  depth: null
+  expand_all_items: false
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: "/painel\r\n/painel/*"
+  user_role:
+    id: user_role
+    negate: false
+    context_mapping:
+      user: '@user.current_user_context:current_user'
+    roles:
+      empresa: empresa

@@ -1,0 +1,19 @@
+uuid: edfafed0-74da-48a4-b4b2-d19682158aeb
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_text_simple
+    - paragraphs.paragraphs_type.icone_titulo_descricao
+id: paragraph.icone_titulo_descricao.field_text_simple
+field_name: field_text_simple
+entity_type: paragraph
+bundle: icone_titulo_descricao
+label: Título
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

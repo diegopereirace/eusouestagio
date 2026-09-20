@@ -1,0 +1,28 @@
+uuid: 1f9b40ca-aa77-4e7e-a450-5aa94888e274
+langcode: pt-br
+status: true
+dependencies:
+  content:
+    - 'block_content:nossa_metodologia:1f9b40ca-aa77-4e7e-a450-5aa94888e274'
+  module:
+    - block_content
+    - system
+  theme:
+    - default
+id: default_nossametodologia
+theme: default
+region: content_full
+weight: -3
+provider: null
+plugin: 'block_content:1f9b40ca-aa77-4e7e-a450-5aa94888e274'
+settings:
+  id: 'block_content:1f9b40ca-aa77-4e7e-a450-5aa94888e274'
+  label: 'Nossa Metodologia'
+  label_display: '0'
+  provider: block_content
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: '<front>'

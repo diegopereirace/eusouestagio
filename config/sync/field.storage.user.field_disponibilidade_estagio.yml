@@ -1,0 +1,30 @@
+uuid: dc0a933a-c5d7-4c96-9b6e-5af23f0ebb24
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - options
+    - user
+id: user.field_disponibilidade_estagio
+field_name: field_disponibilidade_estagio
+entity_type: user
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: manha
+      label: Manhã
+    -
+      value: tarde
+      label: Tarde
+    -
+      value: noite
+      label: Noite
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

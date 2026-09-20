@@ -1,0 +1,10 @@
+uuid: 62b5362e-3973-4b54-9ca1-559170fca8bf
+langcode: pt-br
+status: true
+dependencies: {  }
+id: missao_visao_item_p
+label: 'Item Missão/Visão'
+icon_uuid: null
+icon_default: null
+description: 'Título e descrição de um item do bloco Missão e Visão.'
+behavior_plugins: {  }

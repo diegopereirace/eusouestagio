@@ -1,0 +1,21 @@
+uuid: cbf76584-fc1c-48ed-85d5-5fcfcb26a280
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_disponibilidade_estagio
+  module:
+    - options
+    - user
+id: user.user.field_disponibilidade_estagio
+field_name: field_disponibilidade_estagio
+entity_type: user
+bundle: user
+label: 'Disponibilidade para Estágio'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

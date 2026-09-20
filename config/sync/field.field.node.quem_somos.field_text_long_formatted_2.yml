@@ -1,0 +1,28 @@
+uuid: 2346ff09-e957-4eea-a3c4-293d77442b7d
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_text_long_formatted_2
+    - filter.format.basic_html
+    - filter.format.full_html
+    - filter.format.plain_text
+    - node.type.quem_somos
+  module:
+    - text
+id: node.quem_somos.field_text_long_formatted_2
+field_name: field_text_long_formatted_2
+entity_type: node
+bundle: quem_somos
+label: 'Segundo Texto'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - basic_html
+    - full_html
+    - plain_text
+field_type: text_long

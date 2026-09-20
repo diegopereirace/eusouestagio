@@ -1,0 +1,19 @@
+uuid: 8a2b5e6f-0b7c-4d3e-f5a6-b7c8d9e0f1a2
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.nossos_diferenciais
+    - field.storage.block_content.field_text_simple_long
+id: block_content.nossos_diferenciais.field_text_simple_long
+field_name: field_text_simple_long
+entity_type: block_content
+bundle: nossos_diferenciais
+label: Subtítulo
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

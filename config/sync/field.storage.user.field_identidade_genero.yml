@@ -1,0 +1,39 @@
+uuid: 1484fabd-bab0-4159-a018-8999aebdedd3
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - options
+    - user
+id: user.field_identidade_genero
+field_name: field_identidade_genero
+entity_type: user
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: homem
+      label: 'Homem (cisgênero ou transgênero)'
+    -
+      value: mulher
+      label: 'Mulher (cisgênero ou transgênero)'
+    -
+      value: nao_binario
+      label: Não-binário
+    -
+      value: genero_fluido
+      label: 'Gênero Fluido'
+    -
+      value: agenero
+      label: Agênero
+    -
+      value: prefiro_nao_informar
+      label: 'Prefiro não informar'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

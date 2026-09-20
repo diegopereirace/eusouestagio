@@ -1,0 +1,14 @@
+uuid: 4011d9ed-083e-459a-bbde-16b81b9c2be2
+langcode: pt-br
+status: true
+dependencies:
+  enforced:
+    module:
+      - webform
+_core:
+  default_config_hash: 8rVcRXLnTAEoWs7zl8du-7RIUnayqUcGYnvb3JT21-o
+id: time_zones
+label: 'Fusos horários'
+category: 'Data e hora'
+likert: false
+options: ''

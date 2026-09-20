@@ -1,0 +1,19 @@
+uuid: 72381871-5d4b-4d3b-b4bd-a196dc622906
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - paragraphs
+id: paragraph.field_atividades
+field_name: field_atividades
+entity_type: paragraph
+type: string_long
+settings:
+  case_sensitive: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

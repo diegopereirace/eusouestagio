@@ -1,0 +1,8 @@
+uuid: 8afc11b6-8ca5-4859-9d8a-106767f0a1d9
+langcode: pt-br
+status: true
+dependencies: {  }
+id: footer
+label: Rodapé
+revision: false
+description: null

@@ -1,0 +1,11 @@
+uuid: 752e07af-6e7a-40f8-95d0-788d5b22946e
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.whatsapp
+id: block_content.whatsapp
+target_entity_type_id: block_content
+target_bundle: whatsapp
+default_langcode: site_default
+language_alterable: false

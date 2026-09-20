@@ -1,0 +1,14 @@
+uuid: 7ac79cdd-fbf9-41d4-be71-06b36d24a22c
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - user.role.moderador
+  module:
+    - user
+id: user_remove_role_action.moderador
+label: 'Remover o papel moderador dos usuários selecionados'
+type: user
+plugin: user_remove_role_action
+configuration:
+  rid: moderador

@@ -1,0 +1,12 @@
+uuid: 0d29e1bd-b81c-43bb-8769-9ce34f35be6a
+langcode: pt-br
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: 1noCXlegCr5HFehQRF1ViXy1jhU1jZ_sNN99a8Sj5jo
+id: front
+label: 'Página inicial'
+tags:
+  canonical_url: '[site:url]'
+  shortlink: '[site:url]'
+  title: 'Eu Sou Estágio'

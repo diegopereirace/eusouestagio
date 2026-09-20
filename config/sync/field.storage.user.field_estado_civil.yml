@@ -1,0 +1,39 @@
+uuid: 48391296-00cc-4dd3-9e03-c20afee01c60
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - options
+    - user
+id: user.field_estado_civil
+field_name: field_estado_civil
+entity_type: user
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: solteiro_a
+      label: Solteiro(a)
+    -
+      value: casado_a
+      label: Casado(a)
+    -
+      value: divorciado_a
+      label: Divorciado(a)
+    -
+      value: viuvo_a
+      label: Viúvo(a)
+    -
+      value: separado_a_judicialmente
+      label: 'Separado(a) Judicialmente'
+    -
+      value: prefiro_nao_informar
+      label: 'Prefiro não informar'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

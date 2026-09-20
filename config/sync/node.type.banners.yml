@@ -1,0 +1,17 @@
+uuid: 7298936f-e1a4-4b12-a1c5-792781a9a142
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus: {  }
+    parent: ''
+name: Banners
+type: banners
+description: 'Cadastro dos banners'
+help: null
+new_revision: false
+preview_mode: 0
+display_submitted: false

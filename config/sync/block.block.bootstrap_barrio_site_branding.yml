@@ -1,0 +1,25 @@
+uuid: b98f3b34-33dc-48ca-904c-54c0a47106c2
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - bootstrap_barrio
+_core:
+  default_config_hash: lE5hyDUbMWVcRxvlVMAwguAJFBiZH2Xf-59wmBIq9co
+id: bootstrap_barrio_site_branding
+theme: bootstrap_barrio
+region: header
+weight: -7
+provider: null
+plugin: system_branding_block
+settings:
+  id: system_branding_block
+  label: 'Definição de marca do site'
+  label_display: '0'
+  provider: system
+  use_site_logo: true
+  use_site_name: true
+  use_site_slogan: false
+visibility: {  }

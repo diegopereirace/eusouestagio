@@ -1,0 +1,14 @@
+uuid: db3921a9-0c53-43fc-8ead-02af2bf88bef
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - user.role.candidato
+  module:
+    - user
+id: user_add_role_action.candidato
+label: 'Adiciona o papel Candidato para o(s) usuário(s) selecionado(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: candidato

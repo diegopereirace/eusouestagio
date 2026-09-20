@@ -1,0 +1,21 @@
+uuid: 04824abb-d38e-445c-b1c8-6fb8ae014930
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_data_termino
+    - paragraphs.paragraphs_type.experiencia_profissional
+  module:
+    - datetime
+id: paragraph.experiencia_profissional.field_data_termino
+field_name: field_data_termino
+entity_type: paragraph
+bundle: experiencia_profissional
+label: 'Data de Término'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

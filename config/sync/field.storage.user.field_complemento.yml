@@ -1,0 +1,21 @@
+uuid: 97d36eb1-97c6-423c-892f-0153cc56dcba
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - user
+id: user.field_complemento
+field_name: field_complemento
+entity_type: user
+type: string
+settings:
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

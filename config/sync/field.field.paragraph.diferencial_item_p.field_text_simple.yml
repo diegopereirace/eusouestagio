@@ -1,0 +1,19 @@
+uuid: 2e6f9c0d-4f1a-4b7c-d9e0-f1a2b3c4d5e6
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_text_simple
+    - paragraphs.paragraphs_type.diferencial_item_p
+id: paragraph.diferencial_item_p.field_text_simple
+field_name: field_text_simple
+entity_type: paragraph
+bundle: diferencial_item_p
+label: Título
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

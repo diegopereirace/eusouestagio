@@ -1,0 +1,19 @@
+uuid: daa64f84-dbd7-4966-bd0c-af56a45ac9a6
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_text_simple_long
+    - paragraphs.paragraphs_type.missao_visao_item_p
+id: paragraph.missao_visao_item_p.field_text_simple_long
+field_name: field_text_simple_long
+entity_type: paragraph
+bundle: missao_visao_item_p
+label: Descrição
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

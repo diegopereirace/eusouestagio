@@ -1,0 +1,20 @@
+uuid: 2f99c232-841f-4a7d-8a0b-8b4edecec371
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_bairro
+  module:
+    - user
+id: user.user.field_bairro
+field_name: field_bairro
+entity_type: user
+bundle: user
+label: Bairro
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

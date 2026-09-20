@@ -1,0 +1,15 @@
+uuid: 19ab3ccd-b256-47d2-8e91-5c69510e1f65
+langcode: pt-br
+status: true
+dependencies: {  }
+name: banner_internas_mobile
+label: 'Banner Internas Mobile'
+effects:
+  03445b1e-8a91-4d33-aad2-23d93dbb84dc:
+    uuid: 03445b1e-8a91-4d33-aad2-23d93dbb84dc
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 828
+      height: 460
+      anchor: center-center

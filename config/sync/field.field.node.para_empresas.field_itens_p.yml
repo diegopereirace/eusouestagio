@@ -1,0 +1,43 @@
+uuid: fba68abd-d714-410c-995e-e28421cffba6
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_itens_p
+    - node.type.para_empresas
+    - paragraphs.paragraphs_type.icone_descricao
+  module:
+    - entity_reference_revisions
+id: node.para_empresas.field_itens_p
+field_name: field_itens_p
+entity_type: node
+bundle: para_empresas
+label: Itens
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      icone_descricao: icone_descricao
+    negate: 0
+    target_bundles_drag_drop:
+      curso_extracurricular:
+        weight: 6
+        enabled: false
+      experiencia_profissional:
+        weight: 7
+        enabled: false
+      icone_descricao:
+        weight: 8
+        enabled: true
+      icone_titulo_descricao:
+        weight: 9
+        enabled: false
+      instituicao_ensino:
+        weight: 10
+        enabled: false
+field_type: entity_reference_revisions

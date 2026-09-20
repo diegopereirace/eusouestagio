@@ -1,0 +1,19 @@
+uuid: cd2db5fd-1493-4056-9fc6-2459adb3a4fd
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_habilidade
+    - paragraphs.paragraphs_type.curso_extracurricular
+id: paragraph.curso_extracurricular.field_habilidade
+field_name: field_habilidade
+entity_type: paragraph
+bundle: curso_extracurricular
+label: Habilidade
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

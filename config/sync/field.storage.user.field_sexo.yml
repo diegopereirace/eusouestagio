@@ -1,0 +1,33 @@
+uuid: 3e6667ca-5227-4385-8574-bba6f5cf4882
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - options
+    - user
+id: user.field_sexo
+field_name: field_sexo
+entity_type: user
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: feminino
+      label: Feminino
+    -
+      value: masculino
+      label: Masculino
+    -
+      value: intersexo
+      label: Intersexo
+    -
+      value: prefiro_nao_informar
+      label: 'Prefiro não informar'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

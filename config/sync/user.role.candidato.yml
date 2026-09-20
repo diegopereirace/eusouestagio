@@ -1,0 +1,9 @@
+uuid: 7eee89e7-c527-4c27-b36a-68d645720e03
+langcode: pt-br
+status: true
+dependencies: {  }
+id: candidato
+label: Candidato
+weight: 4
+is_admin: false
+permissions: {  }

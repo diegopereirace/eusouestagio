@@ -1,0 +1,20 @@
+uuid: 1113a342-ee8f-403b-a984-f1df575d147d
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_orgao_emissor
+  module:
+    - user
+id: user.user.field_orgao_emissor
+field_name: field_orgao_emissor
+entity_type: user
+bundle: user
+label: 'Órgão Emissor'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

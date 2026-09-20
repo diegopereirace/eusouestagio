@@ -1,0 +1,19 @@
+uuid: e8c40075-8ab3-4bf4-9e53-1c5b2d5e0140
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_text_simple_long_2
+    - node.type.para_empresas
+id: node.para_empresas.field_text_simple_long_2
+field_name: field_text_simple_long_2
+entity_type: node
+bundle: para_empresas
+label: 'Terceiro Paragrafo'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

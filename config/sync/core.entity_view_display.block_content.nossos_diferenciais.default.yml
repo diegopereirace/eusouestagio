@@ -1,0 +1,55 @@
+uuid: 5b9c2f3a-7c4d-4e0f-a2b3-c4d5e6f7a8b9
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.nossos_diferenciais
+    - field.field.block_content.nossos_diferenciais.field_diferenciais_lista
+    - field.field.block_content.nossos_diferenciais.field_image
+    - field.field.block_content.nossos_diferenciais.field_text_simple
+    - field.field.block_content.nossos_diferenciais.field_text_simple_long
+  module:
+    - entity_reference_revisions
+    - image
+id: block_content.nossos_diferenciais.default
+targetEntityType: block_content
+bundle: nossos_diferenciais
+mode: default
+content:
+  field_diferenciais_lista:
+    type: entity_reference_revisions_entity_view
+    label: hidden
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    weight: 3
+    region: content
+  field_image:
+    type: image
+    label: hidden
+    settings:
+      image_link: ''
+      image_style: ''
+      image_loading:
+        attribute: lazy
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_text_simple:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_text_simple_long:
+    type: basic_string
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
+hidden:
+  langcode: true

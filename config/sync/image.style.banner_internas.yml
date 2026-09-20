@@ -1,0 +1,15 @@
+uuid: aaf8ed3e-1b2b-481d-9cc0-6116f70e61ed
+langcode: pt-br
+status: true
+dependencies: {  }
+name: banner_internas
+label: 'Banner Internas'
+effects:
+  1e5ea420-23c1-48a2-9b33-c01284162e94:
+    uuid: 1e5ea420-23c1-48a2-9b33-c01284162e94
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 1800
+      height: 500
+      anchor: center-center

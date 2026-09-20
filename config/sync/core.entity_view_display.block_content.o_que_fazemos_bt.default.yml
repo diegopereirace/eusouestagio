@@ -1,0 +1,42 @@
+uuid: f1a2b3c4-d5e6-4789-f012-def012345678
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.o_que_fazemos_bt
+    - field.field.block_content.o_que_fazemos_bt.field_o_que_fazemos_itens
+    - field.field.block_content.o_que_fazemos_bt.field_text_simple
+    - field.field.block_content.o_que_fazemos_bt.field_text_simple_long
+  module:
+    - entity_reference_revisions
+id: block_content.o_que_fazemos_bt.default
+targetEntityType: block_content
+bundle: o_que_fazemos_bt
+mode: default
+content:
+  field_o_que_fazemos_itens:
+    type: entity_reference_revisions_entity_view
+    label: hidden
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_text_simple:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_text_simple_long:
+    type: basic_string
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
+hidden:
+  langcode: true

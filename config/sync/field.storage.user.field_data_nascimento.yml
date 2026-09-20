@@ -1,0 +1,20 @@
+uuid: 305ac222-6778-4c71-b256-d4e85ef20639
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - datetime
+    - user
+id: user.field_data_nascimento
+field_name: field_data_nascimento
+entity_type: user
+type: datetime
+settings:
+  datetime_type: date
+module: datetime
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

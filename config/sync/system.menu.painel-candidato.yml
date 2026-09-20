@@ -1,0 +1,8 @@
+uuid: 123dfb2e-69dc-4007-a444-c1a2754238f3
+langcode: pt-br
+status: true
+dependencies: {  }
+id: painel-candidato
+label: 'Painel Candidato'
+description: ''
+locked: false

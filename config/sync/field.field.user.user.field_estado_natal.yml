@@ -1,0 +1,20 @@
+uuid: 0af95a32-9616-4f19-a8b7-027b6912b14a
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_estado_natal
+  module:
+    - user
+id: user.user.field_estado_natal
+field_name: field_estado_natal
+entity_type: user
+bundle: user
+label: 'Estado Natal'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

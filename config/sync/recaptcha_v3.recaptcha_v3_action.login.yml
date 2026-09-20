@@ -1,0 +1,8 @@
+uuid: 563fed3c-5871-440d-9329-48f70150e366
+langcode: pt-br
+status: true
+dependencies: {  }
+id: login
+label: login
+threshold: 0.5
+challenge: default

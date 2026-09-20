@@ -1,0 +1,10 @@
+uuid: 020fd682-792c-4cf8-9b9a-fa2f1edc25fa
+langcode: pt-br
+status: true
+dependencies: {  }
+id: curso_extracurricular
+label: 'Curso Extracurricular'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }

@@ -1,0 +1,20 @@
+uuid: 0c802f6b-f078-433a-aa4d-b424050e5243
+langcode: pt-br
+status: true
+dependencies:
+  enforced:
+    module:
+      - webform
+_core:
+  default_config_hash: mII4acOv33s-j8PINywrCag4OITbeJGxdPO373dnHHw
+id: education
+label: Educação
+category: Demográfico
+likert: false
+options: |
+  Segundo grau: Segundo grau
+  Profissionalizante: Profissionalizante
+  Graduação: Graduação
+  Especialização: Especialização
+  Mestrado: Mestrado
+  Doutorado: Doutorado

@@ -1,0 +1,20 @@
+uuid: b9417571-c000-4420-ad10-e8c27bd68b73
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_numero
+  module:
+    - user
+id: user.user.field_numero
+field_name: field_numero
+entity_type: user
+bundle: user
+label: Número
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

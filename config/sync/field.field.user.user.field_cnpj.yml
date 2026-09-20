@@ -1,0 +1,20 @@
+uuid: 5a432984-1cbe-441d-9c14-1e7e58b9418c
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_cnpj
+  module:
+    - user
+id: user.user.field_cnpj
+field_name: field_cnpj
+entity_type: user
+bundle: user
+label: CNPJ
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

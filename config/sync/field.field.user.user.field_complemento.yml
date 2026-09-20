@@ -1,0 +1,20 @@
+uuid: ad9f77db-f4d2-491c-a481-977035d0cf91
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_complemento
+  module:
+    - user
+id: user.user.field_complemento
+field_name: field_complemento
+entity_type: user
+bundle: user
+label: Complemento
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

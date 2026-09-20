@@ -1,0 +1,20 @@
+uuid: 5ffd9ff8-c18b-4d8c-b551-e765450d79bb
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_numero_cid
+  module:
+    - user
+id: user.user.field_numero_cid
+field_name: field_numero_cid
+entity_type: user
+bundle: user
+label: 'Número do CID'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

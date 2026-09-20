@@ -1,0 +1,71 @@
+uuid: 4a8b1e2f-6b3c-4d9e-f1a2-b3c4d5e6f7a8
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.nossos_diferenciais
+    - field.field.block_content.nossos_diferenciais.field_diferenciais_lista
+    - field.field.block_content.nossos_diferenciais.field_image
+    - field.field.block_content.nossos_diferenciais.field_text_simple
+    - field.field.block_content.nossos_diferenciais.field_text_simple_long
+    - image.style.thumbnail
+  module:
+    - image
+    - paragraphs
+id: block_content.nossos_diferenciais.default
+targetEntityType: block_content
+bundle: nossos_diferenciais
+mode: default
+content:
+  field_diferenciais_lista:
+    type: paragraphs
+    weight: 4
+    region: content
+    settings:
+      title: Diferencial
+      title_plural: Diferenciais
+      edit_mode: open
+      closed_mode: summary
+      autocollapse: none
+      closed_mode_threshold: 0
+      add_mode: dropdown
+      form_display_mode: default
+      default_paragraph_type: diferencial_item_p
+      features:
+        collapse_edit_all: collapse_edit_all
+        duplicate: duplicate
+    third_party_settings: {  }
+  field_image:
+    type: image_image
+    weight: 3
+    region: content
+    settings:
+      progress_indicator: throbber
+      preview_image_style: thumbnail
+    third_party_settings: {  }
+  field_text_simple:
+    type: string_textfield
+    weight: 1
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_text_simple_long:
+    type: string_textarea
+    weight: 2
+    region: content
+    settings:
+      rows: 4
+      placeholder: ''
+    third_party_settings: {  }
+  info:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  langcode: true

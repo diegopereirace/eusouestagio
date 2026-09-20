@@ -1,0 +1,55 @@
+uuid: f64b0094-f540-4764-9d2c-788ec664a180
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.cto
+    - field.field.block_content.cto.field_image
+    - field.field.block_content.cto.field_link
+    - field.field.block_content.cto.field_text_simple
+    - field.field.block_content.cto.field_text_simple_long
+  module:
+    - image
+    - link
+id: block_content.cto.default
+targetEntityType: block_content
+bundle: cto
+mode: default
+content:
+  field_image:
+    type: image_url
+    label: hidden
+    settings:
+      image_style: ''
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_link:
+    type: link
+    label: hidden
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 3
+    region: content
+  field_text_simple:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_text_simple_long:
+    type: basic_string
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden:
+  langcode: true

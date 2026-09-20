@@ -1,0 +1,19 @@
+uuid: c2e41c6c-dc1a-421f-86ba-5e7c5fe74b19
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_atividades
+    - paragraphs.paragraphs_type.experiencia_profissional
+id: paragraph.experiencia_profissional.field_atividades
+field_name: field_atividades
+entity_type: paragraph
+bundle: experiencia_profissional
+label: Atividades
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

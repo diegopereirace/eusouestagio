@@ -60,6 +60,12 @@ missao_visao:
       assets/css/block-missao-visao.css: {}
   dependencies:
     - default/bootstrap
+quem_somos_missao_visao:
+  css:
+    component:
+      assets/css/quem-somos-missao-visao.css: {}
+  dependencies:
+    - default/bootstrap
 hero_search:
   js:
     assets/js/hero-search.js: {}

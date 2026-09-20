@@ -198,6 +198,27 @@ function custom_configs_update_11014(): string {
 }
 
 /**
+ * Move Missão/Visão para o Node quem_somos; aposenta placement do bloco 011.
+ *
+ * Remove legado *_2 / group_segundo_bloco; anexa field_imagem_desktop +
+ * field_text_simple_long + field_text_simple_long_2 + group_missao_visao;
+ * seed condicional (textos Assumptions + asset de fundo); status false em
+ * default_missaovisao. Nunca sobrescreve editorial já preenchido.
+ * Deploy destino: git pull → drush cim -y → drush updb -y → drush cr
+ * (cim antes do updb — estrutura primária via config/sync).
+ */
+function custom_configs_update_11015(): string {
+  $messages = [
+    _custom_configs_ensure_quem_somos_missao_visao_fields(),
+    _custom_configs_seed_quem_somos_missao_visao(),
+    _custom_configs_remove_quem_somos_segundo_bloco_legado(),
+    _custom_configs_ensure_quem_somos_missao_visao_displays(),
+    _custom_configs_disable_missao_visao_placement(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
  * Garante field instances do Primeiro Bloco em quem_somos (reusa storages).
  */
 function _custom_configs_ensure_quem_somos_sobre_nos_fields(): string {
@@ -1706,6 +1727,464 @@ function _custom_configs_ensure_missao_visao_placement(): string {
   }
 
   return (string) t('Placement default_missaovisao já ok.');
+}
+
+/**
+ * Remove instances/storages órfãos do Anexo 2 em quem_somos (se ainda presentes).
+ */
+function _custom_configs_remove_quem_somos_segundo_bloco_legado(): string {
+  $bundle = 'quem_somos';
+  $legacy_fields = [
+    'field_titulo_2',
+    'field_text_long_formatted_2',
+    'field_imagem_2',
+  ];
+  $removed = [];
+
+  foreach ($legacy_fields as $field_name) {
+    $field = \Drupal\field\Entity\FieldConfig::loadByName('node', $bundle, $field_name);
+    if ($field) {
+      $field->delete();
+      $removed[] = $field_name;
+    }
+  }
+
+  // Limpa displays de componentes legado (defensivo se delete não limpou).
+  $form_display = \Drupal::entityTypeManager()
+    ->getStorage('entity_form_display')
+    ->load("node.$bundle.default");
+  if ($form_display) {
+    $changed = FALSE;
+    foreach ($legacy_fields as $field_name) {
+      if ($form_display->getComponent($field_name)) {
+        $form_display->removeComponent($field_name);
+        $changed = TRUE;
+      }
+    }
+    $tps = $form_display->getThirdPartySettings('field_group');
+    if (isset($tps['group_segundo_bloco'])) {
+      $form_display->unsetThirdPartySetting('field_group', 'group_segundo_bloco');
+      $changed = TRUE;
+    }
+    if ($changed) {
+      $form_display->save();
+    }
+  }
+
+  $view_display = \Drupal::entityTypeManager()
+    ->getStorage('entity_view_display')
+    ->load("node.$bundle.default");
+  if ($view_display) {
+    $changed = FALSE;
+    foreach ($legacy_fields as $field_name) {
+      if ($view_display->getComponent($field_name)) {
+        $view_display->removeComponent($field_name);
+        $changed = TRUE;
+      }
+    }
+    if ($changed) {
+      $view_display->save();
+    }
+  }
+
+  $orphan_storages = [];
+  foreach ($legacy_fields as $field_name) {
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('node', $field_name);
+    if (!$storage) {
+      continue;
+    }
+    $bundles = $storage->getBundles();
+    if (!$bundles) {
+      $storage->delete();
+      $orphan_storages[] = $field_name;
+    }
+  }
+
+  $parts = [];
+  if ($removed) {
+    $parts[] = (string) t('Instances legado removidas: @fields.', [
+      '@fields' => implode(', ', $removed),
+    ]);
+  }
+  if ($orphan_storages) {
+    $parts[] = (string) t('Storages órfãos removidos: @fields.', [
+      '@fields' => implode(', ', $orphan_storages),
+    ]);
+  }
+  if (!$parts) {
+    $parts[] = (string) t('Legado Segundo Bloco já ausente.');
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Garante field instances Missão/Visão em quem_somos (reusa storages).
+ */
+function _custom_configs_ensure_quem_somos_missao_visao_fields(): string {
+  $bundle = 'quem_somos';
+  $fields = [
+    'field_imagem_desktop' => [
+      'label' => 'Imagem de fundo',
+      'required' => FALSE,
+      'settings' => [
+        'handler' => 'default:file',
+        'handler_settings' => [],
+        'file_directory' => 'quem-somos/missao-visao/[date:custom:Y]-[date:custom:m]',
+        'file_extensions' => 'png gif jpg jpeg webp',
+        'max_filesize' => '',
+        'max_resolution' => '',
+        'min_resolution' => '',
+        'alt_field' => TRUE,
+        'alt_field_required' => FALSE,
+        'title_field' => TRUE,
+        'title_field_required' => FALSE,
+        'default_image' => [
+          'uuid' => '',
+          'alt' => '',
+          'title' => '',
+          'width' => NULL,
+          'height' => NULL,
+        ],
+      ],
+    ],
+    'field_text_simple_long' => [
+      'label' => 'Texto Missão',
+      'required' => FALSE,
+      'settings' => [],
+    ],
+    'field_text_simple_long_2' => [
+      'label' => 'Texto Visão',
+      'required' => FALSE,
+      'settings' => [],
+    ],
+  ];
+
+  $created = [];
+  $missing_storage = [];
+
+  foreach ($fields as $field_name => $definition) {
+    $existing = \Drupal\field\Entity\FieldConfig::loadByName('node', $bundle, $field_name);
+    if ($existing) {
+      continue;
+    }
+
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('node', $field_name);
+    if (!$storage) {
+      $missing_storage[] = $field_name;
+      continue;
+    }
+
+    $field = \Drupal\field\Entity\FieldConfig::create([
+      'field_storage' => $storage,
+      'bundle' => $bundle,
+      'label' => $definition['label'],
+      'required' => $definition['required'],
+      'settings' => $definition['settings'],
+      'translatable' => FALSE,
+    ]);
+    $field->save();
+    $created[] = $field_name;
+  }
+
+  $parts = [];
+  if ($missing_storage) {
+    $parts[] = (string) t('Storages ausentes (@fields) — rode drush cim -y antes do updb.', [
+      '@fields' => implode(', ', $missing_storage),
+    ]);
+  }
+  if ($created) {
+    $parts[] = (string) t('Instances Missão/Visão criadas em quem_somos: @fields.', [
+      '@fields' => implode(', ', $created),
+    ]);
+  }
+  if (!$parts) {
+    $parts[] = (string) t('Instances Missão/Visão (quem_somos) já presentes.');
+  }
+
+  return implode(' ', $parts);
+}
+
+/**
+ * Garante form/view display com group_missao_visao e widgets dos três campos.
+ */
+function _custom_configs_ensure_quem_somos_missao_visao_displays(): string {
+  $bundle = 'quem_somos';
+  $field_names = [
+    'field_imagem_desktop',
+    'field_text_simple_long',
+    'field_text_simple_long_2',
+  ];
+  $messages = [];
+
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null $form_display */
+  $form_display = \Drupal::entityTypeManager()
+    ->getStorage('entity_form_display')
+    ->load("node.$bundle.default");
+  if (!$form_display) {
+    $messages[] = (string) t('Form display node.quem_somos.default ausente — rode drush cim -y.');
+  }
+  else {
+    $form_changed = FALSE;
+    $form_defaults = [
+      'field_imagem_desktop' => [
+        'type' => 'image_image',
+        'weight' => 30,
+        'settings' => [
+          'progress_indicator' => 'throbber',
+          'preview_image_style' => 'thumbnail',
+        ],
+      ],
+      'field_text_simple_long' => [
+        'type' => 'string_textarea',
+        'weight' => 31,
+        'settings' => ['rows' => 5, 'placeholder' => ''],
+      ],
+      'field_text_simple_long_2' => [
+        'type' => 'string_textarea',
+        'weight' => 32,
+        'settings' => ['rows' => 5, 'placeholder' => ''],
+      ],
+    ];
+    foreach ($field_names as $field_name) {
+      if ($form_display->getComponent($field_name)) {
+        continue;
+      }
+      $defaults = $form_defaults[$field_name];
+      $form_display->setComponent($field_name, [
+        'type' => $defaults['type'],
+        'weight' => $defaults['weight'],
+        'region' => 'content',
+        'settings' => $defaults['settings'],
+        'third_party_settings' => [],
+      ]);
+      $form_changed = TRUE;
+    }
+
+    $tps = $form_display->getThirdPartySettings('field_group') ?: [];
+    if (isset($tps['group_segundo_bloco'])) {
+      $form_display->unsetThirdPartySetting('field_group', 'group_segundo_bloco');
+      $form_changed = TRUE;
+      $tps = $form_display->getThirdPartySettings('field_group') ?: [];
+    }
+
+    $group_definition = [
+      'children' => $field_names,
+      'label' => 'Seção Missão e Visão',
+      'region' => 'content',
+      'parent_name' => '',
+      'weight' => 2,
+      'format_type' => 'fieldset',
+      'format_settings' => [
+        'classes' => '',
+        'show_empty_fields' => FALSE,
+        'id' => '',
+        'label_as_html' => FALSE,
+        'description' => '',
+        'required_fields' => TRUE,
+      ],
+    ];
+
+    if (!isset($tps['group_missao_visao'])) {
+      $form_display->setThirdPartySetting('field_group', 'group_missao_visao', $group_definition);
+      $form_changed = TRUE;
+    }
+    else {
+      $children = $tps['group_missao_visao']['children'] ?? [];
+      $merged = array_values(array_unique(array_merge($children, $field_names)));
+      $label = (string) ($tps['group_missao_visao']['label'] ?? '');
+      $needs_update = ($merged !== array_values($children)) || ($label !== 'Seção Missão e Visão');
+      if ($needs_update) {
+        $tps['group_missao_visao']['children'] = $merged;
+        $tps['group_missao_visao']['label'] = 'Seção Missão e Visão';
+        $tps['group_missao_visao']['region'] = 'content';
+        $tps['group_missao_visao']['weight'] = $tps['group_missao_visao']['weight'] ?? 2;
+        $form_display->setThirdPartySetting('field_group', 'group_missao_visao', $tps['group_missao_visao']);
+        $form_changed = TRUE;
+      }
+    }
+
+    if ($form_changed) {
+      $form_display->save();
+      $messages[] = (string) t('Form display quem_somos atualizado (Missão/Visão).');
+    }
+    else {
+      $messages[] = (string) t('Form display quem_somos Missão/Visão já ok.');
+    }
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null $view_display */
+  $view_display = \Drupal::entityTypeManager()
+    ->getStorage('entity_view_display')
+    ->load("node.$bundle.default");
+  if (!$view_display) {
+    $messages[] = (string) t('View display node.quem_somos.default ausente — rode drush cim -y.');
+  }
+  else {
+    $view_changed = FALSE;
+    $view_defaults = [
+      'field_imagem_desktop' => [
+        'type' => 'image',
+        'weight' => 106,
+        'settings' => [
+          'image_link' => '',
+          'image_style' => '',
+          'image_loading' => ['attribute' => 'lazy'],
+        ],
+      ],
+      'field_text_simple_long' => [
+        'type' => 'basic_string',
+        'weight' => 107,
+        'settings' => [],
+      ],
+      'field_text_simple_long_2' => [
+        'type' => 'basic_string',
+        'weight' => 108,
+        'settings' => [],
+      ],
+    ];
+    foreach ($field_names as $field_name) {
+      if ($view_display->getComponent($field_name)) {
+        continue;
+      }
+      $hidden = $view_display->get('hidden') ?: [];
+      if (isset($hidden[$field_name])) {
+        unset($hidden[$field_name]);
+        $view_display->set('hidden', $hidden);
+      }
+      $defaults = $view_defaults[$field_name];
+      $view_display->setComponent($field_name, [
+        'type' => $defaults['type'],
+        'label' => 'hidden',
+        'weight' => $defaults['weight'],
+        'region' => 'content',
+        'settings' => $defaults['settings'],
+        'third_party_settings' => [],
+      ]);
+      $view_changed = TRUE;
+    }
+    if ($view_changed) {
+      $view_display->save();
+      $messages[] = (string) t('View display quem_somos atualizado (Missão/Visão).');
+    }
+    else {
+      $messages[] = (string) t('View display quem_somos Missão/Visão já ok.');
+    }
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
+ * Seed condicional dos textos/imagem Missão e Visão no Node quem_somos.
+ */
+function _custom_configs_seed_quem_somos_missao_visao(): string {
+  $seed_missao = 'Desenvolver estagiários a partir do autoconhecimento, conectando suas habilidades e competências às oportunidades certas, para gerar performance, realização profissional e resultados consistentes para as empresas.';
+  $seed_visao = 'Ser referência na formação e gestão de estagiários no Brasil, reconhecida por transformar potencial em performance e por construir conexões assertivas entre talentos e organizações.';
+
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $nids = $storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('type', 'quem_somos')
+    ->execute();
+
+  if (!$nids) {
+    return (string) t('Nenhum node quem_somos — seed Missão/Visão ignorado.');
+  }
+
+  $messages = [];
+  $updated = 0;
+
+  foreach ($storage->loadMultiple($nids) as $node) {
+    /** @var \Drupal\node\NodeInterface $node */
+    $changed = FALSE;
+
+    // Migração opcional: strip tags do legado → Missão se Missão vazia.
+    if (
+      $node->hasField('field_text_long_formatted_2')
+      && !$node->get('field_text_long_formatted_2')->isEmpty()
+      && $node->hasField('field_text_simple_long')
+      && $node->get('field_text_simple_long')->isEmpty()
+    ) {
+      $legacy_html = (string) $node->get('field_text_long_formatted_2')->value;
+      $stripped = trim(html_entity_decode(strip_tags($legacy_html), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+      if ($stripped !== '') {
+        $node->set('field_text_simple_long', $stripped);
+        $changed = TRUE;
+        $messages[] = (string) t('Missão migrada do legado HTML (nid @nid).', [
+          '@nid' => (string) $node->id(),
+        ]);
+      }
+    }
+
+    if ($node->hasField('field_text_simple_long') && $node->get('field_text_simple_long')->isEmpty()) {
+      $node->set('field_text_simple_long', $seed_missao);
+      $changed = TRUE;
+    }
+
+    if ($node->hasField('field_text_simple_long_2') && $node->get('field_text_simple_long_2')->isEmpty()) {
+      $node->set('field_text_simple_long_2', $seed_visao);
+      $changed = TRUE;
+    }
+
+    if ($node->hasField('field_imagem_desktop') && $node->get('field_imagem_desktop')->isEmpty()) {
+      $file = _custom_configs_seed_file_from_module_asset(
+        'missao-visao/fundo-missao-visao.jpg',
+        'public://missao-visao/fundo-missao-visao.jpg',
+        'node',
+        (int) $node->id()
+      );
+      if ($file) {
+        $node->set('field_imagem_desktop', [
+          'target_id' => $file->id(),
+          'alt' => 'Fundo institucional — Missão e Visão',
+        ]);
+        $changed = TRUE;
+      }
+      else {
+        $messages[] = (string) t('Asset de fundo ausente — imagem não anexada (nid @nid).', [
+          '@nid' => (string) $node->id(),
+        ]);
+      }
+    }
+
+    if ($changed) {
+      $node->save();
+      $updated++;
+    }
+  }
+
+  if ($updated) {
+    $messages[] = (string) t('Seed Missão/Visão aplicado em @count node(s).', [
+      '@count' => (string) $updated,
+    ]);
+  }
+  else {
+    $messages[] = (string) t('Conteúdo editorial Missão/Visão preservado (sem re-seed).');
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
+ * Desabilita placement default_missaovisao (bloco 011 deixa de renderizar).
+ */
+function _custom_configs_disable_missao_visao_placement(): string {
+  $block_id = 'default_missaovisao';
+  $storage = \Drupal::entityTypeManager()->getStorage('block');
+
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = $storage->load($block_id);
+  if (!$block) {
+    return (string) t('Placement default_missaovisao ausente — nada a desabilitar.');
+  }
+
+  if (!$block->status()) {
+    return (string) t('Placement default_missaovisao já desabilitado.');
+  }
+
+  $block->setStatus(FALSE);
+  $block->save();
+  return (string) t('Placement default_missaovisao desabilitado.');
 }
 
 /**

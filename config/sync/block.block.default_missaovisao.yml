@@ -1,6 +1,6 @@
 uuid: f2a3b4c5-d6e7-4890-f123-ef0123456789
 langcode: pt-br
-status: true
+status: false
 dependencies:
   content:
     - 'block_content:missao_visao:b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e'

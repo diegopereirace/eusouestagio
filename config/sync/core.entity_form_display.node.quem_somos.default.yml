@@ -4,11 +4,11 @@ status: true
 dependencies:
   config:
     - field.field.node.quem_somos.field_imagem
-    - field.field.node.quem_somos.field_imagem_2
+    - field.field.node.quem_somos.field_imagem_desktop
     - field.field.node.quem_somos.field_text_long_formatted
-    - field.field.node.quem_somos.field_text_long_formatted_2
+    - field.field.node.quem_somos.field_text_simple_long
+    - field.field.node.quem_somos.field_text_simple_long_2
     - field.field.node.quem_somos.field_titulo
-    - field.field.node.quem_somos.field_titulo_2
     - image.style.thumbnail
     - node.type.quem_somos
   module:
@@ -35,12 +35,12 @@ third_party_settings:
         label_as_html: false
         description: ''
         required_fields: true
-    group_segundo_bloco:
+    group_missao_visao:
       children:
-        - field_titulo_2
-        - field_text_long_formatted_2
-        - field_imagem_2
-      label: 'Segundo Bloco'
+        - field_imagem_desktop
+        - field_text_simple_long
+        - field_text_simple_long_2
+      label: 'Seção Missão e Visão'
       region: content
       parent_name: ''
       weight: 2
@@ -71,9 +71,9 @@ content:
       progress_indicator: throbber
       preview_image_style: thumbnail
     third_party_settings: {  }
-  field_imagem_2:
+  field_imagem_desktop:
     type: image_image
-    weight: 29
+    weight: 30
     region: content
     settings:
       progress_indicator: throbber
@@ -87,9 +87,17 @@ content:
       rows: 5
       placeholder: ''
     third_party_settings: {  }
-  field_text_long_formatted_2:
-    type: text_textarea
-    weight: 28
+  field_text_simple_long:
+    type: string_textarea
+    weight: 31
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_text_simple_long_2:
+    type: string_textarea
+    weight: 32
     region: content
     settings:
       rows: 5
@@ -98,14 +106,6 @@ content:
   field_titulo:
     type: string_textfield
     weight: 26
-    region: content
-    settings:
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
-  field_titulo_2:
-    type: string_textfield
-    weight: 27
     region: content
     settings:
       size: 60

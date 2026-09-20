@@ -37,13 +37,13 @@ settings:
       label: Direito
     -
       value: calculator
-      label: Contabilidade / Finanças
+      label: 'Contabilidade / Finanças'
     -
       value: flask
       label: Ciências
     -
       value: building
-      label: Arquitetura / Construção
+      label: 'Arquitetura / Construção'
     -
       value: users
       label: 'Recursos Humanos'

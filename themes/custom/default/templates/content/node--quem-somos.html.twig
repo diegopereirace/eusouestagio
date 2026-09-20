@@ -5,9 +5,9 @@
  *
  * Available variables:
  * - node: The node entity with limited access to object properties and methods.
-    Only "getter" methods (method names starting with "get", "has", or "is")
-    and a few common methods such as "id" and "label" are available. Calling
-    other methods (such as node.delete) will result in an exception.
+   Only "getter" methods (method names starting with "get", "has", or "is")
+   and a few common methods such as "id" and "label" are available. Calling
+   other methods (such as node.delete) will result in an exception.
  * - label: The title of the node.
  * - content: All node items. Use {{ content }} to print them all,
  *   or print a subset such as {{ content.field_example }}. Use
@@ -61,6 +61,7 @@
 #}
 {{ attach_library('bootstrap_barrio/node') }}
 {{ attach_library('default/layout_sobre_nos') }}
+{{ attach_library('default/quem_somos_missao_visao') }}
 
 {%
   set classes = [
@@ -73,6 +74,13 @@
     'clearfix',
   ]
 %}
+{% set missao_text = node.field_text_simple_long.value|default('')|trim %}
+{% set visao_text = node.field_text_simple_long_2.value|default('')|trim %}
+{% set bg_uri = '' %}
+{% if node.field_imagem_desktop.entity %}
+  {% set bg_uri = node.field_imagem_desktop.entity.uri.value %}
+{% endif %}
+{% set show_missao_visao = missao_text or visao_text or bg_uri %}
 <article{{ attributes.addClass(classes) }}>
   <header>
     {{ title_prefix }}
@@ -94,34 +102,45 @@
       </div>
     {% endif %}
   </header>
-  <div{{ content_attributes.addClass('node__content', 'clearfix', 'container') }}>
-    {# 1ª seção: wrap float (imagem antes do corpo). #}
-    <section class="sobre-nos clearfix pb-5">
-      {% if not node.field_titulo.isEmpty %}
-        <h3 class="sobre-nos__title text-title-sm pb-3">{{ content.field_titulo }}</h3>
-      {% endif %}
-      {% if node.field_imagem.entity %}
-        <div class="sobre-nos__media position-relative float-md-end ms-md-4 mb-3">
-          <img loading="lazy" src="{{ file_url(node.field_imagem.entity.uri.value) }}" alt="{{ node.field_imagem.alt }}" class="sobre-nos__img img-fluid">
-        </div>
-      {% endif %}
-      {% if not node.field_text_long_formatted.isEmpty %}
-        <div class="sobre-nos__body">{{ content.field_text_long_formatted }}</div>
-      {% endif %}
-    </section>
-    {# 2ª seção: grid duas colunas (inalterada). #}
-    <div class="row row-custom-2 py-5">
-      <div class="col-md-5 col-12">
-        <div class="dv-wraper image-wrapper text-center">
-          {% if node.field_imagem_2.entity %}
-            <img loading="lazy" src="{{ file_url(node.field_imagem_2.entity.uri.value) }}" alt="{{ node.field_imagem_2.alt }}" class="img-fluid">
-          {% endif %}
-        </div>
-      </div>
-      <div class="col-md-7 col-12">
-        <h3 class="text-title-sm pb-3">{{ content.field_titulo_2 }}</h3>
-        <div class="dv-wraper text-wrapper">{{ content.field_text_long_formatted_2 }}</div>
-      </div>
+  <div{{ content_attributes.addClass('node__content', 'clearfix') }}>
+    <div class="container">
+      {# 1ª seção: wrap float (imagem antes do corpo). #}
+      <section class="sobre-nos clearfix pb-5">
+        {% if not node.field_titulo.isEmpty %}
+          <h3 class="sobre-nos__title text-title-sm pb-3">{{ content.field_titulo }}</h3>
+        {% endif %}
+        {% if node.field_imagem.entity %}
+          <div class="sobre-nos__media position-relative float-md-end ms-md-4 mb-3">
+            <img loading="lazy" src="{{ file_url(node.field_imagem.entity.uri.value) }}" alt="{{ node.field_imagem.alt }}" class="sobre-nos__img img-fluid">
+          </div>
+        {% endif %}
+        {% if not node.field_text_long_formatted.isEmpty %}
+          <div class="sobre-nos__body">{{ content.field_text_long_formatted }}</div>
+        {% endif %}
+      </section>
     </div>
+
+    {% if show_missao_visao %}
+      <section class="quem-somos-missao-visao"{% if bg_uri %} style="background-image: url('{{ file_url(bg_uri)|e('html_attr') }}');"{% endif %}>
+        <div class="quem-somos-missao-visao__inner">
+          <div class="container px-4 px-lg-5">
+            <div class="row">
+              {% if missao_text %}
+                <div class="col-md-6 text-center text-white quem-somos-missao-visao__col{% if visao_text %} quem-somos-missao-visao__col--first{% endif %}">
+                  <h2 class="quem-somos-missao-visao__title">{{ 'Nossa Missão'|t }}</h2>
+                  <p class="quem-somos-missao-visao__text">{{ missao_text }}</p>
+                </div>
+              {% endif %}
+              {% if visao_text %}
+                <div class="col-md-6 text-center text-white quem-somos-missao-visao__col">
+                  <h2 class="quem-somos-missao-visao__title">{{ 'Nossa Visão'|t }}</h2>
+                  <p class="quem-somos-missao-visao__text">{{ visao_text }}</p>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </section>
+    {% endif %}
   </div>
 </article>

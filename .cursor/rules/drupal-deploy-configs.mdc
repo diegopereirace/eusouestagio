@@ -1,0 +1,30 @@
+---
+description: Deploy de configs estruturais e seeds via drush cex + hook_update_N idempotente (Entity API)
+globs: modules/custom/**/*.install, config/sync/**/*.yml
+alwaysApply: false
+---
+# Deploy de Configurações e Banco — Drupal 11
+
+Ao alterar estrutura (fields, block types, paragraphs, views, displays, placements) ou seeds de conteúdo em `modules/custom/**/*.install` / `config/sync/**/*.yml`, siga este fluxo.
+
+## Configuração estrutural (obrigatório)
+
+- Toda alteração estrutural (novos fields, block types, paragraph types, views, form/view displays, block placements) DEVE ser acompanhada de exportação com `drush cex` para `config/sync` e versionada no Git.
+- Em ambiente de destino: `git pull` → `drush cim -y` → `drush updb -y` → `drush cr` (`cim` **antes** de `updb`).
+- Não edite YAMLs de `config/sync` “na mão” para inventar config nova: altere via admin/API e exporte.
+
+## Seeds e instâncias de conteúdo (obrigatório)
+
+- Instâncias de conteúdo (blocos default, paragraphs seed, arquivos placeholder) **não** vivem só em `config/sync`.
+- Gere (ou atualize) um `hook_update_N` **idempotente** em `custom_configs.install` usando a Entity API do Drupal (`\Drupal::entityTypeManager()`, `BlockContent::create()`, etc.).
+- Antes de criar/alterar: verificar existência (UUID fixo, machine name, path/placement). Reexecução = no-op seguro.
+- Nunca sobrescrever conteúdo editorial já divergente do seed; preencher apenas ausente/vazio.
+- Ao final do desenvolvimento no ambiente de origem: instruir e executar `drush cex` para sincronizar block types, paragraph types, fields, displays e placements gerados/alterados.
+
+## Checklist mínimo por feature estrutural
+
+1. Tipos + field instances + displays garantidos (config e/ou ensure no hook).
+2. Seed idempotente da instância (quando aplicável).
+3. Placement/visibilidade via config exportável.
+4. `drush cex` → commit de `config/sync`.
+5. Documentar no PRD (se estrutural) e no quickstart da feature o comando de deploy.

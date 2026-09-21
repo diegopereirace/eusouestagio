@@ -1,0 +1,19 @@
+uuid: c0d1e2f3-a4b5-4c6d-2e7f-8091a2b3c4d5
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.diferenciais_quem_somos
+    - field.storage.block_content.field_text_simple
+id: block_content.diferenciais_quem_somos.field_text_simple
+field_name: field_text_simple
+entity_type: block_content
+bundle: diferenciais_quem_somos
+label: 'Título da seção'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,51 @@
+/**
+ * Diferenciais Quem Somos — escopo isolado.
+ * Não alterar .block-nossos-diferenciais / .nd-*.
+ */
+.block-diferenciais-quem-somos {
+  overflow-x: hidden;
+}
+
+.block-diferenciais-quem-somos .dqs-header__title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  color: #1a2a4a;
+  margin-bottom: 1rem;
+}
+
+.block-diferenciais-quem-somos .dqs-header__desc {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  color: #4a5568;
+  margin-bottom: 0;
+}
+
+.block-diferenciais-quem-somos .dqs-item__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+}
+
+.block-diferenciais-quem-somos .dqs-item__icon img {
+  max-width: 64px;
+  max-height: 64px;
+  width: auto;
+  height: auto;
+}
+
+.block-diferenciais-quem-somos .dqs-item__label {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  color: #1a2a4a;
+  margin-bottom: 0;
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+@media (max-width: 575.98px) {
+  .block-diferenciais-quem-somos .dqs-item__label {
+    font-size: 0.875rem;
+  }
+}

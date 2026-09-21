@@ -66,6 +66,12 @@ quem_somos_missao_visao:
       assets/css/quem-somos-missao-visao.css: {}
   dependencies:
     - default/bootstrap
+diferenciais_quem_somos:
+  css:
+    component:
+      assets/css/diferenciais-quem-somos.css: {}
+  dependencies:
+    - default/bootstrap
 hero_search:
   js:
     assets/js/hero-search.js: {}

@@ -1,0 +1,35 @@
+uuid: f3a4b5c6-d7e8-4f9a-5182-b3c4d5e6f708
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.diferencial_simples_p.field_image
+    - field.field.paragraph.diferencial_simples_p.field_text_simple
+    - image.style.thumbnail
+    - paragraphs.paragraphs_type.diferencial_simples_p
+  module:
+    - image
+id: paragraph.diferencial_simples_p.default
+targetEntityType: paragraph
+bundle: diferencial_simples_p
+mode: default
+content:
+  field_image:
+    type: image_image
+    weight: 0
+    region: content
+    settings:
+      progress_indicator: throbber
+      preview_image_style: thumbnail
+    third_party_settings: {  }
+  field_text_simple:
+    type: string_textfield
+    weight: 1
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true

@@ -1,0 +1,8 @@
+uuid: f7a8b9c0-d1e2-4f3a-9b4c-5d6e7f8091a2
+langcode: pt-br
+status: true
+dependencies: {  }
+id: diferenciais_quem_somos
+label: 'Diferenciais Quem Somos'
+revision: false
+description: 'Grid de diferenciais (ícone + rótulo) na página Quem Somos.'

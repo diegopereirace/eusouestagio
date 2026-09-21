@@ -1,0 +1,36 @@
+{#
+/**
+ * @file
+ * Paragraph Item Diferencial Simples (diferencial_simples_p).
+ */
+#}
+{%
+  set classes = [
+    'paragraph',
+    'paragraph--type--' ~ paragraph.bundle|clean_class,
+    view_mode ? 'paragraph--view-mode--' ~ view_mode|clean_class,
+    'col-6',
+    'col-md-4',
+    'col-lg-3',
+    'mb-4',
+  ]
+%}
+{% set label = content.field_text_simple|render|striptags|trim %}
+{% set has_icon = content.field_image['#items'] is defined and content.field_image['#items'][0] is defined and content.field_image['#items'][0].entity.uri.value is defined %}
+
+{% if has_icon or label %}
+  <div{{ attributes.addClass(classes) }}>
+    <div class="dqs-item text-center d-flex flex-column align-items-center">
+      {% if has_icon %}
+        {% set icon_uri = content.field_image['#items'][0].entity.uri.value %}
+        {% set icon_alt = content.field_image['#items'][0].alt|default(label) %}
+        <div class="dqs-item__icon">
+          <img class="img-fluid" src="{{ file_url(icon_uri) }}" alt="{{ icon_alt }}" loading="lazy">
+        </div>
+      {% endif %}
+      {% if label %}
+        <p class="dqs-item__label mt-3">{{ label }}</p>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}

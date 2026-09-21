@@ -1,0 +1,31 @@
+uuid: e2f3a4b5-c6d7-4e8f-4081-a2b3c4d5e6f7
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.diferenciais_quem_somos
+    - field.storage.block_content.field_itens_lista
+    - paragraphs.paragraphs_type.diferencial_simples_p
+  module:
+    - entity_reference_revisions
+id: block_content.diferenciais_quem_somos.field_itens_lista
+field_name: field_itens_lista
+entity_type: block_content
+bundle: diferenciais_quem_somos
+label: Itens
+description: 'Lista ilimitada de diferenciais (ícone + rótulo).'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      diferencial_simples_p: diferencial_simples_p
+    negate: 0
+    target_bundles_drag_drop:
+      diferencial_simples_p:
+        weight: 0
+        enabled: true
+field_type: entity_reference_revisions

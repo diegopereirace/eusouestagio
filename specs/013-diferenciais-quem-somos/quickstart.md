@@ -17,13 +17,18 @@ Modelo de dados: [data-model.md](data-model.md). Contrato visual: [contracts/dif
 
 ## A) Deploy da estrutura (obrigatório)
 
-### Origem (após implementar)
+### Origem (após implementar / alterar editorial do bloco)
+
+1. Se ícones foram cadastrados no admin, copiar os PNG de `sites/default/files/paragraph/diferencial-simples/…` para `modules/custom/custom_configs/assets/diferenciais-quem-somos/` (`icon-1.png`…`icon-8.png`) e alinhar o seed em `custom_configs_update_11016` (rótulos/descrição) — **não** versionar `sites/default/files`.
+2. Exportar a estrutura:
 
 ```bash
 docker compose exec drupal drush cex -y
-git status   # config/sync + tema + custom_configs (+ assets)
+git status   # config/sync + tema + custom_configs (+ assets PNG)
 # commit / push
 ```
+
+Esse passo integra o **deploy do layout v2** de `/quem-somos` (PRD §3.1.0: hooks `11013` + `11015` + `11016`).
 
 ### Destino (staging / prod / outro local)
 

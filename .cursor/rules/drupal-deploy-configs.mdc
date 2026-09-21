@@ -28,3 +28,12 @@ Ao alterar estrutura (fields, block types, paragraphs, views, displays, placemen
 3. Placement/visibilidade via config exportável.
 4. `drush cex` → commit de `config/sync`.
 5. Documentar no PRD (se estrutural) e no quickstart da feature o comando de deploy.
+
+## Layout v2 `/quem-somos` (blocos 009–013)
+
+Receita destino: `cim` → `updb` (`11012`/`11013`/`11015`/`11016`) → `cr`.
+
+Na **origem**, além do `drush cex`:
+
+- Espelhar imagens editoriais do seed em `modules/custom/custom_configs/assets/` (ex.: ícones do bloco `diferenciais_quem_somos` / id local 14 → `assets/diferenciais-quem-somos/icon-*.png` a partir de `public://paragraph/diferencial-simples/`).
+- Nunca commit de `sites/default/files`; o hook copia asset → `public://` no destino.

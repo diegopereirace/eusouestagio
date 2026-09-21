@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.field.node.quem_somos.field_imagem
     - field.field.node.quem_somos.field_imagem_desktop
+    - field.field.node.quem_somos.field_numeros_lista
     - field.field.node.quem_somos.field_text_long_formatted
     - field.field.node.quem_somos.field_text_simple_long
     - field.field.node.quem_somos.field_text_simple_long_2
@@ -76,4 +77,5 @@ content:
     weight: 100
     region: content
 hidden:
+  field_numeros_lista: true
   langcode: true

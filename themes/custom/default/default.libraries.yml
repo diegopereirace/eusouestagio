@@ -72,6 +72,12 @@ diferenciais_quem_somos:
       assets/css/diferenciais-quem-somos.css: {}
   dependencies:
     - default/bootstrap
+impact_numbers:
+  css:
+    component:
+      assets/css/impact-numbers.css: {}
+  dependencies:
+    - default/bootstrap
 hero_search:
   js:
     assets/js/hero-search.js: {}

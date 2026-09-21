@@ -1,0 +1,29 @@
+uuid: a3b4c5d6-e7f8-4a09-5283-b4c5d6e7f809
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.numero_destaque_p.field_text_simple
+    - field.field.paragraph.numero_destaque_p.field_text_simple_long
+    - paragraphs.paragraphs_type.numero_destaque_p
+id: paragraph.numero_destaque_p.default
+targetEntityType: paragraph
+bundle: numero_destaque_p
+mode: default
+content:
+  field_text_simple:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_text_simple_long:
+    type: basic_string
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
+hidden: {  }

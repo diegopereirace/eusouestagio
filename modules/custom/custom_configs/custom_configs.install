@@ -238,6 +238,32 @@ function custom_configs_update_11016(): string {
 }
 
 /**
+ * Impact in Numbers: estrutura numero_destaque_p + field_numeros_lista + seed.
+ *
+ * Ensure paragraph type, storage ERR (cardinality 4), instances, displays;
+ * seed 4 estatísticas no Node quem_somos somente se a lista estiver vazia.
+ * Nunca sobrescreve editorial; nunca altera banner/Sobre nós/Missão-Visão/
+ * Diferenciais (009–013). Deploy: cim → updb → cr (cim antes do updb).
+ */
+function custom_configs_update_11017(): string {
+  $messages = [
+    _custom_configs_ensure_impact_numbers_structure(),
+    _custom_configs_seed_quem_somos_impact_numbers(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Impact in Numbers: placement content_full após Diferenciais Quem Somos.
+ *
+ * Garante bloco default_impactnumbersquemsomos (weight 11, só /quem-somos).
+ * Dados continuam no Node; render público sai do Node Twig.
+ */
+function custom_configs_update_11018(): string {
+  return _custom_configs_ensure_impact_numbers_placement();
+}
+
+/**
  * Garante field instances do Primeiro Bloco em quem_somos (reusa storages).
  */
 function _custom_configs_ensure_quem_somos_sobre_nos_fields(): string {
@@ -2990,5 +3016,440 @@ function _custom_configs_ensure_diferenciais_quem_somos_placement(): string {
   }
 
   return (string) t('Placement default_diferenciaisquemsomos já ok.');
+}
+
+/**
+ * Garante paragraph, storage, instances e displays de Impact in Numbers.
+ */
+function _custom_configs_ensure_impact_numbers_structure(): string {
+  $parts = [];
+
+  if (!\Drupal\paragraphs\Entity\ParagraphsType::load('numero_destaque_p')) {
+    \Drupal\paragraphs\Entity\ParagraphsType::create([
+      'id' => 'numero_destaque_p',
+      'label' => 'Número Destaque',
+      'description' => 'Estatística de impacto (destaque + subtexto) na página Quem Somos.',
+    ])->save();
+    $parts[] = (string) t('Paragraph type numero_destaque_p criado.');
+  }
+
+  $lista_storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('node', 'field_numeros_lista');
+  if (!$lista_storage) {
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => 'field_numeros_lista',
+      'entity_type' => 'node',
+      'type' => 'entity_reference_revisions',
+      'settings' => ['target_type' => 'paragraph'],
+      'cardinality' => 4,
+      'translatable' => TRUE,
+    ])->save();
+    $parts[] = (string) t('Storage field_numeros_lista criado (cardinality 4).');
+  }
+  elseif ((int) $lista_storage->getCardinality() !== 4) {
+    $lista_storage->setCardinality(4);
+    $lista_storage->save();
+    $parts[] = (string) t('Cardinality field_numeros_lista ajustada para 4.');
+  }
+
+  $paragraph_fields = [
+    'field_text_simple' => [
+      'label' => 'Destaque',
+      'required' => FALSE,
+      'settings' => [],
+    ],
+    'field_text_simple_long' => [
+      'label' => 'Subtexto',
+      'required' => FALSE,
+      'settings' => [],
+    ],
+  ];
+  foreach ($paragraph_fields as $field_name => $definition) {
+    if (\Drupal\field\Entity\FieldConfig::loadByName('paragraph', 'numero_destaque_p', $field_name)) {
+      continue;
+    }
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('paragraph', $field_name);
+    if (!$storage) {
+      $parts[] = (string) t('Storage paragraph.@field ausente — rode drush cim -y.', ['@field' => $field_name]);
+      continue;
+    }
+    \Drupal\field\Entity\FieldConfig::create([
+      'field_storage' => $storage,
+      'bundle' => 'numero_destaque_p',
+      'label' => $definition['label'],
+      'required' => $definition['required'],
+      'settings' => $definition['settings'],
+      'translatable' => FALSE,
+    ])->save();
+    $parts[] = (string) t('Instance paragraph.numero_destaque_p.@field criada.', ['@field' => $field_name]);
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName('node', 'quem_somos', 'field_numeros_lista')) {
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('node', 'field_numeros_lista');
+    if (!$storage) {
+      $parts[] = (string) t('Storage node.field_numeros_lista ausente — rode drush cim -y.');
+    }
+    else {
+      \Drupal\field\Entity\FieldConfig::create([
+        'field_storage' => $storage,
+        'bundle' => 'quem_somos',
+        'label' => 'Números / Impact in Numbers',
+        'required' => FALSE,
+        'settings' => [
+          'handler' => 'default:paragraph',
+          'handler_settings' => [
+            'target_bundles' => ['numero_destaque_p' => 'numero_destaque_p'],
+            'negate' => 0,
+            'target_bundles_drag_drop' => [
+              'numero_destaque_p' => [
+                'weight' => 0,
+                'enabled' => TRUE,
+              ],
+            ],
+          ],
+        ],
+        'translatable' => FALSE,
+      ])->save();
+      $parts[] = (string) t('Instance node.quem_somos.field_numeros_lista criada.');
+    }
+  }
+
+  $parts[] = _custom_configs_ensure_impact_numbers_displays();
+
+  if (!$parts) {
+    $parts[] = (string) t('Estrutura Impact in Numbers já presente.');
+  }
+
+  return implode(' ', array_filter($parts));
+}
+
+/**
+ * Garante form/view displays do paragraph e do Node para Impact in Numbers.
+ */
+function _custom_configs_ensure_impact_numbers_displays(): string {
+  $messages = [];
+  $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+  $view_storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null $p_form */
+  $p_form = $form_storage->load('paragraph.numero_destaque_p.default');
+  if (!$p_form) {
+    $p_form = $form_storage->create([
+      'targetEntityType' => 'paragraph',
+      'bundle' => 'numero_destaque_p',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $p_form_changed = FALSE;
+  foreach ([
+    'field_text_simple' => [
+      'type' => 'string_textfield',
+      'weight' => 0,
+      'settings' => ['size' => 60, 'placeholder' => ''],
+    ],
+    'field_text_simple_long' => [
+      'type' => 'string_textarea',
+      'weight' => 1,
+      'settings' => ['rows' => 2, 'placeholder' => ''],
+    ],
+  ] as $field_name => $defaults) {
+    if ($p_form->getComponent($field_name)) {
+      continue;
+    }
+    $p_form->setComponent($field_name, [
+      'type' => $defaults['type'],
+      'weight' => $defaults['weight'],
+      'region' => 'content',
+      'settings' => $defaults['settings'],
+      'third_party_settings' => [],
+    ]);
+    $p_form_changed = TRUE;
+  }
+  if ($p_form_changed || $p_form->isNew()) {
+    $p_form->save();
+    $messages[] = (string) t('Form display paragraph.numero_destaque_p atualizado.');
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null $p_view */
+  $p_view = $view_storage->load('paragraph.numero_destaque_p.default');
+  if (!$p_view) {
+    $p_view = $view_storage->create([
+      'targetEntityType' => 'paragraph',
+      'bundle' => 'numero_destaque_p',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $p_view_changed = FALSE;
+  foreach ([
+    'field_text_simple' => [
+      'type' => 'string',
+      'weight' => 0,
+      'settings' => ['link_to_entity' => FALSE],
+    ],
+    'field_text_simple_long' => [
+      'type' => 'basic_string',
+      'weight' => 1,
+      'settings' => [],
+    ],
+  ] as $field_name => $defaults) {
+    if ($p_view->getComponent($field_name)) {
+      continue;
+    }
+    $p_view->setComponent($field_name, [
+      'type' => $defaults['type'],
+      'label' => 'hidden',
+      'weight' => $defaults['weight'],
+      'region' => 'content',
+      'settings' => $defaults['settings'],
+      'third_party_settings' => [],
+    ]);
+    $p_view_changed = TRUE;
+  }
+  if ($p_view_changed || $p_view->isNew()) {
+    $p_view->save();
+    $messages[] = (string) t('View display paragraph.numero_destaque_p atualizado.');
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null $n_form */
+  $n_form = $form_storage->load('node.quem_somos.default');
+  if (!$n_form) {
+    $messages[] = (string) t('Form display node.quem_somos.default ausente — rode drush cim -y.');
+  }
+  else {
+    $n_form_changed = FALSE;
+    if (!$n_form->getComponent('field_numeros_lista')) {
+      $n_form->setComponent('field_numeros_lista', [
+        'type' => 'paragraphs',
+        'weight' => 33,
+        'region' => 'content',
+        'settings' => [
+          'title' => 'Número',
+          'title_plural' => 'Números',
+          'edit_mode' => 'open',
+          'closed_mode' => 'summary',
+          'autocollapse' => 'none',
+          'closed_mode_threshold' => 0,
+          'add_mode' => 'dropdown',
+          'form_display_mode' => 'default',
+          'default_paragraph_type' => 'numero_destaque_p',
+          'features' => [
+            'collapse_edit_all' => 'collapse_edit_all',
+            'duplicate' => 'duplicate',
+          ],
+        ],
+        'third_party_settings' => [],
+      ]);
+      $n_form_changed = TRUE;
+    }
+
+    $tps = $n_form->getThirdPartySettings('field_group');
+    if (!isset($tps['group_numeros'])) {
+      $n_form->setThirdPartySetting('field_group', 'group_numeros', [
+        'children' => ['field_numeros_lista'],
+        'label' => 'Números / Impact in Numbers',
+        'region' => 'content',
+        'parent_name' => '',
+        'weight' => 3,
+        'format_type' => 'fieldset',
+        'format_settings' => [
+          'classes' => '',
+          'show_empty_fields' => FALSE,
+          'id' => '',
+          'label_as_html' => FALSE,
+          'description' => '',
+          'required_fields' => TRUE,
+        ],
+      ]);
+      $n_form_changed = TRUE;
+    }
+    else {
+      $children = $tps['group_numeros']['children'] ?? [];
+      if (!in_array('field_numeros_lista', $children, TRUE)) {
+        $tps['group_numeros']['children'] = array_values(array_unique(array_merge($children, ['field_numeros_lista'])));
+        $n_form->setThirdPartySetting('field_group', 'group_numeros', $tps['group_numeros']);
+        $n_form_changed = TRUE;
+      }
+    }
+
+    if ($n_form_changed) {
+      $n_form->save();
+      $messages[] = (string) t('Form display quem_somos atualizado (Impact in Numbers).');
+    }
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null $n_view */
+  $n_view = $view_storage->load('node.quem_somos.default');
+  if (!$n_view) {
+    $messages[] = (string) t('View display node.quem_somos.default ausente — rode drush cim -y.');
+  }
+  elseif (!$n_view->getComponent('field_numeros_lista')) {
+    $hidden = $n_view->get('hidden') ?: [];
+    if (isset($hidden['field_numeros_lista'])) {
+      unset($hidden['field_numeros_lista']);
+      $n_view->set('hidden', $hidden);
+    }
+    $n_view->setComponent('field_numeros_lista', [
+      'type' => 'entity_reference_revisions_entity_view',
+      'label' => 'hidden',
+      'weight' => 109,
+      'region' => 'content',
+      'settings' => ['view_mode' => 'default', 'link' => ''],
+      'third_party_settings' => [],
+    ]);
+    $n_view->save();
+    $messages[] = (string) t('View display quem_somos atualizado (Impact in Numbers).');
+  }
+
+  if (!$messages) {
+    $messages[] = (string) t('Displays Impact in Numbers já ok.');
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
+ * Seed idempotente dos 4 números no Node quem_somos (só se lista vazia).
+ */
+function _custom_configs_seed_quem_somos_impact_numbers(): string {
+  $seed_items = [
+    ['stat' => '20k+', 'label' => 'ESTUDANTES ATIVOS'],
+    ['stat' => '1.2k+', 'label' => 'EMPRESAS PARCEIRAS'],
+    ['stat' => '8k+', 'label' => 'ESTÁGIOS INICIADOS'],
+    ['stat' => '95%', 'label' => 'SATISFAÇÃO GLOBAL'],
+  ];
+
+  $paragraph_bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('paragraph');
+  if (!isset($paragraph_bundles['numero_destaque_p'])) {
+    return (string) t('Bundle numero_destaque_p ausente — rode drush cim -y antes do updb.');
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName('node', 'quem_somos', 'field_numeros_lista')) {
+    return (string) t('Campo field_numeros_lista ausente em quem_somos — rode drush cim -y.');
+  }
+
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $nids = $storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('type', 'quem_somos')
+    ->execute();
+
+  if (!$nids) {
+    return (string) t('Nenhum node quem_somos — seed Impact in Numbers ignorado.');
+  }
+
+  $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
+  $updated = 0;
+
+  foreach ($storage->loadMultiple($nids) as $node) {
+    /** @var \Drupal\node\NodeInterface $node */
+    if (!$node->hasField('field_numeros_lista')) {
+      continue;
+    }
+    if (!$node->get('field_numeros_lista')->isEmpty()) {
+      continue;
+    }
+
+    $paragraphs = [];
+    foreach ($seed_items as $item) {
+      /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
+      $paragraph = $paragraph_storage->create([
+        'type' => 'numero_destaque_p',
+        'field_text_simple' => $item['stat'],
+        'field_text_simple_long' => $item['label'],
+      ]);
+      $paragraph->save();
+      $paragraphs[] = [
+        'target_id' => $paragraph->id(),
+        'target_revision_id' => $paragraph->getRevisionId(),
+      ];
+    }
+
+    $node->set('field_numeros_lista', $paragraphs);
+    $node->save();
+    $updated++;
+  }
+
+  if ($updated) {
+    return (string) t('Seed Impact in Numbers aplicado em @count node(s) quem_somos (4 itens).', [
+      '@count' => $updated,
+    ]);
+  }
+
+  return (string) t('Seed Impact in Numbers: lista já preenchida — sem alterações.');
+}
+
+/**
+ * Garante placement default_impactnumbersquemsomos em content_full /quem-somos.
+ */
+function _custom_configs_ensure_impact_numbers_placement(): string {
+  $block_id = 'default_impactnumbersquemsomos';
+  $plugin = 'custom_configs_impact_numbers_quem_somos';
+  $storage = \Drupal::entityTypeManager()->getStorage('block');
+
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = $storage->load($block_id);
+  if (!$block) {
+    $block = $storage->create([
+      'id' => $block_id,
+      'theme' => 'default',
+      'region' => 'content_full',
+      'weight' => 11,
+      'provider' => NULL,
+      'plugin' => $plugin,
+      'settings' => [
+        'id' => $plugin,
+        'label' => 'Impact in Numbers Quem Somos',
+        'label_display' => '0',
+        'provider' => 'custom_configs',
+      ],
+      'visibility' => [
+        'request_path' => [
+          'id' => 'request_path',
+          'negate' => FALSE,
+          'pages' => '/quem-somos',
+        ],
+      ],
+    ]);
+    $block->save();
+    return (string) t('Placement default_impactnumbersquemsomos criado (após Diferenciais).');
+  }
+
+  $changed = FALSE;
+  if ($block->getRegion() !== 'content_full') {
+    $block->setRegion('content_full');
+    $changed = TRUE;
+  }
+  if ((int) $block->getWeight() !== 11) {
+    $block->setWeight(11);
+    $changed = TRUE;
+  }
+  if (!$block->status()) {
+    $block->setStatus(TRUE);
+    $changed = TRUE;
+  }
+  $settings = $block->get('settings') ?: [];
+  if (($settings['label_display'] ?? NULL) !== '0') {
+    $settings['label_display'] = '0';
+    $block->set('settings', $settings);
+    $changed = TRUE;
+  }
+  $visibility = $block->getVisibility();
+  $pages = (string) ($visibility['request_path']['pages'] ?? '');
+  if (trim($pages) !== '/quem-somos') {
+    $block->setVisibilityConfig('request_path', [
+      'id' => 'request_path',
+      'negate' => FALSE,
+      'pages' => '/quem-somos',
+    ]);
+    $changed = TRUE;
+  }
+
+  if ($changed) {
+    $block->save();
+    return (string) t('Placement default_impactnumbersquemsomos atualizado.');
+  }
+
+  return (string) t('Placement default_impactnumbersquemsomos já ok.');
 }
 

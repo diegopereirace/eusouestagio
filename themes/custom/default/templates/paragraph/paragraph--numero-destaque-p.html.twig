@@ -1,0 +1,30 @@
+{#
+/**
+ * @file
+ * Paragraph Número Destaque (numero_destaque_p) — Impact in Numbers.
+ */
+#}
+{%
+  set classes = [
+    'paragraph',
+    'paragraph--type--' ~ paragraph.bundle|clean_class,
+    view_mode ? 'paragraph--view-mode--' ~ view_mode|clean_class,
+    'col-6',
+    'col-md-3',
+  ]
+%}
+{% set stat = content.field_text_simple|render|striptags|trim %}
+{% set label = content.field_text_simple_long|render|striptags|trim %}
+
+{% if stat or label %}
+  <div{{ attributes.addClass(classes) }}>
+    <div class="section-impact-numbers__item d-flex flex-column align-items-center">
+      {% if stat %}
+        <div class="section-impact-numbers__stat">{{ stat }}</div>
+      {% endif %}
+      {% if label %}
+        <div class="section-impact-numbers__label">{{ label }}</div>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}

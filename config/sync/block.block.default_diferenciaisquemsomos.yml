@@ -1,0 +1,28 @@
+uuid: d7e8f9a0-b1c2-4d3e-9586-f708192a3b4c
+langcode: pt-br
+status: true
+dependencies:
+  content:
+    - 'block_content:diferenciais_quem_somos:d5e6f7a8-b9c0-4d1e-8f2a-3b4c5d6e7f80'
+  module:
+    - block_content
+    - system
+  theme:
+    - default
+id: default_diferenciaisquemsomos
+theme: default
+region: content_full
+weight: 10
+provider: null
+plugin: 'block_content:d5e6f7a8-b9c0-4d1e-8f2a-3b4c5d6e7f80'
+settings:
+  id: 'block_content:d5e6f7a8-b9c0-4d1e-8f2a-3b4c5d6e7f80'
+  label: 'Diferenciais Quem Somos'
+  label_display: '0'
+  provider: block_content
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /quem-somos

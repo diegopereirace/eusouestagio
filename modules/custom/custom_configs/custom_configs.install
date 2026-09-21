@@ -219,6 +219,25 @@ function custom_configs_update_11015(): string {
 }
 
 /**
+ * Diferenciais Quem Somos: estrutura, seed (8 itens), placement.
+ *
+ * Eleva cardinality de field_itens_lista se ainda 2; ensure types/fields/
+ * displays; seed BlockContent UUID fixo + 8 diferencial_simples_p + ícones
+ * (somente se vazios/ausentes); ensure placement content_full em /quem-somos.
+ * Nunca sobrescreve editorial; nunca altera nossos_diferenciais.
+ * Deploy destino: git pull → drush cim -y → drush updb -y → drush cr
+ * (cim antes do updb — estrutura primária via config/sync).
+ */
+function custom_configs_update_11016(): string {
+  $messages = [
+    _custom_configs_ensure_diferenciais_quem_somos_structure(),
+    _custom_configs_seed_diferenciais_quem_somos(),
+    _custom_configs_ensure_diferenciais_quem_somos_placement(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
  * Garante field instances do Primeiro Bloco em quem_somos (reusa storages).
  */
 function _custom_configs_ensure_quem_somos_sobre_nos_fields(): string {
@@ -2320,3 +2339,655 @@ function _custom_configs_seed_curso_icons(): string {
 
   return (string) t('Ícones de curso atualizados em @count termo(s).', ['@count' => $updated]);
 }
+
+/**
+ * Garante paragraph/block types, cardinality, instances e displays do 013.
+ */
+function _custom_configs_ensure_diferenciais_quem_somos_structure(): string {
+  $parts = [];
+
+  // Eleva cardinality do storage compartilhado (legado 011 = 2).
+  $lista_storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('block_content', 'field_itens_lista');
+  if ($lista_storage && (int) $lista_storage->getCardinality() === 2) {
+    $lista_storage->setCardinality(-1);
+    $lista_storage->save();
+    $parts[] = (string) t('Cardinality field_itens_lista elevada para ilimitada.');
+  }
+  elseif (!$lista_storage) {
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => 'field_itens_lista',
+      'entity_type' => 'block_content',
+      'type' => 'entity_reference_revisions',
+      'settings' => ['target_type' => 'paragraph'],
+      'cardinality' => -1,
+      'translatable' => TRUE,
+    ])->save();
+    $parts[] = (string) t('Storage field_itens_lista criado (ilimitado).');
+  }
+
+  if (!\Drupal\paragraphs\Entity\ParagraphsType::load('diferencial_simples_p')) {
+    \Drupal\paragraphs\Entity\ParagraphsType::create([
+      'id' => 'diferencial_simples_p',
+      'label' => 'Item Diferencial Simples',
+      'description' => 'Ícone e rótulo de um diferencial na página Quem Somos.',
+    ])->save();
+    $parts[] = (string) t('Paragraph type diferencial_simples_p criado.');
+  }
+
+  if (!\Drupal\block_content\Entity\BlockContentType::load('diferenciais_quem_somos')) {
+    \Drupal\block_content\Entity\BlockContentType::create([
+      'id' => 'diferenciais_quem_somos',
+      'label' => 'Diferenciais Quem Somos',
+      'revision' => FALSE,
+      'description' => 'Grid de diferenciais (ícone + rótulo) na página Quem Somos.',
+    ])->save();
+    $parts[] = (string) t('Block type diferenciais_quem_somos criado.');
+  }
+
+  $paragraph_fields = [
+    'field_image' => [
+      'label' => 'Ícone',
+      'required' => FALSE,
+      'settings' => [
+        'handler' => 'default:file',
+        'handler_settings' => [],
+        'file_directory' => 'paragraph/diferencial-simples/[date:custom:Y]-[date:custom:m]',
+        'file_extensions' => 'png gif jpg jpeg webp svg',
+        'max_filesize' => '',
+        'max_resolution' => '',
+        'min_resolution' => '',
+        'alt_field' => TRUE,
+        'alt_field_required' => FALSE,
+        'title_field' => TRUE,
+        'title_field_required' => FALSE,
+        'default_image' => [
+          'uuid' => '',
+          'alt' => '',
+          'title' => '',
+          'width' => NULL,
+          'height' => NULL,
+        ],
+      ],
+    ],
+    'field_text_simple' => [
+      'label' => 'Rótulo',
+      'required' => TRUE,
+      'settings' => [],
+    ],
+  ];
+  foreach ($paragraph_fields as $field_name => $definition) {
+    if (\Drupal\field\Entity\FieldConfig::loadByName('paragraph', 'diferencial_simples_p', $field_name)) {
+      continue;
+    }
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('paragraph', $field_name);
+    if (!$storage) {
+      $parts[] = (string) t('Storage paragraph.@field ausente — rode drush cim -y.', ['@field' => $field_name]);
+      continue;
+    }
+    \Drupal\field\Entity\FieldConfig::create([
+      'field_storage' => $storage,
+      'bundle' => 'diferencial_simples_p',
+      'label' => $definition['label'],
+      'required' => $definition['required'],
+      'settings' => $definition['settings'],
+      'translatable' => FALSE,
+    ])->save();
+    $parts[] = (string) t('Instance paragraph.diferencial_simples_p.@field criada.', ['@field' => $field_name]);
+  }
+
+  $block_fields = [
+    'field_text_simple' => [
+      'label' => 'Título da seção',
+      'required' => FALSE,
+      'settings' => [],
+    ],
+    'field_text_simple_long' => [
+      'label' => 'Descrição',
+      'required' => FALSE,
+      'settings' => [],
+    ],
+    'field_itens_lista' => [
+      'label' => 'Itens',
+      'required' => FALSE,
+      'settings' => [
+        'handler' => 'default:paragraph',
+        'handler_settings' => [
+          'target_bundles' => ['diferencial_simples_p' => 'diferencial_simples_p'],
+          'negate' => 0,
+          'target_bundles_drag_drop' => [
+            'diferencial_simples_p' => [
+              'weight' => 0,
+              'enabled' => TRUE,
+            ],
+          ],
+        ],
+      ],
+    ],
+  ];
+  foreach ($block_fields as $field_name => $definition) {
+    if (\Drupal\field\Entity\FieldConfig::loadByName('block_content', 'diferenciais_quem_somos', $field_name)) {
+      continue;
+    }
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('block_content', $field_name);
+    if (!$storage) {
+      $parts[] = (string) t('Storage block_content.@field ausente — rode drush cim -y.', ['@field' => $field_name]);
+      continue;
+    }
+    \Drupal\field\Entity\FieldConfig::create([
+      'field_storage' => $storage,
+      'bundle' => 'diferenciais_quem_somos',
+      'label' => $definition['label'],
+      'required' => $definition['required'],
+      'settings' => $definition['settings'],
+      'translatable' => FALSE,
+    ])->save();
+    $parts[] = (string) t('Instance block_content.diferenciais_quem_somos.@field criada.', ['@field' => $field_name]);
+  }
+
+  $parts[] = _custom_configs_ensure_diferenciais_quem_somos_displays();
+
+  if (!$parts) {
+    $parts[] = (string) t('Estrutura Diferenciais Quem Somos já presente.');
+  }
+
+  return implode(' ', array_filter($parts));
+}
+
+/**
+ * Garante form/view displays do bloco e do paragraph Diferenciais Quem Somos.
+ */
+function _custom_configs_ensure_diferenciais_quem_somos_displays(): string {
+  $messages = [];
+  $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+  $view_storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null $p_form */
+  $p_form = $form_storage->load('paragraph.diferencial_simples_p.default');
+  if (!$p_form) {
+    $p_form = $form_storage->create([
+      'targetEntityType' => 'paragraph',
+      'bundle' => 'diferencial_simples_p',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $p_form_changed = FALSE;
+  foreach ([
+    'field_image' => [
+      'type' => 'image_image',
+      'weight' => 0,
+      'settings' => ['progress_indicator' => 'throbber', 'preview_image_style' => 'thumbnail'],
+    ],
+    'field_text_simple' => [
+      'type' => 'string_textfield',
+      'weight' => 1,
+      'settings' => ['size' => 60, 'placeholder' => ''],
+    ],
+  ] as $field_name => $defaults) {
+    if ($p_form->getComponent($field_name)) {
+      continue;
+    }
+    $p_form->setComponent($field_name, [
+      'type' => $defaults['type'],
+      'weight' => $defaults['weight'],
+      'region' => 'content',
+      'settings' => $defaults['settings'],
+      'third_party_settings' => [],
+    ]);
+    $p_form_changed = TRUE;
+  }
+  if ($p_form_changed || $p_form->isNew()) {
+    $p_form->save();
+    $messages[] = (string) t('Form display paragraph.diferencial_simples_p atualizado.');
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null $p_view */
+  $p_view = $view_storage->load('paragraph.diferencial_simples_p.default');
+  if (!$p_view) {
+    $p_view = $view_storage->create([
+      'targetEntityType' => 'paragraph',
+      'bundle' => 'diferencial_simples_p',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $p_view_changed = FALSE;
+  foreach ([
+    'field_image' => [
+      'type' => 'image',
+      'weight' => 0,
+      'settings' => [
+        'image_link' => '',
+        'image_style' => '',
+        'image_loading' => ['attribute' => 'lazy'],
+      ],
+    ],
+    'field_text_simple' => [
+      'type' => 'string',
+      'weight' => 1,
+      'settings' => ['link_to_entity' => FALSE],
+    ],
+  ] as $field_name => $defaults) {
+    if ($p_view->getComponent($field_name)) {
+      continue;
+    }
+    $p_view->setComponent($field_name, [
+      'type' => $defaults['type'],
+      'label' => 'hidden',
+      'weight' => $defaults['weight'],
+      'region' => 'content',
+      'settings' => $defaults['settings'],
+      'third_party_settings' => [],
+    ]);
+    $p_view_changed = TRUE;
+  }
+  if ($p_view_changed || $p_view->isNew()) {
+    $p_view->save();
+    $messages[] = (string) t('View display paragraph.diferencial_simples_p atualizado.');
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null $b_form */
+  $b_form = $form_storage->load('block_content.diferenciais_quem_somos.default');
+  if (!$b_form) {
+    $b_form = $form_storage->create([
+      'targetEntityType' => 'block_content',
+      'bundle' => 'diferenciais_quem_somos',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $b_form_changed = FALSE;
+  foreach ([
+    'info' => [
+      'type' => 'string_textfield',
+      'weight' => 0,
+      'settings' => ['size' => 60, 'placeholder' => ''],
+    ],
+    'field_text_simple' => [
+      'type' => 'string_textfield',
+      'weight' => 1,
+      'settings' => ['size' => 60, 'placeholder' => ''],
+    ],
+    'field_text_simple_long' => [
+      'type' => 'string_textarea',
+      'weight' => 2,
+      'settings' => ['rows' => 4, 'placeholder' => ''],
+    ],
+    'field_itens_lista' => [
+      'type' => 'paragraphs',
+      'weight' => 3,
+      'settings' => [
+        'title' => 'Item',
+        'title_plural' => 'Itens',
+        'edit_mode' => 'open',
+        'closed_mode' => 'summary',
+        'autocollapse' => 'none',
+        'closed_mode_threshold' => 0,
+        'add_mode' => 'dropdown',
+        'form_display_mode' => 'default',
+        'default_paragraph_type' => 'diferencial_simples_p',
+        'features' => [
+          'collapse_edit_all' => 'collapse_edit_all',
+          'duplicate' => 'duplicate',
+        ],
+      ],
+    ],
+  ] as $field_name => $defaults) {
+    if ($b_form->getComponent($field_name)) {
+      continue;
+    }
+    $b_form->setComponent($field_name, [
+      'type' => $defaults['type'],
+      'weight' => $defaults['weight'],
+      'region' => 'content',
+      'settings' => $defaults['settings'],
+      'third_party_settings' => [],
+    ]);
+    $b_form_changed = TRUE;
+  }
+  if ($b_form_changed || $b_form->isNew()) {
+    $b_form->save();
+    $messages[] = (string) t('Form display block_content.diferenciais_quem_somos atualizado.');
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null $b_view */
+  $b_view = $view_storage->load('block_content.diferenciais_quem_somos.default');
+  if (!$b_view) {
+    $b_view = $view_storage->create([
+      'targetEntityType' => 'block_content',
+      'bundle' => 'diferenciais_quem_somos',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $b_view_changed = FALSE;
+  foreach ([
+    'field_text_simple' => [
+      'type' => 'string',
+      'weight' => 0,
+      'settings' => ['link_to_entity' => FALSE],
+    ],
+    'field_text_simple_long' => [
+      'type' => 'basic_string',
+      'weight' => 1,
+      'settings' => [],
+    ],
+    'field_itens_lista' => [
+      'type' => 'entity_reference_revisions_entity_view',
+      'weight' => 2,
+      'settings' => ['view_mode' => 'default', 'link' => ''],
+    ],
+  ] as $field_name => $defaults) {
+    if ($b_view->getComponent($field_name)) {
+      continue;
+    }
+    $b_view->setComponent($field_name, [
+      'type' => $defaults['type'],
+      'label' => 'hidden',
+      'weight' => $defaults['weight'],
+      'region' => 'content',
+      'settings' => $defaults['settings'],
+      'third_party_settings' => [],
+    ]);
+    $b_view_changed = TRUE;
+  }
+  if ($b_view_changed || $b_view->isNew()) {
+    $b_view->save();
+    $messages[] = (string) t('View display block_content.diferenciais_quem_somos atualizado.');
+  }
+
+  if (!$messages) {
+    $messages[] = (string) t('Displays Diferenciais Quem Somos já ok.');
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
+ * Seed idempotente do bloco Diferenciais Quem Somos (UUID fixo + 8 itens).
+ */
+function _custom_configs_seed_diferenciais_quem_somos(): string {
+  $uuid = 'd5e6f7a8-b9c0-4d1e-8f2a-3b4c5d6e7f80';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+
+  $items_seed = [
+    ['label' => 'Atendimento personalizado', 'file' => '01-atendimento.svg'],
+    ['label' => 'Seleção qualificada', 'file' => '02-selecao.svg'],
+    ['label' => 'Gestão completa', 'file' => '03-gestao.svg'],
+    ['label' => 'Acompanhamento contínuo', 'file' => '04-acompanhamento.svg'],
+    ['label' => 'Rede de empresas', 'file' => '05-rede.svg'],
+    ['label' => 'Desenvolvimento profissional', 'file' => '06-desenvolvimento.svg'],
+    ['label' => 'Processos ágeis', 'file' => '07-agilidade.svg'],
+    ['label' => 'Suporte especializado', 'file' => '08-suporte.svg'],
+  ];
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
+  if (!isset($bundle_info['diferenciais_quem_somos'])) {
+    return (string) t('Bundle diferenciais_quem_somos ausente — rode drush cim -y antes do updb.');
+  }
+
+  $paragraph_bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('paragraph');
+  if (!isset($paragraph_bundles['diferencial_simples_p'])) {
+    return (string) t('Bundle diferencial_simples_p ausente — rode drush cim -y antes do updb.');
+  }
+
+  if ($existing) {
+    /** @var \Drupal\block_content\BlockContentInterface $block */
+    $block = reset($existing);
+    $messages = [];
+    $changed = FALSE;
+
+    if ($block->hasField('field_text_simple') && $block->get('field_text_simple')->isEmpty()) {
+      $block->set('field_text_simple', 'Nossos Diferenciais');
+      $changed = TRUE;
+      $messages[] = (string) t('Título seed preenchido.');
+    }
+    if ($block->hasField('field_text_simple_long') && $block->get('field_text_simple_long')->isEmpty()) {
+      $block->set('field_text_simple_long', 'O que nos torna a escolha certa para empresas e estudantes que buscam um estágio de verdade.');
+      $changed = TRUE;
+      $messages[] = (string) t('Descrição seed preenchida.');
+    }
+
+    if ($block->hasField('field_itens_lista') && $block->get('field_itens_lista')->isEmpty()) {
+      $paragraphs = _custom_configs_build_diferenciais_quem_somos_paragraphs($items_seed);
+      if ($paragraphs !== []) {
+        $block->set('field_itens_lista', $paragraphs);
+        $changed = TRUE;
+        $messages[] = (string) t('@count itens seed anexados.', ['@count' => count($paragraphs)]);
+      }
+    }
+    else {
+      // Preenche ícones ausentes nos paragraphs existentes (ordem).
+      $icons_filled = _custom_configs_fill_diferenciais_quem_somos_icons($block, $items_seed);
+      if ($icons_filled > 0) {
+        $changed = TRUE;
+        $messages[] = (string) t('@count ícone(s) seed anexado(s).', ['@count' => $icons_filled]);
+      }
+    }
+
+    if ($changed) {
+      $block->save();
+    }
+
+    if (!$messages) {
+      $messages[] = (string) t('Bloco Diferenciais Quem Somos (@uuid) já existe — seed ignorado.', ['@uuid' => $uuid]);
+    }
+    return implode(' ', $messages);
+  }
+
+  $paragraphs = _custom_configs_build_diferenciais_quem_somos_paragraphs($items_seed);
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = $storage->create([
+    'type' => 'diferenciais_quem_somos',
+    'uuid' => $uuid,
+    'info' => 'Diferenciais Quem Somos',
+    'status' => TRUE,
+    'field_text_simple' => 'Nossos Diferenciais',
+    'field_text_simple_long' => 'O que nos torna a escolha certa para empresas e estudantes que buscam um estágio de verdade.',
+    'field_itens_lista' => $paragraphs,
+  ]);
+  $block->save();
+
+  return (string) t('Bloco Diferenciais Quem Somos seed criado (@uuid) com @count itens.', [
+    '@uuid' => $uuid,
+    '@count' => count($paragraphs),
+  ]);
+}
+
+/**
+ * Cria paragraphs diferencial_simples_p a partir do seed (rótulo + ícone).
+ *
+ * @param array<int, array{label: string, file: string}> $items_seed
+ *
+ * @return array<int, array{target_id: int|string, target_revision_id: int|string}>
+ */
+function _custom_configs_build_diferenciais_quem_somos_paragraphs(array $items_seed): array {
+  $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
+  $paragraphs = [];
+
+  foreach ($items_seed as $item) {
+    /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
+    $paragraph = $paragraph_storage->create([
+      'type' => 'diferencial_simples_p',
+      'field_text_simple' => $item['label'],
+    ]);
+    $paragraph->save();
+
+    $file = _custom_configs_seed_file_from_module_asset(
+      'diferenciais-quem-somos/' . $item['file'],
+      'public://diferenciais-quem-somos/' . $item['file'],
+      'paragraph',
+      (int) $paragraph->id()
+    );
+    if ($file && $paragraph->hasField('field_image')) {
+      $paragraph->set('field_image', [
+        'target_id' => $file->id(),
+        'alt' => $item['label'],
+      ]);
+      $paragraph->save();
+    }
+
+    $paragraphs[] = [
+      'target_id' => $paragraph->id(),
+      'target_revision_id' => $paragraph->getRevisionId(),
+    ];
+  }
+
+  return $paragraphs;
+}
+
+/**
+ * Anexa ícones seed aos itens existentes somente se field_image estiver vazio.
+ *
+ * @param array<int, array{label: string, file: string}> $items_seed
+ */
+function _custom_configs_fill_diferenciais_quem_somos_icons(
+  \Drupal\block_content\BlockContentInterface $block,
+  array $items_seed,
+): int {
+  if (!$block->hasField('field_itens_lista') || $block->get('field_itens_lista')->isEmpty()) {
+    return 0;
+  }
+
+  $filled = 0;
+  $new_refs = [];
+  $delta = 0;
+
+  foreach ($block->get('field_itens_lista') as $item) {
+    /** @var \Drupal\paragraphs\ParagraphInterface|null $paragraph */
+    $paragraph = $item->entity;
+    if (!$paragraph || !$paragraph->hasField('field_image')) {
+      $new_refs[] = [
+        'target_id' => $item->target_id,
+        'target_revision_id' => $item->target_revision_id,
+      ];
+      $delta++;
+      continue;
+    }
+
+    if (!$paragraph->get('field_image')->isEmpty()) {
+      $new_refs[] = [
+        'target_id' => $paragraph->id(),
+        'target_revision_id' => $paragraph->getRevisionId(),
+      ];
+      $delta++;
+      continue;
+    }
+
+    $seed = $items_seed[$delta] ?? NULL;
+    if ($seed === NULL) {
+      $new_refs[] = [
+        'target_id' => $paragraph->id(),
+        'target_revision_id' => $paragraph->getRevisionId(),
+      ];
+      $delta++;
+      continue;
+    }
+
+    $file = _custom_configs_seed_file_from_module_asset(
+      'diferenciais-quem-somos/' . $seed['file'],
+      'public://diferenciais-quem-somos/' . $seed['file'],
+      'paragraph',
+      (int) $paragraph->id()
+    );
+    if ($file) {
+      $alt = (string) ($paragraph->get('field_text_simple')->value ?? $seed['label']);
+      $paragraph->set('field_image', [
+        'target_id' => $file->id(),
+        'alt' => $alt,
+      ]);
+      $paragraph->save();
+      $filled++;
+    }
+
+    $new_refs[] = [
+      'target_id' => $paragraph->id(),
+      'target_revision_id' => $paragraph->getRevisionId(),
+    ];
+    $delta++;
+  }
+
+  if ($filled > 0) {
+    $block->set('field_itens_lista', $new_refs);
+  }
+
+  return $filled;
+}
+
+/**
+ * Garante placement default_diferenciaisquemsomos em content_full /quem-somos.
+ */
+function _custom_configs_ensure_diferenciais_quem_somos_placement(): string {
+  $plugin = 'block_content:d5e6f7a8-b9c0-4d1e-8f2a-3b4c5d6e7f80';
+  $block_id = 'default_diferenciaisquemsomos';
+  $storage = \Drupal::entityTypeManager()->getStorage('block');
+
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = $storage->load($block_id);
+  if (!$block) {
+    $block = $storage->create([
+      'id' => $block_id,
+      'theme' => 'default',
+      'region' => 'content_full',
+      'weight' => 10,
+      'provider' => NULL,
+      'plugin' => $plugin,
+      'settings' => [
+        'id' => $plugin,
+        'label' => 'Diferenciais Quem Somos',
+        'label_display' => '0',
+        'provider' => 'block_content',
+        'view_mode' => 'full',
+      ],
+      'visibility' => [
+        'request_path' => [
+          'id' => 'request_path',
+          'negate' => FALSE,
+          'pages' => '/quem-somos',
+        ],
+      ],
+    ]);
+    $block->save();
+    return (string) t('Placement default_diferenciaisquemsomos criado.');
+  }
+
+  $changed = FALSE;
+  if ($block->getRegion() !== 'content_full') {
+    $block->setRegion('content_full');
+    $changed = TRUE;
+  }
+  if ((int) $block->getWeight() !== 10) {
+    $block->setWeight(10);
+    $changed = TRUE;
+  }
+  $settings = $block->get('settings') ?: [];
+  if (($settings['label_display'] ?? NULL) !== '0') {
+    $settings['label_display'] = '0';
+    $block->set('settings', $settings);
+    $changed = TRUE;
+  }
+  if (!$block->status()) {
+    $block->setStatus(TRUE);
+    $changed = TRUE;
+  }
+  $visibility = $block->getVisibility();
+  $pages = (string) ($visibility['request_path']['pages'] ?? '');
+  if (trim($pages) !== '/quem-somos') {
+    $block->setVisibilityConfig('request_path', [
+      'id' => 'request_path',
+      'negate' => FALSE,
+      'pages' => '/quem-somos',
+    ]);
+    $changed = TRUE;
+  }
+
+  if ($changed) {
+    $block->save();
+    return (string) t('Placement default_diferenciaisquemsomos atualizado (região/visibilidade).');
+  }
+
+  return (string) t('Placement default_diferenciaisquemsomos já ok.');
+}
+

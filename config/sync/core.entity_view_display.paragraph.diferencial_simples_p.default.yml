@@ -1,0 +1,35 @@
+uuid: a4b5c6d7-e8f9-4a0b-6283-c4d5e6f70819
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.diferencial_simples_p.field_image
+    - field.field.paragraph.diferencial_simples_p.field_text_simple
+    - paragraphs.paragraphs_type.diferencial_simples_p
+  module:
+    - image
+id: paragraph.diferencial_simples_p.default
+targetEntityType: paragraph
+bundle: diferencial_simples_p
+mode: default
+content:
+  field_image:
+    type: image
+    label: hidden
+    settings:
+      image_link: ''
+      image_style: ''
+      image_loading:
+        attribute: lazy
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_text_simple:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 1
+    region: content
+hidden: {  }

@@ -1,0 +1,53 @@
+{#
+/**
+ * @file
+ * Bloco Diferenciais Quem Somos (bundle diferenciais_quem_somos).
+ *
+ * Suggestion Barrio: block__block_diferenciais_quem_somos.
+ */
+#}
+{{ attach_library('default/diferenciais_quem_somos') }}
+{%
+  set classes = [
+    'block',
+    'block-' ~ configuration.provider|clean_class,
+    'block-' ~ plugin_id|clean_class,
+    'block-diferenciais-quem-somos',
+  ]
+%}
+{% set title = content.field_text_simple|render|striptags|trim %}
+{% set description = content.field_text_simple_long|render|striptags|trim %}
+{% set item_items = content.field_itens_lista['#items']|default([]) %}
+{% set has_items = item_items is iterable and item_items|length > 0 %}
+
+<section{{ attributes.addClass(classes).setAttribute('id', 'diferenciais-quem-somos') }}>
+  {{ title_prefix }}{{ title_suffix }}
+  {% block content %}
+    <div{{ content_attributes.addClass('content') }}>
+      <div class="container py-5">
+        {% if title or description %}
+          <header class="dqs-header text-center">
+            {% if title %}
+              <h2 class="dqs-header__title">{{ title }}</h2>
+            {% endif %}
+            {% if description %}
+              <div class="row justify-content-center">
+                <div class="col-lg-8">
+                  <p class="dqs-header__desc">{{ description }}</p>
+                </div>
+              </div>
+            {% endif %}
+          </header>
+        {% endif %}
+
+        {% if has_items %}
+          <div class="row mt-5 justify-content-center dqs-grid">
+            {% for key, item in item_items %}
+              {{ content.field_itens_lista[key] }}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endblock %}
+</section>

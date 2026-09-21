@@ -1,0 +1,94 @@
+/**
+ * Impact in Numbers — Quem Somos.
+ * Escopo isolado sob .section-impact-numbers (não altera 009–013).
+ */
+
+/*
+ * Full-bleed sem 100vw (scrollbar → overflow-x).
+ * Mesmo padrão de Missão/Visão: libera #main.container quando a seção existe.
+ */
+.layout-main-wrapper:has(.section-impact-numbers) > #main.container {
+  max-width: none;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.layout-main-wrapper:has(.section-impact-numbers) > #main > .row {
+  --bs-gutter-x: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.layout-main-wrapper:has(.section-impact-numbers) > #main > .row > main.main-content {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.section-impact-numbers {
+  --sin-bg: #0f172a;
+  --sin-stat: #fd7b1a;
+  --sin-label: #ffffff;
+  --sin-gap: 8px;
+  --sin-pad-y: 64px;
+  --sin-pad-x: 40px;
+  --sin-max: 1280px;
+  width: 100%;
+  background-color: var(--sin-bg);
+  padding: var(--sin-pad-y) var(--sin-pad-x);
+  font-family: "Poppins", sans-serif;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.section-impact-numbers__inner {
+  max-width: var(--sin-max);
+  margin-inline: auto;
+  width: 100%;
+}
+
+.section-impact-numbers__grid {
+  --bs-gutter-y: 1.5rem;
+}
+
+.section-impact-numbers__item {
+  gap: var(--sin-gap);
+  text-align: center;
+  width: 100%;
+}
+
+.section-impact-numbers__stat {
+  margin: 0;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 1.1;
+  color: var(--sin-stat);
+  /* Caixa tipográfica alvo ~56px no desktop. */
+}
+
+.section-impact-numbers__label {
+  margin: 0;
+  font-family: inherit;
+  font-weight: 400;
+  font-size: clamp(0.75rem, 1.4vw, 1.25rem);
+  line-height: 1.3;
+  color: var(--sin-label);
+  opacity: 0.8;
+  text-transform: uppercase;
+  /* Caixa tipográfica alvo ~20px. */
+}
+
+@media (max-width: 575.98px) {
+  .section-impact-numbers {
+    --sin-pad-y: 48px;
+    --sin-pad-x: 24px;
+  }
+
+  .section-impact-numbers__stat {
+    font-size: clamp(1.75rem, 8vw, 2.25rem);
+  }
+
+  .section-impact-numbers__label {
+    font-size: clamp(0.7rem, 3.2vw, 0.875rem);
+  }
+}

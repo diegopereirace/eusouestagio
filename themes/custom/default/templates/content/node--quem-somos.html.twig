@@ -142,5 +142,16 @@
         </div>
       </section>
     {% endif %}
+
+    {{ content|without(
+      'field_titulo',
+      'field_text_long_formatted',
+      'field_imagem',
+      'field_imagem_desktop',
+      'field_text_simple_long',
+      'field_text_simple_long_2',
+      'field_numeros_lista',
+      'links'
+    ) }}
   </div>
 </article>

@@ -5,10 +5,10 @@ alwaysApply: false
 <!-- SPECKIT START -->
 Spec Kit **deste projeto** (Eu Sou Estágio / Drupal 11).
 
-- Feature ativa: `013-diferenciais-quem-somos`
-- Spec: `specs/013-diferenciais-quem-somos/spec.md`
-- Plan: `specs/013-diferenciais-quem-somos/plan.md`
-- Features relacionadas: `012-quem-somos-missao-visao`, `011-bloco-missao-visao`, `010-layout-sobre-nos`, `009-banner-quem-somos`, `008-rodape-redesign`, `007-como-funciona`, `006-o-que-fazemos`, `005-nossa-metodologia`, `004-nossos-diferenciais`, `003-vagas-destaque-home`, `002-topo-figma-home`, `001-banners-busca-home`
+- Feature ativa: `014-numeros-quem-somos`
+- Spec: `specs/014-numeros-quem-somos/spec.md`
+- Plan: `specs/014-numeros-quem-somos/plan.md`
+- Features relacionadas: `013-diferenciais-quem-somos`, `012-quem-somos-missao-visao`, `011-bloco-missao-visao`, `010-layout-sobre-nos`, `009-banner-quem-somos`, `008-rodape-redesign`, `007-como-funciona`, `006-o-que-fazemos`, `005-nossa-metodologia`, `004-nossos-diferenciais`, `003-vagas-destaque-home`, `002-topo-figma-home`, `001-banners-busca-home`
 
 Não assuma stack de outro produto. Não leia `specs/` de outro repositório.
 <!-- SPECKIT END -->

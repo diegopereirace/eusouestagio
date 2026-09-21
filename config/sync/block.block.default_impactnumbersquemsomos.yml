@@ -1,0 +1,25 @@
+uuid: e8f9a0b1-c2d3-4e4f-a697-08192a3b4c5d
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - custom_configs
+    - system
+  theme:
+    - default
+id: default_impactnumbersquemsomos
+theme: default
+region: content_full
+weight: 11
+provider: null
+plugin: custom_configs_impact_numbers_quem_somos
+settings:
+  id: custom_configs_impact_numbers_quem_somos
+  label: 'Impact in Numbers Quem Somos'
+  label_display: '0'
+  provider: custom_configs
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /quem-somos

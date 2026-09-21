@@ -1,0 +1,10 @@
+uuid: a7b8c9d0-e1f2-4a3b-9c4d-5e6f708192a3
+langcode: pt-br
+status: true
+dependencies: {  }
+id: numero_destaque_p
+label: 'Número Destaque'
+icon_uuid: null
+icon_default: null
+description: 'Estatística de impacto (destaque + subtexto) na página Quem Somos.'
+behavior_plugins: {  }

@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.field.node.quem_somos.field_imagem
     - field.field.node.quem_somos.field_imagem_desktop
+    - field.field.node.quem_somos.field_numeros_lista
     - field.field.node.quem_somos.field_text_long_formatted
     - field.field.node.quem_somos.field_text_simple_long
     - field.field.node.quem_somos.field_text_simple_long_2
@@ -14,6 +15,7 @@ dependencies:
   module:
     - field_group
     - image
+    - paragraphs
     - path
     - text
 third_party_settings:
@@ -52,6 +54,21 @@ third_party_settings:
         label_as_html: false
         description: ''
         required_fields: true
+    group_numeros:
+      children:
+        - field_numeros_lista
+      label: 'Números / Impact in Numbers'
+      region: content
+      parent_name: ''
+      weight: 3
+      format_type: fieldset
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: false
+        description: ''
+        required_fields: true
 id: node.quem_somos.default
 targetEntityType: node
 bundle: quem_somos
@@ -78,6 +95,24 @@ content:
     settings:
       progress_indicator: throbber
       preview_image_style: thumbnail
+    third_party_settings: {  }
+  field_numeros_lista:
+    type: paragraphs
+    weight: 33
+    region: content
+    settings:
+      title: Número
+      title_plural: Números
+      edit_mode: open
+      closed_mode: summary
+      autocollapse: none
+      closed_mode_threshold: 0
+      add_mode: dropdown
+      form_display_mode: default
+      default_paragraph_type: numero_destaque_p
+      features:
+        collapse_edit_all: collapse_edit_all
+        duplicate: duplicate
     third_party_settings: {  }
   field_text_long_formatted:
     type: text_textarea

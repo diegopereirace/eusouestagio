@@ -1,0 +1,32 @@
+uuid: f2a3b4c5-d6e7-4f8a-4192-a3b4c5d6e7f8
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.numero_destaque_p.field_text_simple
+    - field.field.paragraph.numero_destaque_p.field_text_simple_long
+    - paragraphs.paragraphs_type.numero_destaque_p
+id: paragraph.numero_destaque_p.default
+targetEntityType: paragraph
+bundle: numero_destaque_p
+mode: default
+content:
+  field_text_simple:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_text_simple_long:
+    type: string_textarea
+    weight: 1
+    region: content
+    settings:
+      rows: 2
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true

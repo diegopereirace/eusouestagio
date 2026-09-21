@@ -1,0 +1,31 @@
+uuid: e1f2a3b4-c5d6-4e7f-3081-92a3b4c5d6e7
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_numeros_lista
+    - node.type.quem_somos
+    - paragraphs.paragraphs_type.numero_destaque_p
+  module:
+    - entity_reference_revisions
+id: node.quem_somos.field_numeros_lista
+field_name: field_numeros_lista
+entity_type: node
+bundle: quem_somos
+label: 'Números / Impact in Numbers'
+description: 'Até 4 estatísticas de impacto exibidas na faixa escura de Quem Somos.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      numero_destaque_p: numero_destaque_p
+    negate: 0
+    target_bundles_drag_drop:
+      numero_destaque_p:
+        weight: 0
+        enabled: true
+field_type: entity_reference_revisions

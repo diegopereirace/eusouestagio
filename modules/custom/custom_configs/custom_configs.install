@@ -2711,15 +2711,16 @@ function _custom_configs_seed_diferenciais_quem_somos(): string {
   $storage = \Drupal::entityTypeManager()->getStorage('block_content');
   $existing = $storage->loadByProperties(['uuid' => $uuid]);
 
+  // Rótulos + ícones editoriais (bloco local id 14); PNGs versionados em assets/.
   $items_seed = [
-    ['label' => 'Atendimento personalizado', 'file' => '01-atendimento.svg'],
-    ['label' => 'Seleção qualificada', 'file' => '02-selecao.svg'],
-    ['label' => 'Gestão completa', 'file' => '03-gestao.svg'],
-    ['label' => 'Acompanhamento contínuo', 'file' => '04-acompanhamento.svg'],
-    ['label' => 'Rede de empresas', 'file' => '05-rede.svg'],
-    ['label' => 'Desenvolvimento profissional', 'file' => '06-desenvolvimento.svg'],
-    ['label' => 'Processos ágeis', 'file' => '07-agilidade.svg'],
-    ['label' => 'Suporte especializado', 'file' => '08-suporte.svg'],
+    ['label' => 'Pessoas', 'file' => 'icon-1.png'],
+    ['label' => 'Autoconhecimento', 'file' => 'icon-2.png'],
+    ['label' => 'Conexões', 'file' => 'icon-3.png'],
+    ['label' => 'Respeito', 'file' => 'icon-4.png'],
+    ['label' => 'Compromisso', 'file' => 'icon-5.png'],
+    ['label' => 'Desenvolvimento', 'file' => 'icon-6.png'],
+    ['label' => 'Performance', 'file' => 'icon-7.png'],
+    ['label' => 'Ética', 'file' => 'icon-8.png'],
   ];
 
   $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
@@ -2744,7 +2745,7 @@ function _custom_configs_seed_diferenciais_quem_somos(): string {
       $messages[] = (string) t('Título seed preenchido.');
     }
     if ($block->hasField('field_text_simple_long') && $block->get('field_text_simple_long')->isEmpty()) {
-      $block->set('field_text_simple_long', 'O que nos torna a escolha certa para empresas e estudantes que buscam um estágio de verdade.');
+      $block->set('field_text_simple_long', 'Acreditamos que grandes resultados são construídos sobre princípios sólidos. Por isso, nossos valores estão presentes em cada conexão, decisão e oportunidade que criamos.');
       $changed = TRUE;
       $messages[] = (string) t('Descrição seed preenchida.');
     }
@@ -2785,7 +2786,7 @@ function _custom_configs_seed_diferenciais_quem_somos(): string {
     'info' => 'Diferenciais Quem Somos',
     'status' => TRUE,
     'field_text_simple' => 'Nossos Diferenciais',
-    'field_text_simple_long' => 'O que nos torna a escolha certa para empresas e estudantes que buscam um estágio de verdade.',
+    'field_text_simple_long' => 'Acreditamos que grandes resultados são construídos sobre princípios sólidos. Por isso, nossos valores estão presentes em cada conexão, decisão e oportunidade que criamos.',
     'field_itens_lista' => $paragraphs,
   ]);
   $block->save();

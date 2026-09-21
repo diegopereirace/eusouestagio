@@ -70,7 +70,7 @@ block_content:nossos_diferenciais → field_diferenciais_lista → diferencial_i
 | Título | `Nossos Diferenciais` (placeholder editorial) |
 | Descrição | texto institucional curto pt-BR (placeholder; editor substitui) |
 | Itens | 8 paragraphs com rótulos placeholder (ex.: “Atendimento personalizado”, “Seleção qualificada”, …) |
-| Ícones | assets em `modules/custom/custom_configs/assets/diferenciais-quem-somos/` → `public://diferenciais-quem-somos/` |
+| Ícones | assets `icon-1.png`…`icon-8.png` em `modules/custom/custom_configs/assets/diferenciais-quem-somos/` → `public://diferenciais-quem-somos/` (espelho do editorial em `public://paragraph/diferencial-simples/`) |
 
 **Idempotência**: se UUID já existe → não duplica bloco; preenche lista/ícones **somente** se vazios/ausentes; **nunca** sobrescreve texto ou mídia editorial divergente.
 

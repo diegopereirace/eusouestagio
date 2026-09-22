@@ -31,7 +31,7 @@ Ao alterar estrutura (fields, block types, paragraphs, views, displays, placemen
 
 ## Layout v2 `/quem-somos` (blocos 009–013)
 
-Receita destino: `cim` → `updb` (`11012`/`11013`/`11015`/`11016`/`11017`/`11018`) → `cr`.
+Receita destino: `cim` → `updb` (`11012`/`11013`/`11015`/`11016`/`11017`/`11018`/`11019`) → `cr`.
 
 Na **origem**, além do `drush cex`:
 

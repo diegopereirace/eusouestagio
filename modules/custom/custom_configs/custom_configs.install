@@ -264,6 +264,25 @@ function custom_configs_update_11018(): string {
 }
 
 /**
+ * CTA v1 Quem Somos: estrutura, seed e placement (weight 12).
+ *
+ * Ensure block type cta_v1 + storage field_link_2 + instances + displays;
+ * seed BlockContent UUID fixo (somente se ausente/campos vazios);
+ * ensure placement default_ctav1quemsomos em content_full após Impact Numbers.
+ * Nunca sobrescreve editorial; nunca altera 009–014 nem bloco cto.
+ * Deploy destino: git pull → drush cim -y → drush updb -y → drush cr
+ * (cim antes do updb — estrutura primária via config/sync).
+ */
+function custom_configs_update_11019(): string {
+  $messages = [
+    _custom_configs_ensure_cta_v1_structure(),
+    _custom_configs_seed_cta_v1(),
+    _custom_configs_ensure_cta_v1_placement(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
  * Garante field instances do Primeiro Bloco em quem_somos (reusa storages).
  */
 function _custom_configs_ensure_quem_somos_sobre_nos_fields(): string {
@@ -3451,5 +3470,380 @@ function _custom_configs_ensure_impact_numbers_placement(): string {
   }
 
   return (string) t('Placement default_impactnumbersquemsomos já ok.');
+}
+
+/**
+ * Garante block type, storage field_link_2, instances e displays do CTA v1.
+ */
+function _custom_configs_ensure_cta_v1_structure(): string {
+  $parts = [];
+
+  if (!\Drupal\block_content\Entity\BlockContentType::load('cta_v1')) {
+    \Drupal\block_content\Entity\BlockContentType::create([
+      'id' => 'cta_v1',
+      'label' => 'CTA v1',
+      'revision' => FALSE,
+      'description' => 'Card de call-to-action (título, subtítulo e dois botões) na página Quem Somos.',
+    ])->save();
+    $parts[] = (string) t('Block type cta_v1 criado.');
+  }
+
+  if (!\Drupal\field\Entity\FieldStorageConfig::loadByName('block_content', 'field_link_2')) {
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => 'field_link_2',
+      'entity_type' => 'block_content',
+      'type' => 'link',
+      'cardinality' => 1,
+      'translatable' => TRUE,
+    ])->save();
+    $parts[] = (string) t('Storage field_link_2 criado.');
+  }
+
+  $block_fields = [
+    'field_text_simple' => [
+      'label' => 'Título',
+      'required' => FALSE,
+      'settings' => [],
+    ],
+    'field_text_simple_long' => [
+      'label' => 'Subtítulo',
+      'required' => FALSE,
+      'settings' => [],
+    ],
+    'field_link' => [
+      'label' => 'Botão primário',
+      'required' => FALSE,
+      'settings' => [
+        'title' => 2,
+        'link_type' => 17,
+      ],
+    ],
+    'field_link_2' => [
+      'label' => 'Botão secundário',
+      'required' => FALSE,
+      'settings' => [
+        'title' => 2,
+        'link_type' => 17,
+      ],
+    ],
+  ];
+  foreach ($block_fields as $field_name => $definition) {
+    if (\Drupal\field\Entity\FieldConfig::loadByName('block_content', 'cta_v1', $field_name)) {
+      continue;
+    }
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('block_content', $field_name);
+    if (!$storage) {
+      $parts[] = (string) t('Storage block_content.@field ausente — rode drush cim -y.', [
+        '@field' => $field_name,
+      ]);
+      continue;
+    }
+    \Drupal\field\Entity\FieldConfig::create([
+      'field_storage' => $storage,
+      'bundle' => 'cta_v1',
+      'label' => $definition['label'],
+      'required' => $definition['required'],
+      'settings' => $definition['settings'],
+      'translatable' => FALSE,
+    ])->save();
+    $parts[] = (string) t('Instance block_content.cta_v1.@field criada.', [
+      '@field' => $field_name,
+    ]);
+  }
+
+  $parts[] = _custom_configs_ensure_cta_v1_displays();
+
+  if (!$parts) {
+    $parts[] = (string) t('Estrutura CTA v1 já presente.');
+  }
+
+  return implode(' ', array_filter($parts));
+}
+
+/**
+ * Garante form/view displays do bloco CTA v1.
+ */
+function _custom_configs_ensure_cta_v1_displays(): string {
+  $messages = [];
+  $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+  $view_storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null $form_display */
+  $form_display = $form_storage->load('block_content.cta_v1.default');
+  if (!$form_display) {
+    $form_display = $form_storage->create([
+      'targetEntityType' => 'block_content',
+      'bundle' => 'cta_v1',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $form_changed = FALSE;
+  foreach ([
+    'info' => [
+      'type' => 'string_textfield',
+      'weight' => 0,
+      'settings' => ['size' => 60, 'placeholder' => ''],
+    ],
+    'field_text_simple' => [
+      'type' => 'string_textfield',
+      'weight' => 1,
+      'settings' => ['size' => 60, 'placeholder' => ''],
+    ],
+    'field_text_simple_long' => [
+      'type' => 'string_textarea',
+      'weight' => 2,
+      'settings' => ['rows' => 3, 'placeholder' => ''],
+    ],
+    'field_link' => [
+      'type' => 'link_default',
+      'weight' => 3,
+      'settings' => ['placeholder_url' => '', 'placeholder_title' => ''],
+    ],
+    'field_link_2' => [
+      'type' => 'link_default',
+      'weight' => 4,
+      'settings' => ['placeholder_url' => '', 'placeholder_title' => ''],
+    ],
+  ] as $field_name => $defaults) {
+    if ($form_display->getComponent($field_name)) {
+      continue;
+    }
+    $form_display->setComponent($field_name, [
+      'type' => $defaults['type'],
+      'weight' => $defaults['weight'],
+      'region' => 'content',
+      'settings' => $defaults['settings'],
+      'third_party_settings' => [],
+    ]);
+    $form_changed = TRUE;
+  }
+  if ($form_changed || $form_display->isNew()) {
+    $form_display->save();
+    $messages[] = (string) t('Form display block_content.cta_v1 atualizado.');
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null $view_display */
+  $view_display = $view_storage->load('block_content.cta_v1.default');
+  if (!$view_display) {
+    $view_display = $view_storage->create([
+      'targetEntityType' => 'block_content',
+      'bundle' => 'cta_v1',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $view_changed = FALSE;
+  foreach ([
+    'field_text_simple' => [
+      'type' => 'string',
+      'weight' => 0,
+      'settings' => ['link_to_entity' => FALSE],
+    ],
+    'field_text_simple_long' => [
+      'type' => 'basic_string',
+      'weight' => 1,
+      'settings' => [],
+    ],
+    'field_link' => [
+      'type' => 'link',
+      'weight' => 2,
+      'settings' => [
+        'trim_length' => 80,
+        'url_only' => FALSE,
+        'url_plain' => FALSE,
+        'rel' => '',
+        'target' => '',
+      ],
+    ],
+    'field_link_2' => [
+      'type' => 'link',
+      'weight' => 3,
+      'settings' => [
+        'trim_length' => 80,
+        'url_only' => FALSE,
+        'url_plain' => FALSE,
+        'rel' => '',
+        'target' => '',
+      ],
+    ],
+  ] as $field_name => $defaults) {
+    if ($view_display->getComponent($field_name)) {
+      continue;
+    }
+    $view_display->setComponent($field_name, [
+      'type' => $defaults['type'],
+      'label' => 'hidden',
+      'weight' => $defaults['weight'],
+      'region' => 'content',
+      'settings' => $defaults['settings'],
+      'third_party_settings' => [],
+    ]);
+    $view_changed = TRUE;
+  }
+  if ($view_changed || $view_display->isNew()) {
+    $view_display->save();
+    $messages[] = (string) t('View display block_content.cta_v1 atualizado.');
+  }
+
+  if (!$messages) {
+    $messages[] = (string) t('Displays CTA v1 já ok.');
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
+ * Seed idempotente do bloco CTA v1 (UUID fixo; só campos vazios).
+ */
+function _custom_configs_seed_cta_v1(): string {
+  $uuid = 'e6f7a8b9-c0d1-4e2f-9a3b-4c5d6e7f8091';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
+  if (!isset($bundle_info['cta_v1'])) {
+    return (string) t('Bundle cta_v1 ausente — rode drush cim -y antes do updb.');
+  }
+
+  $seed_title = 'Seu próximo estágio começa aqui.';
+  $seed_subtitle = 'Junte-se a milhares de estudantes e encontre a oportunidade que vai mudar sua carreira.';
+  $seed_primary = [
+    'uri' => 'internal:/vagas',
+    'title' => 'Buscar vagas',
+  ];
+  $seed_secondary = [
+    'uri' => 'internal:/cadastro/candidato',
+    'title' => 'Cadastrar gratuitamente',
+  ];
+
+  if ($existing) {
+    /** @var \Drupal\block_content\BlockContentInterface $block */
+    $block = reset($existing);
+    $messages = [];
+    $changed = FALSE;
+
+    if ($block->hasField('field_text_simple') && $block->get('field_text_simple')->isEmpty()) {
+      $block->set('field_text_simple', $seed_title);
+      $changed = TRUE;
+      $messages[] = (string) t('Título seed CTA v1 preenchido.');
+    }
+    if ($block->hasField('field_text_simple_long') && $block->get('field_text_simple_long')->isEmpty()) {
+      $block->set('field_text_simple_long', $seed_subtitle);
+      $changed = TRUE;
+      $messages[] = (string) t('Subtítulo seed CTA v1 preenchido.');
+    }
+    if ($block->hasField('field_link') && $block->get('field_link')->isEmpty()) {
+      $block->set('field_link', $seed_primary);
+      $changed = TRUE;
+      $messages[] = (string) t('Botão primário seed CTA v1 preenchido.');
+    }
+    if ($block->hasField('field_link_2') && $block->get('field_link_2')->isEmpty()) {
+      $block->set('field_link_2', $seed_secondary);
+      $changed = TRUE;
+      $messages[] = (string) t('Botão secundário seed CTA v1 preenchido.');
+    }
+
+    if ($changed) {
+      $block->save();
+    }
+
+    if (!$messages) {
+      $messages[] = (string) t('Bloco CTA v1 (@uuid) já existe — seed ignorado.', [
+        '@uuid' => $uuid,
+      ]);
+    }
+    return implode(' ', $messages);
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = $storage->create([
+    'type' => 'cta_v1',
+    'uuid' => $uuid,
+    'info' => 'CTA v1 Quem Somos',
+    'status' => TRUE,
+    'field_text_simple' => $seed_title,
+    'field_text_simple_long' => $seed_subtitle,
+    'field_link' => $seed_primary,
+    'field_link_2' => $seed_secondary,
+  ]);
+  $block->save();
+
+  return (string) t('Bloco CTA v1 seed criado (@uuid).', ['@uuid' => $uuid]);
+}
+
+/**
+ * Garante placement default_ctav1quemsomos em content_full /quem-somos (weight 12).
+ */
+function _custom_configs_ensure_cta_v1_placement(): string {
+  $plugin = 'block_content:e6f7a8b9-c0d1-4e2f-9a3b-4c5d6e7f8091';
+  $block_id = 'default_ctav1quemsomos';
+  $storage = \Drupal::entityTypeManager()->getStorage('block');
+
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = $storage->load($block_id);
+  if (!$block) {
+    $block = $storage->create([
+      'id' => $block_id,
+      'theme' => 'default',
+      'region' => 'content_full',
+      'weight' => 12,
+      'provider' => NULL,
+      'plugin' => $plugin,
+      'settings' => [
+        'id' => $plugin,
+        'label' => 'CTA v1 Quem Somos',
+        'label_display' => '0',
+        'provider' => 'block_content',
+        'view_mode' => 'full',
+      ],
+      'visibility' => [
+        'request_path' => [
+          'id' => 'request_path',
+          'negate' => FALSE,
+          'pages' => '/quem-somos',
+        ],
+      ],
+    ]);
+    $block->save();
+    return (string) t('Placement default_ctav1quemsomos criado.');
+  }
+
+  $changed = FALSE;
+  if ($block->getRegion() !== 'content_full') {
+    $block->setRegion('content_full');
+    $changed = TRUE;
+  }
+  if ((int) $block->getWeight() !== 12) {
+    $block->setWeight(12);
+    $changed = TRUE;
+  }
+  $settings = $block->get('settings') ?: [];
+  if (($settings['label_display'] ?? NULL) !== '0') {
+    $settings['label_display'] = '0';
+    $block->set('settings', $settings);
+    $changed = TRUE;
+  }
+  if (!$block->status()) {
+    $block->setStatus(TRUE);
+    $changed = TRUE;
+  }
+  $visibility = $block->getVisibility();
+  $pages = (string) ($visibility['request_path']['pages'] ?? '');
+  if (trim($pages) !== '/quem-somos') {
+    $block->setVisibilityConfig('request_path', [
+      'id' => 'request_path',
+      'negate' => FALSE,
+      'pages' => '/quem-somos',
+    ]);
+    $changed = TRUE;
+  }
+
+  if ($changed) {
+    $block->save();
+    return (string) t('Placement default_ctav1quemsomos atualizado (região/visibilidade).');
+  }
+
+  return (string) t('Placement default_ctav1quemsomos já ok.');
 }
 

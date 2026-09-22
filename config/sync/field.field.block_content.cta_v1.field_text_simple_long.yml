@@ -1,0 +1,19 @@
+uuid: d1e2f3a4-b5c6-4d7e-bf90-12a3b4c5d6e7
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.cta_v1
+    - field.storage.block_content.field_text_simple_long
+id: block_content.cta_v1.field_text_simple_long
+field_name: field_text_simple_long
+entity_type: block_content
+bundle: cta_v1
+label: Subtítulo
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

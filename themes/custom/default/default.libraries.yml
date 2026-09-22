@@ -78,6 +78,12 @@ impact_numbers:
       assets/css/impact-numbers.css: {}
   dependencies:
     - default/bootstrap
+cta_v1:
+  css:
+    component:
+      assets/css/cta-v1.css: {}
+  dependencies:
+    - default/bootstrap
 hero_search:
   js:
     assets/js/hero-search.js: {}

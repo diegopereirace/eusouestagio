@@ -1,0 +1,28 @@
+uuid: f7a8b9c0-d1e2-4f3a-a0b5-192a3b4c5d6e
+langcode: pt-br
+status: true
+dependencies:
+  content:
+    - 'block_content:cta_v1:e6f7a8b9-c0d1-4e2f-9a3b-4c5d6e7f8091'
+  module:
+    - block_content
+    - system
+  theme:
+    - default
+id: default_ctav1quemsomos
+theme: default
+region: content_full
+weight: 12
+provider: null
+plugin: 'block_content:e6f7a8b9-c0d1-4e2f-9a3b-4c5d6e7f8091'
+settings:
+  id: 'block_content:e6f7a8b9-c0d1-4e2f-9a3b-4c5d6e7f8091'
+  label: 'CTA v1 Quem Somos'
+  label_display: '0'
+  provider: block_content
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /quem-somos

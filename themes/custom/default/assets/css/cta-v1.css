@@ -1,0 +1,97 @@
+/**
+ * CTA v1 — Quem Somos. Escopo isolado sob .block-cta-v1.
+ * Não reutilizar .ui-btn--primary (cor global distinta do Figma).
+ */
+.block-cta-v1 {
+  overflow-x: hidden;
+}
+
+.block-cta-v1 .cta-v1 {
+  max-width: 1200px;
+  margin: 76px auto;
+  padding: 64px;
+  background-color: #d3e4fe;
+  border-radius: 32px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  box-sizing: border-box;
+}
+
+.block-cta-v1 .cta-v1__copy {
+  max-width: 720px;
+}
+
+.block-cta-v1 .cta-v1__title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.75rem;
+  line-height: 1.25;
+}
+
+.block-cta-v1 .cta-v1__subtitle {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  color: #45464d;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.block-cta-v1 .cta-v1__actions {
+  width: 100%;
+  justify-content: center;
+}
+
+.block-cta-v1 .cta-v1__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.875rem 1.75rem;
+  border-radius: 8px;
+  border: none;
+  line-height: 1.25;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.block-cta-v1 .cta-v1__btn--primary {
+  background-color: #fd7b1a;
+  color: #ffffff;
+}
+
+.block-cta-v1 .cta-v1__btn--primary:hover,
+.block-cta-v1 .cta-v1__btn--primary:focus {
+  background-color: #e86e12;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.block-cta-v1 .cta-v1__btn--secondary {
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+.block-cta-v1 .cta-v1__btn--secondary:hover,
+.block-cta-v1 .cta-v1__btn--secondary:focus {
+  background-color: #f8fafc;
+  color: #0f172a;
+  text-decoration: none;
+}
+
+@media (max-width: 575.98px) {
+  .block-cta-v1 .cta-v1 {
+    margin-top: 40px;
+    margin-bottom: 40px;
+    padding: 32px 24px;
+    border-radius: 24px;
+  }
+
+  .block-cta-v1 .cta-v1__btn {
+    width: 100%;
+  }
+}

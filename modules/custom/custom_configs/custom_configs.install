@@ -283,6 +283,18 @@ function custom_configs_update_11019(): string {
 }
 
 /**
+ * Remove /contato das pages do bloco legado banners-block_1.
+ *
+ * A View display block_1 (Banners Internas) permanece para /para-estudantes
+ * e /para-empresas; só deixa de ser exibida em /contato.
+ * Deploy destino: git pull → drush cim -y → drush updb -y → drush cr
+ * (cim aplica block.block.default_views_block__banners_block_1; updb reforça).
+ */
+function custom_configs_update_11020(): string {
+  return _custom_configs_ensure_block1_without_contato();
+}
+
+/**
  * Garante field instances do Primeiro Bloco em quem_somos (reusa storages).
  */
 function _custom_configs_ensure_quem_somos_sobre_nos_fields(): string {
@@ -629,6 +641,33 @@ function _custom_configs_ensure_block1_without_quem_somos(): string {
   $block->save();
 
   return (string) t('Removido /quem-somos do bloco legado banners-block_1.');
+}
+
+/**
+ * Remove /contato das pages do bloco legado banners-block_1 se ainda listado.
+ */
+function _custom_configs_ensure_block1_without_contato(): string {
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = \Drupal::entityTypeManager()
+    ->getStorage('block')
+    ->load('default_views_block__banners_block_1');
+  if (!$block) {
+    return '';
+  }
+
+  $visibility = $block->getVisibility();
+  $pages = (string) ($visibility['request_path']['pages'] ?? '');
+  if ($pages === '' || !str_contains($pages, '/contato')) {
+    return (string) t('Bloco legado banners-block_1 já sem /contato.');
+  }
+
+  $lines = preg_split('/\r\n|\r|\n/', $pages) ?: [];
+  $filtered = array_values(array_filter($lines, static fn(string $line): bool => trim($line) !== '/contato'));
+  $visibility['request_path']['pages'] = implode("\r\n", $filtered);
+  $block->setVisibilityConfig('request_path', $visibility['request_path']);
+  $block->save();
+
+  return (string) t('Removido /contato do bloco legado banners-block_1.');
 }
 
 /**

@@ -250,7 +250,7 @@ Paragraphs de layout em blocos/páginas (`field_icon_title_text_p`, `field_itens
 
 ### 3.6 Block content / Views (produto)
 
-- View `banners`: display `block_home` (carrossel home, `field_local_exibicao=home`) + `block_1`/`block_2`/`block_3` (internas) + `block_quem_somos` (`field_local_exibicao=quem_somos`, região `banner`, pages só `/quem-somos`; `block_1` sem `/quem-somos`).
+- View `banners`: display `block_home` (carrossel home, `field_local_exibicao=home`) + `block_1`/`block_2`/`block_3` (internas) + `block_quem_somos` (`field_local_exibicao=quem_somos`, região `banner`, pages só `/quem-somos`; `block_1` só `/para-estudantes` e `/para-empresas` — sem `/quem-somos` nem `/contato`).
 - View `vagas` `page_1` (`/para-estudantes`): filtros expostos `nid`, `cursos`, `estado`, `cidade`, `escolaridade`, `regime`.
 - Bloco plugin `custom_banners_hero_search` (região `highlighted`, somente `<front>`).
 - View `banners` display `block_home` (região `banner`, `<front>`): carrossel `#banner-carousel-home-slides` **full-bleed** na região; texto do hero (título/CTA/contatos) **contido no banner** via overlay — não ao lado da imagem. Detalhe operacional: regra `.cursor/rules/estagio-banner-home.mdc` (sob demanda).

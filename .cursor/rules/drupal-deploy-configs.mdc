@@ -7,10 +7,16 @@ alwaysApply: false
 
 Ao alterar estrutura (fields, block types, paragraphs, views, displays, placements) ou seeds de conteúdo em `modules/custom/**/*.install` / `config/sync/**/*.yml`, siga este fluxo.
 
+## Pré-requisito permanente (produção)
+
+- Antes de qualquer `cim` em destino: o `settings.php` **ativo** DEVE estar alinhado a `sites/default/settings.php.prod` — em especial `$settings['config_sync_directory'] = 'config/sync'`.
+- Divergência (ex.: diretório hash legado em `sites/default/files/config_*/sync`) ⇒ corrigir com backup `settings.php.bak_<data>` **antes** da esteira. `settings.php` não é versionado e a esteira não o altera sozinha.
+- Invocação Drush no servidor: `php vendor/bin/drush.php <cmd>` a partir de `/var/www/html` (runbook: `specs/016-deploy-producao-layout/contracts/deploy-runbook.md`).
+
 ## Configuração estrutural (obrigatório)
 
 - Toda alteração estrutural (novos fields, block types, paragraph types, views, form/view displays, block placements) DEVE ser acompanhada de exportação com `drush cex` para `config/sync` e versionada no Git.
-- Em ambiente de destino: `git pull` → `drush cim -y` → `drush updb -y` → `drush cr` (`cim` **antes** de `updb`).
+- Em ambiente de destino (receita normativa validada): `git pull` → `drush cim -y` → `drush updb -y` → `drush cim -y` → `drush cr` (`cim` **antes** de `updb`; **2ª passada de `cim`** após `updb` para placements/displays que dependem de UUIDs seedados pelos hooks).
 - Não edite YAMLs de `config/sync` “na mão” para inventar config nova: altere via admin/API e exporte.
 
 ## Seeds e instâncias de conteúdo (obrigatório)
@@ -31,7 +37,7 @@ Ao alterar estrutura (fields, block types, paragraphs, views, displays, placemen
 
 ## Layout v2 `/quem-somos` (blocos 009–013)
 
-Receita destino: `cim` → `updb` (`11012`/`11013`/`11015`/`11016`/`11017`/`11018`/`11019`) → `cr`.
+Receita destino: `cim` → `updb` (`11012`/`11013`/`11015`/`11016`/`11017`/`11018`/`11019`) → `cim` → `cr`.
 
 Na **origem**, além do `drush cex`:
 

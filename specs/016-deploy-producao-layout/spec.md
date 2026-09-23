@@ -2,8 +2,8 @@
 
 **Feature Directory**: `specs/016-deploy-producao-layout`  
 **Created**: 2026-09-23  
-**Status**: Draft  
-**Input do usuário**: Especificar e executar o **Deploy em Produção** de todas as alterações recentes de layout (novas Views, Blocks, Paragraphs, Nodes e CSS) da Home e da página Quem Somos (Diferenciais, Metodologia, Missão/Visão, Números, CTA v1, Rodapé). Como o desenvolvimento foi feito localmente com SDD, todas as alterações de banco estão encapsuladas em `hook_update_N` e as configurações exportadas em `config/sync`. O deploy DEVE ser precedido de backup completo do banco PostgreSQL 16, executado via esteira automatizada (`git` → `composer install --no-dev --optimize-autoloader` → `drush updatedb -y` → `drush config:import -y` → `drush cache:rebuild`), com procedimento de rollback documentado e verificação final das rotas `<front>` e `/quem-somos`.
+**Status**: Implemented (deploy produção 2026-09-23; consolidação documental `/speckit-implement`)  
+**Input do usuário**: Especificar e executar o **Deploy em Produção** de todas as alterações recentes de layout (novas Views, Blocks, Paragraphs, Nodes e CSS) da Home e da página Quem Somos (Diferenciais, Metodologia, Missão/Visão, Números, CTA v1, Rodapé). Como o desenvolvimento foi feito localmente com SDD, todas as alterações de banco estão encapsuladas em `hook_update_N` e as configurações exportadas em `config/sync`. O deploy DEVE ser precedido de backup completo do banco PostgreSQL 16, executado via esteira automatizada (`git` → `composer install --no-dev --optimize-autoloader` → `drush config:import -y` → `drush updatedb -y` → `drush config:import -y` → `drush cache:rebuild`), com procedimento de rollback documentado e verificação final das rotas `<front>` e `/quem-somos`.
 
 ## Resumo das Alterações
 
@@ -218,7 +218,7 @@ Acionado quando uma falha irrecuperável é detectada em qualquer etapa após o 
 ### Measurable Outcomes
 
 - **SC-001**: 100% dos deploys iniciados somente após backup verificado (arquivo existe, tamanho > 0, fora da raiz pública); nenhuma alteração de código/banco ocorre sem esse portão.
-- **SC-002**: A esteira completa (Git → Composer → updatedb → config:import → cache:rebuild) executa sem nenhum passo manual no painel administrativo.
+- **SC-002**: A esteira completa (Git → Composer → config:import → updatedb → config:import → cache:rebuild) executa sem nenhum passo manual no painel administrativo.
 - **SC-003**: 100% das rotas críticas (`<front>` e `/quem-somos`) respondem HTTP 200 em até 3 segundos após o deploy.
 - **SC-004**: Zero erros 500 e zero erros novos de configuração no log do site na verificação pós-deploy.
 - **SC-005**: Inspeção do HTML confirma 100% dos elementos-chave do novo layout: classes `.container`, seções full-width, blocos novos da Home e os 6 blocos/seções de Quem Somos (incluindo CTA v1).

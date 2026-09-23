@@ -15,7 +15,6 @@ Release consolidado de **32 commits** (`origin/main..dev`), com **+21.998 / −1
 - Carrossel de banners full-width + busca hero com autocomplete de cursos (feature `001-banners-busca-home`, módulo `custom_banners` com `HeroSearchBlock` e `CursosAutocompleteController`).
 - Vagas em destaque com ícones por categoria e layout responsivo (feature `003-vagas-destaque-home`).
 - Blocos gerenciáveis: Nossos Diferenciais (`004`), Nossa Metodologia (`005`), O Que Fazemos (`006`), Como Funciona (`007`) — itens via Paragraphs.
-- Novo bloco de depoimentos.
 - Rodapé redesenhado com colunas de menu, tagline e links (feature `008-rodape-redesign`).
 
 **Quem Somos (`/quem-somos`)**
@@ -174,18 +173,29 @@ Se o deploy falhar de forma irrecuperável (erro 500 persistente, importação d
 - **Atualizações de banco**: `custom_configs_update_11001`–`11019`, idempotentes, executadas uma única vez por ambiente.
 - **Ambiente de produção**: VPS com Apache + HTTPS (Let's Encrypt), aplicação em `/var/www/html`, acesso SSH por chave.
 
-## Plano de Release (Runbook normativo)
+## Plano de Release (Runbook normativo — ordem validada em produção em 2026-09-23)
 
 Sequência obrigatória executada no servidor de produção, nesta ordem, cada passo condicionado ao sucesso do anterior:
 
-1. **Backup**: `drush sql-dump --result-file=../backups/backup_eu_sou_estagio_$(date +%Y%m%d_%H%M%S).sql --gzip` → verificar arquivo (FR-001, FR-002).
+1. **Backup**: `drush sql-dump --result-file=../backups/backup_eu_sou_estagio_$(date +%Y%m%d_%H%M%S).sql --gzip` → verificar arquivo e integridade gzip (FR-001, FR-002).
 2. **Registro de rollback**: anotar `git rev-parse HEAD` do servidor (FR-003).
 3. **Versionamento**: `git fetch origin` → `git checkout main` → `git merge origin/dev` → `git pull origin main`.
 4. **Dependências**: `composer install --no-dev --optimize-autoloader`.
-5. **Banco e conteúdo**: `drush updatedb -y`.
-6. **Configurações**: `drush config:import -y`.
-7. **Caches**: `drush cache:rebuild`.
-8. **Verificação**: rotas `<front>` e `/quem-somos` (FR-011 a FR-014).
+5. **Configurações (ANTES do banco)**: `drush config:import -y` — os `hook_update_N` do `custom_configs` dependem dos bundles/fields já importados (regra `drupal-deploy-configs.mdc`: `cim` **antes** de `updb`).
+6. **Banco e conteúdo**: `drush updatedb -y` — executa os `hook_update_N` (seeds idempotentes).
+7. **Configurações (2ª passada)**: `drush config:import -y` — importa placements/displays que dependiam dos UUIDs seedados no passo 6.
+8. **Caches**: `drush cache:rebuild`.
+9. **Verificação**: rotas `<front>` e `/quem-somos` (FR-011 a FR-014).
+
+> **Correção em relação ao pedido original**: o roteiro solicitado trazia `updatedb` antes de `config:import`. A execução real provou que a ordem correta para este codebase é `cim` → `updb` → `cim` → `cr` (os hooks no-opam ou falham sem os bundles importados). Esta seção é a referência normativa para os próximos deploys.
+
+### Desvios executados neste deploy (lições para o runbook)
+
+1. **`config_sync_directory` divergente**: o `settings.php` ativo de produção apontava para o diretório hash legado (`sites/default/files/config_F1OK.../sync`) em vez de `config/sync` — o release já corrigia isso em `settings.php.prod`, mas o arquivo ativo não é versionado. Aplicada a mesma linha do `.prod` (backup em `sites/default/settings.php.bak_20260923`). **Ação permanente**: alinhar `settings.php` com `settings.php.prod` é pré-requisito de todo deploy.
+2. **Migração de banners antes do `cim` completo**: o `custom_banners` exige `updb` antes do `cim` (migra conteúdo legado e o remove), enquanto o `custom_configs` exige o inverso. Sequência executada: import cirúrgico via Entity API de `node.type.banners` + storages/instances (`field_imagem_desktop`, `field_imagem_mobile`, `field_local_exibicao`, `field_peso`) → migração (`_custom_banners_migrate_legacy()`: 7 nodes criados) → hooks `custom_banners_update_11002/11003/11004` (legado removido) → `cim` completo. **Nunca** escrever config direto em `config.storage` sem `save()` via Entity API — tabelas de campo não são criadas.
+3. **Instância órfã**: `field.field.block_content.banner.field_link_2` existia só no ativo de produção e abortava a deleção do tipo `banner`; removida via Entity API antes do `cim`.
+4. **Hooks que no-oparam na 1ª tentativa** (11004–11011): reexecutados com reset de schema (`keyvalue system.schema.custom_configs = 11003`) seguido de `updatedb` — idempotência confirmada, seeds criados sem duplicar nada.
+5. **Drush no servidor**: `vendor/bin/drush.php` sem bit de execução — usar `php vendor/bin/drush.php` ou `chmod +x` (aplicado).
 
 ## Procedimento de Rollback
 
@@ -223,7 +233,7 @@ Acionado quando uma falha irrecuperável é detectada em qualquer etapa após o 
 - **Ferramentas no servidor**: Drush acessível a partir da raiz da aplicação (`vendor/bin/drush` ou global) e Composer disponível para o usuário do deploy.
 - **Diretório de backups**: `../backups` relativo à raiz da aplicação (fora da raiz pública); criado se inexistente.
 - **Arquivos de ambiente**: `.env` e `settings.php` de produção já estão configurados, não são versionados e não são tocados pelo deploy (`settings.php.prod` é apenas referência versionada).
-- **Ordem updb → cim**: executada conforme runbook solicitado; os hooks são idempotentes com UUIDs fixos iguais aos do `config/sync`, tornando a ordem segura em qualquer direção.
+- **Ordem cim → updb**: validada em produção em 2026-09-23 — os hooks do `custom_configs` dependem dos bundles/fields importados; a ordem inversa (pedido original) no-opa os seeds e falha em `11012`. Ver "Plano de Release".
 - **Sem janela de manutenção**: deploy em horário de baixo tráfego, com indisponibilidade percebida mínima (rebuild de cache ao final).
 - **Conteúdo editorial de produção**: preservado; seeds só preenchem instâncias ausentes/vazias (regra já garantida pelos hooks das features `001`–`015`).
 - **Core 11.4.7**: já presente em `main` (commit `a30c8b68`) e, presumivelmente, já em produção; este release não altera a versão do core.

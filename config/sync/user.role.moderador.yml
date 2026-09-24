@@ -10,6 +10,7 @@ dependencies:
     - block_content.type.destaque
     - block_content.type.diferenciais_quem_somos
     - block_content.type.footer
+    - block_content.type.layout_contato
     - block_content.type.missao_visao
     - block_content.type.nossos_diferenciais
     - block_content.type.nossa_metodologia
@@ -52,6 +53,7 @@ permissions:
   - 'create como_funciona_bt block content'
   - 'create cta_v1 block content'
   - 'create diferenciais_quem_somos block content'
+  - 'create layout_contato block content'
   - 'create missao_visao block content'
   - 'create nossa_metodologia block content'
   - 'create nossos_diferenciais block content'
@@ -64,6 +66,7 @@ permissions:
   - 'delete any como_funciona_bt block content'
   - 'delete any cta_v1 block content'
   - 'delete any diferenciais_quem_somos block content'
+  - 'delete any layout_contato block content'
   - 'delete any missao_visao block content'
   - 'delete any nossa_metodologia block content'
   - 'delete any nossos_diferenciais block content'
@@ -84,6 +87,7 @@ permissions:
   - 'edit any destaque block content'
   - 'edit any diferenciais_quem_somos block content'
   - 'edit any footer block content'
+  - 'edit any layout_contato block content'
   - 'edit any missao_visao block content'
   - 'edit any nossa_metodologia block content'
   - 'edit any nossos_diferenciais block content'

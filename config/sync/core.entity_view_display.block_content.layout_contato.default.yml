@@ -1,0 +1,36 @@
+uuid: f5a6b7c8-d9e0-4f1a-3b2c-4d5e6f708192
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.layout_contato
+    - field.field.block_content.layout_contato.field_formulario_contato
+    - field.field.block_content.layout_contato.field_image
+  module:
+    - image
+    - webform
+id: block_content.layout_contato.default
+targetEntityType: block_content
+bundle: layout_contato
+mode: default
+content:
+  field_formulario_contato:
+    type: webform_entity_reference_entity_view
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_image:
+    type: image
+    label: hidden
+    settings:
+      image_link: ''
+      image_style: ''
+      image_loading:
+        attribute: lazy
+    third_party_settings: {  }
+    weight: 1
+    region: content
+hidden:
+  langcode: true

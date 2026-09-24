@@ -84,6 +84,12 @@ cta_v1:
       assets/css/cta-v1.css: {}
   dependencies:
     - default/bootstrap
+layout_contato:
+  css:
+    component:
+      assets/css/layout-contato.css: {}
+  dependencies:
+    - default/bootstrap
 hero_search:
   js:
     assets/js/hero-search.js: {}

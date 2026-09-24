@@ -1,0 +1,118 @@
+/**
+ * Layout de Contato — /contato.
+ * Escopo isolado sob .block-layout-contato (não afetar home / Quem Somos / rodapé).
+ */
+.block-layout-contato {
+  overflow-x: hidden;
+}
+
+.block-layout-contato .layout-contato__title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 1.5rem;
+  line-height: 1.25;
+  font-size: clamp(1.5rem, 2vw + 1rem, 2rem);
+}
+
+.block-layout-contato .layout-contato__webform .form-control,
+.block-layout-contato .layout-contato__webform .form-select,
+.block-layout-contato .layout-contato__webform input[type="text"],
+.block-layout-contato .layout-contato__webform input[type="email"],
+.block-layout-contato .layout-contato__webform input[type="tel"],
+.block-layout-contato .layout-contato__webform select,
+.block-layout-contato .layout-contato__webform textarea {
+  border-radius: 8px;
+}
+
+.block-layout-contato .layout-contato__webform .webform-button--submit,
+.block-layout-contato .layout-contato__webform input[type="submit"],
+.block-layout-contato .layout-contato__webform button[type="submit"] {
+  background-color: #fd7b1a;
+  border-color: #fd7b1a;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.65rem 1.5rem;
+}
+
+.block-layout-contato .layout-contato__webform .webform-button--submit:hover,
+.block-layout-contato .layout-contato__webform input[type="submit"]:hover,
+.block-layout-contato .layout-contato__webform button[type="submit"]:hover,
+.block-layout-contato .layout-contato__webform .webform-button--submit:focus,
+.block-layout-contato .layout-contato__webform input[type="submit"]:focus,
+.block-layout-contato .layout-contato__webform button[type="submit"]:focus {
+  background-color: #e56a10;
+  border-color: #e56a10;
+  color: #fff;
+}
+
+.block-layout-contato .layout-contato__shortcuts {
+  align-items: center;
+}
+
+.block-layout-contato .layout-contato__shortcut {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #0f172a;
+  text-decoration: none;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.block-layout-contato .layout-contato__shortcut:hover,
+.block-layout-contato .layout-contato__shortcut:focus {
+  color: #fd7b1a;
+  text-decoration: underline;
+}
+
+.block-layout-contato .layout-contato__shortcut-icon {
+  display: inline-flex;
+  color: #fd7b1a;
+}
+
+.block-layout-contato .layout-contato__panel {
+  background-color: #e5eeff;
+  border-radius: 24px;
+  padding: 1.5rem;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+  box-sizing: border-box;
+}
+
+.block-layout-contato .layout-contato__image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+@media (max-width: 991.98px) {
+  .block-layout-contato .layout-contato__media-col {
+    margin-top: 2rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .block-layout-contato .layout-contato {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  .block-layout-contato .layout-contato__shortcuts {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem !important;
+  }
+
+  .block-layout-contato .layout-contato__webform .webform-button--submit,
+  .block-layout-contato .layout-contato__webform input[type="submit"],
+  .block-layout-contato .layout-contato__webform button[type="submit"] {
+    width: 100%;
+  }
+}

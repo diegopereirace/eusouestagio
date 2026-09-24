@@ -1,0 +1,20 @@
+uuid: b1c2d3e4-f5a6-4b7c-9d8e-0f1a2b3c4d5e
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - block_content
+    - webform
+id: block_content.field_formulario_contato
+field_name: field_formulario_contato
+entity_type: block_content
+type: webform
+settings:
+  target_type: webform
+module: webform
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

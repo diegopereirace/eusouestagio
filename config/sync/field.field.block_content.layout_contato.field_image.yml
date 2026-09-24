@@ -1,0 +1,38 @@
+uuid: d3e4f5a6-b7c8-4d9e-1f0a-2b3c4d5e6f70
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.layout_contato
+    - field.storage.block_content.field_image
+  module:
+    - image
+id: block_content.layout_contato.field_image
+field_name: field_image
+entity_type: block_content
+bundle: layout_contato
+label: 'Imagem de destaque'
+description: 'Ilustração do painel direito da página de contato (UX: 1 imagem).'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: 'block/contato/[date:custom:Y]-[date:custom:m]'
+  file_extensions: 'png gif jpg jpeg webp'
+  max_filesize: ''
+  max_resolution: ''
+  min_resolution: ''
+  alt_field: true
+  alt_field_required: false
+  title_field: true
+  title_field_required: false
+  default_image:
+    uuid: ''
+    alt: ''
+    title: ''
+    width: null
+    height: null
+field_type: image

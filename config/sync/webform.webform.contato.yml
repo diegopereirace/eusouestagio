@@ -13,38 +13,63 @@ title: Contato
 description: ''
 categories: {  }
 elements: |-
-  tipo:
-    '#type': select
-    '#title': 'Eu Sou'
-    '#title_display': none
-    '#options':
-      'Eu Sou Estudante': 'Eu Sou Estudante'
-      'Eu Sou Empresa': 'Eu Sou Empresa'
-    '#empty_option': 'Eu Sou...'
-    '#empty_value': _none
-  nome:
+  flexbox_nome_email:
+    '#type': webform_flexbox
+    nome_completo:
+      '#type': textfield
+      '#title': 'Nome completo'
+      '#title_display': invisible
+      '#placeholder': 'Seu nome'
+      '#required': true
+      '#required_error': 'Campo obrigatório!'
+    email:
+      '#type': email
+      '#title': E-mail
+      '#title_display': invisible
+      '#placeholder': 'seu@email.com'
+      '#required': true
+      '#required_error': 'Campo obrigatório!'
+  flexbox_telefone_categoria:
+    '#type': webform_flexbox
+    telefone:
+      '#type': tel
+      '#title': Telefone
+      '#title_display': invisible
+      '#placeholder': '(00) 00000-0000'
+      '#required': true
+      '#required_error': 'Campo obrigatório!'
+      '#attributes':
+        class:
+          - mask-phone
+    categoria:
+      '#type': select
+      '#title': Categoria
+      '#title_display': invisible
+      '#options':
+        Estudante: Estudante
+        Empresa: Empresa
+        Outro: Outro
+      '#empty_option': Estudante
+      '#required': true
+      '#required_error': 'Campo obrigatório!'
+  assunto:
     '#type': textfield
-    '#title': Nome
+    '#title': Assunto
+    '#title_display': invisible
+    '#placeholder': 'Como podemos ajudar?'
     '#required': true
     '#required_error': 'Campo obrigatório!'
-  e_mail:
-    '#type': email
-    '#title': E-mail
-    '#required': true
-    '#required_error': 'Campo obrigatório!'
-  whatsapp:
-    '#type': tel
-    '#title': Whatsapp
-    '#required': true
-    '#required_error': 'Campo obrigatório!'
-    '#attributes':
-      class:
-        - mask-phone
   mensagem:
     '#type': textarea
     '#title': Mensagem
+    '#title_display': invisible
+    '#placeholder': 'Escreva sua mensagem aqui...'
     '#required': true
     '#required_error': 'Campo obrigatório!'
+  actions:
+    '#type': webform_actions
+    '#title': 'Submit button(s)'
+    '#submit__label': 'Enviar Mensagem'
 css: ''
 javascript: ''
 settings:

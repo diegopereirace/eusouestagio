@@ -1,0 +1,41 @@
+uuid: e4f5a6b7-c8d9-4e0f-2a1b-3c4d5e6f7081
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.layout_contato
+    - field.field.block_content.layout_contato.field_formulario_contato
+    - field.field.block_content.layout_contato.field_image
+    - image.style.thumbnail
+  module:
+    - image
+    - webform
+id: block_content.layout_contato.default
+targetEntityType: block_content
+bundle: layout_contato
+mode: default
+content:
+  field_formulario_contato:
+    type: webform_entity_reference_select
+    weight: 1
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_image:
+    type: image_image
+    weight: 2
+    region: content
+    settings:
+      progress_indicator: throbber
+      preview_image_style: thumbnail
+    third_party_settings: {  }
+  info:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  langcode: true

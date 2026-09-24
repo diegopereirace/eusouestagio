@@ -1,0 +1,19 @@
+uuid: 4dc1ce3a-508e-4063-af24-ee330c740c62
+langcode: pt-br
+status: true
+dependencies:
+  enforced:
+    module:
+      - webform
+id: contato_assuntos
+label: 'Contato — Assuntos'
+category: Contato
+likert: false
+options: |
+  vagas: 'Dúvidas sobre vagas'
+  cadastro: 'Cadastro e candidatura'
+  suporte: 'Suporte técnico'
+  empresas: 'Parcerias / Empresas'
+  sugestoes: 'Sugestões e feedback'
+  reclamacoes: 'Reclamações'
+  outro: 'Outro assunto'

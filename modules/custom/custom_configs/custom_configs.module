@@ -5,11 +5,82 @@
  * Custom site configuration hooks.
  */
 
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\NodeInterface;
+
 /**
  * Implements hook_webform_submission_form_alter().
+ *
+ * - Anexa a library de máscaras ao formulário `contato`.
+ * - Quando o formulário está sendo renderizado dentro de um node do bundle
+ *   `contato`, injeta os atalhos de E-mail e WhatsApp (derivados dos fields
+ *   `field_email` e `field_phone_wpp`) dentro do container `.form-actions`,
+ *   permitindo a barra única "Enviar Mensagem + atalhos" via CSS flex.
  */
-function custom_configs_webform_submission_form_alter(array &$form, \Drupal\Core\Form\FormStateInterface $form_state, string $form_id): void {
-  if ($form['#webform_id'] === 'contato') {
-    $form['#attached']['library'][] = 'default/masks';
+function custom_configs_webform_submission_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
+  if (($form['#webform_id'] ?? '') !== 'contato') {
+    return;
+  }
+  $form['#attached']['library'][] = 'default/masks';
+
+  $node = \Drupal::routeMatch()->getParameter('node');
+  if (!$node instanceof NodeInterface || $node->bundle() !== 'contato') {
+    return;
+  }
+
+  $email = '';
+  if ($node->hasField('field_email') && !$node->get('field_email')->isEmpty()) {
+    $email = trim((string) $node->get('field_email')->value);
+  }
+
+  $phone_raw = '';
+  if ($node->hasField('field_phone_wpp') && !$node->get('field_phone_wpp')->isEmpty()) {
+    $phone_raw = trim((string) $node->get('field_phone_wpp')->value);
+  }
+  $digits = preg_replace('/\D/', '', $phone_raw) ?? '';
+  if (strlen($digits) === 10 || strlen($digits) === 11) {
+    $digits = '55' . $digits;
+  }
+
+  if ($email === '' && $digits === '') {
+    return;
+  }
+
+  if (!isset($form['actions']) || !is_array($form['actions'])) {
+    return;
+  }
+
+  // Nota: `webform_actions` não injeta `#attributes` no wrapper; o seletor CSS
+  // usa `.node--contato .layout-contato-node__webform .form-actions` direto.
+  $form['actions']['contato_shortcuts'] = [
+    '#type' => 'container',
+    '#attributes' => ['class' => ['layout-contato-node__shortcuts']],
+    '#weight' => 100,
+  ];
+
+  $mail_icon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1Zm0 0 8 7 8-7" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  $wpp_icon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 11.5A8.5 8.5 0 0 1 7.3 18.4L4 20l1.7-3.2A8.5 8.5 0 1 1 20 11.5Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.2 9.8c.3-.6.5-.6.8-.6h.6c.2 0 .4.1.5.4l.7 1.7c.1.2 0 .5-.2.6l-.5.5c-.1.1-.1.3 0 .5.4.7 1.1 1.4 1.9 1.9.2.1.4.1.5 0l.5-.5c.2-.2.4-.3.6-.2l1.7.7c.3.1.4.3.4.5v.6c0 .3 0 .5-.6.8-.5.3-1.2.4-1.9.2A9.2 9.2 0 0 1 9 11.7c-.2-.7-.1-1.4.2-1.9Z" fill="currentColor"/></svg>';
+
+  if ($email !== '') {
+    $form['actions']['contato_shortcuts']['email'] = [
+      '#type' => 'inline_template',
+      '#template' => '<a class="layout-contato-node__shortcut layout-contato-node__shortcut--email" href="mailto:{{ email }}"><span class="layout-contato-node__shortcut-icon" aria-hidden="true">{{ icon|raw }}</span><span class="layout-contato-node__shortcut-body"><span class="layout-contato-node__shortcut-label">{{ "E-mail"|t }}</span><span class="layout-contato-node__shortcut-value">{{ email }}</span></span></a>',
+      '#context' => [
+        'email' => $email,
+        'icon' => $mail_icon,
+      ],
+    ];
+  }
+
+  if ($digits !== '') {
+    $form['actions']['contato_shortcuts']['whatsapp'] = [
+      '#type' => 'inline_template',
+      '#template' => '<a class="layout-contato-node__shortcut layout-contato-node__shortcut--whatsapp" href="https://wa.me/{{ digits }}" target="_blank" rel="noopener noreferrer"><span class="layout-contato-node__shortcut-icon" aria-hidden="true">{{ icon|raw }}</span><span class="layout-contato-node__shortcut-body"><span class="layout-contato-node__shortcut-label">{{ "WhatsApp"|t }}</span><span class="layout-contato-node__shortcut-value">{{ display }}</span></span></a>',
+      '#context' => [
+        'digits' => $digits,
+        'display' => $phone_raw !== '' ? $phone_raw : 'WhatsApp',
+        'icon' => $wpp_icon,
+      ],
+    ];
   }
 }

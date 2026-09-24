@@ -1,0 +1,17 @@
+uuid: b5c6d7e8-f9a0-4123-c456-e7f8a9b0c1d2
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus: {  }
+    parent: ''
+name: Contato
+type: contato
+description: 'Página de contato com formulário Webform, atalhos e painel lateral.'
+help: null
+new_revision: false
+preview_mode: 0
+display_submitted: false

@@ -17,15 +17,15 @@ elements: |-
     '#type': webform_flexbox
     nome_completo:
       '#type': textfield
-      '#title': 'Nome completo'
-      '#title_display': invisible
+      '#title': 'Nome Completo'
+      '#title_display': before
       '#placeholder': 'Seu nome'
       '#required': true
       '#required_error': 'Campo obrigatório!'
     email:
       '#type': email
       '#title': E-mail
-      '#title_display': invisible
+      '#title_display': before
       '#placeholder': 'seu@email.com'
       '#required': true
       '#required_error': 'Campo obrigatório!'
@@ -34,7 +34,7 @@ elements: |-
     telefone:
       '#type': tel
       '#title': Telefone
-      '#title_display': invisible
+      '#title_display': before
       '#placeholder': '(00) 00000-0000'
       '#required': true
       '#required_error': 'Campo obrigatório!'
@@ -44,7 +44,7 @@ elements: |-
     categoria:
       '#type': select
       '#title': Categoria
-      '#title_display': invisible
+      '#title_display': before
       '#options':
         Estudante: Estudante
         Empresa: Empresa
@@ -53,16 +53,17 @@ elements: |-
       '#required': true
       '#required_error': 'Campo obrigatório!'
   assunto:
-    '#type': textfield
+    '#type': select
     '#title': Assunto
-    '#title_display': invisible
-    '#placeholder': 'Como podemos ajudar?'
+    '#title_display': before
+    '#options': contato_assuntos
+    '#empty_option': 'Selecione o assunto'
     '#required': true
     '#required_error': 'Campo obrigatório!'
   mensagem:
     '#type': textarea
     '#title': Mensagem
-    '#title_display': invisible
+    '#title_display': before
     '#placeholder': 'Escreva sua mensagem aqui...'
     '#required': true
     '#required_error': 'Campo obrigatório!'

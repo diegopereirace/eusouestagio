@@ -1,0 +1,29 @@
+uuid: e8f9a0b1-c2d3-4456-f789-b0c1d2e3f4a5
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.webform
+    - node.type.contato
+  module:
+    - webform
+id: node.contato.webform
+field_name: webform
+entity_type: node
+bundle: contato
+label: Formulário
+description: 'Webform exibido na coluna esquerda da página de contato.'
+required: false
+translatable: false
+default_value:
+  -
+    target_uuid: ''
+    default_data: ''
+    status: open
+    open: ''
+    close: ''
+default_value_callback: ''
+settings:
+  handler: 'default:webform'
+  handler_settings: {  }
+field_type: webform

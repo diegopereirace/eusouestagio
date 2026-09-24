@@ -1,12 +1,15 @@
 /**
  * Layout de Contato — /contato.
- * Escopo isolado sob .block-layout-contato (não afetar home / Quem Somos / rodapé).
+ * Escopo isolado sob .node--contato / .layout-contato-node
+ * (dual-scope legado .block-layout-contato até limpeza via updb 11023).
  */
-.block-layout-contato {
+.block-layout-contato,
+.node--contato {
   overflow-x: hidden;
 }
 
-.block-layout-contato .layout-contato__title {
+.block-layout-contato .layout-contato__title,
+.node--contato .layout-contato-node__title {
   font-family: 'Poppins', sans-serif;
   font-weight: 700;
   color: #0f172a;
@@ -15,16 +18,145 @@
   font-size: clamp(1.5rem, 2vw + 1rem, 2rem);
 }
 
+/* Legendás dos campos — acima do input, cinza claro (Figma). */
+.block-layout-contato .layout-contato__webform .form-item label,
+.block-layout-contato .layout-contato__webform .js-form-item > label,
+.node--contato .layout-contato-node__webform .form-item label,
+.node--contato .layout-contato-node__webform .js-form-item > label {
+  display: block;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0 0 0.35rem;
+  line-height: 1.3;
+}
+
+.block-layout-contato .layout-contato__webform .form-item,
+.block-layout-contato .layout-contato__webform .js-form-item,
+.node--contato .layout-contato-node__webform .form-item,
+.node--contato .layout-contato-node__webform .js-form-item {
+  margin-bottom: 1rem;
+}
+
 .block-layout-contato .layout-contato__webform .form-control,
 .block-layout-contato .layout-contato__webform .form-select,
 .block-layout-contato .layout-contato__webform input[type="text"],
 .block-layout-contato .layout-contato__webform input[type="email"],
 .block-layout-contato .layout-contato__webform input[type="tel"],
 .block-layout-contato .layout-contato__webform select,
-.block-layout-contato .layout-contato__webform textarea {
+.block-layout-contato .layout-contato__webform textarea,
+.node--contato .layout-contato-node__webform .form-control,
+.node--contato .layout-contato-node__webform .form-select,
+.node--contato .layout-contato-node__webform input[type="text"],
+.node--contato .layout-contato-node__webform input[type="email"],
+.node--contato .layout-contato-node__webform input[type="tel"],
+.node--contato .layout-contato-node__webform select,
+.node--contato .layout-contato-node__webform textarea {
   border-radius: 8px;
 }
 
+/* ============================================================
+ * Barra de ações: submit + atalhos (E-mail, WhatsApp).
+ * Os atalhos são injetados via custom_configs_webform_submission_form_alter()
+ * dentro do container .form-actions gerado pelo webform.
+ * ============================================================ */
+.node--contato .layout-contato-node__webform .form-actions.webform-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Submit "Enviar Mensagem" — cor da marca; venceendo .btn.btn-primary.form-control */
+.node--contato .layout-contato-node__webform .form-actions .webform-button--submit,
+.node--contato .layout-contato-node__webform .form-actions input[type="submit"],
+.node--contato .layout-contato-node__webform .form-actions button[type="submit"] {
+  background-color: #fd7b1a;
+  border-color: #fd7b1a;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.75rem 1.75rem;
+  width: auto;
+  flex: 0 0 auto;
+}
+
+.node--contato .layout-contato-node__webform .form-actions .webform-button--submit:hover,
+.node--contato .layout-contato-node__webform .form-actions .webform-button--submit:focus,
+.node--contato .layout-contato-node__webform .form-actions input[type="submit"]:hover,
+.node--contato .layout-contato-node__webform .form-actions input[type="submit"]:focus,
+.node--contato .layout-contato-node__webform .form-actions button[type="submit"]:hover,
+.node--contato .layout-contato-node__webform .form-actions button[type="submit"]:focus {
+  background-color: #e56a10;
+  border-color: #e56a10;
+  color: #fff;
+}
+
+.node--contato .layout-contato-node__webform .layout-contato-node__shortcuts {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.node--contato .layout-contato-node__webform .layout-contato-node__shortcut {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: #0f172a;
+  text-decoration: none;
+  font-family: 'Poppins', sans-serif;
+  border: 1px solid #d0d7e5;
+  border-radius: 10px;
+  padding: 0.55rem 0.95rem;
+  background: #fff;
+  box-sizing: border-box;
+  line-height: 1.2;
+  transition: color .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+
+.node--contato .layout-contato-node__webform .layout-contato-node__shortcut:hover,
+.node--contato .layout-contato-node__webform .layout-contato-node__shortcut:focus {
+  color: #fd7b1a;
+  border-color: #fd7b1a;
+  text-decoration: none;
+  box-shadow: 0 2px 6px rgba(253, 123, 26, .12);
+}
+
+.node--contato .layout-contato-node__webform .layout-contato-node__shortcut-icon {
+  display: inline-flex;
+  color: #fd7b1a;
+  flex-shrink: 0;
+}
+
+.node--contato .layout-contato-node__webform .layout-contato-node__shortcut-body {
+  display: inline-flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.node--contato .layout-contato-node__webform .layout-contato-node__shortcut-label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #0f172a;
+}
+
+.node--contato .layout-contato-node__webform .layout-contato-node__shortcut-value {
+  font-weight: 400;
+  font-size: 0.78rem;
+  color: #64748b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 22ch;
+}
+
+/* Placement legado (bloco layout_contato) — mantém shortcuts single-line. */
 .block-layout-contato .layout-contato__webform .webform-button--submit,
 .block-layout-contato .layout-contato__webform input[type="submit"],
 .block-layout-contato .layout-contato__webform button[type="submit"] {
@@ -37,10 +169,10 @@
 }
 
 .block-layout-contato .layout-contato__webform .webform-button--submit:hover,
-.block-layout-contato .layout-contato__webform input[type="submit"]:hover,
-.block-layout-contato .layout-contato__webform button[type="submit"]:hover,
 .block-layout-contato .layout-contato__webform .webform-button--submit:focus,
+.block-layout-contato .layout-contato__webform input[type="submit"]:hover,
 .block-layout-contato .layout-contato__webform input[type="submit"]:focus,
+.block-layout-contato .layout-contato__webform button[type="submit"]:hover,
 .block-layout-contato .layout-contato__webform button[type="submit"]:focus {
   background-color: #e56a10;
   border-color: #e56a10;
@@ -60,54 +192,133 @@
   font-family: 'Poppins', sans-serif;
   font-weight: 500;
   font-size: 0.95rem;
+  border: 1px solid #d0d7e5;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  box-sizing: border-box;
 }
 
 .block-layout-contato .layout-contato__shortcut:hover,
 .block-layout-contato .layout-contato__shortcut:focus {
   color: #fd7b1a;
-  text-decoration: underline;
+  border-color: #fd7b1a;
+  text-decoration: none;
 }
 
 .block-layout-contato .layout-contato__shortcut-icon {
   display: inline-flex;
   color: #fd7b1a;
+  flex-shrink: 0;
 }
 
-.block-layout-contato .layout-contato__panel {
+.block-layout-contato .layout-contato__panel,
+.node--contato .layout-contato-node__panel {
   background-color: #e5eeff;
   border-radius: 24px;
   padding: 1.5rem;
   height: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 280px;
   box-sizing: border-box;
+  gap: 0.75rem;
 }
 
-.block-layout-contato .layout-contato__image {
+.block-layout-contato .layout-contato__image,
+.node--contato .layout-contato-node__image {
   display: block;
   max-width: 100%;
   height: auto;
   border-radius: 12px;
 }
 
+.node--contato .layout-contato-node__panel-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.node--contato .layout-contato-node__panel-text {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  color: #334155;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
 @media (max-width: 991.98px) {
-  .block-layout-contato .layout-contato__media-col {
+  .block-layout-contato .layout-contato__media-col,
+  .node--contato .layout-contato-node__media-col {
     margin-top: 2rem;
   }
 }
 
 @media (max-width: 575.98px) {
-  .block-layout-contato .layout-contato {
+  .block-layout-contato .layout-contato,
+  .node--contato .layout-contato-node {
     padding-top: 2rem;
     padding-bottom: 2rem;
   }
 
+  /* Mobile do node contato: submit full-width acima; atalhos lado a lado abaixo. */
+  .node--contato .layout-contato-node__webform .form-actions.webform-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .node--contato .layout-contato-node__webform .form-actions .webform-button--submit,
+  .node--contato .layout-contato-node__webform .form-actions input[type="submit"],
+  .node--contato .layout-contato-node__webform .form-actions button[type="submit"] {
+    width: 100%;
+  }
+
+  .node--contato .layout-contato-node__webform .layout-contato-node__shortcuts {
+    flex: 0 1 auto;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .node--contato .layout-contato-node__webform .layout-contato-node__shortcut {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0.5rem 0.65rem;
+    gap: 0.45rem;
+  }
+
+  .node--contato .layout-contato-node__webform .layout-contato-node__shortcut-body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .node--contato .layout-contato-node__webform .layout-contato-node__shortcut-label {
+    font-size: 0.78rem;
+  }
+
+  .node--contato .layout-contato-node__webform .layout-contato-node__shortcut-value {
+    font-size: 0.7rem;
+    max-width: 100%;
+  }
+
+  /* Placement legado no mobile: mantém stack vertical. */
   .block-layout-contato .layout-contato__shortcuts {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 1rem !important;
+  }
+
+  .block-layout-contato .layout-contato__shortcut {
+    width: 100%;
   }
 
   .block-layout-contato .layout-contato__webform .webform-button--submit,

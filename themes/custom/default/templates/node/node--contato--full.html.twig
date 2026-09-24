@@ -1,0 +1,60 @@
+{#
+/**
+ * @file
+ * Node Contato (bundle contato) — /contato.
+ *
+ * View mode full; classes alinhadas a contracts/contato-node-render.md.
+ */
+#}
+{{ attach_library('default/layout_contato') }}
+{%
+  set classes = [
+    'node',
+    'node--type-' ~ node.bundle|clean_class,
+    'node--contato',
+    node.isPromoted() ? 'node--promoted',
+    node.isSticky() ? 'node--sticky',
+    not node.isPublished() ? 'node--unpublished',
+    view_mode ? 'node--view-mode-' ~ view_mode|clean_class,
+  ]
+%}
+{% set has_webform = content.webform['#items'] is defined and content.webform['#items'] is not empty %}
+{% set panel_title = node.field_text_simple.value|default('')|trim %}
+{% set panel_text = node.field_text_simple_long.value|default('')|trim %}
+{% set img_uri = '' %}
+{% set img_alt = panel_title ? panel_title : ('Time de especialistas'|t) %}
+{% if node.field_imagem.entity and node.field_imagem.entity.uri.value %}
+  {% set img_uri = node.field_imagem.entity.uri.value %}
+  {% if node.field_imagem.alt %}
+    {% set img_alt = node.field_imagem.alt %}
+  {% endif %}
+{% endif %}
+
+<article{{ attributes.addClass(classes) }}>
+  {{ title_prefix }}{{ title_suffix }}
+  <div{{ content_attributes.addClass('layout-contato-node', 'container', 'py-5') }}>
+    <div class="row">
+      <div class="layout-contato-node__form-col col-12 col-lg-7">
+        <h2 class="layout-contato-node__title">{{ 'Envie sua mensagem'|t }}</h2>
+        {% if has_webform %}
+          <div class="layout-contato-node__webform">
+            {{ content.webform }}
+          </div>
+        {% endif %}
+      </div>
+      <div class="layout-contato-node__media-col col-12 col-lg-5">
+        <div class="layout-contato-node__panel">
+          {% if img_uri %}
+            <img class="img-fluid layout-contato-node__image" src="{{ file_url(img_uri)|e('html_attr') }}" alt="{{ img_alt|e('html_attr') }}" loading="lazy" width="640" height="720">
+          {% endif %}
+          {% if panel_title %}
+            <p class="layout-contato-node__panel-title text-center">{{ panel_title }}</p>
+          {% endif %}
+          {% if panel_text %}
+            <p class="layout-contato-node__panel-text text-center">{{ panel_text }}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</article>

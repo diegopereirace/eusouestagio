@@ -334,6 +334,31 @@ function custom_configs_update_11022(): string {
 }
 
 /**
+ * Contato como Node: limpa legado layout_contato, seed Node e alias /contato.
+ *
+ * (1) Delete bloco ID 16 + seed UUID d1e2f3a4-… se existirem;
+ * (2) remove placement default_layoutcontato;
+ * (3) ensure Content Type contato + storages field_email/field_phone_wpp +
+ *     instances + displays;
+ * (4) seed Node Contato UUID a4b5c6d7-… (asset → public://; valores Figma)
+ *     só se ausente/campos vazios;
+ * (5) reassocia alias /contato ao Node Contato (remove alias da página page
+ *     seed sem apagar o node). Nunca sobrescreve editorial divergente; nunca
+ *     duplica.
+ * Deploy destino: git pull → drush cim -y → drush updb -y → drush cim -y → drush cr.
+ */
+function custom_configs_update_11023(): string {
+  $messages = [
+    _custom_configs_cleanup_layout_contato_legado(),
+    _custom_configs_disable_layout_contato_placement(),
+    _custom_configs_ensure_contato_node_structure(),
+    _custom_configs_seed_contato_node(),
+    _custom_configs_ensure_contato_node_alias(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
  * Garante field instances do Primeiro Bloco em quem_somos (reusa storages).
  */
 function _custom_configs_ensure_quem_somos_sobre_nos_fields(): string {
@@ -4508,6 +4533,524 @@ function _custom_configs_ensure_contato_page(): string {
   }
   else {
     $messages[] = (string) t('Alias /contato já ok.');
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
+ * Remove bloco Contato legado (ID 16 e/ou UUID seed layout_contato).
+ */
+function _custom_configs_cleanup_layout_contato_legado(): string {
+  $messages = [];
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $seed_uuid = 'd1e2f3a4-b5c6-4d7e-8f90-a1b2c3d4e5f6';
+  $deleted_ids = [];
+
+  $by_id = $storage->load(16);
+  if ($by_id) {
+    $deleted_ids[] = (int) $by_id->id();
+    $by_id->delete();
+    $messages[] = (string) t('Bloco Contato legado ID 16 excluído.');
+  }
+
+  $by_uuid = $storage->loadByProperties(['uuid' => $seed_uuid]);
+  if ($by_uuid) {
+    /** @var \Drupal\block_content\BlockContentInterface $block */
+    $block = reset($by_uuid);
+    $nid = (int) $block->id();
+    if (!in_array($nid, $deleted_ids, TRUE)) {
+      $block->delete();
+      $messages[] = (string) t('Bloco layout_contato seed (@uuid) excluído.', [
+        '@uuid' => $seed_uuid,
+      ]);
+    }
+  }
+
+  if (!$messages) {
+    $messages[] = (string) t('Nenhum bloco layout_contato legado para excluir.');
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
+ * Desabilita ou remove placement default_layoutcontato (não renderiza em /contato).
+ */
+function _custom_configs_disable_layout_contato_placement(): string {
+  $block_id = 'default_layoutcontato';
+  $storage = \Drupal::entityTypeManager()->getStorage('block');
+
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = $storage->load($block_id);
+  if (!$block) {
+    return (string) t('Placement default_layoutcontato ausente — nada a remover.');
+  }
+
+  $block->delete();
+  return (string) t('Placement default_layoutcontato removido.');
+}
+
+/**
+ * Garante Content Type contato + storages novos + instances + displays.
+ */
+function _custom_configs_ensure_contato_node_structure(): string {
+  $parts = [];
+  $bundle = 'contato';
+
+  if (!\Drupal\node\Entity\NodeType::load($bundle)) {
+    \Drupal\node\Entity\NodeType::create([
+      'type' => $bundle,
+      'name' => 'Contato',
+      'description' => 'Página de contato com formulário Webform, atalhos e painel lateral.',
+      'new_revision' => FALSE,
+      'preview_mode' => 0,
+      'display_submitted' => FALSE,
+    ])->save();
+    $parts[] = (string) t('Content Type contato criado.');
+  }
+
+  if (!\Drupal\field\Entity\FieldStorageConfig::loadByName('node', 'field_email')) {
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => 'field_email',
+      'entity_type' => 'node',
+      'type' => 'email',
+      'cardinality' => 1,
+      'translatable' => TRUE,
+    ])->save();
+    $parts[] = (string) t('Storage node.field_email criado.');
+  }
+
+  if (!\Drupal\field\Entity\FieldStorageConfig::loadByName('node', 'field_phone_wpp')) {
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => 'field_phone_wpp',
+      'entity_type' => 'node',
+      'type' => 'string',
+      'settings' => [
+        'max_length' => 255,
+        'case_sensitive' => FALSE,
+        'is_ascii' => FALSE,
+      ],
+      'cardinality' => 1,
+      'translatable' => TRUE,
+    ])->save();
+    $parts[] = (string) t('Storage node.field_phone_wpp criado.');
+  }
+
+  $field_defs = [
+    'webform' => [
+      'label' => 'Formulário',
+      'settings' => [
+        'handler' => 'default:webform',
+        'handler_settings' => [],
+      ],
+    ],
+    'field_imagem' => [
+      'label' => 'Imagem lateral',
+      'settings' => [
+        'handler' => 'default:file',
+        'handler_settings' => [],
+        'file_directory' => 'contato/imagem/[date:custom:Y]-[date:custom:m]',
+        'file_extensions' => 'png gif jpg jpeg webp',
+        'max_filesize' => '',
+        'max_resolution' => '',
+        'min_resolution' => '',
+        'alt_field' => TRUE,
+        'alt_field_required' => FALSE,
+        'title_field' => TRUE,
+        'title_field_required' => FALSE,
+        'default_image' => [
+          'uuid' => '',
+          'alt' => '',
+          'title' => '',
+          'width' => NULL,
+          'height' => NULL,
+        ],
+      ],
+    ],
+    'field_email' => [
+      'label' => 'E-mail',
+      'settings' => [],
+    ],
+    'field_phone_wpp' => [
+      'label' => 'WhatsApp',
+      'settings' => [],
+    ],
+    'field_text_simple' => [
+      'label' => 'Título do painel',
+      'settings' => [],
+    ],
+    'field_text_simple_long' => [
+      'label' => 'Texto do painel',
+      'settings' => [],
+    ],
+  ];
+
+  $created = [];
+  $missing_storage = [];
+  foreach ($field_defs as $field_name => $definition) {
+    if (\Drupal\field\Entity\FieldConfig::loadByName('node', $bundle, $field_name)) {
+      continue;
+    }
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('node', $field_name);
+    if (!$storage) {
+      $missing_storage[] = $field_name;
+      continue;
+    }
+    \Drupal\field\Entity\FieldConfig::create([
+      'field_storage' => $storage,
+      'bundle' => $bundle,
+      'label' => $definition['label'],
+      'required' => FALSE,
+      'translatable' => FALSE,
+      'settings' => $definition['settings'],
+    ])->save();
+    $created[] = $field_name;
+  }
+
+  if ($missing_storage) {
+    $parts[] = (string) t('Storages ausentes (@fields) — rode drush cim -y antes do updb.', [
+      '@fields' => implode(', ', $missing_storage),
+    ]);
+  }
+  if ($created) {
+    $parts[] = (string) t('Instances criadas em contato: @fields.', [
+      '@fields' => implode(', ', $created),
+    ]);
+  }
+
+  $parts[] = _custom_configs_ensure_contato_node_displays();
+
+  if (!$parts) {
+    $parts[] = (string) t('Estrutura Node Contato já presente.');
+  }
+
+  return implode(' ', array_filter($parts));
+}
+
+/**
+ * Garante form/view displays do Node Contato.
+ */
+function _custom_configs_ensure_contato_node_displays(): string {
+  $messages = [];
+  $bundle = 'contato';
+  $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+  $view_storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null $form_display */
+  $form_display = $form_storage->load("node.$bundle.default");
+  if (!$form_display) {
+    $form_display = $form_storage->create([
+      'targetEntityType' => 'node',
+      'bundle' => $bundle,
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $form_changed = $form_display->isNew();
+  foreach ([
+    'title' => [
+      'type' => 'string_textfield',
+      'weight' => 0,
+      'settings' => ['size' => 60, 'placeholder' => ''],
+    ],
+    'webform' => [
+      'type' => 'webform_entity_reference_select',
+      'weight' => 1,
+      'settings' => [],
+    ],
+    'field_imagem' => [
+      'type' => 'image_image',
+      'weight' => 2,
+      'settings' => [
+        'progress_indicator' => 'throbber',
+        'preview_image_style' => 'thumbnail',
+      ],
+    ],
+    'field_email' => [
+      'type' => 'email_default',
+      'weight' => 3,
+      'settings' => ['placeholder' => '', 'size' => 60],
+    ],
+    'field_phone_wpp' => [
+      'type' => 'string_textfield',
+      'weight' => 4,
+      'settings' => ['size' => 60, 'placeholder' => '(61) 99999-9999'],
+    ],
+    'field_text_simple' => [
+      'type' => 'string_textfield',
+      'weight' => 5,
+      'settings' => ['size' => 60, 'placeholder' => ''],
+    ],
+    'field_text_simple_long' => [
+      'type' => 'string_textarea',
+      'weight' => 6,
+      'settings' => ['rows' => 3, 'placeholder' => ''],
+    ],
+    'path' => [
+      'type' => 'path',
+      'weight' => 9,
+      'settings' => [],
+    ],
+    'status' => [
+      'type' => 'boolean_checkbox',
+      'weight' => 10,
+      'settings' => ['display_label' => TRUE],
+    ],
+  ] as $field_name => $defaults) {
+    if ($form_display->getComponent($field_name)) {
+      continue;
+    }
+    $form_display->setComponent($field_name, [
+      'type' => $defaults['type'],
+      'weight' => $defaults['weight'],
+      'region' => 'content',
+      'settings' => $defaults['settings'],
+      'third_party_settings' => [],
+    ]);
+    $form_changed = TRUE;
+  }
+  if ($form_changed) {
+    $form_display->save();
+    $messages[] = (string) t('Form display node.contato atualizado.');
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null $view_display */
+  $view_display = $view_storage->load("node.$bundle.default");
+  if (!$view_display) {
+    $view_display = $view_storage->create([
+      'targetEntityType' => 'node',
+      'bundle' => $bundle,
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $view_changed = $view_display->isNew();
+  foreach ([
+    'webform' => [
+      'type' => 'webform_entity_reference_entity_view',
+      'weight' => 0,
+      'settings' => [],
+    ],
+    'field_imagem' => [
+      'type' => 'image',
+      'weight' => 1,
+      'settings' => [
+        'image_link' => '',
+        'image_style' => '',
+        'image_loading' => ['attribute' => 'lazy'],
+      ],
+    ],
+    'field_email' => [
+      'type' => 'email_mailto',
+      'weight' => 2,
+      'settings' => [],
+    ],
+    'field_phone_wpp' => [
+      'type' => 'string',
+      'weight' => 3,
+      'settings' => ['link_to_entity' => FALSE],
+    ],
+    'field_text_simple' => [
+      'type' => 'string',
+      'weight' => 4,
+      'settings' => ['link_to_entity' => FALSE],
+    ],
+    'field_text_simple_long' => [
+      'type' => 'basic_string',
+      'weight' => 5,
+      'settings' => [],
+    ],
+  ] as $field_name => $defaults) {
+    if ($view_display->getComponent($field_name)) {
+      continue;
+    }
+    $view_display->setComponent($field_name, [
+      'type' => $defaults['type'],
+      'label' => 'hidden',
+      'weight' => $defaults['weight'],
+      'region' => 'content',
+      'settings' => $defaults['settings'],
+      'third_party_settings' => [],
+    ]);
+    $view_changed = TRUE;
+  }
+  if ($view_changed) {
+    $view_display->save();
+    $messages[] = (string) t('View display node.contato atualizado.');
+  }
+
+  if (!$messages) {
+    $messages[] = (string) t('Displays node.contato já ok.');
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
+ * Seed idempotente do Node Contato (UUID fixo; só campos vazios).
+ */
+function _custom_configs_seed_contato_node(): string {
+  $uuid = 'a4b5c6d7-e8f9-4012-b345-d6e7f8a9b0c1';
+  $bundle = 'contato';
+  $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+  $messages = [];
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('node');
+  if (!isset($bundle_info[$bundle])) {
+    return (string) t('Bundle contato ausente — rode drush cim -y antes do updb.');
+  }
+
+  $webform_value = [
+    'target_id' => 'contato',
+    'default_data' => '',
+    'status' => 'open',
+    'open' => '',
+    'close' => '',
+  ];
+
+  $existing = $node_storage->loadByProperties(['uuid' => $uuid]);
+  /** @var \Drupal\node\NodeInterface|null $node */
+  $node = $existing ? reset($existing) : NULL;
+
+  if (!$node) {
+    $node = $node_storage->create([
+      'type' => $bundle,
+      'uuid' => $uuid,
+      'title' => 'Contato',
+      'status' => 1,
+      'uid' => 1,
+    ]);
+    if ($node->hasField('webform')) {
+      $node->set('webform', $webform_value);
+    }
+    if ($node->hasField('field_email')) {
+      $node->set('field_email', 'contato@eusouestagio.com');
+    }
+    if ($node->hasField('field_phone_wpp')) {
+      $node->set('field_phone_wpp', '(61) 99999-9999');
+    }
+    if ($node->hasField('field_text_simple')) {
+      $node->set('field_text_simple', 'Time de especialistas');
+    }
+    if ($node->hasField('field_text_simple_long')) {
+      $node->set('field_text_simple_long', 'Nossa equipe responderá sua solicitação em até 24 horas úteis.');
+    }
+    $node->save();
+    $messages[] = (string) t('Node Contato seed criado (@uuid).', ['@uuid' => $uuid]);
+  }
+  else {
+    $messages[] = (string) t('Node Contato (@uuid) já existe — seed apenas campos vazios.', [
+      '@uuid' => $uuid,
+    ]);
+  }
+
+  $changed = FALSE;
+  if ($node->hasField('webform') && $node->get('webform')->isEmpty()) {
+    $node->set('webform', $webform_value);
+    $changed = TRUE;
+    $messages[] = (string) t('Webform seed preenchido no Node Contato.');
+  }
+  if ($node->hasField('field_email') && $node->get('field_email')->isEmpty()) {
+    $node->set('field_email', 'contato@eusouestagio.com');
+    $changed = TRUE;
+  }
+  if ($node->hasField('field_phone_wpp') && $node->get('field_phone_wpp')->isEmpty()) {
+    $node->set('field_phone_wpp', '(61) 99999-9999');
+    $changed = TRUE;
+  }
+  if ($node->hasField('field_text_simple') && $node->get('field_text_simple')->isEmpty()) {
+    $node->set('field_text_simple', 'Time de especialistas');
+    $changed = TRUE;
+  }
+  if ($node->hasField('field_text_simple_long') && $node->get('field_text_simple_long')->isEmpty()) {
+    $node->set('field_text_simple_long', 'Nossa equipe responderá sua solicitação em até 24 horas úteis.');
+    $changed = TRUE;
+  }
+  if ($node->hasField('field_imagem') && $node->get('field_imagem')->isEmpty()) {
+    $file = _custom_configs_seed_file_from_module_asset(
+      'contato/img-contato.png',
+      'public://contato/img-contato.png',
+      'node',
+      (int) $node->id()
+    );
+    if ($file) {
+      $node->set('field_imagem', [
+        'target_id' => $file->id(),
+        'alt' => 'Time de especialistas',
+      ]);
+      $changed = TRUE;
+      $messages[] = (string) t('Imagem seed preenchida no Node Contato.');
+    }
+    else {
+      $messages[] = (string) t('Asset contato/img-contato.png ausente — imagem não seedada.');
+    }
+  }
+
+  if ($changed) {
+    $node->save();
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
+ * Reassocia alias /contato ao Node Contato seed (não apaga página page legada).
+ */
+function _custom_configs_ensure_contato_node_alias(): string {
+  $uuid = 'a4b5c6d7-e8f9-4012-b345-d6e7f8a9b0c1';
+  $alias = '/contato';
+  $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+  $alias_storage = \Drupal::entityTypeManager()->getStorage('path_alias');
+  $messages = [];
+
+  $by_uuid = $node_storage->loadByProperties(['uuid' => $uuid]);
+  /** @var \Drupal\node\NodeInterface|null $node */
+  $node = $by_uuid ? reset($by_uuid) : NULL;
+  if (!$node) {
+    return (string) t('Node Contato seed ausente — alias /contato não reassociado.');
+  }
+
+  $existing_aliases = $alias_storage->loadByProperties(['alias' => $alias]);
+  foreach ($existing_aliases as $existing) {
+    $path = (string) $existing->getPath();
+    $target_nid = NULL;
+    if (preg_match('#^/node/(\d+)$#', $path, $matches)) {
+      $target_nid = (int) $matches[1];
+    }
+    $target_node = $target_nid ? $node_storage->load($target_nid) : NULL;
+    if ($target_node && $target_node->uuid() === $uuid) {
+      continue;
+    }
+    $existing->delete();
+    $messages[] = (string) t('Alias /contato legado (path @p, bundle @b) removido para migrar ao Node Contato.', [
+      '@p' => $path,
+      '@b' => $target_node ? $target_node->bundle() : 'desconhecido',
+    ]);
+  }
+
+  $system_path = '/node/' . $node->id();
+  $aliases_for_path = $alias_storage->loadByProperties(['path' => $system_path]);
+  $has_contato_alias = FALSE;
+  foreach ($aliases_for_path as $path_alias) {
+    if ($path_alias->getAlias() === $alias) {
+      $has_contato_alias = TRUE;
+      break;
+    }
+  }
+
+  if (!$has_contato_alias) {
+    $alias_storage->create([
+      'path' => $system_path,
+      'alias' => $alias,
+      'langcode' => 'pt-br',
+    ])->save();
+    $messages[] = (string) t('Alias /contato criado apontando para @p (Node Contato).', [
+      '@p' => $system_path,
+    ]);
+  }
+  else {
+    $messages[] = (string) t('Alias /contato já aponta para Node Contato.');
   }
 
   return implode(' ', $messages);

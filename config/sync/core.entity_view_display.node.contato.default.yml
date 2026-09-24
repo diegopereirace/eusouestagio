@@ -1,0 +1,73 @@
+uuid: f5a6b7c8-d9e0-4123-a456-c7d8e9f0a1b2
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.node.contato.field_email
+    - field.field.node.contato.field_imagem
+    - field.field.node.contato.field_phone_wpp
+    - field.field.node.contato.field_text_simple
+    - field.field.node.contato.field_text_simple_long
+    - field.field.node.contato.webform
+    - node.type.contato
+  module:
+    - image
+    - user
+    - webform
+id: node.contato.default
+targetEntityType: node
+bundle: contato
+mode: default
+content:
+  field_email:
+    type: email_mailto
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_imagem:
+    type: image
+    label: hidden
+    settings:
+      image_link: ''
+      image_style: ''
+      image_loading:
+        attribute: lazy
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_phone_wpp:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 3
+    region: content
+  field_text_simple:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 4
+    region: content
+  field_text_simple_long:
+    type: basic_string
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 5
+    region: content
+  webform:
+    type: webform_entity_reference_entity_view
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden:
+  langcode: true
+  links: true
+  search_api_excerpt: true

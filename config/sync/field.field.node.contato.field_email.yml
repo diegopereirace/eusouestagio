@@ -1,0 +1,19 @@
+uuid: a0b1c2d3-e4f5-4678-b901-d2e3f4a5b6c7
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_email
+    - node.type.contato
+id: node.contato.field_email
+field_name: field_email
+entity_type: node
+bundle: contato
+label: E-mail
+description: 'Atalho mailto: na faixa abaixo do formulário.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: email

@@ -3,6 +3,7 @@ langcode: pt-br
 status: true
 dependencies:
   config:
+    - node.type.contato
     - node.type.page
     - taxonomy.vocabulary.tags
   module:
@@ -26,12 +27,16 @@ permissions:
   - 'access files overview'
   - 'access toolbar'
   - 'administer url aliases'
+  - 'create contato content'
   - 'create page content'
   - 'create terms in tags'
   - 'create url aliases'
+  - 'delete own contato content'
   - 'delete own files'
   - 'delete own page content'
   - 'delete page revisions'
+  - 'edit any contato content'
+  - 'edit own contato content'
   - 'edit own page content'
   - 'edit terms in tags'
   - 'revert all revisions'

@@ -20,6 +20,9 @@ settings:
     -
       value: quem_somos
       label: 'Quem Somos'
+    -
+      value: para_empresas
+      label: 'Para Empresas'
   allowed_values_function: ''
 module: options
 locked: false

@@ -119,6 +119,57 @@ function default_preprocess_views_view__banners__block_home(array &$variables): 
 }
 
 /**
+ * Implements hook_preprocess_HOOK() for View banners block_para_empresas.
+ *
+ * Monta banner_slides (URI crua — preserva alpha PNG) a partir dos nodes.
+ */
+function default_preprocess_views_view__banners__block_para_empresas(array &$variables): void
+{
+  $variables['banner_slides'] = [];
+
+  /** @var \Drupal\views\ViewExecutable|null $view */
+  $view = $variables['view'] ?? NULL;
+  if (!$view) {
+    return;
+  }
+
+  $file_url_generator = \Drupal::service('file_url_generator');
+  $slides = [];
+
+  foreach ($view->result as $row) {
+    /** @var \Drupal\node\NodeInterface|null $node */
+    $node = $row->_entity ?? NULL;
+    if (!$node || !$node->hasField('field_imagem_desktop') || $node->get('field_imagem_desktop')->isEmpty()) {
+      continue;
+    }
+    $desktop_item = $node->get('field_imagem_desktop')->first();
+    if (empty($desktop_item->entity)) {
+      continue;
+    }
+    $desktop_uri = $desktop_item->entity->getFileUri();
+    if (!$desktop_uri) {
+      continue;
+    }
+
+    $mobile_uri = $desktop_uri;
+    if ($node->hasField('field_imagem_mobile') && !$node->get('field_imagem_mobile')->isEmpty()) {
+      $mobile_item = $node->get('field_imagem_mobile')->first();
+      if (!empty($mobile_item->entity)) {
+        $mobile_uri = $mobile_item->entity->getFileUri() ?: $desktop_uri;
+      }
+    }
+
+    $slides[] = [
+      'desktop' => $file_url_generator->generateString($desktop_uri),
+      'mobile' => $file_url_generator->generateString($mobile_uri),
+      'alt' => (string) ($desktop_item->alt ?? $node->label()),
+    ];
+  }
+
+  $variables['banner_slides'] = $slides;
+}
+
+/**
  * Implements hook_preprocess_HOOK() for View banners block_quem_somos.
  *
  * Monta banner_media (URI crua — preserva alpha PNG) a partir do 1º row.

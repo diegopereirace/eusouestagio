@@ -1,0 +1,28 @@
+uuid: b1c2d3e4-f5a6-4789-0bcd-123456789abc
+langcode: pt-br
+status: true
+dependencies:
+  content:
+    - 'block_content:nossa_metodologia:d4e5f6a7-b8c9-4012-d345-67890abcdef0'
+  module:
+    - block_content
+    - system
+  theme:
+    - default
+id: default_nossametodologiaparaempresas
+theme: default
+region: content_full
+weight: 1
+provider: null
+plugin: 'block_content:d4e5f6a7-b8c9-4012-d345-67890abcdef0'
+settings:
+  id: 'block_content:d4e5f6a7-b8c9-4012-d345-67890abcdef0'
+  label: 'Nossa Metodologia Para Empresas'
+  label_display: '0'
+  provider: block_content
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /para-empresas

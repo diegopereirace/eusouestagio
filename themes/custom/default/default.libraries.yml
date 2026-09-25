@@ -48,6 +48,12 @@ banner_quem_somos:
       assets/css/banner-quem-somos.css: {}
   dependencies:
     - default/bootstrap
+banner_para_empresas:
+  css:
+    component:
+      assets/css/banner-para-empresas.css: {}
+  dependencies:
+    - default/bootstrap
 layout_sobre_nos:
   css:
     component:

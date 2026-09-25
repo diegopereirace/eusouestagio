@@ -1,0 +1,28 @@
+uuid: e4f5a6b7-c8d9-4012-3efa-456789abcdef
+langcode: pt-br
+status: true
+dependencies:
+  content:
+    - 'block_content:cta_v1:a7b8c9d0-e1f2-4345-a678-90abcdef0123'
+  module:
+    - block_content
+    - system
+  theme:
+    - default
+id: default_ctav1paraempresas
+theme: default
+region: content_full
+weight: 4
+provider: null
+plugin: 'block_content:a7b8c9d0-e1f2-4345-a678-90abcdef0123'
+settings:
+  id: 'block_content:a7b8c9d0-e1f2-4345-a678-90abcdef0123'
+  label: 'CTA v1 Para Empresas'
+  label_display: '0'
+  provider: block_content
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /para-empresas

@@ -359,6 +359,27 @@ function custom_configs_update_11023(): string {
 }
 
 /**
+ * Página Para Empresas: limpeza do nó, banners, blocos e placements (019).
+ */
+function custom_configs_update_11024(): string {
+  $messages = [
+    _custom_configs_ensure_local_exibicao_para_empresas(),
+    _custom_configs_cleanup_para_empresas_node_fields(),
+    _custom_configs_seed_banners_para_empresas(),
+    _custom_configs_seed_nossos_diferenciais_para_empresas(),
+    _custom_configs_seed_nossa_metodologia_para_empresas(),
+    _custom_configs_seed_o_que_fazemos_para_empresas(),
+    _custom_configs_seed_beneficios_para_empresas(),
+    _custom_configs_seed_cta_v1_para_empresas(),
+    _custom_configs_ensure_block1_without_para_empresas(),
+    _custom_configs_disable_cto_para_empresas_placement(),
+    _custom_configs_ensure_banners_para_empresas_placement(),
+    _custom_configs_ensure_para_empresas_content_placements(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
  * Garante field instances do Primeiro Bloco em quem_somos (reusa storages).
  */
 function _custom_configs_ensure_quem_somos_sobre_nos_fields(): string {
@@ -5051,6 +5072,753 @@ function _custom_configs_ensure_contato_node_alias(): string {
   }
   else {
     $messages[] = (string) t('Alias /contato já aponta para Node Contato.');
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
+ * Acrescenta allowed value para_empresas em field_local_exibicao (defensivo).
+ */
+function _custom_configs_ensure_local_exibicao_para_empresas(): string {
+  /** @var \Drupal\field\FieldStorageConfigInterface|null $storage */
+  $storage = \Drupal::entityTypeManager()
+    ->getStorage('field_storage_config')
+    ->load('node.field_local_exibicao');
+  if (!$storage) {
+    return (string) t('field_local_exibicao ausente — rode drush cim -y antes do updb.');
+  }
+
+  $settings = $storage->getSetting('allowed_values') ?: [];
+
+  if (isset($settings['para_empresas'])) {
+    return (string) t('Allowed value para_empresas já presente.');
+  }
+
+  foreach ($settings as $item) {
+    if (is_array($item) && ($item['value'] ?? '') === 'para_empresas') {
+      return (string) t('Allowed value para_empresas já presente.');
+    }
+  }
+
+  $settings['para_empresas'] = 'Para Empresas';
+  $storage->setSetting('allowed_values', $settings);
+  $storage->save();
+
+  return (string) t('Allowed value para_empresas adicionado a field_local_exibicao.');
+}
+
+/**
+ * Esvazia fields de conteúdo legado do nó /para-empresas (não apaga o nó).
+ */
+function _custom_configs_cleanup_para_empresas_node_fields(): string {
+  $alias = '/para-empresas';
+  $alias_storage = \Drupal::entityTypeManager()->getStorage('path_alias');
+  $aliases = $alias_storage->loadByProperties(['alias' => $alias]);
+  if (!$aliases) {
+    return (string) t('Alias /para-empresas ausente — limpeza do nó ignorada.');
+  }
+
+  /** @var \Drupal\path_alias\PathAliasInterface $path_alias */
+  $path_alias = reset($aliases);
+  $path = (string) $path_alias->getPath();
+  if (!preg_match('#^/node/(\d+)$#', $path, $matches)) {
+    return (string) t('Alias /para-empresas não aponta para node — limpeza ignorada.');
+  }
+
+  $nid = (int) $matches[1];
+  /** @var \Drupal\node\NodeInterface|null $node */
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+  if (!$node) {
+    return (string) t('Node @nid do alias /para-empresas ausente.', ['@nid' => $nid]);
+  }
+  if ($node->bundle() !== 'para_empresas') {
+    return (string) t('Node @nid não é bundle para_empresas — limpeza ignorada.', ['@nid' => $nid]);
+  }
+
+  $fields = [
+    'field_titulo',
+    'field_text_simple',
+    'field_text_simple_long',
+    'field_text_simple_long_2',
+    'field_imagem',
+    'field_itens_p',
+  ];
+  $cleared = [];
+  foreach ($fields as $field_name) {
+    if (!$node->hasField($field_name)) {
+      continue;
+    }
+    if ($node->get($field_name)->isEmpty()) {
+      continue;
+    }
+    $node->set($field_name, NULL);
+    $cleared[] = $field_name;
+  }
+
+  if (!$cleared) {
+    return (string) t('Fields do nó Para Empresas (@nid) já vazios.', ['@nid' => $nid]);
+  }
+
+  $node->save();
+  return (string) t('Fields limpos no nó Para Empresas (@nid): @fields.', [
+    '@nid' => $nid,
+    '@fields' => implode(', ', $cleared),
+  ]);
+}
+
+/**
+ * Seed de 2 nodes banners (local=para_empresas) com assets versionados.
+ */
+function _custom_configs_seed_banners_para_empresas(): string {
+  $slides = [
+    [
+      'uuid' => 'a1b2c3d4-e5f6-4789-a012-34567890abcd',
+      'title' => 'Banner Para Empresas 1',
+      'peso' => 0,
+      'asset' => 'banner-para-empresas/slide-1.png',
+      'dest' => 'public://banners/para-empresas/slide-1.png',
+      'alt' => 'Talentos para empresas — Eu Sou Estágio',
+    ],
+    [
+      'uuid' => 'b2c3d4e5-f6a7-4890-b123-4567890abcde',
+      'title' => 'Banner Para Empresas 2',
+      'peso' => 1,
+      'asset' => 'banner-para-empresas/slide-2.png',
+      'dest' => 'public://banners/para-empresas/slide-2.png',
+      'alt' => 'Contrate o estágio certo — Eu Sou Estágio',
+    ],
+  ];
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('node');
+  if (!isset($bundle_info['banners'])) {
+    return (string) t('Bundle banners ausente — rode drush cim -y antes do updb.');
+  }
+
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $messages = [];
+
+  foreach ($slides as $slide) {
+    $by_uuid = $storage->loadByProperties(['uuid' => $slide['uuid']]);
+    if ($by_uuid) {
+      /** @var \Drupal\node\NodeInterface $node */
+      $node = reset($by_uuid);
+      if ($node->hasField('field_imagem_desktop') && $node->get('field_imagem_desktop')->isEmpty()) {
+        $file = _custom_configs_seed_file_from_module_asset(
+          $slide['asset'],
+          $slide['dest'],
+          'node',
+          (int) $node->id()
+        );
+        if ($file) {
+          $node->set('field_imagem_desktop', [
+            'target_id' => $file->id(),
+            'alt' => $slide['alt'],
+          ]);
+          $node->save();
+          $messages[] = (string) t('Imagem seed anexada ao banner @uuid.', ['@uuid' => $slide['uuid']]);
+        }
+      }
+      else {
+        $messages[] = (string) t('Banner Para Empresas (@uuid) já existe — seed ignorado.', [
+          '@uuid' => $slide['uuid'],
+        ]);
+      }
+      continue;
+    }
+
+    /** @var \Drupal\node\NodeInterface $node */
+    $node = $storage->create([
+      'type' => 'banners',
+      'uuid' => $slide['uuid'],
+      'title' => $slide['title'],
+      'status' => 1,
+      'uid' => 1,
+      'field_local_exibicao' => 'para_empresas',
+      'field_peso' => $slide['peso'],
+    ]);
+    $node->save();
+
+    $file = _custom_configs_seed_file_from_module_asset(
+      $slide['asset'],
+      $slide['dest'],
+      'node',
+      (int) $node->id()
+    );
+    if ($file && $node->hasField('field_imagem_desktop')) {
+      $node->set('field_imagem_desktop', [
+        'target_id' => $file->id(),
+        'alt' => $slide['alt'],
+      ]);
+      $node->save();
+      $messages[] = (string) t('Banner Para Empresas seed criado (@uuid).', ['@uuid' => $slide['uuid']]);
+    }
+    else {
+      $messages[] = (string) t('Banner (@uuid) criado sem imagem — asset ausente.', [
+        '@uuid' => $slide['uuid'],
+      ]);
+    }
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
+ * Seed bloco nossos_diferenciais dedicado a /para-empresas.
+ */
+function _custom_configs_seed_nossos_diferenciais_para_empresas(): string {
+  $uuid = 'c3d4e5f6-a7b8-4901-c234-567890abcdef';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+  if ($existing) {
+    return (string) t('Bloco Diferenciais PE (@uuid) já existe — seed ignorado.', ['@uuid' => $uuid]);
+  }
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
+  if (!isset($bundle_info['nossos_diferenciais'])) {
+    return (string) t('Bundle nossos_diferenciais ausente — rode drush cim -y antes do updb.');
+  }
+
+  $items = [
+    [
+      'title' => 'Encontramos',
+      'desc' => 'Selecionamos candidatos com aderência técnica e comportamental.',
+    ],
+    [
+      'title' => 'Gerenciamos',
+      'desc' => 'Assumimos toda a gestão administrativa e legal do estágio.',
+    ],
+    [
+      'title' => 'Desenvolvemos',
+      'desc' => 'Acompanhamos continuamente a evolução do estudante para garantir desempenho e permanência.',
+    ],
+  ];
+
+  $paragraphs = [];
+  $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
+  foreach ($items as $item) {
+    /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
+    $paragraph = $paragraph_storage->create([
+      'type' => 'diferencial_item_p',
+      'field_text_simple' => $item['title'],
+      'field_text_simple_long' => $item['desc'],
+    ]);
+    $paragraph->save();
+    $paragraphs[] = [
+      'target_id' => $paragraph->id(),
+      'target_revision_id' => $paragraph->getRevisionId(),
+    ];
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = $storage->create([
+    'type' => 'nossos_diferenciais',
+    'uuid' => $uuid,
+    'info' => 'Nossos Diferenciais Para Empresas',
+    'status' => TRUE,
+    'field_text_simple' => 'Nossos Diferenciais',
+    'field_text_simple_long' => 'Não conectamos apenas estudantes e empresas. Criamos relações duradouras por meio de uma seleção inteligente, gestão completa e desenvolvimento contínuo.',
+    'field_diferenciais_lista' => $paragraphs,
+  ]);
+  $block->save();
+
+  return (string) t('Bloco Diferenciais PE seed criado (@uuid).', ['@uuid' => $uuid]);
+}
+
+/**
+ * Seed bloco nossa_metodologia dedicado a /para-empresas.
+ */
+function _custom_configs_seed_nossa_metodologia_para_empresas(): string {
+  $uuid = 'd4e5f6a7-b8c9-4012-d345-67890abcdef0';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+  if ($existing) {
+    return (string) t('Bloco Metodologia PE (@uuid) já existe — seed ignorado.', ['@uuid' => $uuid]);
+  }
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
+  if (!isset($bundle_info['nossa_metodologia'])) {
+    return (string) t('Bundle nossa_metodologia ausente — rode drush cim -y antes do updb.');
+  }
+
+  $passos = _custom_configs_nossa_metodologia_passo_titles();
+  $paragraphs = [];
+  $paragraph_bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('paragraph');
+  if (isset($paragraph_bundles['metodologia_passo_p'])) {
+    $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
+    foreach ($passos as $title) {
+      /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
+      $paragraph = $paragraph_storage->create([
+        'type' => 'metodologia_passo_p',
+        'field_text_simple' => $title,
+      ]);
+      $paragraph->save();
+      $paragraphs[] = [
+        'target_id' => $paragraph->id(),
+        'target_revision_id' => $paragraph->getRevisionId(),
+      ];
+    }
+  }
+
+  $values = [
+    'type' => 'nossa_metodologia',
+    'uuid' => $uuid,
+    'info' => 'Nossa Metodologia Para Empresas',
+    'status' => TRUE,
+    'field_text_simple' => 'Nossa Metodologia',
+    'field_text_simple_long' => 'Transformamos potencial em performance por meio de uma metodologia que une autoconhecimento, alinhamento cultural e desenvolvimento contínuo.',
+  ];
+  if ($paragraphs !== []) {
+    $values['field_metodologia_passos'] = $paragraphs;
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = $storage->create($values);
+  $block->save();
+
+  return (string) t('Bloco Metodologia PE seed criado (@uuid).', ['@uuid' => $uuid]);
+}
+
+/**
+ * Seed bloco o_que_fazemos_bt dedicado a /para-empresas.
+ */
+function _custom_configs_seed_o_que_fazemos_para_empresas(): string {
+  $uuid = 'e5f6a7b8-c9d0-4123-e456-7890abcdef01';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+  if ($existing) {
+    return (string) t('Bloco O que fazemos PE (@uuid) já existe — seed ignorado.', ['@uuid' => $uuid]);
+  }
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
+  if (!isset($bundle_info['o_que_fazemos_bt'])) {
+    return (string) t('Bundle o_que_fazemos_bt ausente — rode drush cim -y antes do updb.');
+  }
+
+  $cards = [
+    [
+      'title' => 'Recrutamento Estratégico',
+      'items' => ['Divulgação', 'Triagem', 'Avaliação', 'Entrevistas', 'Parecer'],
+    ],
+    [
+      'title' => 'Gestão',
+      'items' => [
+        'Convênios', 'Seguro', 'Aditivos', 'TCE', 'Distratos',
+        'Assinaturas', 'Relatórios', 'Recesso', 'Controle documental',
+      ],
+    ],
+    [
+      'title' => 'Desenvolvimento',
+      'items' => [
+        'Acompanhamento', 'Avaliações periódicas', 'Feedbacks',
+        'Relatórios de desempenho', 'Indicadores', 'Desenvolvimento profissional',
+      ],
+    ],
+  ];
+
+  $paragraphs = [];
+  $paragraph_bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('paragraph');
+  if (isset($paragraph_bundles['o_que_fazemos_item_p'])) {
+    $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
+    foreach ($cards as $card) {
+      /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
+      $paragraph = $paragraph_storage->create([
+        'type' => 'o_que_fazemos_item_p',
+        'field_text_simple' => $card['title'],
+        'field_text_simple_multiple' => $card['items'],
+      ]);
+      $paragraph->save();
+      $paragraphs[] = [
+        'target_id' => $paragraph->id(),
+        'target_revision_id' => $paragraph->getRevisionId(),
+      ];
+    }
+  }
+
+  $values = [
+    'type' => 'o_que_fazemos_bt',
+    'uuid' => $uuid,
+    'info' => 'O que fazemos Para Empresas',
+    'status' => TRUE,
+    'field_text_simple' => 'O que fazemos',
+    'field_text_simple_long' => 'Reunimos recrutamento estratégico, gestão administrativa e desenvolvimento contínuo em uma solução completa que simplifica processos e potencializa resultados.',
+  ];
+  if ($paragraphs !== []) {
+    $values['field_o_que_fazemos_itens'] = $paragraphs;
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = $storage->create($values);
+  $block->save();
+
+  return (string) t('Bloco O que fazemos PE seed criado (@uuid).', ['@uuid' => $uuid]);
+}
+
+/**
+ * Seed Benefícios para Empresas (reuso diferenciais_quem_somos).
+ */
+function _custom_configs_seed_beneficios_para_empresas(): string {
+  $uuid = 'f6a7b8c9-d0e1-4234-f567-890abcdef012';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+
+  $items_seed = [
+    ['label' => 'Pessoas', 'file' => 'icon-1.png'],
+    ['label' => 'Autoconhecimento', 'file' => 'icon-2.png'],
+    ['label' => 'Conexões', 'file' => 'icon-3.png'],
+    ['label' => 'Respeito', 'file' => 'icon-4.png'],
+    ['label' => 'Compromisso', 'file' => 'icon-5.png'],
+    ['label' => 'Desenvolvimento', 'file' => 'icon-6.png'],
+    ['label' => 'Performance', 'file' => 'icon-7.png'],
+    ['label' => 'Ética', 'file' => 'icon-8.png'],
+  ];
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
+  if (!isset($bundle_info['diferenciais_quem_somos'])) {
+    return (string) t('Bundle diferenciais_quem_somos ausente — rode drush cim -y antes do updb.');
+  }
+
+  $seed_title = 'Benefícios para Empresas';
+  $seed_desc = 'Contratar estágio com a Eu Sou Estágio significa processos claros, talentos alinhados e acompanhamento contínuo para a sua empresa.';
+
+  if ($existing) {
+    /** @var \Drupal\block_content\BlockContentInterface $block */
+    $block = reset($existing);
+    $changed = FALSE;
+    $messages = [];
+
+    if ($block->hasField('field_text_simple') && $block->get('field_text_simple')->isEmpty()) {
+      $block->set('field_text_simple', $seed_title);
+      $changed = TRUE;
+      $messages[] = (string) t('Título Benefícios PE preenchido.');
+    }
+    if ($block->hasField('field_text_simple_long') && $block->get('field_text_simple_long')->isEmpty()) {
+      $block->set('field_text_simple_long', $seed_desc);
+      $changed = TRUE;
+      $messages[] = (string) t('Descrição Benefícios PE preenchida.');
+    }
+    if ($block->hasField('field_itens_lista') && $block->get('field_itens_lista')->isEmpty()) {
+      $paragraphs = _custom_configs_build_diferenciais_quem_somos_paragraphs($items_seed);
+      if ($paragraphs !== []) {
+        $block->set('field_itens_lista', $paragraphs);
+        $changed = TRUE;
+        $messages[] = (string) t('@count itens Benefícios PE anexados.', ['@count' => count($paragraphs)]);
+      }
+    }
+
+    if ($changed) {
+      $block->save();
+    }
+    if (!$messages) {
+      $messages[] = (string) t('Bloco Benefícios PE (@uuid) já existe — seed ignorado.', ['@uuid' => $uuid]);
+    }
+    return implode(' ', $messages);
+  }
+
+  $paragraphs = _custom_configs_build_diferenciais_quem_somos_paragraphs($items_seed);
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = $storage->create([
+    'type' => 'diferenciais_quem_somos',
+    'uuid' => $uuid,
+    'info' => 'Benefícios para Empresas',
+    'status' => TRUE,
+    'field_text_simple' => $seed_title,
+    'field_text_simple_long' => $seed_desc,
+    'field_itens_lista' => $paragraphs,
+  ]);
+  $block->save();
+
+  return (string) t('Bloco Benefícios PE seed criado (@uuid).', ['@uuid' => $uuid]);
+}
+
+/**
+ * Seed CTA v1 dedicado a /para-empresas.
+ */
+function _custom_configs_seed_cta_v1_para_empresas(): string {
+  $uuid = 'a7b8c9d0-e1f2-4345-a678-90abcdef0123';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
+  if (!isset($bundle_info['cta_v1'])) {
+    return (string) t('Bundle cta_v1 ausente — rode drush cim -y antes do updb.');
+  }
+
+  $seed_title = 'Pronto para contratar os melhores talentos?';
+  $seed_subtitle = 'Cadastre sua empresa ou abra uma vaga e encontre estagiários alinhados ao seu time.';
+  $seed_primary = [
+    'uri' => 'internal:/cadastro/empresa',
+    'title' => 'Cadastrar Empresa',
+  ];
+  $seed_secondary = [
+    'uri' => 'internal:/painel/empresa/vagas/nova',
+    'title' => 'Abrir Vaga',
+  ];
+
+  if ($existing) {
+    /** @var \Drupal\block_content\BlockContentInterface $block */
+    $block = reset($existing);
+    $messages = [];
+    $changed = FALSE;
+
+    if ($block->hasField('field_text_simple') && $block->get('field_text_simple')->isEmpty()) {
+      $block->set('field_text_simple', $seed_title);
+      $changed = TRUE;
+      $messages[] = (string) t('Título CTA PE preenchido.');
+    }
+    if ($block->hasField('field_text_simple_long') && $block->get('field_text_simple_long')->isEmpty()) {
+      $block->set('field_text_simple_long', $seed_subtitle);
+      $changed = TRUE;
+      $messages[] = (string) t('Subtítulo CTA PE preenchido.');
+    }
+    if ($block->hasField('field_link') && $block->get('field_link')->isEmpty()) {
+      $block->set('field_link', $seed_primary);
+      $changed = TRUE;
+      $messages[] = (string) t('Botão primário CTA PE preenchido.');
+    }
+    if ($block->hasField('field_link_2') && $block->get('field_link_2')->isEmpty()) {
+      $block->set('field_link_2', $seed_secondary);
+      $changed = TRUE;
+      $messages[] = (string) t('Botão secundário CTA PE preenchido.');
+    }
+
+    if ($changed) {
+      $block->save();
+    }
+    if (!$messages) {
+      $messages[] = (string) t('Bloco CTA PE (@uuid) já existe — seed ignorado.', ['@uuid' => $uuid]);
+    }
+    return implode(' ', $messages);
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = $storage->create([
+    'type' => 'cta_v1',
+    'uuid' => $uuid,
+    'info' => 'CTA v1 Para Empresas',
+    'status' => TRUE,
+    'field_text_simple' => $seed_title,
+    'field_text_simple_long' => $seed_subtitle,
+    'field_link' => $seed_primary,
+    'field_link_2' => $seed_secondary,
+  ]);
+  $block->save();
+
+  return (string) t('Bloco CTA PE seed criado (@uuid).', ['@uuid' => $uuid]);
+}
+
+/**
+ * Remove /para-empresas das pages do bloco legado banners-block_1.
+ */
+function _custom_configs_ensure_block1_without_para_empresas(): string {
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = \Drupal::entityTypeManager()
+    ->getStorage('block')
+    ->load('default_views_block__banners_block_1');
+  if (!$block) {
+    return '';
+  }
+
+  $visibility = $block->getVisibility();
+  $pages = (string) ($visibility['request_path']['pages'] ?? '');
+  if ($pages === '' || !str_contains($pages, '/para-empresas')) {
+    return (string) t('Bloco legado banners-block_1 já sem /para-empresas.');
+  }
+
+  $lines = preg_split('/\r\n|\r|\n/', $pages) ?: [];
+  $filtered = array_values(array_filter($lines, static fn(string $line): bool => trim($line) !== '/para-empresas'));
+  $visibility['request_path']['pages'] = implode("\r\n", $filtered);
+  $block->setVisibilityConfig('request_path', $visibility['request_path']);
+  $block->save();
+
+  return (string) t('Removido /para-empresas do bloco legado banners-block_1.');
+}
+
+/**
+ * Desativa placement CTO legado em /para-empresas.
+ */
+function _custom_configs_disable_cto_para_empresas_placement(): string {
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = \Drupal::entityTypeManager()
+    ->getStorage('block')
+    ->load('default_ctoparaempresas');
+  if (!$block) {
+    return (string) t('Placement default_ctoparaempresas ausente.');
+  }
+  if (!$block->status()) {
+    return (string) t('Placement default_ctoparaempresas já desativado.');
+  }
+  $block->setStatus(FALSE);
+  $block->save();
+  return (string) t('Placement default_ctoparaempresas desativado.');
+}
+
+/**
+ * Garante placement do display banners-block_para_empresas na região banner.
+ */
+function _custom_configs_ensure_banners_para_empresas_placement(): string {
+  $block_id = 'default_views_block__banners_block_para_empresas';
+  $plugin = 'views_block:banners-block_para_empresas';
+  $storage = \Drupal::entityTypeManager()->getStorage('block');
+
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = $storage->load($block_id);
+  if (!$block) {
+    $block = $storage->create([
+      'id' => $block_id,
+      'theme' => 'default',
+      'region' => 'banner',
+      'weight' => 0,
+      'provider' => NULL,
+      'plugin' => $plugin,
+      'settings' => [
+        'id' => $plugin,
+        'label' => '',
+        'label_display' => '0',
+        'provider' => 'views',
+        'views_label' => '',
+        'items_per_page' => NULL,
+      ],
+      'visibility' => [
+        'request_path' => [
+          'id' => 'request_path',
+          'negate' => FALSE,
+          'pages' => '/para-empresas',
+        ],
+      ],
+    ]);
+    $block->save();
+    return (string) t('Placement banners_block_para_empresas criado.');
+  }
+
+  $changed = FALSE;
+  if ($block->getRegion() !== 'banner') {
+    $block->setRegion('banner');
+    $changed = TRUE;
+  }
+  if (!$block->status()) {
+    $block->setStatus(TRUE);
+    $changed = TRUE;
+  }
+  $visibility = $block->getVisibility();
+  $pages = (string) ($visibility['request_path']['pages'] ?? '');
+  if (trim($pages) !== '/para-empresas') {
+    $block->setVisibilityConfig('request_path', [
+      'id' => 'request_path',
+      'negate' => FALSE,
+      'pages' => '/para-empresas',
+    ]);
+    $changed = TRUE;
+  }
+  if ($changed) {
+    $block->save();
+    return (string) t('Placement banners_block_para_empresas atualizado.');
+  }
+  return (string) t('Placement banners_block_para_empresas já ok.');
+}
+
+/**
+ * Garante os 5 placements content_full exclusivos de /para-empresas.
+ */
+function _custom_configs_ensure_para_empresas_content_placements(): string {
+  $placements = [
+    [
+      'id' => 'default_nossosdiferenciaisparaempresas',
+      'uuid' => 'c3d4e5f6-a7b8-4901-c234-567890abcdef',
+      'label' => 'Nossos Diferenciais Para Empresas',
+      'weight' => 0,
+    ],
+    [
+      'id' => 'default_nossametodologiaparaempresas',
+      'uuid' => 'd4e5f6a7-b8c9-4012-d345-67890abcdef0',
+      'label' => 'Nossa Metodologia Para Empresas',
+      'weight' => 1,
+    ],
+    [
+      'id' => 'default_oquefazemosparaempresas',
+      'uuid' => 'e5f6a7b8-c9d0-4123-e456-7890abcdef01',
+      'label' => 'O que fazemos Para Empresas',
+      'weight' => 2,
+    ],
+    [
+      'id' => 'default_beneficiosparaempresas',
+      'uuid' => 'f6a7b8c9-d0e1-4234-f567-890abcdef012',
+      'label' => 'Benefícios para Empresas',
+      'weight' => 3,
+    ],
+    [
+      'id' => 'default_ctav1paraempresas',
+      'uuid' => 'a7b8c9d0-e1f2-4345-a678-90abcdef0123',
+      'label' => 'CTA v1 Para Empresas',
+      'weight' => 4,
+    ],
+  ];
+
+  $storage = \Drupal::entityTypeManager()->getStorage('block');
+  $messages = [];
+
+  foreach ($placements as $def) {
+    $plugin = 'block_content:' . $def['uuid'];
+    /** @var \Drupal\block\BlockInterface|null $block */
+    $block = $storage->load($def['id']);
+    if (!$block) {
+      $block = $storage->create([
+        'id' => $def['id'],
+        'theme' => 'default',
+        'region' => 'content_full',
+        'weight' => $def['weight'],
+        'provider' => NULL,
+        'plugin' => $plugin,
+        'settings' => [
+          'id' => $plugin,
+          'label' => $def['label'],
+          'label_display' => '0',
+          'provider' => 'block_content',
+          'view_mode' => 'full',
+        ],
+        'visibility' => [
+          'request_path' => [
+            'id' => 'request_path',
+            'negate' => FALSE,
+            'pages' => '/para-empresas',
+          ],
+        ],
+      ]);
+      $block->save();
+      $messages[] = (string) t('Placement @id criado.', ['@id' => $def['id']]);
+      continue;
+    }
+
+    $changed = FALSE;
+    if ($block->getRegion() !== 'content_full') {
+      $block->setRegion('content_full');
+      $changed = TRUE;
+    }
+    if ((int) $block->getWeight() !== $def['weight']) {
+      $block->setWeight($def['weight']);
+      $changed = TRUE;
+    }
+    if (!$block->status()) {
+      $block->setStatus(TRUE);
+      $changed = TRUE;
+    }
+    $visibility = $block->getVisibility();
+    $pages = (string) ($visibility['request_path']['pages'] ?? '');
+    if (trim($pages) !== '/para-empresas') {
+      $block->setVisibilityConfig('request_path', [
+        'id' => 'request_path',
+        'negate' => FALSE,
+        'pages' => '/para-empresas',
+      ]);
+      $changed = TRUE;
+    }
+    if ($changed) {
+      $block->save();
+      $messages[] = (string) t('Placement @id atualizado.', ['@id' => $def['id']]);
+    }
+    else {
+      $messages[] = (string) t('Placement @id já ok.', ['@id' => $def['id']]);
+    }
   }
 
   return implode(' ', $messages);

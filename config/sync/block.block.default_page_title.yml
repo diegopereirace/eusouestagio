@@ -24,7 +24,7 @@ visibility:
   request_path:
     id: request_path
     negate: true
-    pages: /contato
+    pages: "/contato\r\n/para-empresas"
   'entity_bundle:node':
     id: 'entity_bundle:node'
     negate: false

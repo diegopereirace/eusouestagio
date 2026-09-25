@@ -38,7 +38,7 @@ Ordem vertical estável da landing B2B e regras de exclusividade de rota. Comple
 - Alias `/para-empresas` permanece.
 - Fields de conteúdo legado vazios após `11024`.
 - Twig do node **não** reintroduz “Olá, empresa!” / “Por que anunciar aqui?” nem grade `field_itens_p` se vazia.
-- Título Drupal: comportamento atual do tema (bundle `para_empresas` já fora do `page_title` tipicamente restrito a `page`).
+- Título Drupal: oculto em `/para-empresas` via `default_page_title` (`request_path` negate; mesmo padrão de `/contato`). Necessário após `11028` (shell como Página básica `page`).
 
 ## CTA final (`cta_v1`)
 

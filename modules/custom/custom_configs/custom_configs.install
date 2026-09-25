@@ -450,6 +450,15 @@ function custom_configs_update_11030(): string {
 }
 
 /**
+ * Oculta o título Drupal em /para-empresas (página básica pós-11028).
+ *
+ * Mesmo padrão de /contato no bloco default_page_title (request_path negate).
+ */
+function custom_configs_update_11031(): string {
+  return _custom_configs_ensure_page_title_hides_para_empresas();
+}
+
+/**
  * Garante field instances do Primeiro Bloco em quem_somos (reusa storages).
  */
 function _custom_configs_ensure_quem_somos_sobre_nos_fields(): string {
@@ -5818,6 +5827,41 @@ function _custom_configs_seed_cta_v1_para_empresas(): string {
   $block->save();
 
   return (string) t('Bloco CTA PE seed criado (@uuid).', ['@uuid' => $uuid]);
+}
+
+/**
+ * Garante /para-empresas na lista negate do bloco default_page_title.
+ */
+function _custom_configs_ensure_page_title_hides_para_empresas(): string {
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = \Drupal::entityTypeManager()
+    ->getStorage('block')
+    ->load('default_page_title');
+  if (!$block) {
+    return (string) t('Bloco default_page_title ausente — hide /para-empresas ignorado.');
+  }
+
+  $visibility = $block->getVisibility();
+  $request_path = $visibility['request_path'] ?? [
+    'id' => 'request_path',
+    'negate' => TRUE,
+    'pages' => '',
+  ];
+  $pages = (string) ($request_path['pages'] ?? '');
+  $lines = preg_split('/\r\n|\r|\n/', $pages) ?: [];
+  $normalized = array_values(array_filter(array_map('trim', $lines), static fn(string $line): bool => $line !== ''));
+  if (in_array('/para-empresas', $normalized, TRUE)) {
+    return (string) t('default_page_title já oculta /para-empresas.');
+  }
+
+  $normalized[] = '/para-empresas';
+  $request_path['id'] = 'request_path';
+  $request_path['negate'] = TRUE;
+  $request_path['pages'] = implode("\r\n", $normalized);
+  $block->setVisibilityConfig('request_path', $request_path);
+  $block->save();
+
+  return (string) t('default_page_title: /para-empresas adicionado à lista negate.');
 }
 
 /**

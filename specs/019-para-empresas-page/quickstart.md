@@ -7,7 +7,7 @@ Comandos Drush: `docker compose exec drupal drush <cmd>` (workdir `/var/www/html
 ## Pré-requisitos
 
 1. Stack local no ar; `config_sync_directory = 'config/sync'`.
-2. Branch com YAMLs (allowed value, View display, placements), Twig/CSS, `custom_configs_update_11024`–`11026` e assets seed.
+2. Branch com YAMLs (allowed value, View display, placements), Twig/CSS, `custom_configs_update_11024`–`11030` e assets seed.
 3. Modelo: [data-model.md](data-model.md). Contratos: [contracts/](contracts/).
 
 ---

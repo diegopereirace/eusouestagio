@@ -426,6 +426,30 @@ function custom_configs_update_11028(): string {
 }
 
 /**
+ * Subtexto opcional em diferencial_simples_p + seed Benefícios PE (Figma).
+ *
+ * Garante field_text_simple_long (Subtexto) no paragraph; normaliza os 5 itens
+ * do bloco Benefícios PE (UUID f6a7…). Quem Somos permanece sem subtexto.
+ */
+function custom_configs_update_11029(): string {
+  $messages = [
+    _custom_configs_ensure_diferenciais_quem_somos_structure(),
+    _custom_configs_normalize_beneficios_para_empresas_items(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Benefícios PE: migra estado híbrido legado/Figma para os 5 itens do Figma.
+ *
+ * Complementa 11029 quando a lista já tinha 1 rótulo Figma + resto Quem Somos
+ * (não batia o match exato dos 8 legados).
+ */
+function custom_configs_update_11030(): string {
+  return _custom_configs_normalize_beneficios_para_empresas_items();
+}
+
+/**
  * Garante field instances do Primeiro Bloco em quem_somos (reusa storages).
  */
 function _custom_configs_ensure_quem_somos_sobre_nos_fields(): string {
@@ -2629,6 +2653,11 @@ function _custom_configs_ensure_diferenciais_quem_somos_structure(): string {
       'required' => TRUE,
       'settings' => [],
     ],
+    'field_text_simple_long' => [
+      'label' => 'Subtexto',
+      'required' => FALSE,
+      'settings' => [],
+    ],
   ];
   foreach ($paragraph_fields as $field_name => $definition) {
     if (\Drupal\field\Entity\FieldConfig::loadByName('paragraph', 'diferencial_simples_p', $field_name)) {
@@ -2738,6 +2767,11 @@ function _custom_configs_ensure_diferenciais_quem_somos_displays(): string {
       'weight' => 1,
       'settings' => ['size' => 60, 'placeholder' => ''],
     ],
+    'field_text_simple_long' => [
+      'type' => 'string_textarea',
+      'weight' => 2,
+      'settings' => ['rows' => 2, 'placeholder' => ''],
+    ],
   ] as $field_name => $defaults) {
     if ($p_form->getComponent($field_name)) {
       continue;
@@ -2781,6 +2815,11 @@ function _custom_configs_ensure_diferenciais_quem_somos_displays(): string {
       'type' => 'string',
       'weight' => 1,
       'settings' => ['link_to_entity' => FALSE],
+    ],
+    'field_text_simple_long' => [
+      'type' => 'basic_string',
+      'weight' => 2,
+      'settings' => [],
     ],
   ] as $field_name => $defaults) {
     if ($p_view->getComponent($field_name)) {
@@ -3029,6 +3068,9 @@ function _custom_configs_build_diferenciais_quem_somos_paragraphs(array $items_s
       'type' => 'diferencial_simples_p',
       'field_text_simple' => $item['label'],
     ]);
+    if (!empty($item['subtext']) && $paragraph->hasField('field_text_simple_long')) {
+      $paragraph->set('field_text_simple_long', $item['subtext']);
+    }
     $paragraph->save();
 
     $file = _custom_configs_seed_file_from_module_asset(
@@ -5459,6 +5501,182 @@ function _custom_configs_normalize_beneficios_para_empresas_subtitle(): string {
 }
 
 /**
+ * Seed Figma dos 5 benefícios PE (rótulo + subtexto + ícone).
+ *
+ * @return array<int, array{label: string, subtext: string, file: string}>
+ */
+function _custom_configs_beneficios_para_empresas_items_seed(): array {
+  return [
+    [
+      'label' => 'Redução da Rotatividade',
+      'subtext' => 'Contratações mais assertivas.',
+      'file' => 'icon-1.png',
+    ],
+    [
+      'label' => 'Segurança Jurídica',
+      'subtext' => 'Conformidade com a Lei 11.788/2008',
+      'file' => 'icon-2.png',
+    ],
+    [
+      'label' => 'Economia de Tempo',
+      'subtext' => 'Toda a burocracia centralizada.',
+      'file' => 'icon-3.png',
+    ],
+    [
+      'label' => 'Melhor Performance',
+      'subtext' => 'Estagiários preparados e acompanhados.',
+      'file' => 'icon-4.png',
+    ],
+    [
+      'label' => 'Maior Crescimento',
+      'subtext' => 'Mais produtividade para a equipe.',
+      'file' => 'icon-5.png',
+    ],
+  ];
+}
+
+/**
+ * Normaliza itens do Benefícios PE para o Figma (idempotente).
+ *
+ * - Lista vazia → seed 5 itens.
+ * - Conjunto de rótulos ⊆ (legado Quem Somos ∪ Figma) e ainda ≠ Figma →
+ *   substitui pelos 5 Figma (cobre seed legado e estado híbrido pós-edição
+ *   parcial). Não substitui se houver rótulo/subtexto editorial fora desse
+ *   vocabulário.
+ * - Caso contrário: preenche subtexto vazio quando o rótulo bate com o Figma.
+ */
+function _custom_configs_normalize_beneficios_para_empresas_items(): string {
+  $uuid = 'f6a7b8c9-d0e1-4234-f567-890abcdef012';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+  if (!$existing) {
+    return (string) t('Bloco Benefícios PE ausente — rode updb 11024 antes.');
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = reset($existing);
+  if (!$block->hasField('field_itens_lista')) {
+    return (string) t('Campo field_itens_lista ausente — rode drush cim -y.');
+  }
+
+  $figma = _custom_configs_beneficios_para_empresas_items_seed();
+  $figma_by_label = [];
+  foreach ($figma as $row) {
+    $figma_by_label[$row['label']] = $row['subtext'];
+  }
+  $figma_labels = array_keys($figma_by_label);
+  sort($figma_labels);
+
+  $legacy_labels = [
+    'Pessoas',
+    'Autoconhecimento',
+    'Conexões',
+    'Respeito',
+    'Compromisso',
+    'Desenvolvimento',
+    'Performance',
+    'Ética',
+  ];
+  $allowed_labels = array_values(array_unique(array_merge($legacy_labels, $figma_labels)));
+
+  if ($block->get('field_itens_lista')->isEmpty()) {
+    $paragraphs = _custom_configs_build_diferenciais_quem_somos_paragraphs($figma);
+    if ($paragraphs === []) {
+      return (string) t('Falha ao criar itens Benefícios PE.');
+    }
+    $block->set('field_itens_lista', $paragraphs);
+    $block->save();
+    return (string) t('Itens Benefícios PE seedados (@count).', ['@count' => count($paragraphs)]);
+  }
+
+  $current_labels = [];
+  $has_foreign_subtext = FALSE;
+  foreach ($block->get('field_itens_lista') as $item) {
+    $paragraph = $item->entity;
+    if (!$paragraph || !$paragraph->hasField('field_text_simple')) {
+      continue;
+    }
+    $label = trim((string) ($paragraph->get('field_text_simple')->value ?? ''));
+    $current_labels[] = $label;
+    $sub = '';
+    if ($paragraph->hasField('field_text_simple_long')) {
+      $sub = trim((string) ($paragraph->get('field_text_simple_long')->value ?? ''));
+    }
+    if ($sub !== '' && (!isset($figma_by_label[$label]) || $figma_by_label[$label] !== $sub)) {
+      $has_foreign_subtext = TRUE;
+    }
+  }
+  $labels_sorted = $current_labels;
+  sort($labels_sorted);
+
+  if ($labels_sorted === $figma_labels) {
+    // Já são os 5 Figma — só completa subtextos vazios.
+  }
+  elseif (!$has_foreign_subtext && _custom_configs_labels_subset_of($current_labels, $allowed_labels)) {
+    $paragraphs = _custom_configs_build_diferenciais_quem_somos_paragraphs($figma);
+    $block->set('field_itens_lista', $paragraphs);
+    $block->save();
+    return (string) t('Itens Benefícios PE migrados para Figma (@count).', [
+      '@count' => count($paragraphs),
+    ]);
+  }
+
+  $filled = 0;
+  $changed = FALSE;
+  foreach ($block->get('field_itens_lista') as $delta => $item) {
+    /** @var \Drupal\paragraphs\ParagraphInterface|null $paragraph */
+    $paragraph = $item->entity;
+    if (!$paragraph || !$paragraph->hasField('field_text_simple')) {
+      continue;
+    }
+    $label = trim((string) ($paragraph->get('field_text_simple')->value ?? ''));
+    if ($label === '' || !isset($figma_by_label[$label])) {
+      continue;
+    }
+    if (!$paragraph->hasField('field_text_simple_long')) {
+      continue;
+    }
+    if (!$paragraph->get('field_text_simple_long')->isEmpty()) {
+      continue;
+    }
+    $paragraph->set('field_text_simple_long', $figma_by_label[$label]);
+    $paragraph->save();
+    $block->get('field_itens_lista')->set($delta, [
+      'target_id' => $paragraph->id(),
+      'target_revision_id' => $paragraph->getRevisionId(),
+    ]);
+    $filled++;
+    $changed = TRUE;
+  }
+
+  if ($changed) {
+    $block->save();
+    return (string) t('Subtextos Benefícios PE preenchidos (@count).', ['@count' => $filled]);
+  }
+
+  return (string) t('Itens Benefícios PE já alinhados — sem alteração.');
+}
+
+/**
+ * True se todo rótulo não-vazio está em $allowed.
+ *
+ * @param string[] $labels
+ * @param string[] $allowed
+ */
+function _custom_configs_labels_subset_of(array $labels, array $allowed): bool {
+  $allowed_map = array_fill_keys($allowed, TRUE);
+  foreach ($labels as $label) {
+    if ($label === '') {
+      continue;
+    }
+    if (!isset($allowed_map[$label])) {
+      return FALSE;
+    }
+  }
+  return TRUE;
+}
+
+/**
  * Seed Benefícios para Empresas (reuso diferenciais_quem_somos).
  */
 function _custom_configs_seed_beneficios_para_empresas(): string {
@@ -5466,16 +5684,7 @@ function _custom_configs_seed_beneficios_para_empresas(): string {
   $storage = \Drupal::entityTypeManager()->getStorage('block_content');
   $existing = $storage->loadByProperties(['uuid' => $uuid]);
 
-  $items_seed = [
-    ['label' => 'Pessoas', 'file' => 'icon-1.png'],
-    ['label' => 'Autoconhecimento', 'file' => 'icon-2.png'],
-    ['label' => 'Conexões', 'file' => 'icon-3.png'],
-    ['label' => 'Respeito', 'file' => 'icon-4.png'],
-    ['label' => 'Compromisso', 'file' => 'icon-5.png'],
-    ['label' => 'Desenvolvimento', 'file' => 'icon-6.png'],
-    ['label' => 'Performance', 'file' => 'icon-7.png'],
-    ['label' => 'Ética', 'file' => 'icon-8.png'],
-  ];
+  $items_seed = _custom_configs_beneficios_para_empresas_items_seed();
 
   $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
   if (!isset($bundle_info['diferenciais_quem_somos'])) {

@@ -95,7 +95,8 @@ Editor autenticado altera copy/imagens dos banners, itens dos blocos reutilizado
 
 1. **Given** editor com permissão, **When** edita um dos dois banners do display, **Then** a alteração aparece no carrossel após cache esperado.
 2. **Given** editor com permissão, **When** edita o bloco CTA da página, **Then** título/subtítulo/links atualizam em `/para-empresas`.
-3. **Given** editor com permissão, **When** edita Benefícios para Empresas, **Then** consegue alterar título e itens (ícone + texto) sem código.
+3. **Given** editor com permissão, **When** edita Benefícios para Empresas, **Then** consegue alterar título e itens (ícone + rótulo + subtexto opcional) sem código.
+4. **Given** o paragraph `diferencial_simples_p` sem subtexto (ex. Quem Somos), **When** a seção renderiza, **Then** só ícone + rótulo aparecem — sem linha vazia de subtexto.
 
 ---
 
@@ -159,7 +160,8 @@ Homologação/produção recebem limpeza do body, display da View, seeds de bann
 **Benefícios para Empresas**
 
 - **FR-016**: Se o design da seção Benefícios for satisfeito por um tipo existente (ícone + texto / cards), o sistema DEVE reutilizar esse tipo com nova instância e título adequado; caso contrário, DEVE criar Custom Block Type `beneficios_empresas` e Paragraph Type correspondente.
-- **FR-017**: Em qualquer caso, a seção DEVE ser gerenciável no painel, ter Twig com grid Bootstrap 5, placement em `content_full` só em `/para-empresas`, e seed idempotente.
+- **FR-016b**: O paragraph `diferencial_simples_p` DEVE expor subtexto opcional (`field_text_simple_long`, label **Subtexto**, `required: false`) para alinhar ao Figma de Benefícios PE; instâncias sem valor (Quem Somos) NÃO DEVEM renderizar a linha.
+- **FR-017**: Em qualquer caso, a seção DEVE ser gerenciável no painel, ter Twig com grid Bootstrap 5, placement em `content_full` só em `/para-empresas`, e seed idempotente (5 itens Figma com rótulo + subtexto via `11029`).
 
 **CTA final**
 

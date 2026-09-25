@@ -53,8 +53,24 @@
   line-height: 1.35;
 }
 
+.block-diferenciais-quem-somos .dqs-item__subtext {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  color: #5b6b9a;
+  margin-top: 0.35rem;
+  margin-bottom: 0;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  max-width: 11rem;
+}
+
 @media (max-width: 575.98px) {
   .block-diferenciais-quem-somos .dqs-item__label {
     font-size: 0.875rem;
+  }
+
+  .block-diferenciais-quem-somos .dqs-item__subtext {
+    font-size: 0.75rem;
+    max-width: none;
   }
 }

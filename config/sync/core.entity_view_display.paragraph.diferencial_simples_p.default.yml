@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.field.paragraph.diferencial_simples_p.field_image
     - field.field.paragraph.diferencial_simples_p.field_text_simple
+    - field.field.paragraph.diferencial_simples_p.field_text_simple_long
     - paragraphs.paragraphs_type.diferencial_simples_p
   module:
     - image
@@ -31,5 +32,12 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     weight: 1
+    region: content
+  field_text_simple_long:
+    type: basic_string
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 2
     region: content
 hidden: {  }

@@ -85,7 +85,7 @@ Região: `content_full`, tema `default`, `label_display: '0'`.
 | UUID | `f6a7b8c9-d0e1-4234-f567-890abcdef012` |
 | Título seed | `Benefícios para Empresas` |
 | Subtítulo seed | `Muito além da contratação.` (`field_text_simple_long`, opcional) |
-| Itens | paragraphs `diferencial_simples_p` (ícone + rótulo); quantidade alinhada ao Figma (ex. 6–8) |
+| Itens | paragraphs `diferencial_simples_p` (ícone + rótulo + **subtexto opcional** `field_text_simple_long`); seed Figma = **5** itens (rótulo + subtexto) |
 | Placement ID | `default_beneficiosparaempresas` |
 | Weight | 3 |
 | Visibilidade | `/para-empresas` |

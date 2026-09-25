@@ -139,6 +139,17 @@
 
 ---
 
+## Phase 10: Subtexto opcional em `diferencial_simples_p` (Benefícios Figma)
+
+**Objetivo**: campo Subtexto opcional no paragraph; seed 5 itens Figma no Benefícios PE; Quem Somos sem linha extra.
+
+- [x] T050 Garantir instance `paragraph.diferencial_simples_p.field_text_simple_long` (label Subtexto, `required: false`) + form/view displays via ensure em `modules/custom/custom_configs/custom_configs.install`
+- [x] T051 Implementar `custom_configs_update_11029`/`11030` (ensure campo + seed/normalização Benefícios PE 5 itens Figma; migrar seed legado ou híbrido; preencher subtexto vazio por rótulo)
+- [x] T052 Twig omit-empty + CSS `.dqs-item__subtext` em `themes/custom/default/templates/paragraph/paragraph--diferencial-simples-p.html.twig` e `themes/custom/default/assets/css/diferenciais-quem-somos.css`
+- [x] T053 `drush cex -y` + `updb` + `cr`; atualizar PRD §3.6 e quickstart 019
+
+---
+
 ## Dependencies & Execution Order
 
 - Setup (Phase 1) → Foundational (Phase 2) → US1 (Phase 3) → US2 (Phase 4) → US3 (Phase 5) → US4 (Phase 6) → US5 (Phase 7) → Polish (Phase 8)

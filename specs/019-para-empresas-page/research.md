@@ -55,7 +55,7 @@ Todas as decisões priorizam **deploy repetível** (`cim` → `updb` → `cim` �
 
 ## R4 — Benefícios: reuso `diferenciais_quem_somos`
 
-**Decision**: **não** criar `beneficios_empresas`. Nova instância do tipo `diferenciais_quem_somos` (paragraphs `diferencial_simples_p`: ícone + rótulo), título seed “Benefícios para Empresas”, placement dedicado só `/para-empresas`. Ajuste cirúrgico no Twig: `id` da `<section>` derivado do título/label (slug) em vez de hardcode `#diferenciais-quem-somos`.
+**Decision**: **não** criar `beneficios_empresas`. Nova instância do tipo `diferenciais_quem_somos` (paragraphs `diferencial_simples_p`: ícone + rótulo + subtexto opcional via reuso `field_text_simple_long`), título seed “Benefícios para Empresas”, placement dedicado só `/para-empresas`. Ajuste cirúrgico no Twig: `id` da `<section>` derivado do título/label (slug) em vez de hardcode `#diferenciais-quem-somos`; subtexto omitido se vazio (instância Quem Somos intacta). Seed PE: 5 benefícios Figma + `custom_configs_update_11029`.
 
 **Rationale**: FR-016 critério “só muda título/copy e o grid cabe”; tipo já tem título + descrição + lista ícone+texto Bootstrap; zero storage/paragraph type novos.
 

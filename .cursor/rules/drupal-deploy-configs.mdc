@@ -1,11 +1,19 @@
 ---
-description: Deploy de configs estruturais e seeds via drush cex + hook_update_N idempotente (Entity API)
-globs: modules/custom/**/*.install, config/sync/**/*.yml
-alwaysApply: false
+description: Deploy de configs estruturais e seeds via drush cex + hook_update_N idempotente (Entity API) — obrigatório sem esperar o usuário pedir
+globs: modules/custom/**/*.install, config/sync/**/*.yml, modules/custom/**/*.{module,php}, themes/custom/**/*
+alwaysApply: true
 ---
 # Deploy de Configurações e Banco — Drupal 11
 
 Ao alterar estrutura (fields, block types, paragraphs, views, displays, placements) ou seeds de conteúdo em `modules/custom/**/*.install` / `config/sync/**/*.yml`, siga este fluxo.
+
+## Diretriz permanente (não negociável)
+
+- **Todas** as alterações que impactem o banco de dados — novos blocos, tipos de conteúdo, campos, views, displays, ou instâncias/placements de blocos em regiões — **DEVEM OBRIGATORIAMENTE** ser feitas de forma automatizada para produção.
+- **Nunca espere o usuário pedir.** Sempre entregue, na mesma feature:
+  1. `hook_update_N` idempotente (Entity API / config API) em `custom_configs.install` para popular/garantir dados e estrutura no destino;
+  2. instrução (e execução no ambiente de origem) de `drush cex` para exportar as configurações estruturais a `config/sync`.
+- Zero passos manuais no admin de produção para ativar a feature.
 
 ## Pré-requisito permanente (produção)
 
@@ -37,9 +45,9 @@ Ao alterar estrutura (fields, block types, paragraphs, views, displays, placemen
 
 ## Layout v2 `/quem-somos` (blocos 009–013)
 
-Receita destino: `cim` → `updb` (`11012`/`11013`/`11015`/`11016`/`11017`/`11018`/`11019`) → `cim` → `cr`.
+Receita destino: `cim` → `updb` (`11012`/`11013`/`11015`/`11016`/`11017`/`11018`/`11019`/`11024`) → `cim` → `cr`.
 
 Na **origem**, além do `drush cex`:
 
-- Espelhar imagens editoriais do seed em `modules/custom/custom_configs/assets/` (ex.: ícones do bloco `diferenciais_quem_somos` / id local 14 → `assets/diferenciais-quem-somos/icon-*.png` a partir de `public://paragraph/diferencial-simples/`).
+- Espelhar imagens editoriais do seed em `modules/custom/custom_configs/assets/` (ex.: ícones do bloco `diferenciais_quem_somos` / id local 14 → `assets/diferenciais-quem-somos/icon-*.png` a partir de `public://paragraph/diferencial-simples/`; slides PE → `assets/banner-para-empresas/slide-*.png`).
 - Nunca commit de `sites/default/files`; o hook copia asset → `public://` no destino.

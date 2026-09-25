@@ -19,8 +19,9 @@
 {% set description = content.field_text_simple_long|render|striptags|trim %}
 {% set item_items = content.field_itens_lista['#items']|default([]) %}
 {% set has_items = item_items is iterable and item_items|length > 0 %}
+{% set section_id = title ? title|clean_class : 'diferenciais-quem-somos' %}
 
-<section{{ attributes.addClass(classes).setAttribute('id', 'diferenciais-quem-somos') }}>
+<section{{ attributes.addClass(classes).setAttribute('id', section_id) }}>
   {{ title_prefix }}{{ title_suffix }}
   {% block content %}
     <div{{ content_attributes.addClass('content') }}>

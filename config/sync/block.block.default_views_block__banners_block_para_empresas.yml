@@ -1,4 +1,4 @@
-uuid: 88fe8240-9950-40ba-adef-6e0f0e55a71c
+uuid: 9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e5f
 langcode: pt-br
 status: true
 dependencies:
@@ -9,14 +9,14 @@ dependencies:
     - views
   theme:
     - default
-id: default_views_block__banners_block_1
+id: default_views_block__banners_block_para_empresas
 theme: default
 region: banner
 weight: 0
 provider: null
-plugin: 'views_block:banners-block_1'
+plugin: 'views_block:banners-block_para_empresas'
 settings:
-  id: 'views_block:banners-block_1'
+  id: 'views_block:banners-block_para_empresas'
   label: ''
   label_display: '0'
   provider: views
@@ -27,4 +27,4 @@ visibility:
   request_path:
     id: request_path
     negate: false
-    pages: /para-estudantes
+    pages: /para-empresas

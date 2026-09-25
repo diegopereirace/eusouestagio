@@ -1,0 +1,140 @@
+/**
+ * Banner Para Empresas — layout Figma duas colunas + carrossel.
+ * Tokens locais sob .banner-para-empresas-wrapper (não muta --brand-orange).
+ */
+
+.banner-para-empresas-wrapper {
+	--bpe-orange: #fd7b1a;
+	--bpe-title: #0f172a;
+	--bpe-tag-bg: rgba(253, 123, 26, 0.12);
+	--bpe-muted: #334155;
+	position: relative;
+	overflow-x: clip;
+	width: 100%;
+	background-color: #fff8f4;
+	padding-block: 1.5rem 2rem;
+}
+
+.banner-para-empresas-wrapper .banner-para-empresas__inner {
+	max-width: 1200px;
+	margin-inline: auto;
+	padding-inline: 24px;
+}
+
+.banner-para-empresas-wrapper .banner-para-empresas {
+	position: relative;
+	row-gap: 1.5rem;
+}
+
+@media (min-width: 992px) {
+	.banner-para-empresas-wrapper .banner-para-empresas {
+		/* g-lg-5 ≈ 48px */
+		--bs-gutter-x: 3rem;
+		--bs-gutter-y: 3rem;
+	}
+}
+
+.banner-para-empresas-wrapper .banner-para-empresas__copy {
+	position: relative;
+	z-index: 2;
+}
+
+.banner-para-empresas-wrapper .banner-para-empresas__tag {
+	display: inline-block;
+	margin-bottom: 0.75rem;
+	padding: 0.35rem 0.75rem;
+	border-radius: 999px;
+	background: var(--bpe-tag-bg);
+	color: var(--bpe-orange);
+	font-family: Poppins, sans-serif;
+	font-size: 0.75rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.banner-para-empresas-wrapper .banner-para-empresas__title {
+	margin: 0 0 1.5rem;
+	color: var(--bpe-title);
+	font-family: Poppins, sans-serif;
+	font-size: clamp(1.75rem, 3vw, 2.5rem);
+	font-weight: 700;
+	line-height: 1.15;
+}
+
+.banner-para-empresas-wrapper .banner-para-empresas__ctas {
+	align-items: center;
+}
+
+.banner-para-empresas-wrapper .banner-para-empresas__btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.75rem 1.25rem;
+	border-radius: 0.5rem;
+	font-family: Poppins, sans-serif;
+	font-size: 0.9375rem;
+	font-weight: 600;
+	line-height: 1.2;
+	text-decoration: none;
+	transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.banner-para-empresas-wrapper .banner-para-empresas__btn--primary {
+	background-color: var(--bpe-orange);
+	border: 1px solid var(--bpe-orange);
+	color: #fff;
+}
+
+.banner-para-empresas-wrapper .banner-para-empresas__btn--primary:hover,
+.banner-para-empresas-wrapper .banner-para-empresas__btn--primary:focus-visible {
+	background-color: #e66e12;
+	border-color: #e66e12;
+	color: #fff;
+}
+
+.banner-para-empresas-wrapper .banner-para-empresas__btn--secondary {
+	background-color: transparent;
+	border: 1px solid var(--bpe-title);
+	color: var(--bpe-title);
+}
+
+.banner-para-empresas-wrapper .banner-para-empresas__btn--secondary:hover,
+.banner-para-empresas-wrapper .banner-para-empresas__btn--secondary:focus-visible {
+	background-color: var(--bpe-title);
+	color: #fff;
+}
+
+.banner-para-empresas-wrapper .banner-para-empresas__media {
+	min-width: 0;
+}
+
+.banner-para-empresas-wrapper .banner-para-empresas__carousel {
+	border-radius: 1rem;
+	overflow: hidden;
+	background: #f1f5f9;
+}
+
+.banner-para-empresas-wrapper .banner-para-empresas__img {
+	display: block;
+	width: 100%;
+	height: auto;
+	max-height: 420px;
+	object-fit: cover;
+}
+
+.banner-para-empresas-wrapper .carousel-indicators {
+	margin-bottom: 0.75rem;
+}
+
+.banner-para-empresas-wrapper .carousel-indicators [data-bs-target] {
+	width: 0.55rem;
+	height: 0.55rem;
+	border-radius: 50%;
+	background-color: rgba(255, 255, 255, 0.7);
+}
+
+.banner-para-empresas-wrapper .carousel-control-prev,
+.banner-para-empresas-wrapper .carousel-control-next {
+	width: 2.5rem;
+}

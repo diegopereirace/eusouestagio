@@ -1,0 +1,28 @@
+uuid: c2d3e4f5-a6b7-4890-1cde-23456789abcd
+langcode: pt-br
+status: true
+dependencies:
+  content:
+    - 'block_content:o_que_fazemos_bt:e5f6a7b8-c9d0-4123-e456-7890abcdef01'
+  module:
+    - block_content
+    - system
+  theme:
+    - default
+id: default_oquefazemosparaempresas
+theme: default
+region: content_full
+weight: 2
+provider: null
+plugin: 'block_content:e5f6a7b8-c9d0-4123-e456-7890abcdef01'
+settings:
+  id: 'block_content:e5f6a7b8-c9d0-4123-e456-7890abcdef01'
+  label: 'O que fazemos Para Empresas'
+  label_display: '0'
+  provider: block_content
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /para-empresas

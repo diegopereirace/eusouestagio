@@ -1,0 +1,28 @@
+uuid: d3e4f5a6-b7c8-4901-2def-3456789abcde
+langcode: pt-br
+status: true
+dependencies:
+  content:
+    - 'block_content:diferenciais_quem_somos:f6a7b8c9-d0e1-4234-f567-890abcdef012'
+  module:
+    - block_content
+    - system
+  theme:
+    - default
+id: default_beneficiosparaempresas
+theme: default
+region: content_full
+weight: 3
+provider: null
+plugin: 'block_content:f6a7b8c9-d0e1-4234-f567-890abcdef012'
+settings:
+  id: 'block_content:f6a7b8c9-d0e1-4234-f567-890abcdef012'
+  label: 'Benefícios para Empresas'
+  label_display: '0'
+  provider: block_content
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /para-empresas

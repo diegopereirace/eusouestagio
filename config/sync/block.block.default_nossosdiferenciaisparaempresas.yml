@@ -1,0 +1,28 @@
+uuid: a0b1c2d3-e4f5-4678-9abc-0123456789ab
+langcode: pt-br
+status: true
+dependencies:
+  content:
+    - 'block_content:nossos_diferenciais:c3d4e5f6-a7b8-4901-c234-567890abcdef'
+  module:
+    - block_content
+    - system
+  theme:
+    - default
+id: default_nossosdiferenciaisparaempresas
+theme: default
+region: content_full
+weight: 0
+provider: null
+plugin: 'block_content:c3d4e5f6-a7b8-4901-c234-567890abcdef'
+settings:
+  id: 'block_content:c3d4e5f6-a7b8-4901-c234-567890abcdef'
+  label: 'Nossos Diferenciais Para Empresas'
+  label_display: '0'
+  provider: block_content
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /para-empresas

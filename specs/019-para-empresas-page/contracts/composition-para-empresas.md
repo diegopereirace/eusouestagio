@@ -12,8 +12,8 @@ Ordem vertical estável da landing B2B e regras de exclusividade de rota. Comple
 
 ```text
 1. região banner     → views_block banners-block_para_empresas
-2. content_full w0   → nossos_diferenciais (instância PE)
-3. content_full w1   → nossa_metodologia (instância PE)
+2. content_full w0   → nossos_diferenciais (mesma instância da home)
+3. content_full w1   → nossa_metodologia (mesma instância da home)
 4. content_full w2   → o_que_fazemos_bt (instância PE)
 5. content_full w3   → diferenciais_quem_somos “Benefícios para Empresas”
 6. content_full w4   → cta_v1 “Pronto para contratar os melhores talentos?”
@@ -25,9 +25,12 @@ Ordem vertical estável da landing B2B e regras de exclusividade de rota. Comple
 | Placement / bloco | `/para-empresas` | Home | Quem Somos | Outras |
 |-------------------|------------------|------|------------|--------|
 | `block_para_empresas` | sim | não | não | não |
-| Instâncias PE (5 blocos) | sim | não | não | não |
-| Instâncias home 004–006 | não | sim | não | não |
+| Placement PE Diferenciais/Metodologia (UUIDs home) | sim | via placements home | não | não |
+| Demais instâncias PE (OQF, Benefícios, CTA) | sim | não | não | não |
+| Instâncias/placements home 004–006 | não* | sim | não | não |
 | `default_ctoparaempresas` | **não** (status false) | — | — | — |
+
+\*Exceto `nossos_diferenciais` e `nossa_metodologia`: entidades compartilhadas; só o placement `<front>` muda a home.
 | `banners-block_1` | **não** | — | — | `/para-estudantes` |
 
 ## Nó shell

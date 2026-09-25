@@ -366,8 +366,7 @@ function custom_configs_update_11024(): string {
     _custom_configs_ensure_local_exibicao_para_empresas(),
     _custom_configs_cleanup_para_empresas_node_fields(),
     _custom_configs_seed_banners_para_empresas(),
-    _custom_configs_seed_nossos_diferenciais_para_empresas(),
-    _custom_configs_seed_nossa_metodologia_para_empresas(),
+    // Nossos Diferenciais / Nossa Metodologia: reusam instâncias da home.
     _custom_configs_seed_o_que_fazemos_para_empresas(),
     _custom_configs_seed_beneficios_para_empresas(),
     _custom_configs_seed_cta_v1_para_empresas(),
@@ -375,6 +374,53 @@ function custom_configs_update_11024(): string {
     _custom_configs_disable_cto_para_empresas_placement(),
     _custom_configs_ensure_banners_para_empresas_placement(),
     _custom_configs_ensure_para_empresas_content_placements(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Para Empresas: reusa Nossos Diferenciais da home; remove instância PE duplicada.
+ */
+function custom_configs_update_11025(): string {
+  $messages = [
+    _custom_configs_ensure_para_empresas_content_placements(),
+    _custom_configs_cleanup_nossos_diferenciais_para_empresas_dedicado(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Para Empresas: reusa Nossa Metodologia da home; remove instância PE duplicada.
+ */
+function custom_configs_update_11026(): string {
+  $messages = [
+    _custom_configs_ensure_para_empresas_content_placements(),
+    _custom_configs_cleanup_nossa_metodologia_para_empresas_dedicado(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Benefícios PE: normaliza subtítulo curto (field_text_simple_long).
+ *
+ * Label do field "Subtítulo" (ex-Descrição) vem via cim. Este hook só
+ * preenche/atualiza o valor seed quando ainda está vazio ou no copy longo antigo.
+ */
+function custom_configs_update_11027(): string {
+  return _custom_configs_normalize_beneficios_para_empresas_subtitle();
+}
+
+/**
+ * /para-empresas vira Página básica; remove nós e tipo para_empresas.
+ *
+ * Exceção de ordem no destino (tipo ainda com conteúdo):
+ * `drush updb -y` → `drush cim -y` → `drush cr`
+ * (updb antes do cim que remove node.type.para_empresas do sync).
+ */
+function custom_configs_update_11028(): string {
+  $messages = [
+    _custom_configs_ensure_para_empresas_as_page(),
+    _custom_configs_delete_para_empresas_bundle(),
   ];
   return implode(' ', array_filter($messages));
 }
@@ -5264,119 +5310,41 @@ function _custom_configs_seed_banners_para_empresas(): string {
 }
 
 /**
- * Seed bloco nossos_diferenciais dedicado a /para-empresas.
+ * Remove instância nossos_diferenciais duplicada de /para-empresas (mesmo conteúdo da home).
  */
-function _custom_configs_seed_nossos_diferenciais_para_empresas(): string {
+function _custom_configs_cleanup_nossos_diferenciais_para_empresas_dedicado(): string {
   $uuid = 'c3d4e5f6-a7b8-4901-c234-567890abcdef';
   $storage = \Drupal::entityTypeManager()->getStorage('block_content');
   $existing = $storage->loadByProperties(['uuid' => $uuid]);
-  if ($existing) {
-    return (string) t('Bloco Diferenciais PE (@uuid) já existe — seed ignorado.', ['@uuid' => $uuid]);
-  }
-
-  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
-  if (!isset($bundle_info['nossos_diferenciais'])) {
-    return (string) t('Bundle nossos_diferenciais ausente — rode drush cim -y antes do updb.');
-  }
-
-  $items = [
-    [
-      'title' => 'Encontramos',
-      'desc' => 'Selecionamos candidatos com aderência técnica e comportamental.',
-    ],
-    [
-      'title' => 'Gerenciamos',
-      'desc' => 'Assumimos toda a gestão administrativa e legal do estágio.',
-    ],
-    [
-      'title' => 'Desenvolvemos',
-      'desc' => 'Acompanhamos continuamente a evolução do estudante para garantir desempenho e permanência.',
-    ],
-  ];
-
-  $paragraphs = [];
-  $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
-  foreach ($items as $item) {
-    /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
-    $paragraph = $paragraph_storage->create([
-      'type' => 'diferencial_item_p',
-      'field_text_simple' => $item['title'],
-      'field_text_simple_long' => $item['desc'],
-    ]);
-    $paragraph->save();
-    $paragraphs[] = [
-      'target_id' => $paragraph->id(),
-      'target_revision_id' => $paragraph->getRevisionId(),
-    ];
+  if (!$existing) {
+    return (string) t('Instância Diferenciais PE duplicada (@uuid) já ausente.', ['@uuid' => $uuid]);
   }
 
   /** @var \Drupal\block_content\BlockContentInterface $block */
-  $block = $storage->create([
-    'type' => 'nossos_diferenciais',
-    'uuid' => $uuid,
-    'info' => 'Nossos Diferenciais Para Empresas',
-    'status' => TRUE,
-    'field_text_simple' => 'Nossos Diferenciais',
-    'field_text_simple_long' => 'Não conectamos apenas estudantes e empresas. Criamos relações duradouras por meio de uma seleção inteligente, gestão completa e desenvolvimento contínuo.',
-    'field_diferenciais_lista' => $paragraphs,
+  $block = reset($existing);
+  $block->delete();
+  return (string) t('Instância Diferenciais PE duplicada (@uuid) excluída — reusa home.', [
+    '@uuid' => $uuid,
   ]);
-  $block->save();
-
-  return (string) t('Bloco Diferenciais PE seed criado (@uuid).', ['@uuid' => $uuid]);
 }
 
 /**
- * Seed bloco nossa_metodologia dedicado a /para-empresas.
+ * Remove instância nossa_metodologia duplicada de /para-empresas (mesmo conteúdo da home).
  */
-function _custom_configs_seed_nossa_metodologia_para_empresas(): string {
+function _custom_configs_cleanup_nossa_metodologia_para_empresas_dedicado(): string {
   $uuid = 'd4e5f6a7-b8c9-4012-d345-67890abcdef0';
   $storage = \Drupal::entityTypeManager()->getStorage('block_content');
   $existing = $storage->loadByProperties(['uuid' => $uuid]);
-  if ($existing) {
-    return (string) t('Bloco Metodologia PE (@uuid) já existe — seed ignorado.', ['@uuid' => $uuid]);
-  }
-
-  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
-  if (!isset($bundle_info['nossa_metodologia'])) {
-    return (string) t('Bundle nossa_metodologia ausente — rode drush cim -y antes do updb.');
-  }
-
-  $passos = _custom_configs_nossa_metodologia_passo_titles();
-  $paragraphs = [];
-  $paragraph_bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('paragraph');
-  if (isset($paragraph_bundles['metodologia_passo_p'])) {
-    $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
-    foreach ($passos as $title) {
-      /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
-      $paragraph = $paragraph_storage->create([
-        'type' => 'metodologia_passo_p',
-        'field_text_simple' => $title,
-      ]);
-      $paragraph->save();
-      $paragraphs[] = [
-        'target_id' => $paragraph->id(),
-        'target_revision_id' => $paragraph->getRevisionId(),
-      ];
-    }
-  }
-
-  $values = [
-    'type' => 'nossa_metodologia',
-    'uuid' => $uuid,
-    'info' => 'Nossa Metodologia Para Empresas',
-    'status' => TRUE,
-    'field_text_simple' => 'Nossa Metodologia',
-    'field_text_simple_long' => 'Transformamos potencial em performance por meio de uma metodologia que une autoconhecimento, alinhamento cultural e desenvolvimento contínuo.',
-  ];
-  if ($paragraphs !== []) {
-    $values['field_metodologia_passos'] = $paragraphs;
+  if (!$existing) {
+    return (string) t('Instância Metodologia PE duplicada (@uuid) já ausente.', ['@uuid' => $uuid]);
   }
 
   /** @var \Drupal\block_content\BlockContentInterface $block */
-  $block = $storage->create($values);
-  $block->save();
-
-  return (string) t('Bloco Metodologia PE seed criado (@uuid).', ['@uuid' => $uuid]);
+  $block = reset($existing);
+  $block->delete();
+  return (string) t('Instância Metodologia PE duplicada (@uuid) excluída — reusa home.', [
+    '@uuid' => $uuid,
+  ]);
 }
 
 /**
@@ -5455,6 +5423,42 @@ function _custom_configs_seed_o_que_fazemos_para_empresas(): string {
 }
 
 /**
+ * Normaliza subtítulo do bloco Benefícios PE (idempotente).
+ *
+ * Atualiza só se vazio, copy longo legado do seed 11024, ou variante sem ponto.
+ */
+function _custom_configs_normalize_beneficios_para_empresas_subtitle(): string {
+  $uuid = 'f6a7b8c9-d0e1-4234-f567-890abcdef012';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+  if (!$existing) {
+    return (string) t('Bloco Benefícios PE ausente — rode updb 11024 antes.');
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = reset($existing);
+  if (!$block->hasField('field_text_simple_long')) {
+    return (string) t('Campo field_text_simple_long ausente no bundle — rode drush cim -y.');
+  }
+
+  $desired = 'Muito além da contratação.';
+  $current = trim((string) ($block->get('field_text_simple_long')->value ?? ''));
+  $legacy = [
+    '',
+    'Muito além da contratação',
+    'Contratar estágio com a Eu Sou Estágio significa processos claros, talentos alinhados e acompanhamento contínuo para a sua empresa.',
+  ];
+
+  if (!in_array($current, $legacy, TRUE)) {
+    return (string) t('Subtítulo Benefícios PE já editorial — sem alteração.');
+  }
+
+  $block->set('field_text_simple_long', $desired);
+  $block->save();
+  return (string) t('Subtítulo Benefícios PE normalizado.');
+}
+
+/**
  * Seed Benefícios para Empresas (reuso diferenciais_quem_somos).
  */
 function _custom_configs_seed_beneficios_para_empresas(): string {
@@ -5479,7 +5483,7 @@ function _custom_configs_seed_beneficios_para_empresas(): string {
   }
 
   $seed_title = 'Benefícios para Empresas';
-  $seed_desc = 'Contratar estágio com a Eu Sou Estágio significa processos claros, talentos alinhados e acompanhamento contínuo para a sua empresa.';
+  $seed_desc = 'Muito além da contratação.';
 
   if ($existing) {
     /** @var \Drupal\block_content\BlockContentInterface $block */
@@ -5495,7 +5499,7 @@ function _custom_configs_seed_beneficios_para_empresas(): string {
     if ($block->hasField('field_text_simple_long') && $block->get('field_text_simple_long')->isEmpty()) {
       $block->set('field_text_simple_long', $seed_desc);
       $changed = TRUE;
-      $messages[] = (string) t('Descrição Benefícios PE preenchida.');
+      $messages[] = (string) t('Subtítulo Benefícios PE preenchido.');
     }
     if ($block->hasField('field_itens_lista') && $block->get('field_itens_lista')->isEmpty()) {
       $paragraphs = _custom_configs_build_diferenciais_quem_somos_paragraphs($items_seed);
@@ -5723,15 +5727,17 @@ function _custom_configs_ensure_banners_para_empresas_placement(): string {
 function _custom_configs_ensure_para_empresas_content_placements(): string {
   $placements = [
     [
+      // Mesma entidade da home (default_nossosdiferenciais / UUID b0a1…).
       'id' => 'default_nossosdiferenciaisparaempresas',
-      'uuid' => 'c3d4e5f6-a7b8-4901-c234-567890abcdef',
-      'label' => 'Nossos Diferenciais Para Empresas',
+      'uuid' => 'b0a1c2d3-e4f5-4678-9abc-def012345678',
+      'label' => 'Nossos Diferenciais (Para Empresas)',
       'weight' => 0,
     ],
     [
+      // Mesma entidade da home (default_nossametodologia / UUID 1f9b… / block 10).
       'id' => 'default_nossametodologiaparaempresas',
-      'uuid' => 'd4e5f6a7-b8c9-4012-d345-67890abcdef0',
-      'label' => 'Nossa Metodologia Para Empresas',
+      'uuid' => '1f9b40ca-aa77-4e7e-a450-5aa94888e274',
+      'label' => 'Nossa Metodologia (Para Empresas)',
       'weight' => 1,
     ],
     [
@@ -5790,6 +5796,40 @@ function _custom_configs_ensure_para_empresas_content_placements(): string {
     }
 
     $changed = FALSE;
+    if ($block->getPluginId() !== $plugin) {
+      // Recria placement quando o plugin aponta para instância errada.
+      $weight = $def['weight'];
+      $label = $def['label'];
+      $block->delete();
+      $block = $storage->create([
+        'id' => $def['id'],
+        'theme' => 'default',
+        'region' => 'content_full',
+        'weight' => $weight,
+        'provider' => NULL,
+        'plugin' => $plugin,
+        'settings' => [
+          'id' => $plugin,
+          'label' => $label,
+          'label_display' => '0',
+          'provider' => 'block_content',
+          'view_mode' => 'full',
+        ],
+        'visibility' => [
+          'request_path' => [
+            'id' => 'request_path',
+            'negate' => FALSE,
+            'pages' => '/para-empresas',
+          ],
+        ],
+      ]);
+      $block->save();
+      $messages[] = (string) t('Placement @id reapontado para @uuid.', [
+        '@id' => $def['id'],
+        '@uuid' => $def['uuid'],
+      ]);
+      continue;
+    }
     if ($block->getRegion() !== 'content_full') {
       $block->setRegion('content_full');
       $changed = TRUE;
@@ -5820,6 +5860,162 @@ function _custom_configs_ensure_para_empresas_content_placements(): string {
       $messages[] = (string) t('Placement @id já ok.', ['@id' => $def['id']]);
     }
   }
+
+  return implode(' ', $messages);
+}
+
+/**
+ * Garante Node page + alias /para-empresas (UUID fixo; conteúdo só via blocos).
+ *
+ * Se o alias apontar para nó legado bundle para_empresas (ou outro ≠ seed),
+ * o alias é reassociado à página seed. Nós para_empresas são apagados em
+ * _custom_configs_delete_para_empresas_bundle().
+ */
+function _custom_configs_ensure_para_empresas_as_page(): string {
+  $uuid = 'c9d0e1f2-a3b4-4567-89ab-cdef01234567';
+  $alias = '/para-empresas';
+  $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+  $alias_storage = \Drupal::entityTypeManager()->getStorage('path_alias');
+  $messages = [];
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('node');
+  if (!isset($bundle_info['page'])) {
+    return (string) t('Bundle page ausente — rode drush cim -y (page) antes deste passo.');
+  }
+
+  $by_uuid = $node_storage->loadByProperties(['uuid' => $uuid]);
+  /** @var \Drupal\node\NodeInterface|null $node */
+  $node = $by_uuid ? reset($by_uuid) : NULL;
+
+  if ($node && $node->bundle() !== 'page') {
+    $node = NULL;
+    $messages[] = (string) t('UUID seed Para Empresas colidiu com bundle inesperado — criando page sem UUID fixo.');
+  }
+
+  $existing_aliases = $alias_storage->loadByProperties(['alias' => $alias]);
+  foreach ($existing_aliases as $existing) {
+    $path = (string) $existing->getPath();
+    $target_nid = NULL;
+    if (preg_match('#^/node/(\d+)$#', $path, $matches)) {
+      $target_nid = (int) $matches[1];
+    }
+    $target_node = $target_nid ? $node_storage->load($target_nid) : NULL;
+    if ($node && $target_node && (int) $target_node->id() === (int) $node->id()) {
+      continue;
+    }
+    $existing->delete();
+    $messages[] = (string) t('Alias /para-empresas legado (path @p, bundle @b) removido.', [
+      '@p' => $path,
+      '@b' => $target_node ? $target_node->bundle() : 'desconhecido',
+    ]);
+  }
+
+  if (!$node) {
+    $create = [
+      'type' => 'page',
+      'title' => 'Para Empresas',
+      'status' => 1,
+      'uid' => 1,
+    ];
+    if (!$node_storage->loadByProperties(['uuid' => $uuid])) {
+      $create['uuid'] = $uuid;
+    }
+    $node = $node_storage->create($create);
+    $node->save();
+    $messages[] = (string) t('Página básica Para Empresas criada (nid @nid).', [
+      '@nid' => $node->id(),
+    ]);
+  }
+  else {
+    $messages[] = (string) t('Página básica Para Empresas (@uuid) já existe.', [
+      '@uuid' => $node->uuid(),
+    ]);
+  }
+
+  $system_path = '/node/' . $node->id();
+  $aliases_for_path = $alias_storage->loadByProperties(['path' => $system_path]);
+  $has_alias = FALSE;
+  foreach ($aliases_for_path as $path_alias) {
+    if ($path_alias->getAlias() === $alias) {
+      $has_alias = TRUE;
+      break;
+    }
+  }
+
+  if (!$has_alias) {
+    $alias_storage->create([
+      'path' => $system_path,
+      'alias' => $alias,
+      'langcode' => 'pt-br',
+    ])->save();
+    $messages[] = (string) t('Alias /para-empresas criado → @p.', ['@p' => $system_path]);
+  }
+  else {
+    $messages[] = (string) t('Alias /para-empresas já ok.');
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
+ * Remove nós bundle para_empresas e o content type (fields/displays/storage órfão).
+ */
+function _custom_configs_delete_para_empresas_bundle(): string {
+  $messages = [];
+  $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+
+  $legacy_nodes = $node_storage->loadByProperties(['type' => 'para_empresas']);
+  if ($legacy_nodes) {
+    $nids = array_map(static fn($n) => $n->id(), $legacy_nodes);
+    $node_storage->delete($legacy_nodes);
+    $messages[] = (string) t('Nós para_empresas removidos: @nids.', [
+      '@nids' => implode(', ', $nids),
+    ]);
+  }
+  else {
+    $messages[] = (string) t('Nenhum nó para_empresas restante.');
+  }
+
+  $config_ids = [
+    'core.entity_form_display.node.para_empresas.default',
+    'core.entity_view_display.node.para_empresas.default',
+    'field.field.node.para_empresas.field_imagem',
+    'field.field.node.para_empresas.field_itens_p',
+    'field.field.node.para_empresas.field_text_simple',
+    'field.field.node.para_empresas.field_text_simple_long',
+    'field.field.node.para_empresas.field_text_simple_long_2',
+    'field.field.node.para_empresas.field_titulo',
+    'language.content_settings.node.para_empresas',
+    'node.type.para_empresas',
+  ];
+
+  $config_factory = \Drupal::configFactory();
+  $removed_configs = [];
+  foreach ($config_ids as $config_id) {
+    $config = $config_factory->getEditable($config_id);
+    if (!$config->isNew()) {
+      $config->delete();
+      $removed_configs[] = $config_id;
+    }
+  }
+  if ($removed_configs) {
+    $messages[] = (string) t('Configs do tipo para_empresas removidas (@n).', [
+      '@n' => count($removed_configs),
+    ]);
+  }
+  else {
+    $messages[] = (string) t('Configs do tipo para_empresas já ausentes.');
+  }
+
+  // Storage exclusivo deste bundle (não reutilizado por outros types).
+  $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('node', 'field_itens_p');
+  if ($storage) {
+    $storage->delete();
+    $messages[] = (string) t('Field storage node.field_itens_p removido (órfão).');
+  }
+
+  \Drupal::service('entity_type.bundle.info')->clearCachedBundles();
+  \Drupal::service('entity_field.manager')->clearCachedFieldDefinitions();
 
   return implode(' ', $messages);
 }

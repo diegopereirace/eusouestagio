@@ -25,6 +25,7 @@ Ao alterar estrutura (fields, block types, paragraphs, views, displays, placemen
 
 - Toda alteração estrutural (novos fields, block types, paragraph types, views, form/view displays, block placements) DEVE ser acompanhada de exportação com `drush cex` para `config/sync` e versionada no Git.
 - Em ambiente de destino (receita normativa validada): `git pull` → `drush cim -y` → `drush updb -y` → `drush cim -y` → `drush cr` (`cim` **antes** de `updb`; **2ª passada de `cim`** após `updb` para placements/displays que dependem de UUIDs seedados pelos hooks).
+- **Exceção — remoção de content type com nós legados** (ex.: `custom_configs_update_11028` / tipo `para_empresas`): `updb` **antes** do `cim` que apaga o tipo do sync; senão o import falha com conteúdo ainda no bundle. Detalhe: `specs/016-deploy-producao-layout/contracts/deploy-runbook.md` e quickstart da feature.
 - Não edite YAMLs de `config/sync` “na mão” para inventar config nova: altere via admin/API e exporte.
 
 ## Seeds e instâncias de conteúdo (obrigatório)
@@ -46,6 +47,10 @@ Ao alterar estrutura (fields, block types, paragraphs, views, displays, placemen
 ## Layout v2 `/quem-somos` (blocos 009–013)
 
 Receita destino: `cim` → `updb` (`11012`/`11013`/`11015`/`11016`/`11017`/`11018`/`11019`/`11024`) → `cim` → `cr`.
+
+## `/para-empresas` → Página básica (`11028`)
+
+Receita destino **desta** migração: `updb` (`11028`) → `cim` → `cr` (updb antes do cim que remove `node.type.para_empresas`).
 
 Na **origem**, além do `drush cex`:
 

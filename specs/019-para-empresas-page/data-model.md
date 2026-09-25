@@ -4,18 +4,17 @@
 
 ## Entidades
 
-### 1. Nó canônico `para_empresas` (`/para-empresas`)
+### 1. Nó canônico Página básica (`/para-empresas`)
 
 | Aspecto | Valor |
 |---------|--------|
-| Bundle | `para_empresas` |
-| Alias | `/para-empresas` (preservar) |
-| Pós-update | fields de conteúdo **vazios**; render público vem de View + blocos |
+| Bundle | `page` (Página básica) |
+| UUID seed | `c9d0e1f2-a3b4-4567-89ab-cdef01234567` |
+| Alias | `/para-empresas` |
+| Conteúdo do nó | nenhum field exclusivo; render público vem de View + blocos |
+| Hook | `custom_configs_update_11028` migra alias, remove nós/tipo legado `para_empresas` e storage órfão `field_itens_p` |
 
-**Fields a limpar (se preenchidos):** `field_titulo`, `field_text_simple`, `field_text_simple_long`, `field_text_simple_long_2`, `field_imagem`, `field_itens_p`.
-
-**Não apagar:** entidade node, UUID, alias, status publicado.
-
+**Removido:** content type `para_empresas`, suas field instances/displays e Twig `node--para-empresas.html.twig`.
 ---
 
 ### 2. View `banners` / display `block_para_empresas`
@@ -62,19 +61,19 @@
 
 ---
 
-### 5. Blocos reutilizados (instâncias novas)
+### 5. Blocos reutilizados (placement PE; Diferenciais + Metodologia = instâncias da home)
 
 | Tipo | UUID conteúdo | Placement ID | Weight | Visibilidade |
 |------|---------------|--------------|--------|--------------|
-| `nossos_diferenciais` | `c3d4e5f6-a7b8-4901-c234-567890abcdef` | `default_nossosdiferenciaisparaempresas` | 0 | `/para-empresas` |
-| `nossa_metodologia` | `d4e5f6a7-b8c9-4012-d345-67890abcdef0` | `default_nossametodologiaparaempresas` | 1 | `/para-empresas` |
+| `nossos_diferenciais` | `b0a1c2d3-e4f5-4678-9abc-def012345678` (**mesma da home**) | `default_nossosdiferenciaisparaempresas` | 0 | `/para-empresas` |
+| `nossa_metodologia` | `1f9b40ca-aa77-4e7e-a450-5aa94888e274` (**mesma da home**) | `default_nossametodologiaparaempresas` | 1 | `/para-empresas` |
 | `o_que_fazemos_bt` | `e5f6a7b8-c9d0-4123-e456-7890abcdef01` | `default_oquefazemosparaempresas` | 2 | `/para-empresas` |
 
 Região: `content_full`, tema `default`, `label_display: '0'`.
 
-**Seed copy:** títulos alinhados aos da home (ou tom B2B leve pt-BR); paragraphs/itens espelhando estrutura home se assets/ícones disponíveis; preencher **somente** ausente.
+**Seed copy:** O Que Fazemos: instância dedicada; Diferenciais/Metodologia: **não** seedar cópia — placements PE apontam para as entidades da home. Órfãos `c3d4e5f6-…` / `d4e5f6a7-…` removidos em `11025`/`11026`.
 
-**Isolado (não alterar):** UUIDs/placements da home `b0a1c2d3-…`, `1f9b40ca-…`, `a7c3e9f1-…`.
+**Isolado (não alterar):** placements home `default_nossosdiferenciais` / `default_nossametodologia` (`<front>`); UUID home o-que-fazemos.
 
 ---
 
@@ -85,6 +84,7 @@ Região: `content_full`, tema `default`, `label_display: '0'`.
 | Bundle | `diferenciais_quem_somos` |
 | UUID | `f6a7b8c9-d0e1-4234-f567-890abcdef012` |
 | Título seed | `Benefícios para Empresas` |
+| Subtítulo seed | `Muito além da contratação.` (`field_text_simple_long`, opcional) |
 | Itens | paragraphs `diferencial_simples_p` (ícone + rótulo); quantidade alinhada ao Figma (ex. 6–8) |
 | Placement ID | `default_beneficiosparaempresas` |
 | Weight | 3 |
@@ -121,8 +121,8 @@ Região: `content_full`, tema `default`, `label_display: '0'`.
 │           └── nodes banners (local=para_empresas) ×2  → imagens do carrossel
 │           └── Twig: copy + CTAs fixos
 └── região content_full (weights 0→4)
-      ├── nossos_diferenciais (UUID c3d4…)
-      ├── nossa_metodologia (UUID d4e5…)
+      ├── nossos_diferenciais (UUID b0a1… = home)
+      ├── nossa_metodologia (UUID 1f9b… = home)
       ├── o_que_fazemos_bt (UUID e5f6…)
       ├── diferenciais_quem_somos “Benefícios…” (UUID f6a7…)
       └── cta_v1 (UUID a7b8…)

@@ -129,6 +129,16 @@
 
 ---
 
+## Phase 9: Shell Página básica (pós-composição)
+
+**Objetivo**: `/para-empresas` como bundle `page`; remover tipo `para_empresas` e storage órfão `field_itens_p`; deploy automatizado via `11028`.
+
+- [x] T047 Migrar alias `/para-empresas` para Node `page` (UUID `c9d0e1f2-…`), apagar nós/tipo/displays/fields e `field.storage.node.field_itens_p` em `custom_configs_update_11028`
+- [x] T048 Remover YAMLs do tipo do `config/sync` e Twig `node--para-empresas.html.twig`
+- [x] T049 Documentar exceção de ordem `updb` → `cim` → `cr` (quickstart 019, runbook 016, PRD §3.1.0b, `drupal-deploy-configs.mdc`)
+
+---
+
 ## Dependencies & Execution Order
 
 - Setup (Phase 1) → Foundational (Phase 2) → US1 (Phase 3) → US2 (Phase 4) → US3 (Phase 5) → US4 (Phase 6) → US5 (Phase 7) → Polish (Phase 8)

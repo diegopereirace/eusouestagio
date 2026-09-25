@@ -3,6 +3,7 @@
  * @file
  * Hero Para Empresas (View banners / block_para_empresas).
  *
+ * Carrossel full-bleed (imagem completa por slide) + 2 CTAs em overlay.
  * Variáveis: banner_slides (default.theme).
  * Omite markup quando zero slides (SC-007 / US4).
  */
@@ -34,64 +35,59 @@
 
     <div class="banner-para-empresas-wrapper">
       <div class="banner-para-empresas__inner">
-        <div class="row align-items-center banner-para-empresas g-lg-5">
-          <div class="col-12 col-lg-6 banner-para-empresas__copy">
-            <span class="banner-para-empresas__tag">{{ 'SOLUÇÕES CORPORATIVAS'|t }}</span>
-            <h1 class="banner-para-empresas__title">
-              {{ 'Encontre os melhores talentos para sua empresa.'|t }}
-            </h1>
-            <div class="banner-para-empresas__ctas d-flex gap-3 flex-wrap">
-              <a class="banner-para-empresas__btn banner-para-empresas__btn--primary" href="/cadastro/empresa">{{ 'Cadastrar Empresa'|t }}</a>
-              <a class="banner-para-empresas__btn banner-para-empresas__btn--secondary" href="/painel/empresa/vagas/nova">{{ 'Contrate o Estágio Certo'|t }}</a>
+        <section class="banner-para-empresas" aria-label="{{ 'Para empresas'|t }}">
+          <h1 class="visually-hidden">{{ 'Encontre os melhores talentos para sua empresa.'|t }}</h1>
+
+          <div
+            id="{{ carousel_id }}"
+            class="carousel slide banner-para-empresas__carousel{{ multi ? '' : ' banner-para-empresas__carousel--single' }}"
+            {% if multi %}data-bs-ride="carousel" data-bs-interval="6000" data-bs-touch="true"{% endif %}
+          >
+            <div class="carousel-inner">
+              {% for slide in slides %}
+                <div class="carousel-item{{ loop.first ? ' active' }}">
+                  <picture>
+                    <source media="(max-width: 767.98px)" srcset="{{ slide.mobile|e('html_attr') }}">
+                    <img
+                      class="banner-para-empresas__img d-block w-100"
+                      src="{{ slide.desktop|e('html_attr') }}"
+                      alt="{{ slide.alt|e('html_attr') }}"
+                      {% if loop.first %}fetchpriority="high" loading="eager"{% else %}loading="lazy"{% endif %}
+                    >
+                  </picture>
+                </div>
+              {% endfor %}
             </div>
-          </div>
-          <div class="col-12 col-lg-6 banner-para-empresas__media">
-            <div
-              id="{{ carousel_id }}"
-              class="carousel slide banner-para-empresas__carousel{{ multi ? '' : ' banner-para-empresas__carousel--single' }}"
-              {% if multi %}data-bs-ride="carousel" data-bs-interval="6000" data-bs-touch="true"{% endif %}
-            >
-              <div class="carousel-inner">
+
+            {% if multi %}
+              <button class="carousel-control-prev" type="button" data-bs-target="#{{ carousel_id }}" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">{{ 'Anterior'|t }}</span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#{{ carousel_id }}" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">{{ 'Próximo'|t }}</span>
+              </button>
+              <div class="carousel-indicators">
                 {% for slide in slides %}
-                  <div class="carousel-item{{ loop.first ? ' active' }}">
-                    <picture>
-                      <source media="(max-width: 767.98px)" srcset="{{ slide.mobile|e('html_attr') }}">
-                      <img
-                        class="banner-para-empresas__img d-block w-100"
-                        src="{{ slide.desktop|e('html_attr') }}"
-                        alt="{{ slide.alt|e('html_attr') }}"
-                        {% if loop.first %}fetchpriority="high" loading="eager"{% else %}loading="lazy"{% endif %}
-                      >
-                    </picture>
-                  </div>
+                  <button
+                    type="button"
+                    data-bs-target="#{{ carousel_id }}"
+                    data-bs-slide-to="{{ loop.index0 }}"
+                    class="{{ loop.first ? 'active' }}"
+                    {% if loop.first %}aria-current="true"{% endif %}
+                    aria-label="{{ 'Slide @n'|t({'@n': loop.index}) }}"
+                  ></button>
                 {% endfor %}
               </div>
-
-              {% if multi %}
-                <button class="carousel-control-prev" type="button" data-bs-target="#{{ carousel_id }}" data-bs-slide="prev">
-                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                  <span class="visually-hidden">{{ 'Anterior'|t }}</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#{{ carousel_id }}" data-bs-slide="next">
-                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                  <span class="visually-hidden">{{ 'Próximo'|t }}</span>
-                </button>
-                <div class="carousel-indicators">
-                  {% for slide in slides %}
-                    <button
-                      type="button"
-                      data-bs-target="#{{ carousel_id }}"
-                      data-bs-slide-to="{{ loop.index0 }}"
-                      class="{{ loop.first ? 'active' }}"
-                      {% if loop.first %}aria-current="true"{% endif %}
-                      aria-label="{{ 'Slide @n'|t({'@n': loop.index}) }}"
-                    ></button>
-                  {% endfor %}
-                </div>
-              {% endif %}
-            </div>
+            {% endif %}
           </div>
-        </div>
+
+          <div class="banner-para-empresas__ctas d-flex gap-3 flex-wrap">
+            <a class="banner-para-empresas__btn banner-para-empresas__btn--primary" href="/cadastro/empresa">{{ 'Cadastrar Empresa'|t }}</a>
+            <a class="banner-para-empresas__btn banner-para-empresas__btn--secondary" href="/painel/empresa/vagas/nova">{{ 'Contrate o Estágio Certo'|t }}</a>
+          </div>
+        </section>
       </div>
     </div>
   </div>

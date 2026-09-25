@@ -39,6 +39,9 @@ Ordem obrigatória; cada passo exige **exit code 0** e output sem erro antes do 
 
 Aplicável **somente** enquanto houver banners no tipo legado a migrar (resolvido em 2026-09-23; mantido como referência). Antes do passo 4: import cirúrgico via Entity API de `node.type.banners` + storages/instances → `_custom_banners_migrate_legacy()` → `custom_banners_update_11002/11003/11004` → seguir para o passo 4. Remover órfãs (ex.: `field.field.block_content.banner.field_link_2`) via Entity API antes do `cim` completo.
 
+### Exceção conhecida: remoção do tipo `para_empresas` (`11028`)
+
+Enquanto o destino ainda tiver nós do bundle `para_empresas`, o passo 4 (`cim`) falharia ao apagar `node.type.para_empresas`. Nesta release: **inverter** — após backup/código/composer, rodar `php vendor/bin/drush.php updatedb -y` **antes** do `config:import` (hook cria page + alias `/para-empresas`, apaga nós/tipo/storage `field_itens_p`). Depois: `cim -y` → `cr`.
 ## Tratamento de falha por etapa
 
 | Etapa | Falha típica | Ação |

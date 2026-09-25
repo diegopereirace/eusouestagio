@@ -20,6 +20,15 @@
   margin-bottom: 0;
 }
 
+/* Benefícios PE — subtítulo curto em destaque (Figma).
+ * Twig |clean_class preserva acento em "Benefícios". */
+#benefícios-para-empresas .dqs-header__desc,
+#beneficios-para-empresas .dqs-header__desc {
+  font-weight: 700;
+  color: #2e9e5b;
+  font-size: 1.125rem;
+}
+
 .block-diferenciais-quem-somos .dqs-item__icon {
   display: flex;
   align-items: center;

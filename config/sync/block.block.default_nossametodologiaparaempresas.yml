@@ -1,9 +1,9 @@
-uuid: b1c2d3e4-f5a6-4789-0bcd-123456789abc
+uuid: bd456647-251c-4bd9-a763-df9f0e174b5a
 langcode: pt-br
 status: true
 dependencies:
   content:
-    - 'block_content:nossa_metodologia:d4e5f6a7-b8c9-4012-d345-67890abcdef0'
+    - 'block_content:nossa_metodologia:1f9b40ca-aa77-4e7e-a450-5aa94888e274'
   module:
     - block_content
     - system
@@ -14,10 +14,10 @@ theme: default
 region: content_full
 weight: 1
 provider: null
-plugin: 'block_content:d4e5f6a7-b8c9-4012-d345-67890abcdef0'
+plugin: 'block_content:1f9b40ca-aa77-4e7e-a450-5aa94888e274'
 settings:
-  id: 'block_content:d4e5f6a7-b8c9-4012-d345-67890abcdef0'
-  label: 'Nossa Metodologia Para Empresas'
+  id: 'block_content:1f9b40ca-aa77-4e7e-a450-5aa94888e274'
+  label: 'Nossa Metodologia (Para Empresas)'
   label_display: '0'
   provider: block_content
   view_mode: full

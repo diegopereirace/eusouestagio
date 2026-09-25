@@ -37,7 +37,9 @@ Todas as decisões priorizam **deploy repetível** (`cim` → `updb` → `cim` �
 
 ---
 
-## R3 — Layout Twig do hero (duas colunas + carrossel)
+## R3 — Layout Twig do hero (imagem completa + CTAs + carrossel)
+
+**Update 2026-09-25**: o frame Figma selecionado (≤1200×433) passa a ser **uma imagem por slide**; o carrossel cobre essa área maior; tag/título/descrição saem do Twig e vivem na arte; permanecem só os **dois CTAs** como links em overlay.
 
 **Decision**:
 - `views-view--banners--block-para-empresas.html.twig` — attach library; omit markup se zero slides.
@@ -64,13 +66,13 @@ Todas as decisões priorizam **deploy repetível** (`cim` → `updb` → `cim` �
 
 ---
 
-## R5 — Instâncias dedicadas dos blocos da home
+## R5 — Instâncias dos blocos da home
 
-**Decision**: criar **novas** entidades `block_content` (UUIDs fixos) dos tipos `nossos_diferenciais`, `nossa_metodologia`, `o_que_fazemos_bt` + placements novos. **Não** alterar `default_nossosdiferenciais` / `default_nossametodologia` / `default_oquefazemos` (`<front>`).
+**Decision (atualizada)**: `nossos_diferenciais` e `nossa_metodologia` — **reutilizar as mesmas entidades da home** (UUIDs `b0a1c2d3-…` / `1f9b40ca-…`) com placements adicionais só `/para-empresas`. `o_que_fazemos_bt` — instância dedicada + placement novo. **Não** alterar placements home (`<front>`).
 
-**Rationale**: FR-013–015; SC-003/009; evita side-effect na home se o editor mudar copy B2B.
+**Rationale**: copy de Diferenciais e Metodologia é idêntica à home; duplicar entidade só gera drift editorial.
 
-**Alternatives considered**: reutilizar a mesma instância da home com multi-path visibility — rejeitado (copy B2B vs home compartilhada).
+**Alternatives considered**: instâncias PE dedicadas (`c3d4e5f6-…`, `d4e5f6a7-…`) — rejeitadas após validação (duplicatas dos blocks 9 e 10).
 
 ---
 
@@ -84,14 +86,15 @@ Todas as decisões priorizam **deploy repetível** (`cim` → `updb` → `cim` �
 
 ---
 
-## R7 — Limpeza do nó `para_empresas`
+## R7 — Nó shell como Página básica (sem tipo `para_empresas`)
 
-**Decision**: resolver alias `/para-empresas` → node bundle `para_empresas`; esvaziar fields de conteúdo (`field_titulo`, `field_text_simple`, `field_text_simple_long`, `field_text_simple_long_2`, `field_imagem`, `field_itens_p`) se não vazios; preservar nó + alias; Twig `node--para-empresas.html.twig` passa a omitir blocos vazios (sem “casca” com grade vazia). Não há field `body` clássico neste bundle — o “HTML legado” vive nesses fields / render atual.
+**Decision**: `/para-empresas` usa bundle `page` (UUID seed fixo); conteúdo visual só via View + blocos. `custom_configs_update_11028` cria/garante a page, reassocia o alias, apaga nós do tipo legado, remove configs do tipo + storage órfão `field_itens_p`. Twig `node--para-empresas.html.twig` removido.
 
-**Rationale**: FR-003–004; SC-004; conteúdo visual migra para View + blocos em `content_full`.
+**Rationale**: nenhum field exclusivo no landing; tipo dedicado só gerava atrito de CM/deploy. SC-004 / FR-003–004.
 
-**Alternatives considered**: apagar o nó — rejeitado (alias/UC institucional); só esconder no Twig sem limpar DB — deixa lixo editorial e confunde editores.
+**Alternatives considered**: manter bundle `para_empresas` com fields vazios — rejeitado (tipo morto); só limpar fields sem remover o tipo — rejeitado pelo pedido de unificar em Página básica.
 
+**Deploy**: nesta migração, `updb` **antes** de `cim` (conteúdo do tipo legado precisa sumir antes do import apagar `node.type.para_empresas`).
 ---
 
 ## R8 — Ordem e weights em `content_full`

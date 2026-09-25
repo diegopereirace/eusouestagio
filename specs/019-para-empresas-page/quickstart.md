@@ -7,7 +7,7 @@ Comandos Drush: `docker compose exec drupal drush <cmd>` (workdir `/var/www/html
 ## Pré-requisitos
 
 1. Stack local no ar; `config_sync_directory = 'config/sync'`.
-2. Branch com YAMLs (allowed value, View display, placements), Twig/CSS, `custom_configs_update_11024` e assets seed.
+2. Branch com YAMLs (allowed value, View display, placements), Twig/CSS, `custom_configs_update_11024`–`11026` e assets seed.
 3. Modelo: [data-model.md](data-model.md). Contratos: [contracts/](contracts/).
 
 ---
@@ -24,20 +24,23 @@ git status   # config/sync + tema + custom_configs + PRD
 
 ### Destino (staging / prod / outro local)
 
+> **Exceção 11028** (remoção do tipo `para_empresas` com nós legados): nesta release rode **`updb` antes do `cim`**.
+
 ```bash
 git pull
-docker compose exec drupal drush cim -y
 docker compose exec drupal drush updb -y
 docker compose exec drupal drush cim -y
 docker compose exec drupal drush cr
 ```
 
+Receita habitual (features sem remoção de bundle com conteúdo): `cim` → `updb` → `cim` → `cr`.
+
 **Gates pós-deploy:**
 
 1. `drush updatedb:status` sem pendências de `custom_configs`.
-2. `/para-empresas` HTTP 200 com composição completa (banner + 5 seções).
-3. Zero criação manual de blocos/View no destino.
-
+2. `/para-empresas` HTTP 200; node bundle = `page`; tipo `para_empresas` ausente.
+3. Composição completa (banner + seções) sem HTML legado no nó.
+4. Zero criação manual de blocos/View no destino.
 ---
 
 ## B) Hero desktop (US1 → SC-001, SC-005)

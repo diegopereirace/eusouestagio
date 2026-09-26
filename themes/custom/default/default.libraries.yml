@@ -54,6 +54,22 @@ banner_para_empresas:
       assets/css/banner-para-empresas.css: {}
   dependencies:
     - default/bootstrap
+depoimentos_carousel:
+  js:
+    assets/js/carousel-center.js: {}
+  css:
+    component:
+      assets/css/depoimentos-carousel.css: {}
+  dependencies:
+    - core/drupal
+    - core/once
+# Motor center-mode compartilhado (attach via depoimentos_carousel ou direto).
+carousel_center:
+  js:
+    assets/js/carousel-center.js: {}
+  dependencies:
+    - core/drupal
+    - core/once
 layout_sobre_nos:
   css:
     component:

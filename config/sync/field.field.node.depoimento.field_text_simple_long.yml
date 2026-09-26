@@ -1,0 +1,19 @@
+uuid: 816c37be-43f9-4052-970f-61a09a09dc36
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_text_simple_long
+    - node.type.depoimento
+id: node.depoimento.field_text_simple_long
+field_name: field_text_simple_long
+entity_type: node
+bundle: depoimento
+label: 'Texto do depoimento'
+description: 'Corpo do depoimento exibido no card.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

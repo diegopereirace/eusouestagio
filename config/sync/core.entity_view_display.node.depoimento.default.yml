@@ -1,0 +1,48 @@
+uuid: 4fdc7f6c-3981-4a95-a38a-91f36aba7bba
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.node.depoimento.field_imagem
+    - field.field.node.depoimento.field_text_simple
+    - field.field.node.depoimento.field_text_simple_long
+    - image.style.thumbnail
+    - node.type.depoimento
+  module:
+    - image
+    - user
+id: node.depoimento.default
+targetEntityType: node
+bundle: depoimento
+mode: default
+content:
+  field_imagem:
+    type: image
+    label: hidden
+    settings:
+      image_link: ''
+      image_style: thumbnail
+      image_loading:
+        attribute: lazy
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_text_simple:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+      link_rel: canonical
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_text_simple_long:
+    type: basic_string
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 2
+    region: content
+hidden:
+  langcode: true
+  links: true

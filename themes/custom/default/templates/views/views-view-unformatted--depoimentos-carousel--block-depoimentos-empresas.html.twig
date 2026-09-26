@@ -1,0 +1,48 @@
+{#
+/**
+ * @file
+ * Rows unformatted — carrossel center mode de Depoimentos (loop infinito se N>1).
+ *
+ * Motor: default/carousel_center (data-carousel-*). Skin: .depoimentos-empresas.
+ * Contrato: specs/020-depoimentos-empresas/contracts/depoimentos-carousel-render.md
+ */
+#}
+{% set total = rows|length %}
+{% if total > 0 %}
+  <section
+    class="depoimentos-empresas"
+    aria-label="{{ 'Depoimentos'|t }}"
+    data-carousel-center
+    data-count="{{ total }}"
+    {% if total > 1 %}data-loop="1"{% endif %}
+  >
+    <h2 class="visually-hidden">{{ 'Depoimentos de empresas parceiras'|t }}</h2>
+    <div class="depoimentos-empresas__viewport" data-carousel-viewport>
+      <div class="depoimentos-empresas__track" data-carousel-track>
+        {% for row in rows %}
+          <div
+            class="depoimentos-empresas__slide{{ loop.first ? ' depoimento-card--active' : ' depoimento-card--side' }}"
+            data-carousel-slide
+            data-index="{{ loop.index0 }}"
+          >
+            {{- row.content -}}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% if total > 1 %}
+      <div class="depoimentos-empresas__dots" role="tablist" aria-label="{{ 'Navegação dos depoimentos'|t }}">
+        {% for row in rows %}
+          <button
+            type="button"
+            class="depoimentos-empresas__dot{{ loop.first ? ' is-active' : '' }}"
+            data-carousel-dot
+            data-index="{{ loop.index0 }}"
+            aria-label="{{ 'Depoimento @i de @n'|t({'@i': loop.index, '@n': total}) }}"
+            {% if loop.first %}aria-current="true"{% endif %}
+          ></button>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </section>
+{% endif %}

@@ -1,0 +1,170 @@
+/**
+ * Depoimentos Para Empresas — carrossel center mode.
+ * Isolado sob .depoimentos-empresas (não alterar home / Quem Somos / CTA).
+ */
+
+.depoimentos-empresas {
+  --depoimentos-card-w: 404px;
+  --depoimentos-gap: 24px;
+  --depoimentos-active-opacity: 1;
+  --depoimentos-side-opacity: 0.45;
+  --depoimentos-text: #45464d;
+  --depoimentos-bg: #f5f7fa;
+  overflow-x: hidden;
+  padding: 3rem 0 2.5rem;
+  background: var(--depoimentos-bg);
+  font-family: 'Poppins', sans-serif;
+}
+
+.depoimentos-empresas__viewport {
+  overflow: hidden;
+  width: 100%;
+  /* Desktop: exatamente 3 cards (ativo + laterais); sem peek do 4º. */
+  max-width: calc(3 * var(--depoimentos-card-w) + 2 * var(--depoimentos-gap));
+  margin: 0 auto;
+  position: relative;
+}
+
+.depoimentos-empresas__track {
+  display: flex;
+  align-items: stretch;
+  gap: var(--depoimentos-gap);
+  will-change: transform;
+  transition: transform 0.35s ease;
+  /* Sem padding-x no desktop: viewport já fecha em 3 cards. */
+  padding: 0.5rem 0;
+}
+
+.depoimentos-empresas__slide {
+  flex: 0 0 var(--depoimentos-card-w);
+  max-width: var(--depoimentos-card-w);
+  width: var(--depoimentos-card-w);
+  opacity: var(--depoimentos-side-opacity);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  transform: scale(0.94);
+}
+
+.depoimentos-empresas__slide.depoimento-card--active {
+  opacity: var(--depoimentos-active-opacity);
+  transform: scale(1);
+}
+
+.depoimento-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 32px;
+  min-height: 188px;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: 0 4px 24px rgba(0, 48, 96, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+}
+
+.depoimento-card__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.depoimento-card__avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.depoimento-card__avatar img,
+.depoimento-card__avatar .field,
+.depoimento-card__avatar .field__item {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin: 0;
+}
+
+.depoimento-card__meta {
+  min-width: 0;
+}
+
+.depoimento-card__nome {
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.3;
+  color: var(--brand-navy, #003060);
+  margin: 0;
+}
+
+.depoimento-card__cargo {
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.35;
+  color: var(--depoimentos-text);
+  margin: 0.15rem 0 0;
+}
+
+.depoimento-card__texto {
+  font-weight: 400;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--depoimentos-text);
+  margin: 0;
+}
+
+.depoimento-card__cargo .field,
+.depoimento-card__texto .field {
+  margin: 0;
+}
+
+.depoimentos-empresas__dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 1.5rem;
+  padding: 0 1rem;
+}
+
+.depoimentos-empresas__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  background: #c5cbd3;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.depoimentos-empresas__dot:hover,
+.depoimentos-empresas__dot:focus-visible {
+  background: var(--brand-green, #5eb344);
+  outline: 2px solid var(--brand-green, #5eb344);
+  outline-offset: 2px;
+}
+
+.depoimentos-empresas__dot.is-active {
+  background: var(--brand-navy, #003060);
+  transform: scale(1.15);
+}
+
+@media (max-width: 991.98px) {
+  .depoimentos-empresas {
+    --depoimentos-card-w: min(404px, calc(100vw - 3rem));
+    padding: 2rem 0 2rem;
+  }
+
+  .depoimentos-empresas__viewport {
+    max-width: 100%;
+  }
+
+  .depoimentos-empresas__track {
+    /* peek lateral no mobile sem scroll-x da página */
+    padding: 0.5rem 1.25rem;
+  }
+}

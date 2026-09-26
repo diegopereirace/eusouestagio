@@ -6009,7 +6009,8 @@ function _custom_configs_ensure_para_empresas_content_placements(): string {
       'id' => 'default_ctav1paraempresas',
       'uuid' => 'a7b8c9d0-e1f2-4345-a678-90abcdef0123',
       'label' => 'CTA v1 Para Empresas',
-      'weight' => 4,
+      // Feature 020: Depoimentos ocupa weight 4; CTA sobe para 5.
+      'weight' => 5,
     ],
   ];
 
@@ -6271,5 +6272,353 @@ function _custom_configs_delete_para_empresas_bundle(): string {
   \Drupal::service('entity_field.manager')->clearCachedFieldDefinitions();
 
   return implode(' ', $messages);
+}
+
+/**
+ * Depoimentos PE: ensure tipo/View/placement + seed ≥4 nodes (feature 020).
+ *
+ * Deploy destino: drush cim -y → drush updb -y → drush cim -y → drush cr
+ * Idempotente: não duplica nodes/placements; não sobrescreve editorial divergente.
+ */
+function custom_configs_update_11032(): string {
+  $messages = [
+    _custom_configs_ensure_depoimento_structure(),
+    _custom_configs_seed_depoimentos_para_empresas(),
+    _custom_configs_ensure_depoimentos_carousel_placement(),
+    _custom_configs_ensure_cta_para_empresas_weight_5(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Ensure defensivo: bundle depoimento + field instances (reuso de storages).
+ */
+function _custom_configs_ensure_depoimento_structure(): string {
+  $bundle = 'depoimento';
+  $type = \Drupal\node\Entity\NodeType::load($bundle);
+  if (!$type) {
+    $type = \Drupal\node\Entity\NodeType::create([
+      'type' => $bundle,
+      'name' => 'Depoimento',
+      'description' => 'Depoimentos de clientes/empresas para prova social B2B',
+      'new_revision' => FALSE,
+      'preview_mode' => DRUPAL_OPTIONAL,
+      'display_submitted' => FALSE,
+    ]);
+    $type->setThirdPartySetting('menu_ui', 'available_menus', []);
+    $type->setThirdPartySetting('menu_ui', 'parent', '');
+    $type->save();
+    $created_type = TRUE;
+  }
+  else {
+    $created_type = FALSE;
+  }
+
+  $fields = [
+    'field_text_simple' => [
+      'label' => 'Cargo / Empresa',
+      'settings' => [],
+    ],
+    'field_text_simple_long' => [
+      'label' => 'Texto do depoimento',
+      'settings' => [],
+    ],
+    'field_imagem' => [
+      'label' => 'Foto do autor',
+      'settings' => [
+        'handler' => 'default:file',
+        'handler_settings' => [],
+        'file_directory' => 'depoimentos/[date:custom:Y]-[date:custom:m]',
+        'file_extensions' => 'png gif jpg jpeg webp',
+        'max_filesize' => '',
+        'max_resolution' => '',
+        'min_resolution' => '',
+        'alt_field' => TRUE,
+        'alt_field_required' => FALSE,
+        'title_field' => TRUE,
+        'title_field_required' => FALSE,
+        'default_image' => [
+          'uuid' => '',
+          'alt' => '',
+          'title' => '',
+          'width' => NULL,
+          'height' => NULL,
+        ],
+      ],
+    ],
+  ];
+
+  $created_fields = [];
+  $missing_storage = [];
+  foreach ($fields as $field_name => $definition) {
+    if (\Drupal\field\Entity\FieldConfig::loadByName('node', $bundle, $field_name)) {
+      continue;
+    }
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('node', $field_name);
+    if (!$storage) {
+      $missing_storage[] = $field_name;
+      continue;
+    }
+    \Drupal\field\Entity\FieldConfig::create([
+      'field_storage' => $storage,
+      'bundle' => $bundle,
+      'label' => $definition['label'],
+      'required' => FALSE,
+      'translatable' => FALSE,
+      'settings' => $definition['settings'],
+    ])->save();
+    $created_fields[] = $field_name;
+  }
+
+  $parts = [];
+  if ($created_type) {
+    $parts[] = (string) t('Bundle depoimento criado.');
+  }
+  if ($missing_storage) {
+    $parts[] = (string) t('Storages ausentes (@fields) — rode drush cim -y antes do updb.', [
+      '@fields' => implode(', ', $missing_storage),
+    ]);
+  }
+  if ($created_fields) {
+    $parts[] = (string) t('Instances depoimento criadas: @fields.', [
+      '@fields' => implode(', ', $created_fields),
+    ]);
+  }
+  if (!$parts) {
+    $parts[] = (string) t('Estrutura depoimento já presente.');
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Seed idempotente de ≥4 nodes depoimento + avatares.
+ */
+function _custom_configs_seed_depoimentos_para_empresas(): string {
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('node');
+  if (!isset($bundle_info['depoimento'])) {
+    return (string) t('Bundle depoimento ausente — rode drush cim -y antes do updb.');
+  }
+
+  $seeds = [
+    [
+      'uuid' => 'a0b1c2d3-e4f5-4601-a001-depoimentos0001',
+      'title' => 'Mariana Silva',
+      'cargo' => 'Head de Talentos - TechCorp',
+      'texto' => 'Com a Eu Sou Estágio encontramos estagiários engajados e alinhados à nossa cultura em tempo recorde. O processo é transparente e o acompanhamento faz toda a diferença.',
+      'asset' => 'depoimentos/avatar-1.png',
+      'dest' => 'public://depoimentos/avatar-1.png',
+    ],
+    [
+      'uuid' => 'a0b1c2d3-e4f5-4601-a002-depoimentos0002',
+      'title' => 'Ricardo Gomes',
+      'cargo' => 'CEO - Inovatech',
+      'texto' => 'Reduzimos o tempo de contratação e elevamos a qualidade das vagas de estágio. Recomendo para qualquer empresa que queira escalar o programa com segurança.',
+      'asset' => 'depoimentos/avatar-2.png',
+      'dest' => 'public://depoimentos/avatar-2.png',
+    ],
+    [
+      'uuid' => 'a0b1c2d3-e4f5-4601-a003-depoimentos0003',
+      'title' => 'Ana Paula Costa',
+      'cargo' => 'Gerente de RH - Horizonte Soft',
+      'texto' => 'A curadoria de candidatos e o suporte jurídico nos deram tranquilidade para expandir o quadro de estagiários sem surpresas.',
+      'asset' => 'depoimentos/avatar-3.png',
+      'dest' => 'public://depoimentos/avatar-3.png',
+    ],
+    [
+      'uuid' => 'a0b1c2d3-e4f5-4601-a004-depoimentos0004',
+      'title' => 'Lucas Ferreira',
+      'cargo' => 'Diretor de Operações - Nexo Digital',
+      'texto' => 'Passamos a ter um pipeline contínuo de talentos. A plataforma é intuitiva e o time está sempre disponível quando precisamos ajustar uma vaga.',
+      'asset' => 'depoimentos/avatar-4.png',
+      'dest' => 'public://depoimentos/avatar-4.png',
+    ],
+  ];
+
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $messages = [];
+  $created = 0;
+  $skipped = 0;
+
+  foreach ($seeds as $seed) {
+    $by_uuid = $storage->loadByProperties(['uuid' => $seed['uuid']]);
+    if ($by_uuid) {
+      /** @var \Drupal\node\NodeInterface $node */
+      $node = reset($by_uuid);
+      $changed = FALSE;
+      // Só preenche campos vazios — nunca sobrescreve editorial.
+      if ($node->hasField('field_text_simple') && $node->get('field_text_simple')->isEmpty()) {
+        $node->set('field_text_simple', $seed['cargo']);
+        $changed = TRUE;
+      }
+      if ($node->hasField('field_text_simple_long') && $node->get('field_text_simple_long')->isEmpty()) {
+        $node->set('field_text_simple_long', $seed['texto']);
+        $changed = TRUE;
+      }
+      if ($node->hasField('field_imagem') && $node->get('field_imagem')->isEmpty()) {
+        $file = _custom_configs_seed_file_from_module_asset(
+          $seed['asset'],
+          $seed['dest'],
+          'node',
+          (int) $node->id()
+        );
+        if ($file) {
+          $node->set('field_imagem', [
+            'target_id' => $file->id(),
+            'alt' => $seed['title'],
+          ]);
+          $changed = TRUE;
+        }
+      }
+      if ($changed) {
+        $node->save();
+        $messages[] = (string) t('Depoimento (@uuid) atualizado só em campos vazios.', [
+          '@uuid' => $seed['uuid'],
+        ]);
+      }
+      else {
+        $skipped++;
+      }
+      continue;
+    }
+
+    /** @var \Drupal\node\NodeInterface $node */
+    $node = $storage->create([
+      'type' => 'depoimento',
+      'uuid' => $seed['uuid'],
+      'title' => $seed['title'],
+      'status' => 1,
+      'uid' => 1,
+      'field_text_simple' => $seed['cargo'],
+      'field_text_simple_long' => $seed['texto'],
+    ]);
+    $node->save();
+
+    $file = _custom_configs_seed_file_from_module_asset(
+      $seed['asset'],
+      $seed['dest'],
+      'node',
+      (int) $node->id()
+    );
+    if ($file && $node->hasField('field_imagem')) {
+      $node->set('field_imagem', [
+        'target_id' => $file->id(),
+        'alt' => $seed['title'],
+      ]);
+      $node->save();
+    }
+    $created++;
+    $messages[] = (string) t('Depoimento seed criado (@uuid).', ['@uuid' => $seed['uuid']]);
+  }
+
+  if ($skipped && !$created && count($messages) === 0) {
+    $messages[] = (string) t('Depoimentos seed já presentes (@n ignorados).', [
+      '@n' => $skipped,
+    ]);
+  }
+  elseif ($skipped) {
+    $messages[] = (string) t('@n depoimentos seed já ok (sem alteração).', ['@n' => $skipped]);
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
+ * Garante placement da View depoimentos_carousel em content_full weight 4.
+ */
+function _custom_configs_ensure_depoimentos_carousel_placement(): string {
+  $block_id = 'default_views_block__depoimentos_carousel_block_depoimentos_empresas';
+  $plugin = 'views_block:depoimentos_carousel-block_depoimentos_empresas';
+  $storage = \Drupal::entityTypeManager()->getStorage('block');
+
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = $storage->load($block_id);
+  if (!$block) {
+    // View ainda pode não existir se cim não rodou — cria mesmo assim se plugin resolver.
+    try {
+      $block = $storage->create([
+        'id' => $block_id,
+        'theme' => 'default',
+        'region' => 'content_full',
+        'weight' => 4,
+        'provider' => NULL,
+        'plugin' => $plugin,
+        'settings' => [
+          'id' => $plugin,
+          'label' => 'Depoimentos Para Empresas',
+          'label_display' => '0',
+          'provider' => 'views',
+          'views_label' => '',
+          'items_per_page' => NULL,
+        ],
+        'visibility' => [
+          'request_path' => [
+            'id' => 'request_path',
+            'negate' => FALSE,
+            'pages' => '/para-empresas',
+          ],
+        ],
+      ]);
+      $block->save();
+      return (string) t('Placement depoimentos_carousel criado (weight 4).');
+    }
+    catch (\Throwable $e) {
+      return (string) t('Placement depoimentos_carousel adiável — rode cim (View) e updb de novo: @msg', [
+        '@msg' => $e->getMessage(),
+      ]);
+    }
+  }
+
+  $changed = FALSE;
+  if ((int) $block->getWeight() !== 4) {
+    $block->setWeight(4);
+    $changed = TRUE;
+  }
+  if ($block->getRegion() !== 'content_full') {
+    $block->setRegion('content_full');
+    $changed = TRUE;
+  }
+  if (!$block->status()) {
+    $block->setStatus(TRUE);
+    $changed = TRUE;
+  }
+  $settings = $block->get('settings');
+  if (($settings['label_display'] ?? '') !== '0') {
+    $settings['label_display'] = '0';
+    $block->set('settings', $settings);
+    $changed = TRUE;
+  }
+  $visibility = $block->getVisibility();
+  $pages = (string) ($visibility['request_path']['pages'] ?? '');
+  if (trim($pages) !== '/para-empresas') {
+    $block->setVisibilityConfig('request_path', [
+      'id' => 'request_path',
+      'negate' => FALSE,
+      'pages' => '/para-empresas',
+    ]);
+    $changed = TRUE;
+  }
+  if ($changed) {
+    $block->save();
+    return (string) t('Placement depoimentos_carousel atualizado.');
+  }
+  return (string) t('Placement depoimentos_carousel já ok.');
+}
+
+/**
+ * Garante weight 5 do CTA PE (após Depoimentos em weight 4).
+ */
+function _custom_configs_ensure_cta_para_empresas_weight_5(): string {
+  $storage = \Drupal::entityTypeManager()->getStorage('block');
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = $storage->load('default_ctav1paraempresas');
+  if (!$block) {
+    return (string) t('CTA PE ausente — rode cim.');
+  }
+  if ((int) $block->getWeight() === 5) {
+    return (string) t('CTA PE weight já 5.');
+  }
+  $block->setWeight(5);
+  $block->save();
+  return (string) t('CTA PE weight atualizado para 5.');
 }
 

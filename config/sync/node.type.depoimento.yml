@@ -1,0 +1,17 @@
+uuid: eb1ce678-9243-4da9-8f39-899d4d9f53bf
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus: {  }
+    parent: ''
+name: Depoimento
+type: depoimento
+description: 'Depoimentos de clientes/empresas para prova social B2B'
+help: null
+new_revision: false
+preview_mode: 1
+display_submitted: false

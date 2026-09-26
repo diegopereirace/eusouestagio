@@ -1,0 +1,19 @@
+uuid: d4cf0db2-d696-4b05-b7c6-c18acf04355e
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_text_simple
+    - node.type.depoimento
+id: node.depoimento.field_text_simple
+field_name: field_text_simple
+entity_type: node
+bundle: depoimento
+label: 'Cargo / Empresa'
+description: 'Ex.: Head de Talentos - TechCorp'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

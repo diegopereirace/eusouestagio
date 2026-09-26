@@ -5,11 +5,11 @@ alwaysApply: false
 <!-- SPECKIT START -->
 Spec Kit **deste projeto** (Eu Sou Estágio / Drupal 11).
 
-- Feature ativa: `019-para-empresas-page`
-- Spec: `specs/019-para-empresas-page/spec.md`
-- Plan: `specs/019-para-empresas-page/plan.md`
-- Tasks: `specs/019-para-empresas-page/tasks.md`
-- Features relacionadas: `018-contato-node`, `017-pagina-contato`, `016-deploy-producao-layout`, `015-cta-v1-quem-somos`, `014-numeros-quem-somos`, `013-diferenciais-quem-somos`, `012-quem-somos-missao-visao`, `011-bloco-missao-visao`, `010-layout-sobre-nos`, `009-banner-quem-somos`, `008-rodape-redesign`, `007-como-funciona`, `006-o-que-fazemos`, `005-nossa-metodologia`, `004-nossos-diferenciais`, `003-vagas-destaque-home`, `002-topo-figma-home`, `001-banners-busca-home`
+- Feature ativa: `020-depoimentos-empresas`
+- Spec: `specs/020-depoimentos-empresas/spec.md`
+- Plan: `specs/020-depoimentos-empresas/plan.md`
+- Tasks: `specs/020-depoimentos-empresas/tasks.md`
+- Features relacionadas: `019-para-empresas-page`, `018-contato-node`, `017-pagina-contato`, `016-deploy-producao-layout`, `015-cta-v1-quem-somos`, `014-numeros-quem-somos`, `013-diferenciais-quem-somos`, `012-quem-somos-missao-visao`, `011-bloco-missao-visao`, `010-layout-sobre-nos`, `009-banner-quem-somos`, `008-rodape-redesign`, `007-como-funciona`, `006-o-que-fazemos`, `005-nossa-metodologia`, `004-nossos-diferenciais`, `003-vagas-destaque-home`, `002-topo-figma-home`, `001-banners-busca-home`
 
 Não assuma stack de outro produto. Não leia `specs/` de outro repositório.
 <!-- SPECKIT END -->

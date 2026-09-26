@@ -1,0 +1,29 @@
+uuid: edb3658e-9bed-4b99-83ef-ec3bedca15dc
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - views.view.depoimentos_carousel
+  module:
+    - system
+    - views
+  theme:
+    - default
+id: default_views_block__depoimentos_carousel_block_depoimentos_empresas
+theme: default
+region: content_full
+weight: 4
+provider: null
+plugin: 'views_block:depoimentos_carousel-block_depoimentos_empresas'
+settings:
+  id: 'views_block:depoimentos_carousel-block_depoimentos_empresas'
+  label: 'Depoimentos Para Empresas'
+  label_display: '0'
+  provider: views
+  views_label: ''
+  items_per_page: null
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /para-empresas

@@ -1,0 +1,40 @@
+{#
+/**
+ * @file
+ * Teaser do content type depoimento — card do carrossel.
+ *
+ * Contrato: specs/020-depoimentos-empresas/contracts/depoimentos-carousel-render.md
+ * Imagem: view display teaser usa style thumbnail; CSS reduz a 48px circular.
+ */
+#}
+{%
+  set classes = [
+    'depoimento-card',
+    'node',
+    'node--type-' ~ node.bundle|clean_class,
+    view_mode ? 'node--view-mode-' ~ view_mode|clean_class,
+  ]
+%}
+{% set author_name = node.label %}
+{% set cargo = node.field_text_simple.value|default('')|trim %}
+{% set texto = node.field_text_simple_long.value|default('')|trim %}
+{% set has_photo = node.field_imagem is not empty and node.field_imagem.entity %}
+
+<article{{ attributes.addClass(classes) }}>
+  <div class="depoimento-card__header">
+    {% if has_photo %}
+      <div class="depoimento-card__avatar">
+        {{ content.field_imagem }}
+      </div>
+    {% endif %}
+    <div class="depoimento-card__meta">
+      <div class="depoimento-card__nome">{{ author_name }}</div>
+      {% if cargo %}
+        <div class="depoimento-card__cargo">{{ cargo }}</div>
+      {% endif %}
+    </div>
+  </div>
+  {% if texto %}
+    <div class="depoimento-card__texto">{{ texto }}</div>
+  {% endif %}
+</article>

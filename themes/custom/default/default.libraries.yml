@@ -54,6 +54,12 @@ banner_para_empresas:
       assets/css/banner-para-empresas.css: {}
   dependencies:
     - default/bootstrap
+banner_para_estudantes:
+  css:
+    component:
+      assets/css/banner-para-estudantes.css: {}
+  dependencies:
+    - default/bootstrap
 depoimentos_carousel:
   js:
     assets/js/carousel-center.js: {}

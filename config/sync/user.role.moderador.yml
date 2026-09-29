@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - block_content.type.basic
+    - block_content.type.beneficios_estudantes
     - block_content.type.como_funciona_bt
     - block_content.type.cto
     - block_content.type.cta_v1
@@ -51,6 +52,7 @@ permissions:
   - 'administer users'
   - 'bypass node access'
   - 'change own username'
+  - 'create beneficios_estudantes block content'
   - 'create como_funciona_bt block content'
   - 'create contato content'
   - 'create cta_v1 block content'
@@ -65,6 +67,7 @@ permissions:
   - 'create terms in tags'
   - 'create terms in tecnologias'
   - 'create vagas content'
+  - 'delete any beneficios_estudantes block content'
   - 'delete any como_funciona_bt block content'
   - 'delete any contato content'
   - 'delete any cta_v1 block content'
@@ -86,6 +89,7 @@ permissions:
   - 'delete terms in tecnologias'
   - 'delete vagas revisions'
   - 'edit any basic block content'
+  - 'edit any beneficios_estudantes block content'
   - 'edit any como_funciona_bt block content'
   - 'edit any contato content'
   - 'edit any cta_v1 block content'

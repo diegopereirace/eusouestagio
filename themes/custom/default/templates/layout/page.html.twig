@@ -97,6 +97,12 @@
         {{ page.banner }}
       </div>
     {% endif %}
+    {# /para-estudantes: benefícios logo abaixo do hero (antes de filtros/vagas). #}
+    {% if content_full_after_banner|default(false) and page.content_full %}
+      <div class="content-full content-full--after-banner">
+        {{ page.content_full }}
+      </div>
+    {% endif %}
     {% if page.highlighted %}
       <div class="highlighted">
         <aside class="{{ container }} section clearfix" role="complementary">
@@ -149,7 +155,7 @@
       {% endblock %}
     </div>
 
-    {% if page.content_full %}
+    {% if page.content_full and not content_full_after_banner|default(false) %}
       <div class="content-full">
         {{ page.content_full }}
       </div>

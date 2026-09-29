@@ -1,0 +1,28 @@
+uuid: b1c2d3e4-f5a6-4789-b012-89abcdef0123
+langcode: pt-br
+status: true
+dependencies:
+  content:
+    - 'block_content:beneficios_estudantes:a8b9c0d1-e2f3-4456-a789-0bcdef123456'
+  module:
+    - block_content
+    - system
+  theme:
+    - default
+id: default_beneficiosestudantes
+theme: default
+region: content_full
+weight: 0
+provider: null
+plugin: 'block_content:a8b9c0d1-e2f3-4456-a789-0bcdef123456'
+settings:
+  id: 'block_content:a8b9c0d1-e2f3-4456-a789-0bcdef123456'
+  label: 'Benefícios Estudantes'
+  label_display: '0'
+  provider: block_content
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /para-estudantes

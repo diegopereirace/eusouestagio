@@ -6999,6 +6999,35 @@ function custom_configs_update_11035(): string {
 }
 
 /**
+ * Desativa formulário exposto de vagas na região highlighted de /para-estudantes.
+ *
+ * O display page_1 mantém exposed_block=true; sem o bloco o form some da página.
+ * Deploy destino: git pull → drush cim -y → drush updb -y → drush cr.
+ */
+function custom_configs_update_11036(): string {
+  return _custom_configs_disable_formulario_exposto_vagas_page_1();
+}
+
+/**
+ * Desativa placement default_formularioexpostovagaspage_1.
+ */
+function _custom_configs_disable_formulario_exposto_vagas_page_1(): string {
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = \Drupal::entityTypeManager()
+    ->getStorage('block')
+    ->load('default_formularioexpostovagaspage_1');
+  if (!$block) {
+    return (string) t('Placement default_formularioexpostovagaspage_1 ausente.');
+  }
+  if (!$block->status()) {
+    return (string) t('Placement default_formularioexpostovagaspage_1 já desativado.');
+  }
+  $block->setStatus(FALSE);
+  $block->save();
+  return (string) t('Placement default_formularioexpostovagaspage_1 desativado.');
+}
+
+/**
  * Garante paragraph/block types, field instances e displays Benefícios Estudantes.
  */
 function _custom_configs_ensure_beneficios_estudantes_structure(): string {

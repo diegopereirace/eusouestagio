@@ -1,6 +1,6 @@
-uuid: 88fe8240-9950-40ba-adef-6e0f0e55a71c
+uuid: e5f6a7b8-c9d0-4123-e456-789012cdef01
 langcode: pt-br
-status: false
+status: true
 dependencies:
   config:
     - views.view.banners
@@ -9,14 +9,14 @@ dependencies:
     - views
   theme:
     - default
-id: default_views_block__banners_block_1
+id: default_views_block__banners_block_para_estudantes
 theme: default
 region: banner
 weight: 0
 provider: null
-plugin: 'views_block:banners-block_1'
+plugin: 'views_block:banners-block_para_estudantes'
 settings:
-  id: 'views_block:banners-block_1'
+  id: 'views_block:banners-block_para_estudantes'
   label: ''
   label_display: '0'
   provider: views

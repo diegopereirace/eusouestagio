@@ -1,0 +1,94 @@
+{#
+/**
+ * @file
+ * Hero Para Estudantes (View banners / block_para_estudantes).
+ *
+ * Mesmo formato de Para Empresas: carrossel full-bleed + 2 CTAs em overlay.
+ * Variáveis: banner_slides (default.theme).
+ * Omite markup quando zero slides.
+ */
+#}
+{%
+  set classes = [
+    'view',
+    'view-' ~ id|clean_class,
+    'view-id-' ~ id,
+    'view-display-id-' ~ display_id,
+    'block-banner-para-estudantes',
+    dom_id ? 'js-view-dom-id-' ~ dom_id,
+  ]
+%}
+
+{{ attach_library('default/banner_para_estudantes') }}
+
+{% set slides = banner_slides|default([]) %}
+{% set carousel_id = 'banner-carousel-para-estudantes' %}
+{% set multi = slides|length > 1 %}
+
+{% if slides %}
+  <div{{ attributes.addClass(classes) }}>
+    {{ title_prefix }}
+    {% if title %}
+      {{ title }}
+    {% endif %}
+    {{ title_suffix }}
+
+    <div class="banner-para-estudantes-wrapper">
+      <div class="banner-para-estudantes__inner">
+        <section class="banner-para-estudantes" aria-label="{{ 'Para estudantes'|t }}">
+          <h1 class="visually-hidden">{{ 'Seu futuro profissional começa aqui.'|t }}</h1>
+
+          <div
+            id="{{ carousel_id }}"
+            class="carousel slide banner-para-estudantes__carousel{{ multi ? '' : ' banner-para-estudantes__carousel--single' }}"
+            {% if multi %}data-bs-ride="carousel" data-bs-interval="6000" data-bs-touch="true"{% endif %}
+          >
+            <div class="carousel-inner">
+              {% for slide in slides %}
+                <div class="carousel-item{{ loop.first ? ' active' }}">
+                  <picture>
+                    <source media="(max-width: 767.98px)" srcset="{{ slide.mobile|e('html_attr') }}">
+                    <img
+                      class="banner-para-estudantes__img d-block w-100"
+                      src="{{ slide.desktop|e('html_attr') }}"
+                      alt="{{ slide.alt|e('html_attr') }}"
+                      {% if loop.first %}fetchpriority="high" loading="eager"{% else %}loading="lazy"{% endif %}
+                    >
+                  </picture>
+                </div>
+              {% endfor %}
+            </div>
+
+            {% if multi %}
+              <button class="carousel-control-prev" type="button" data-bs-target="#{{ carousel_id }}" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">{{ 'Anterior'|t }}</span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#{{ carousel_id }}" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">{{ 'Próximo'|t }}</span>
+              </button>
+              <div class="carousel-indicators">
+                {% for slide in slides %}
+                  <button
+                    type="button"
+                    data-bs-target="#{{ carousel_id }}"
+                    data-bs-slide-to="{{ loop.index0 }}"
+                    class="{{ loop.first ? 'active' }}"
+                    {% if loop.first %}aria-current="true"{% endif %}
+                    aria-label="{{ 'Slide @n'|t({'@n': loop.index}) }}"
+                  ></button>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="banner-para-estudantes__ctas d-flex gap-3 flex-wrap">
+            <a class="banner-para-estudantes__btn banner-para-estudantes__btn--primary" href="/para-estudantes#main-content">{{ 'Encontrar minha vaga'|t }}</a>
+            <a class="banner-para-estudantes__btn banner-para-estudantes__btn--secondary" href="/cadastro/candidato">{{ 'Criar meu perfil'|t }}</a>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+{% endif %}

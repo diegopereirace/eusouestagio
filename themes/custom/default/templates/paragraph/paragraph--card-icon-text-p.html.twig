@@ -1,0 +1,40 @@
+{#
+/**
+ * @file
+ * Paragraph Card Ícone e Texto (card_icon_text_p).
+ */
+#}
+{%
+  set classes = [
+    'paragraph',
+    'paragraph--type--' ~ paragraph.bundle|clean_class,
+    view_mode ? 'paragraph--view-mode--' ~ view_mode|clean_class,
+    'col-12',
+    'col-md-6',
+    'col-lg-3',
+    'mb-4',
+  ]
+%}
+{% set card_title = content.field_text_simple|render|striptags|trim %}
+{% set card_text = content.field_text_simple_long|render|striptags|trim %}
+{% set has_icon = content.field_image['#items'] is defined and content.field_image['#items'][0] is defined and content.field_image['#items'][0].entity.uri.value is defined %}
+
+{% if has_icon or card_title or card_text %}
+  <div{{ attributes.addClass(classes) }}>
+    <div class="be-card text-center d-flex flex-column align-items-center h-100">
+      {% if has_icon %}
+        {% set icon_uri = content.field_image['#items'][0].entity.uri.value %}
+        {% set icon_alt = content.field_image['#items'][0].alt|default(card_title) %}
+        <div class="be-card__icon">
+          <img class="img-fluid" src="{{ file_url(icon_uri) }}" alt="{{ icon_alt }}" loading="lazy">
+        </div>
+      {% endif %}
+      {% if card_title %}
+        <h3 class="be-card__title">{{ card_title }}</h3>
+      {% endif %}
+      {% if card_text %}
+        <p class="be-card__text">{{ card_text }}</p>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}

@@ -1,0 +1,8 @@
+uuid: c0d1e2f3-a4b5-4678-c901-def012345678
+langcode: pt-br
+status: true
+dependencies: {  }
+id: beneficios_estudantes
+label: 'Benefícios Estudantes'
+revision: false
+description: 'Seção de benefícios (título, subtítulo e cards) na página Para Estudantes.'

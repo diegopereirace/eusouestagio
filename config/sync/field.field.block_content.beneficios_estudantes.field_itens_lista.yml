@@ -1,0 +1,31 @@
+uuid: c6d7e8f9-a0b1-4234-c567-3456789abcde
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.beneficios_estudantes
+    - field.storage.block_content.field_itens_lista
+    - paragraphs.paragraphs_type.card_icon_text_p
+  module:
+    - entity_reference_revisions
+id: block_content.beneficios_estudantes.field_itens_lista
+field_name: field_itens_lista
+entity_type: block_content
+bundle: beneficios_estudantes
+label: Cards
+description: 'Lista ilimitada de cards (ícone + título + texto).'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      card_icon_text_p: card_icon_text_p
+    negate: 0
+    target_bundles_drag_drop:
+      card_icon_text_p:
+        weight: 0
+        enabled: true
+field_type: entity_reference_revisions

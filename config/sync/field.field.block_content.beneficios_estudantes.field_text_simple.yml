@@ -1,0 +1,19 @@
+uuid: a4b5c6d7-e8f9-4012-a345-123456789abc
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.beneficios_estudantes
+    - field.storage.block_content.field_text_simple
+id: block_content.beneficios_estudantes.field_text_simple
+field_name: field_text_simple
+entity_type: block_content
+bundle: beneficios_estudantes
+label: 'Título da seção'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -100,6 +100,12 @@ diferenciais_quem_somos:
       assets/css/diferenciais-quem-somos.css: {}
   dependencies:
     - default/bootstrap
+beneficios_estudantes:
+  css:
+    component:
+      assets/css/beneficios-estudantes.css: {}
+  dependencies:
+    - default/bootstrap
 impact_numbers:
   css:
     component:

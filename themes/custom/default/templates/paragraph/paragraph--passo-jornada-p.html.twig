@@ -1,0 +1,34 @@
+{#
+/**
+ * @file
+ * Paragraph Passo da Jornada (passo_jornada_p).
+ *
+ * Badge numerada fica no Twig do bloco (loop.index / loop.last).
+ * Este template cobre preview/standalone sem badge sequencial.
+ */
+#}
+{%
+  set classes = [
+    'paragraph',
+    'paragraph--type--' ~ paragraph.bundle|clean_class,
+    view_mode ? 'paragraph--view-mode--' ~ view_mode|clean_class,
+    'col-12',
+    'col-md-6',
+    'col-lg-3',
+  ]
+%}
+{% set step_title = content.field_text_simple|render|striptags|trim %}
+{% set step_text = content.field_text_simple_long|render|striptags|trim %}
+
+{% if step_title or step_text %}
+  <div{{ attributes.addClass(classes) }}>
+    <div class="je-card text-center d-flex flex-column align-items-center">
+      {% if step_title %}
+        <h3 class="je-card__title">{{ step_title }}</h3>
+      {% endif %}
+      {% if step_text %}
+        <p class="je-card__text">{{ step_text }}</p>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}

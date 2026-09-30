@@ -1,0 +1,10 @@
+uuid: c1d2e3f4-a5b6-4789-c012-def123456789
+langcode: pt-br
+status: true
+dependencies: {  }
+id: passo_jornada_p
+label: 'Passo da Jornada'
+icon_uuid: null
+icon_default: null
+description: 'Passo numerado da seção Jornada do Estudante (título + descrição).'
+behavior_plugins: {  }

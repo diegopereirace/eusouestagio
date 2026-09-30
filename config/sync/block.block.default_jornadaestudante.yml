@@ -1,0 +1,28 @@
+uuid: a1b2c3d4-e5f6-4789-a012-789012345679
+langcode: pt-br
+status: true
+dependencies:
+  content:
+    - 'block_content:jornada_estudante:b9c0d1e2-f3a4-4567-b890-1cdef0123456'
+  module:
+    - block_content
+    - system
+  theme:
+    - default
+id: default_jornadaestudante
+theme: default
+region: content_full
+weight: 1
+provider: null
+plugin: 'block_content:b9c0d1e2-f3a4-4567-b890-1cdef0123456'
+settings:
+  id: 'block_content:b9c0d1e2-f3a4-4567-b890-1cdef0123456'
+  label: 'Jornada do Estudante'
+  label_display: '0'
+  provider: block_content
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /para-estudantes

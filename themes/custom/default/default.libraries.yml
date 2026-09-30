@@ -106,6 +106,12 @@ beneficios_estudantes:
       assets/css/beneficios-estudantes.css: {}
   dependencies:
     - default/bootstrap
+jornada_estudante:
+  css:
+    component:
+      assets/css/jornada-estudante.css: {}
+  dependencies:
+    - default/bootstrap
 impact_numbers:
   css:
     component:

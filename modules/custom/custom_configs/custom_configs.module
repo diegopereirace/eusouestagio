@@ -6,7 +6,85 @@
  */
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element;
 use Drupal\node\NodeInterface;
+
+/**
+ * Max passos allowlisted no form do bundle jornada_estudante (storage permanece -1).
+ */
+const CUSTOM_CONFIGS_JORNADA_ESTUDANTE_MAX_PASSOS = 4;
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter() for block_content_form.
+ *
+ * Limita field_itens_lista a 4 passos no bundle jornada_estudante sem mutar
+ * a cardinality do storage compartilhado.
+ */
+function custom_configs_form_block_content_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
+  $form_object = $form_state->getFormObject();
+  if (!is_object($form_object) || !method_exists($form_object, 'getEntity')) {
+    return;
+  }
+  $entity = $form_object->getEntity();
+  if (!$entity || $entity->bundle() !== 'jornada_estudante') {
+    return;
+  }
+  if (!isset($form['field_itens_lista']['widget'])) {
+    return;
+  }
+  $form['field_itens_lista']['widget']['#after_build'][] = '_custom_configs_jornada_estudante_limit_add_more';
+  $form['#validate'][] = '_custom_configs_jornada_estudante_max_passos_validate';
+}
+
+/**
+ * Oculta "Add more" / duplicate quando já há 4 passos.
+ */
+function _custom_configs_jornada_estudante_limit_add_more(array $element, FormStateInterface $form_state): array {
+  $count = 0;
+  foreach (Element::children($element) as $key) {
+    if (is_numeric($key)) {
+      $count++;
+    }
+  }
+  if ($count >= CUSTOM_CONFIGS_JORNADA_ESTUDANTE_MAX_PASSOS) {
+    unset($element['add_more']);
+    foreach (Element::children($element) as $key) {
+      if (!is_numeric($key)) {
+        continue;
+      }
+      unset($element[$key]['top']['links']['duplicate_button']);
+      unset($element[$key]['top']['links']['duplicate']);
+    }
+  }
+  return $element;
+}
+
+/**
+ * Rejeita submit com mais de 4 passos (bypass de UI).
+ */
+function _custom_configs_jornada_estudante_max_passos_validate(array &$form, FormStateInterface $form_state): void {
+  $values = $form_state->getValue('field_itens_lista');
+  if (!is_array($values)) {
+    return;
+  }
+  $count = 0;
+  foreach ($values as $key => $item) {
+    if (!is_numeric($key)) {
+      continue;
+    }
+    if (!empty($item['entity']) || !empty($item['target_id']) || !empty($item['subform'])) {
+      $count++;
+    }
+  }
+  if ($count > CUSTOM_CONFIGS_JORNADA_ESTUDANTE_MAX_PASSOS) {
+    $form_state->setErrorByName(
+      'field_itens_lista',
+      t('A Jornada do Estudante permite no máximo @max passos.', [
+        '@max' => CUSTOM_CONFIGS_JORNADA_ESTUDANTE_MAX_PASSOS,
+      ])
+    );
+  }
+}
 
 /**
  * Implements hook_webform_submission_form_alter().

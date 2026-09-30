@@ -1174,7 +1174,7 @@ function _custom_configs_seed_footer_menu_links(): string {
       ['title' => 'Nossa Metodologia', 'uri' => 'internal:/#nossa-metodologia', 'weight' => 2],
     ],
     'rodape---para-estudantes' => [
-      ['title' => 'Buscar vagas', 'uri' => 'internal:/para-estudantes', 'weight' => 0],
+      ['title' => 'Buscar vagas', 'uri' => 'internal:/vagas', 'weight' => 0],
       ['title' => 'Cadastro de Estudantes', 'uri' => 'internal:/cadastro/candidato', 'weight' => 1],
       ['title' => 'Acessar', 'uri' => 'internal:/user/login', 'weight' => 2],
     ],
@@ -8238,6 +8238,99 @@ function custom_configs_update_11039(): string {
 }
 
 /**
+ * Cards laranja em /para-estudantes: header, grid e css_class do display page_1.
+ */
+function custom_configs_update_11040(): string {
+  return _custom_configs_ensure_vagas_page_1_cards_destaque();
+}
+
+/**
+ * Garante display page_1 da View vagas com header, row_class e css_class alvo.
+ *
+ * Idempotente: salva só se houver diff. Não altera block_1/block_2/filtros/pager/path.
+ */
+function _custom_configs_ensure_vagas_page_1_cards_destaque(): string {
+  /** @var \Drupal\views\Entity\View|null $view */
+  $view = \Drupal\views\Entity\View::load('vagas');
+  if (!$view) {
+    return (string) t('View vagas ausente — rode drush cim -y antes do updb.');
+  }
+
+  $displays = $view->get('display');
+  if (!isset($displays['page_1'])) {
+    return (string) t('Display page_1 da View vagas ausente.');
+  }
+
+  $options = &$displays['page_1']['display_options'];
+  $changed = FALSE;
+
+  $header_html = '<div class="mt-3 mb-3"><h3 class="text-title mb-0">Vagas de Destaque</h3></div>';
+  $current_header = (string) ($options['header']['area']['content']['value'] ?? '');
+  if ($current_header !== $header_html) {
+    $options['header'] = [
+      'area' => [
+        'id' => 'area',
+        'table' => 'views',
+        'field' => 'area',
+        'relationship' => 'none',
+        'group_type' => 'group',
+        'admin_label' => '',
+        'plugin_id' => 'text',
+        'empty' => FALSE,
+        'content' => [
+          'value' => $header_html,
+          'format' => 'full_html',
+        ],
+        'tokenize' => FALSE,
+      ],
+    ];
+    $options['defaults']['header'] = FALSE;
+    $changed = TRUE;
+  }
+  if (stripos($current_header, 'Ver todas as vagas') !== FALSE) {
+    // Defensivo: header alvo já aplicado acima remove o link circular.
+    $changed = TRUE;
+  }
+
+  $target_row_class = 'col-12 col-md-6 col-lg-4';
+  $current_row_class = (string) ($options['style']['options']['row_class'] ?? '');
+  $style_inherited = !isset($options['defaults']['style']) || $options['defaults']['style'] !== FALSE;
+  if ($style_inherited || $current_row_class !== $target_row_class) {
+    $options['style'] = [
+      'type' => 'default',
+      'options' => [
+        'grouping' => [],
+        'row_class' => $target_row_class,
+        'default_row_class' => TRUE,
+      ],
+    ];
+    $options['defaults']['style'] = FALSE;
+    $changed = TRUE;
+  }
+
+  $css_class = (string) ($options['css_class'] ?? '');
+  if (strpos($css_class, 'css-vagas-page') === FALSE) {
+    $options['css_class'] = trim($css_class . ' css-vagas-page container');
+    $options['defaults']['css_class'] = FALSE;
+    $changed = TRUE;
+  }
+  elseif (strpos($css_class, 'container') === FALSE) {
+    $options['css_class'] = trim($css_class . ' container');
+    $options['defaults']['css_class'] = FALSE;
+    $changed = TRUE;
+  }
+
+  if (!$changed) {
+    return (string) t('View vagas page_1 já alinhada (cards destaque / grid / header).');
+  }
+
+  $view->set('display', $displays);
+  $view->save();
+  return (string) t('View vagas page_1 atualizada (header Vagas de Destaque, row_class grid, css-vagas-page).');
+}
+
+
+/**
  * Garante paragraph/block types, field instances e displays Perfil em Destaque.
  */
 function _custom_configs_ensure_perfil_destaque_estudante_structure(): string {
@@ -8941,5 +9034,524 @@ function _custom_configs_ensure_perfil_destaque_estudante_placement(): string {
   }
 
   return (string) t('Placement default_perfildestaqueestudante já ok.');
+}
+
+/**
+ * Landing /para-estudantes (shell Node) + listagem /vagas + block_3 destaque.
+ *
+ * Ordem: path page_1 → /vagas; ensure block_3; shell Node + alias;
+ * hide title; placement block_3; filtros expostos → /vagas; links Home header.
+ * Deploy: cim → updb → cim → cr.
+ */
+function custom_configs_update_11041(): string {
+  $messages = [
+    _custom_configs_ensure_vagas_page_1_path_vagas(),
+    _custom_configs_ensure_vagas_block_3_destaque(),
+    _custom_configs_ensure_vagas_default_header_links_vagas(),
+    _custom_configs_ensure_para_estudantes_as_page(),
+    _custom_configs_ensure_page_title_hides_para_estudantes(),
+    _custom_configs_ensure_vagas_block_3_placement(),
+    _custom_configs_ensure_formulario_exposto_vagas_pages_vagas(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Garante page_1 da View vagas com path /vagas (libera alias /para-estudantes).
+ */
+function _custom_configs_ensure_vagas_page_1_path_vagas(): string {
+  /** @var \Drupal\views\Entity\View|null $view */
+  $view = \Drupal\views\Entity\View::load('vagas');
+  if (!$view) {
+    return (string) t('View vagas ausente — rode drush cim -y antes do updb.');
+  }
+
+  $displays = $view->get('display');
+  if (!isset($displays['page_1'])) {
+    return (string) t('Display page_1 da View vagas ausente.');
+  }
+
+  $options = &$displays['page_1']['display_options'];
+  $changed = FALSE;
+
+  $current_path = (string) ($options['path'] ?? '');
+  if ($current_path !== 'vagas') {
+    $options['path'] = 'vagas';
+    $changed = TRUE;
+  }
+
+  if (($displays['page_1']['display_title'] ?? '') !== 'P. Listagem Vagas') {
+    $displays['page_1']['display_title'] = 'P. Listagem Vagas';
+    $changed = TRUE;
+  }
+
+  if (($options['title'] ?? '') !== 'Vagas') {
+    $options['title'] = 'Vagas';
+    $options['defaults']['title'] = FALSE;
+    $changed = TRUE;
+  }
+
+  if (!$changed) {
+    return (string) t('View vagas page_1 já em path /vagas.');
+  }
+
+  $view->set('display', $displays);
+  $view->save();
+  return (string) t('View vagas page_1 path alterado para /vagas.');
+}
+
+/**
+ * Garante display block_3 (3 itens, header Ver todas → /vagas).
+ */
+function _custom_configs_ensure_vagas_block_3_destaque(): string {
+  /** @var \Drupal\views\Entity\View|null $view */
+  $view = \Drupal\views\Entity\View::load('vagas');
+  if (!$view) {
+    return (string) t('View vagas ausente — block_3 ignorado.');
+  }
+
+  $displays = $view->get('display');
+  $header_html = '<div class="d-flex align-items-center justify-content-between pb-4" id="vagas-pe-header">'
+    . "\r\n\t" . '<div class="block-left">'
+    . "\r\n\t\t" . '<h3 class="text-title mb-0">Vagas de Destaque</h3>'
+    . "\r\n\t" . '</div>'
+    . "\r\n\t" . '<div class="block-right d-none d-md-block" id="mais-vagas-pe-desktop">'
+    . "\r\n\t\t" . '<a href="/vagas" class="text-decoration-none link--primary">Ver todas as vagas <i class="fa-solid fa-angle-right"></i></a>'
+    . "\r\n\t" . '</div>'
+    . "\r\n" . '</div>';
+  $footer_html = '<div class="block-bottom text-center d-block d-md-none pt-4" id="mais-vagas-pe-mobile">'
+    . "\r\n    " . '<a href="/vagas" class="text-decoration-none link--primary">Ver todas as vagas <i class="fa-solid fa-angle-right"></i></a>'
+    . "\r\n" . '</div>';
+
+  if (!isset($displays['block_3'])) {
+    // Preferir config importada; se ausente, clonar campos do block_1.
+    if (!isset($displays['block_1'])) {
+      return (string) t('block_1 ausente — não foi possível clonar block_3.');
+    }
+    $displays['block_3'] = $displays['block_1'];
+    $displays['block_3']['id'] = 'block_3';
+    $displays['block_3']['display_title'] = 'B. Vagas Para Estudantes';
+    $displays['block_3']['position'] = 5;
+    $displays['block_3']['display_options']['pager'] = [
+      'type' => 'some',
+      'options' => [
+        'offset' => 0,
+        'items_per_page' => 3,
+      ],
+    ];
+    $displays['block_3']['display_options']['style'] = [
+      'type' => 'default',
+      'options' => [
+        'grouping' => [],
+        'row_class' => 'col-12 col-md-6 col-lg-4',
+        'default_row_class' => TRUE,
+      ],
+    ];
+    $displays['block_3']['display_options']['css_class'] = 'css-vagas-home container';
+    $displays['block_3']['display_options']['defaults'] = [
+      'title' => FALSE,
+      'css_class' => FALSE,
+      'pager' => FALSE,
+      'style' => FALSE,
+      'fields' => FALSE,
+      'header' => FALSE,
+      'footer' => FALSE,
+    ];
+    $displays['block_3']['display_options']['header'] = [
+      'area' => [
+        'id' => 'area',
+        'table' => 'views',
+        'field' => 'area',
+        'relationship' => 'none',
+        'group_type' => 'group',
+        'admin_label' => '',
+        'plugin_id' => 'text',
+        'empty' => FALSE,
+        'content' => [
+          'value' => $header_html,
+          'format' => 'full_html',
+        ],
+        'tokenize' => FALSE,
+      ],
+    ];
+    $displays['block_3']['display_options']['footer'] = [
+      'area' => [
+        'id' => 'area',
+        'table' => 'views',
+        'field' => 'area',
+        'relationship' => 'none',
+        'group_type' => 'group',
+        'admin_label' => '',
+        'plugin_id' => 'text',
+        'empty' => FALSE,
+        'content' => [
+          'value' => $footer_html,
+          'format' => 'full_html',
+        ],
+        'tokenize' => FALSE,
+      ],
+    ];
+    $displays['block_3']['display_options']['block_description'] = 'B. Vagas Para Estudantes';
+    $view->set('display', $displays);
+    $view->save();
+    return (string) t('Display block_3 criado (clone block_1 + header /vagas).');
+  }
+
+  $options = &$displays['block_3']['display_options'];
+  $changed = FALSE;
+
+  $pager_type = (string) ($options['pager']['type'] ?? '');
+  $items = (int) ($options['pager']['options']['items_per_page'] ?? 0);
+  if ($pager_type !== 'some' || $items !== 3) {
+    $options['pager'] = [
+      'type' => 'some',
+      'options' => [
+        'offset' => 0,
+        'items_per_page' => 3,
+      ],
+    ];
+    $options['defaults']['pager'] = FALSE;
+    $changed = TRUE;
+  }
+
+  $current_header = (string) ($options['header']['area']['content']['value'] ?? '');
+  if (stripos($current_header, 'href="/vagas"') === FALSE || stripos($current_header, 'Ver todas as vagas') === FALSE) {
+    $options['header'] = [
+      'area' => [
+        'id' => 'area',
+        'table' => 'views',
+        'field' => 'area',
+        'relationship' => 'none',
+        'group_type' => 'group',
+        'admin_label' => '',
+        'plugin_id' => 'text',
+        'empty' => FALSE,
+        'content' => [
+          'value' => $header_html,
+          'format' => 'full_html',
+        ],
+        'tokenize' => FALSE,
+      ],
+    ];
+    $options['defaults']['header'] = FALSE;
+    $changed = TRUE;
+  }
+
+  $current_footer = (string) ($options['footer']['area']['content']['value'] ?? '');
+  if (stripos($current_footer, 'href="/vagas"') === FALSE) {
+    $options['footer'] = [
+      'area' => [
+        'id' => 'area',
+        'table' => 'views',
+        'field' => 'area',
+        'relationship' => 'none',
+        'group_type' => 'group',
+        'admin_label' => '',
+        'plugin_id' => 'text',
+        'empty' => FALSE,
+        'content' => [
+          'value' => $footer_html,
+          'format' => 'full_html',
+        ],
+        'tokenize' => FALSE,
+      ],
+    ];
+    $options['defaults']['footer'] = FALSE;
+    $changed = TRUE;
+  }
+
+  $row_class = (string) ($options['style']['options']['row_class'] ?? '');
+  if ($row_class !== 'col-12 col-md-6 col-lg-4') {
+    $options['style'] = [
+      'type' => 'default',
+      'options' => [
+        'grouping' => [],
+        'row_class' => 'col-12 col-md-6 col-lg-4',
+        'default_row_class' => TRUE,
+      ],
+    ];
+    $options['defaults']['style'] = FALSE;
+    $changed = TRUE;
+  }
+
+  $css = (string) ($options['css_class'] ?? '');
+  if (strpos($css, 'css-vagas-home') === FALSE) {
+    $options['css_class'] = 'css-vagas-home container';
+    $options['defaults']['css_class'] = FALSE;
+    $changed = TRUE;
+  }
+
+  if (!$changed) {
+    return (string) t('Display block_3 já alinhado (3 itens / header /vagas).');
+  }
+
+  $view->set('display', $displays);
+  $view->save();
+  return (string) t('Display block_3 atualizado.');
+}
+
+/**
+ * Garante links “Ver todas as vagas” do display default (Home) → /vagas.
+ */
+function _custom_configs_ensure_vagas_default_header_links_vagas(): string {
+  /** @var \Drupal\views\Entity\View|null $view */
+  $view = \Drupal\views\Entity\View::load('vagas');
+  if (!$view) {
+    return (string) t('View vagas ausente — header default ignorado.');
+  }
+
+  $displays = $view->get('display');
+  if (!isset($displays['default'])) {
+    return (string) t('Display default da View vagas ausente.');
+  }
+
+  $options = &$displays['default']['display_options'];
+  $changed = FALSE;
+
+  $header = (string) ($options['header']['area']['content']['value'] ?? '');
+  if ($header !== '' && str_contains($header, '/para-estudantes')) {
+    $options['header']['area']['content']['value'] = str_replace('/para-estudantes', '/vagas', $header);
+    $changed = TRUE;
+  }
+
+  $footer = (string) ($options['footer']['area']['content']['value'] ?? '');
+  if ($footer !== '' && str_contains($footer, '/para-estudantes')) {
+    $options['footer']['area']['content']['value'] = str_replace('/para-estudantes', '/vagas', $footer);
+    $changed = TRUE;
+  }
+
+  if (!$changed) {
+    return (string) t('Header/footer default da View vagas já apontam para /vagas.');
+  }
+
+  $view->set('display', $displays);
+  $view->save();
+  return (string) t('Header/footer default da View vagas atualizados para /vagas.');
+}
+
+/**
+ * Garante Node page + alias /para-estudantes (shell de blocos).
+ */
+function _custom_configs_ensure_para_estudantes_as_page(): string {
+  $uuid = 'd0e1f2a3-b4c5-4678-9abc-def012345678';
+  $alias = '/para-estudantes';
+  $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+  $alias_storage = \Drupal::entityTypeManager()->getStorage('path_alias');
+  $messages = [];
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('node');
+  if (!isset($bundle_info['page'])) {
+    return (string) t('Bundle page ausente — rode drush cim -y (page) antes deste passo.');
+  }
+
+  $by_uuid = $node_storage->loadByProperties(['uuid' => $uuid]);
+  /** @var \Drupal\node\NodeInterface|null $node */
+  $node = $by_uuid ? reset($by_uuid) : NULL;
+
+  if ($node && $node->bundle() !== 'page') {
+    $node = NULL;
+    $messages[] = (string) t('UUID seed Para Estudantes colidiu com bundle inesperado — criando page sem UUID fixo.');
+  }
+
+  $existing_aliases = $alias_storage->loadByProperties(['alias' => $alias]);
+  foreach ($existing_aliases as $existing) {
+    $path = (string) $existing->getPath();
+    $target_nid = NULL;
+    if (preg_match('#^/node/(\d+)$#', $path, $matches)) {
+      $target_nid = (int) $matches[1];
+    }
+    $target_node = $target_nid ? $node_storage->load($target_nid) : NULL;
+    if ($node && $target_node && (int) $target_node->id() === (int) $node->id()) {
+      continue;
+    }
+    $existing->delete();
+    $messages[] = (string) t('Alias /para-estudantes legado (path @p, bundle @b) removido.', [
+      '@p' => $path,
+      '@b' => $target_node ? $target_node->bundle() : 'desconhecido',
+    ]);
+  }
+
+  if (!$node) {
+    $create = [
+      'type' => 'page',
+      'title' => 'Para Estudantes',
+      'status' => 1,
+      'uid' => 1,
+    ];
+    if (!$node_storage->loadByProperties(['uuid' => $uuid])) {
+      $create['uuid'] = $uuid;
+    }
+    $node = $node_storage->create($create);
+    $node->save();
+    $messages[] = (string) t('Página básica Para Estudantes criada (nid @nid).', [
+      '@nid' => $node->id(),
+    ]);
+  }
+  else {
+    $messages[] = (string) t('Página básica Para Estudantes (@uuid) já existe.', [
+      '@uuid' => $node->uuid(),
+    ]);
+  }
+
+  $system_path = '/node/' . $node->id();
+  $aliases_for_path = $alias_storage->loadByProperties(['path' => $system_path]);
+  $has_alias = FALSE;
+  foreach ($aliases_for_path as $path_alias) {
+    if ($path_alias->getAlias() === $alias) {
+      $has_alias = TRUE;
+      break;
+    }
+  }
+
+  if (!$has_alias) {
+    $alias_storage->create([
+      'path' => $system_path,
+      'alias' => $alias,
+      'langcode' => 'pt-br',
+    ])->save();
+    $messages[] = (string) t('Alias /para-estudantes criado → @p.', ['@p' => $system_path]);
+  }
+  else {
+    $messages[] = (string) t('Alias /para-estudantes já ok.');
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
+ * Garante /para-estudantes na lista negate do bloco default_page_title.
+ */
+function _custom_configs_ensure_page_title_hides_para_estudantes(): string {
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = \Drupal::entityTypeManager()
+    ->getStorage('block')
+    ->load('default_page_title');
+  if (!$block) {
+    return (string) t('Bloco default_page_title ausente — hide /para-estudantes ignorado.');
+  }
+
+  $visibility = $block->getVisibility();
+  $request_path = $visibility['request_path'] ?? [
+    'id' => 'request_path',
+    'negate' => TRUE,
+    'pages' => '',
+  ];
+  $pages = (string) ($request_path['pages'] ?? '');
+  $lines = preg_split('/\r\n|\r|\n/', $pages) ?: [];
+  $normalized = array_values(array_filter(array_map('trim', $lines), static fn(string $line): bool => $line !== ''));
+  if (in_array('/para-estudantes', $normalized, TRUE)) {
+    return (string) t('default_page_title já oculta /para-estudantes.');
+  }
+
+  $normalized[] = '/para-estudantes';
+  $request_path['pages'] = implode("\r\n", $normalized);
+  $request_path['negate'] = TRUE;
+  $block->setVisibilityConfig('request_path', $request_path);
+  $block->save();
+  return (string) t('default_page_title: /para-estudantes adicionado à lista negate.');
+}
+
+/**
+ * Garante placement default_views_block__vagas_block_3 em content_full weight 3.
+ */
+function _custom_configs_ensure_vagas_block_3_placement(): string {
+  $plugin = 'views_block:vagas-block_3';
+  $block_id = 'default_views_block__vagas_block_3';
+  $storage = \Drupal::entityTypeManager()->getStorage('block');
+
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = $storage->load($block_id);
+  if (!$block) {
+    $block = $storage->create([
+      'id' => $block_id,
+      'theme' => 'default',
+      'region' => 'content_full',
+      'weight' => 3,
+      'provider' => NULL,
+      'plugin' => $plugin,
+      'settings' => [
+        'id' => $plugin,
+        'label' => '',
+        'label_display' => '0',
+        'provider' => 'views',
+        'views_label' => '',
+        'items_per_page' => NULL,
+      ],
+      'visibility' => [
+        'request_path' => [
+          'id' => 'request_path',
+          'negate' => FALSE,
+          'pages' => '/para-estudantes',
+        ],
+      ],
+    ]);
+    $block->setStatus(TRUE);
+    $block->save();
+    return (string) t('Placement default_views_block__vagas_block_3 criado.');
+  }
+
+  $changed = FALSE;
+  if ($block->getRegion() !== 'content_full') {
+    $block->setRegion('content_full');
+    $changed = TRUE;
+  }
+  if ((int) $block->getWeight() !== 3) {
+    $block->setWeight(3);
+    $changed = TRUE;
+  }
+  $settings = $block->get('settings') ?: [];
+  if (($settings['label_display'] ?? NULL) !== '0') {
+    $settings['label_display'] = '0';
+    $block->set('settings', $settings);
+    $changed = TRUE;
+  }
+  if (!$block->status()) {
+    $block->setStatus(TRUE);
+    $changed = TRUE;
+  }
+  $visibility = $block->getVisibility();
+  $pages = (string) ($visibility['request_path']['pages'] ?? '');
+  if (trim($pages) !== '/para-estudantes') {
+    $block->setVisibilityConfig('request_path', [
+      'id' => 'request_path',
+      'negate' => FALSE,
+      'pages' => '/para-estudantes',
+    ]);
+    $changed = TRUE;
+  }
+
+  if ($changed) {
+    $block->save();
+    return (string) t('Placement default_views_block__vagas_block_3 atualizado.');
+  }
+
+  return (string) t('Placement default_views_block__vagas_block_3 já ok.');
+}
+
+/**
+ * Move visibility do formulário exposto page_1 para /vagas.
+ */
+function _custom_configs_ensure_formulario_exposto_vagas_pages_vagas(): string {
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = \Drupal::entityTypeManager()
+    ->getStorage('block')
+    ->load('default_formularioexpostovagaspage_1');
+  if (!$block) {
+    return (string) t('Placement default_formularioexpostovagaspage_1 ausente.');
+  }
+
+  $visibility = $block->getVisibility();
+  $pages = (string) ($visibility['request_path']['pages'] ?? '');
+  if (trim($pages) === '/vagas') {
+    return (string) t('Formulário exposto vagas já em /vagas.');
+  }
+
+  $block->setVisibilityConfig('request_path', [
+    'id' => 'request_path',
+    'negate' => FALSE,
+    'pages' => '/vagas',
+  ]);
+  $block->save();
+  return (string) t('Formulário exposto vagas: visibility → /vagas.');
 }
 

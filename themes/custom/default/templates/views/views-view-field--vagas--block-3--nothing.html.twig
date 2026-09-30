@@ -1,8 +1,10 @@
 {#
 /**
  * @file
- * Card de vaga — listagem Para Estudantes (page_1).
- * Paridade visual com Home (block_1); sem "Buscar mais vagas".
+ * Card de vaga — bloco Para Estudantes (destaque, 3 itens).
+ *
+ * Markup idêntico ao block_1 da Home; “Buscar mais vagas” usa a rota
+ * view.vagas.page_1 (/vagas).
  */
 #}
 {% set vaga_url = path('entity.node.canonical', {'node': row._entity.id}) %}
@@ -51,7 +53,7 @@
   {% set regime_label = row._entity.field_regime_t.0.entity.label %}
 {% endif %}
 
-{# Limites de caracteres alinhados à altura fixa do card (Figma / Home). #}
+{# Limites de caracteres alinhados à altura fixa do card (Figma). #}
 {% if title_text|length > 42 %}
   {% set title_text = title_text|slice(0, 41)|trim ~ '…' %}
 {% endif %}
@@ -92,6 +94,7 @@
 
     <div class="vaga-destaque__actions">
       <a href="{{ vaga_url }}" class="ui-btn ui-btn--destaque">{{ 'Inscreva-se'|t }}</a>
+      <a href="{{ path('view.vagas.page_1') }}" class="ui-btn ui-btn--destaque">{{ 'Buscar mais vagas'|t }}</a>
     </div>
   </div>
 </div>

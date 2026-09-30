@@ -3,7 +3,7 @@
  * Espelha o formato de Para Empresas. Tokens locais (não muta --brand-orange).
  */
 
-/* /para-estudantes é View page — body.path-para-estudantes. */
+/* /para-estudantes: Node shell + alias; body.path-para-estudantes via preprocess_html. */
 body.path-para-estudantes .region-wrapper-banner.full-width > .container {
 	max-width: none;
 	width: 100%;

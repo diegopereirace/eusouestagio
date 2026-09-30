@@ -130,6 +130,12 @@ cta_v1:
       assets/css/cta-v1.css: {}
   dependencies:
     - default/bootstrap
+cta_v1_para_estudantes:
+  css:
+    component:
+      assets/css/cta-v1-para-estudantes.css: {}
+  dependencies:
+    - default/bootstrap
 layout_contato:
   css:
     component:

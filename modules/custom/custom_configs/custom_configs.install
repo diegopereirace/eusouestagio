@@ -8264,7 +8264,7 @@ function _custom_configs_ensure_vagas_page_1_cards_destaque(): string {
   $options = &$displays['page_1']['display_options'];
   $changed = FALSE;
 
-  $header_html = '<div class="mt-3 mb-3"><h3 class="text-title mb-0">Vagas de Destaque</h3></div>';
+  $header_html = '<div class="mt-3 mb-3"><h3 class="text-title mb-0">Vagas</h3></div>';
   $current_header = (string) ($options['header']['area']['content']['value'] ?? '');
   if ($current_header !== $header_html) {
     $options['header'] = [
@@ -8326,7 +8326,7 @@ function _custom_configs_ensure_vagas_page_1_cards_destaque(): string {
 
   $view->set('display', $displays);
   $view->save();
-  return (string) t('View vagas page_1 atualizada (header Vagas de Destaque, row_class grid, css-vagas-page).');
+  return (string) t('View vagas page_1 atualizada (header Vagas, row_class grid, css-vagas-page).');
 }
 
 
@@ -9054,6 +9054,222 @@ function custom_configs_update_11041(): string {
     _custom_configs_ensure_formulario_exposto_vagas_pages_vagas(),
   ];
   return implode(' ', array_filter($messages));
+}
+
+/**
+ * Título do header de /vagas: "Vagas" (sem "de Destaque").
+ *
+ * Deploy: cim → updb → cim → cr.
+ */
+function custom_configs_update_11042(): string {
+  return _custom_configs_ensure_vagas_page_1_cards_destaque();
+}
+
+/**
+ * CTA final escuro em /para-estudantes (instância cta_v1 + placement w4).
+ *
+ * Seed UUID e1f2a3b4-…; placement default_ctav1paraestudantes weight 4.
+ * Deploy: cim → updb → cim → cr.
+ */
+function custom_configs_update_11043(): string {
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
+  if (!isset($bundle_info['cta_v1'])) {
+    return (string) t('Bundle cta_v1 ausente — rode drush cim -y antes do updb.');
+  }
+
+  $messages = [
+    _custom_configs_seed_cta_v1_para_estudantes(),
+    _custom_configs_ensure_cta_v1_para_estudantes_placement(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Seed idempotente do bloco CTA v1 Para Estudantes.
+ */
+function _custom_configs_seed_cta_v1_para_estudantes(): string {
+  $uuid = 'e1f2a3b4-c5d6-4789-d012-3ef012345678';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
+  if (!isset($bundle_info['cta_v1'])) {
+    return (string) t('Bundle cta_v1 ausente — rode drush cim -y antes do updb.');
+  }
+
+  $seed_title = 'Pronto para dar o próximo passo?';
+  $seed_subtitle = 'Junte-se a milhares de estudantes que já encontraram a oportunidade ideal através da nossa plataforma.';
+  $seed_primary = [
+    'uri' => 'internal:/cadastro/candidato',
+    'title' => 'Cadastre-se Gratuitamente',
+  ];
+  $seed_secondary = [
+    'uri' => 'internal:/vagas',
+    'title' => 'Explorar Vagas',
+  ];
+
+  if ($existing) {
+    /** @var \Drupal\block_content\BlockContentInterface $block */
+    $block = reset($existing);
+    $messages = [];
+    $changed = FALSE;
+
+    if ($block->hasField('field_text_simple') && $block->get('field_text_simple')->isEmpty()) {
+      $block->set('field_text_simple', $seed_title);
+      $changed = TRUE;
+      $messages[] = (string) t('Título CTA PE estudantes preenchido.');
+    }
+    if ($block->hasField('field_text_simple_long') && $block->get('field_text_simple_long')->isEmpty()) {
+      $block->set('field_text_simple_long', $seed_subtitle);
+      $changed = TRUE;
+      $messages[] = (string) t('Subtítulo CTA PE estudantes preenchido.');
+    }
+    if ($block->hasField('field_link') && $block->get('field_link')->isEmpty()) {
+      $block->set('field_link', $seed_primary);
+      $changed = TRUE;
+      $messages[] = (string) t('Botão primário CTA PE estudantes preenchido.');
+    }
+    if ($block->hasField('field_link_2') && $block->get('field_link_2')->isEmpty()) {
+      $block->set('field_link_2', $seed_secondary);
+      $changed = TRUE;
+      $messages[] = (string) t('Botão secundário CTA PE estudantes preenchido.');
+    }
+
+    if ($changed) {
+      $block->save();
+    }
+    if (!$messages) {
+      $messages[] = (string) t('Bloco CTA PE estudantes (@uuid) já existe — seed ignorado.', ['@uuid' => $uuid]);
+    }
+    return implode(' ', $messages);
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = $storage->create([
+    'type' => 'cta_v1',
+    'uuid' => $uuid,
+    'info' => 'CTA v1 Para Estudantes',
+    'status' => TRUE,
+    'field_text_simple' => $seed_title,
+    'field_text_simple_long' => $seed_subtitle,
+    'field_link' => $seed_primary,
+    'field_link_2' => $seed_secondary,
+  ]);
+  $block->save();
+
+  return (string) t('Bloco CTA PE estudantes seed criado (@uuid).', ['@uuid' => $uuid]);
+}
+
+/**
+ * Garante placement default_ctav1paraestudantes (content_full, weight 4).
+ */
+function _custom_configs_ensure_cta_v1_para_estudantes_placement(): string {
+  $plugin = 'block_content:e1f2a3b4-c5d6-4789-d012-3ef012345678';
+  $block_id = 'default_ctav1paraestudantes';
+  $placement_uuid = 'f2a3b4c5-d6e7-4890-e123-4f0123456789';
+  $storage = \Drupal::entityTypeManager()->getStorage('block');
+
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = $storage->load($block_id);
+  if (!$block) {
+    $block = $storage->create([
+      'id' => $block_id,
+      'uuid' => $placement_uuid,
+      'theme' => 'default',
+      'region' => 'content_full',
+      'weight' => 4,
+      'provider' => NULL,
+      'plugin' => $plugin,
+      'settings' => [
+        'id' => $plugin,
+        'label' => 'CTA v1 Para Estudantes',
+        'label_display' => '0',
+        'provider' => 'block_content',
+        'view_mode' => 'full',
+      ],
+      'visibility' => [
+        'request_path' => [
+          'id' => 'request_path',
+          'negate' => FALSE,
+          'pages' => '/para-estudantes',
+        ],
+      ],
+    ]);
+    $block->save();
+    return (string) t('Placement default_ctav1paraestudantes criado.');
+  }
+
+  $changed = FALSE;
+  if ($block->getPluginId() !== $plugin) {
+    $block->delete();
+    $block = $storage->create([
+      'id' => $block_id,
+      'uuid' => $placement_uuid,
+      'theme' => 'default',
+      'region' => 'content_full',
+      'weight' => 4,
+      'provider' => NULL,
+      'plugin' => $plugin,
+      'settings' => [
+        'id' => $plugin,
+        'label' => 'CTA v1 Para Estudantes',
+        'label_display' => '0',
+        'provider' => 'block_content',
+        'view_mode' => 'full',
+      ],
+      'visibility' => [
+        'request_path' => [
+          'id' => 'request_path',
+          'negate' => FALSE,
+          'pages' => '/para-estudantes',
+        ],
+      ],
+    ]);
+    $block->save();
+    return (string) t('Placement default_ctav1paraestudantes reapontado para @uuid.', [
+      '@uuid' => 'e1f2a3b4-c5d6-4789-d012-3ef012345678',
+    ]);
+  }
+  if ($block->getRegion() !== 'content_full') {
+    $block->setRegion('content_full');
+    $changed = TRUE;
+  }
+  if ((int) $block->getWeight() !== 4) {
+    $block->setWeight(4);
+    $changed = TRUE;
+  }
+  $settings = $block->get('settings') ?: [];
+  if (($settings['label_display'] ?? NULL) !== '0') {
+    $settings['label_display'] = '0';
+    $block->set('settings', $settings);
+    $changed = TRUE;
+  }
+  if (($settings['label'] ?? '') !== 'CTA v1 Para Estudantes') {
+    $settings['label'] = 'CTA v1 Para Estudantes';
+    $block->set('settings', $settings);
+    $changed = TRUE;
+  }
+  if (!$block->status()) {
+    $block->setStatus(TRUE);
+    $changed = TRUE;
+  }
+  $visibility = $block->getVisibility();
+  $pages = (string) ($visibility['request_path']['pages'] ?? '');
+  if (trim($pages) !== '/para-estudantes') {
+    $block->setVisibilityConfig('request_path', [
+      'id' => 'request_path',
+      'negate' => FALSE,
+      'pages' => '/para-estudantes',
+    ]);
+    $changed = TRUE;
+  }
+
+  if ($changed) {
+    $block->save();
+    return (string) t('Placement default_ctav1paraestudantes atualizado (região/visibilidade).');
+  }
+
+  return (string) t('Placement default_ctav1paraestudantes já ok.');
 }
 
 /**

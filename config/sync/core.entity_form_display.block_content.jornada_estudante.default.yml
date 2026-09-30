@@ -1,0 +1,51 @@
+uuid: e9f0a1b2-c3d4-4567-e890-567890123457
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.jornada_estudante
+    - field.field.block_content.jornada_estudante.field_itens_lista
+    - field.field.block_content.jornada_estudante.field_text_simple
+  module:
+    - paragraphs
+id: block_content.jornada_estudante.default
+targetEntityType: block_content
+bundle: jornada_estudante
+mode: default
+content:
+  field_itens_lista:
+    type: paragraphs
+    weight: 2
+    region: content
+    settings:
+      title: Passo
+      title_plural: Passos
+      edit_mode: open
+      closed_mode: summary
+      autocollapse: none
+      closed_mode_threshold: 0
+      add_mode: dropdown
+      form_display_mode: default
+      default_paragraph_type: passo_jornada_p
+      features:
+        collapse_edit_all: collapse_edit_all
+        duplicate: duplicate
+    third_party_settings: {  }
+  field_text_simple:
+    type: string_textfield
+    weight: 1
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  info:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  langcode: true

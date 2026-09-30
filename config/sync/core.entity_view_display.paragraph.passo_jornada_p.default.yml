@@ -1,0 +1,29 @@
+uuid: d8e9f0a1-b2c3-4456-d789-456789012346
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.passo_jornada_p.field_text_simple
+    - field.field.paragraph.passo_jornada_p.field_text_simple_long
+    - paragraphs.paragraphs_type.passo_jornada_p
+id: paragraph.passo_jornada_p.default
+targetEntityType: paragraph
+bundle: passo_jornada_p
+mode: default
+content:
+  field_text_simple:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_text_simple_long:
+    type: basic_string
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
+hidden: {  }

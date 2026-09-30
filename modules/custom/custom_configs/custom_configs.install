@@ -7701,3 +7701,516 @@ function _custom_configs_ensure_beneficios_estudantes_placement(): string {
   return (string) t('Placement default_beneficiosestudantes já ok.');
 }
 
+/**
+ * Jornada do Estudante: estrutura, seed (4 passos) e placement weight 1.
+ *
+ * Deploy destino: git pull → drush cim -y → drush updb -y → drush cim -y →
+ * drush cr (cim antes do updb; 2ª cim após seed UUID).
+ */
+function custom_configs_update_11037(): string {
+  $messages = [
+    _custom_configs_ensure_jornada_estudante_structure(),
+    _custom_configs_seed_jornada_estudante(),
+    _custom_configs_ensure_jornada_estudante_placement(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Garante paragraph/block types, field instances e displays Jornada do Estudante.
+ */
+function _custom_configs_ensure_jornada_estudante_structure(): string {
+  $parts = [];
+
+  if (!\Drupal\paragraphs\Entity\ParagraphsType::load('passo_jornada_p')) {
+    \Drupal\paragraphs\Entity\ParagraphsType::create([
+      'id' => 'passo_jornada_p',
+      'label' => 'Passo da Jornada',
+      'description' => 'Passo numerado da seção Jornada do Estudante (título + descrição).',
+    ])->save();
+    $parts[] = (string) t('Paragraph type passo_jornada_p criado.');
+  }
+
+  if (!\Drupal\block_content\Entity\BlockContentType::load('jornada_estudante')) {
+    \Drupal\block_content\Entity\BlockContentType::create([
+      'id' => 'jornada_estudante',
+      'label' => 'Jornada do Estudante',
+      'revision' => FALSE,
+      'description' => 'Seção de jornada (título + passos numerados) na página Para Estudantes.',
+    ])->save();
+    $parts[] = (string) t('Block type jornada_estudante criado.');
+  }
+
+  $paragraph_fields = [
+    'field_text_simple' => [
+      'label' => 'Título',
+      'required' => TRUE,
+      'settings' => [],
+    ],
+    'field_text_simple_long' => [
+      'label' => 'Descrição',
+      'required' => FALSE,
+      'settings' => [],
+    ],
+  ];
+  foreach ($paragraph_fields as $field_name => $definition) {
+    if (\Drupal\field\Entity\FieldConfig::loadByName('paragraph', 'passo_jornada_p', $field_name)) {
+      continue;
+    }
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('paragraph', $field_name);
+    if (!$storage) {
+      $parts[] = (string) t('Storage paragraph.@field ausente — rode drush cim -y.', ['@field' => $field_name]);
+      continue;
+    }
+    \Drupal\field\Entity\FieldConfig::create([
+      'field_storage' => $storage,
+      'bundle' => 'passo_jornada_p',
+      'label' => $definition['label'],
+      'required' => $definition['required'],
+      'settings' => $definition['settings'],
+      'translatable' => FALSE,
+    ])->save();
+    $parts[] = (string) t('Instance paragraph.passo_jornada_p.@field criada.', ['@field' => $field_name]);
+  }
+
+  $block_fields = [
+    'field_text_simple' => [
+      'label' => 'Título da seção',
+      'required' => FALSE,
+      'settings' => [],
+    ],
+    'field_itens_lista' => [
+      'label' => 'Passos',
+      'required' => FALSE,
+      'settings' => [
+        'handler' => 'default:paragraph',
+        'handler_settings' => [
+          'target_bundles' => ['passo_jornada_p' => 'passo_jornada_p'],
+          'negate' => 0,
+          'target_bundles_drag_drop' => [
+            'passo_jornada_p' => [
+              'weight' => 0,
+              'enabled' => TRUE,
+            ],
+          ],
+        ],
+      ],
+    ],
+  ];
+  foreach ($block_fields as $field_name => $definition) {
+    if (\Drupal\field\Entity\FieldConfig::loadByName('block_content', 'jornada_estudante', $field_name)) {
+      continue;
+    }
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('block_content', $field_name);
+    if (!$storage) {
+      $parts[] = (string) t('Storage block_content.@field ausente — rode drush cim -y.', ['@field' => $field_name]);
+      continue;
+    }
+    \Drupal\field\Entity\FieldConfig::create([
+      'field_storage' => $storage,
+      'bundle' => 'jornada_estudante',
+      'label' => $definition['label'],
+      'required' => $definition['required'],
+      'settings' => $definition['settings'],
+      'translatable' => FALSE,
+    ])->save();
+    $parts[] = (string) t('Instance block_content.jornada_estudante.@field criada.', ['@field' => $field_name]);
+  }
+
+  $parts[] = _custom_configs_ensure_jornada_estudante_displays();
+
+  if (!$parts) {
+    $parts[] = (string) t('Estrutura Jornada do Estudante já presente.');
+  }
+
+  return implode(' ', array_filter($parts));
+}
+
+/**
+ * Garante form/view displays do bloco e do paragraph Jornada do Estudante.
+ */
+function _custom_configs_ensure_jornada_estudante_displays(): string {
+  $messages = [];
+  $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+  $view_storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+
+  $p_form = $form_storage->load('paragraph.passo_jornada_p.default');
+  if (!$p_form) {
+    $p_form = $form_storage->create([
+      'targetEntityType' => 'paragraph',
+      'bundle' => 'passo_jornada_p',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $p_form_changed = FALSE;
+  $p_form_fields = [
+    'field_text_simple' => [
+      'type' => 'string_textfield',
+      'weight' => 0,
+      'region' => 'content',
+      'settings' => ['size' => 60, 'placeholder' => ''],
+      'third_party_settings' => [],
+    ],
+    'field_text_simple_long' => [
+      'type' => 'string_textarea',
+      'weight' => 1,
+      'region' => 'content',
+      'settings' => ['rows' => 4, 'placeholder' => ''],
+      'third_party_settings' => [],
+    ],
+  ];
+  foreach ($p_form_fields as $name => $component) {
+    if ($p_form->getComponent($name) === NULL) {
+      $p_form->setComponent($name, $component);
+      $p_form_changed = TRUE;
+    }
+  }
+  $p_form->removeComponent('created');
+  $p_form->removeComponent('status');
+  if ($p_form_changed || $p_form->isNew()) {
+    $p_form->save();
+    $messages[] = (string) t('Form display paragraph.passo_jornada_p atualizado.');
+  }
+
+  $p_view = $view_storage->load('paragraph.passo_jornada_p.default');
+  if (!$p_view) {
+    $p_view = $view_storage->create([
+      'targetEntityType' => 'paragraph',
+      'bundle' => 'passo_jornada_p',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $p_view_changed = FALSE;
+  $p_view_fields = [
+    'field_text_simple' => [
+      'type' => 'string',
+      'label' => 'hidden',
+      'settings' => ['link_to_entity' => FALSE],
+      'third_party_settings' => [],
+      'weight' => 0,
+      'region' => 'content',
+    ],
+    'field_text_simple_long' => [
+      'type' => 'basic_string',
+      'label' => 'hidden',
+      'settings' => [],
+      'third_party_settings' => [],
+      'weight' => 1,
+      'region' => 'content',
+    ],
+  ];
+  foreach ($p_view_fields as $name => $component) {
+    if ($p_view->getComponent($name) === NULL) {
+      $p_view->setComponent($name, $component);
+      $p_view_changed = TRUE;
+    }
+  }
+  if ($p_view_changed || $p_view->isNew()) {
+    $p_view->save();
+    $messages[] = (string) t('View display paragraph.passo_jornada_p atualizado.');
+  }
+
+  $b_form = $form_storage->load('block_content.jornada_estudante.default');
+  if (!$b_form) {
+    $b_form = $form_storage->create([
+      'targetEntityType' => 'block_content',
+      'bundle' => 'jornada_estudante',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $b_form_changed = FALSE;
+  $b_form_fields = [
+    'info' => [
+      'type' => 'string_textfield',
+      'weight' => 0,
+      'region' => 'content',
+      'settings' => ['size' => 60, 'placeholder' => ''],
+      'third_party_settings' => [],
+    ],
+    'field_text_simple' => [
+      'type' => 'string_textfield',
+      'weight' => 1,
+      'region' => 'content',
+      'settings' => ['size' => 60, 'placeholder' => ''],
+      'third_party_settings' => [],
+    ],
+    'field_itens_lista' => [
+      'type' => 'paragraphs',
+      'weight' => 2,
+      'region' => 'content',
+      'settings' => [
+        'title' => 'Passo',
+        'title_plural' => 'Passos',
+        'edit_mode' => 'open',
+        'closed_mode' => 'summary',
+        'autocollapse' => 'none',
+        'closed_mode_threshold' => 0,
+        'add_mode' => 'dropdown',
+        'form_display_mode' => 'default',
+        'default_paragraph_type' => 'passo_jornada_p',
+        'features' => [
+          'collapse_edit_all' => 'collapse_edit_all',
+          'duplicate' => 'duplicate',
+        ],
+      ],
+      'third_party_settings' => [],
+    ],
+  ];
+  foreach ($b_form_fields as $name => $component) {
+    if ($b_form->getComponent($name) === NULL) {
+      $b_form->setComponent($name, $component);
+      $b_form_changed = TRUE;
+    }
+  }
+  $b_form->removeComponent('langcode');
+  if ($b_form_changed || $b_form->isNew()) {
+    $b_form->save();
+    $messages[] = (string) t('Form display block_content.jornada_estudante atualizado.');
+  }
+
+  $b_view = $view_storage->load('block_content.jornada_estudante.default');
+  if (!$b_view) {
+    $b_view = $view_storage->create([
+      'targetEntityType' => 'block_content',
+      'bundle' => 'jornada_estudante',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $b_view_changed = FALSE;
+  $b_view_fields = [
+    'field_text_simple' => [
+      'type' => 'string',
+      'label' => 'hidden',
+      'settings' => ['link_to_entity' => FALSE],
+      'third_party_settings' => [],
+      'weight' => 0,
+      'region' => 'content',
+    ],
+    'field_itens_lista' => [
+      'type' => 'entity_reference_revisions_entity_view',
+      'label' => 'hidden',
+      'settings' => [
+        'view_mode' => 'default',
+        'link' => '',
+      ],
+      'third_party_settings' => [],
+      'weight' => 1,
+      'region' => 'content',
+    ],
+  ];
+  foreach ($b_view_fields as $name => $component) {
+    if ($b_view->getComponent($name) === NULL) {
+      $b_view->setComponent($name, $component);
+      $b_view_changed = TRUE;
+    }
+  }
+  $b_view->removeComponent('langcode');
+  if ($b_view_changed || $b_view->isNew()) {
+    $b_view->save();
+    $messages[] = (string) t('View display block_content.jornada_estudante atualizado.');
+  }
+
+  if (!$messages) {
+    $messages[] = (string) t('Displays Jornada do Estudante já ok.');
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
+ * Seed idempotente do bloco Jornada do Estudante (UUID fixo + 4 passos).
+ */
+function _custom_configs_seed_jornada_estudante(): string {
+  $uuid = 'b9c0d1e2-f3a4-4567-b890-1cdef0123456';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+
+  $items_seed = [
+    [
+      'label' => 'Crie seu perfil',
+      'text' => 'Mostre suas habilidades e formação de forma clara e atrativa.',
+    ],
+    [
+      'label' => 'Descubra oportunidades',
+      'text' => 'Receba recomendações inteligentes baseadas no seu perfil.',
+    ],
+    [
+      'label' => 'Candidate-se',
+      'text' => 'Com apenas um clique, envie seu perfil para as melhores vagas.',
+    ],
+    [
+      'label' => 'Comece sua carreira',
+      'text' => 'Acompanhe seus processos e celebre suas conquistas.',
+    ],
+  ];
+
+  $title_seed = 'Sua jornada até o sucesso';
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
+  if (!isset($bundle_info['jornada_estudante'])) {
+    return (string) t('Bundle jornada_estudante ausente — rode drush cim -y antes do updb.');
+  }
+
+  $paragraph_bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('paragraph');
+  if (!isset($paragraph_bundles['passo_jornada_p'])) {
+    return (string) t('Bundle passo_jornada_p ausente — rode drush cim -y antes do updb.');
+  }
+
+  if ($existing) {
+    /** @var \Drupal\block_content\BlockContentInterface $block */
+    $block = reset($existing);
+    $messages = [];
+    $changed = FALSE;
+
+    if ($block->hasField('field_text_simple') && $block->get('field_text_simple')->isEmpty()) {
+      $block->set('field_text_simple', $title_seed);
+      $changed = TRUE;
+      $messages[] = (string) t('Título seed preenchido.');
+    }
+
+    if ($block->hasField('field_itens_lista') && $block->get('field_itens_lista')->isEmpty()) {
+      $paragraphs = _custom_configs_build_jornada_estudante_paragraphs($items_seed);
+      if ($paragraphs !== []) {
+        $block->set('field_itens_lista', $paragraphs);
+        $changed = TRUE;
+        $messages[] = (string) t('@count passos seed anexados.', ['@count' => count($paragraphs)]);
+      }
+    }
+
+    if ($changed) {
+      $block->save();
+    }
+
+    if (!$messages) {
+      $messages[] = (string) t('Bloco Jornada do Estudante (@uuid) já existe — seed ignorado.', ['@uuid' => $uuid]);
+    }
+    return implode(' ', $messages);
+  }
+
+  $paragraphs = _custom_configs_build_jornada_estudante_paragraphs($items_seed);
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = $storage->create([
+    'type' => 'jornada_estudante',
+    'uuid' => $uuid,
+    'info' => 'Jornada do Estudante',
+    'status' => TRUE,
+    'field_text_simple' => $title_seed,
+    'field_itens_lista' => $paragraphs,
+  ]);
+  $block->save();
+
+  return (string) t('Bloco Jornada do Estudante seed criado (@uuid) com @count passos.', [
+    '@uuid' => $uuid,
+    '@count' => count($paragraphs),
+  ]);
+}
+
+/**
+ * Cria paragraphs passo_jornada_p a partir do seed (título + descrição).
+ *
+ * @param array<int, array{label: string, text: string}> $items_seed
+ *
+ * @return array<int, array{target_id: int|string, target_revision_id: int|string}>
+ */
+function _custom_configs_build_jornada_estudante_paragraphs(array $items_seed): array {
+  $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
+  $paragraphs = [];
+
+  foreach ($items_seed as $item) {
+    /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
+    $paragraph = $paragraph_storage->create([
+      'type' => 'passo_jornada_p',
+      'field_text_simple' => $item['label'],
+      'field_text_simple_long' => $item['text'],
+    ]);
+    $paragraph->save();
+
+    $paragraphs[] = [
+      'target_id' => $paragraph->id(),
+      'target_revision_id' => $paragraph->getRevisionId(),
+    ];
+  }
+
+  return $paragraphs;
+}
+
+/**
+ * Garante placement default_jornadaestudante em content_full weight 1 /para-estudantes.
+ */
+function _custom_configs_ensure_jornada_estudante_placement(): string {
+  $plugin = 'block_content:b9c0d1e2-f3a4-4567-b890-1cdef0123456';
+  $block_id = 'default_jornadaestudante';
+  $storage = \Drupal::entityTypeManager()->getStorage('block');
+
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = $storage->load($block_id);
+  if (!$block) {
+    $block = $storage->create([
+      'id' => $block_id,
+      'theme' => 'default',
+      'region' => 'content_full',
+      'weight' => 1,
+      'provider' => NULL,
+      'plugin' => $plugin,
+      'settings' => [
+        'id' => $plugin,
+        'label' => 'Jornada do Estudante',
+        'label_display' => '0',
+        'provider' => 'block_content',
+        'view_mode' => 'full',
+      ],
+      'visibility' => [
+        'request_path' => [
+          'id' => 'request_path',
+          'negate' => FALSE,
+          'pages' => '/para-estudantes',
+        ],
+      ],
+    ]);
+    $block->save();
+    return (string) t('Placement default_jornadaestudante criado.');
+  }
+
+  $changed = FALSE;
+  if ($block->getRegion() !== 'content_full') {
+    $block->setRegion('content_full');
+    $changed = TRUE;
+  }
+  if ((int) $block->getWeight() !== 1) {
+    $block->setWeight(1);
+    $changed = TRUE;
+  }
+  $settings = $block->get('settings') ?: [];
+  if (($settings['label_display'] ?? NULL) !== '0') {
+    $settings['label_display'] = '0';
+    $block->set('settings', $settings);
+    $changed = TRUE;
+  }
+  if (!$block->status()) {
+    $block->setStatus(TRUE);
+    $changed = TRUE;
+  }
+  $visibility = $block->getVisibility();
+  $pages = (string) ($visibility['request_path']['pages'] ?? '');
+  if (trim($pages) !== '/para-estudantes') {
+    $block->setVisibilityConfig('request_path', [
+      'id' => 'request_path',
+      'negate' => FALSE,
+      'pages' => '/para-estudantes',
+    ]);
+    $changed = TRUE;
+  }
+
+  if ($changed) {
+    $block->save();
+    return (string) t('Placement default_jornadaestudante atualizado (região/visibilidade).');
+  }
+
+  return (string) t('Placement default_jornadaestudante já ok.');
+}
+

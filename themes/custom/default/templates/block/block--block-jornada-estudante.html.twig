@@ -1,0 +1,59 @@
+{#
+/**
+ * @file
+ * Bloco Jornada do Estudante (bundle jornada_estudante).
+ *
+ * Suggestion Barrio: block__block_jornada_estudante.
+ * Badge: loop.index / loop.last (não persiste no banco).
+ */
+#}
+{{ attach_library('default/jornada_estudante') }}
+{%
+  set classes = [
+    'block',
+    'block-' ~ configuration.provider|clean_class,
+    'block-' ~ plugin_id|clean_class,
+    'block-jornada-estudante',
+  ]
+%}
+{% set title = content.field_text_simple|render|striptags|trim %}
+{% set item_items = content.field_itens_lista['#items']|default([]) %}
+{% set has_items = item_items is iterable and item_items|length > 0 %}
+
+<section{{ attributes.addClass(classes).setAttribute('id', 'jornada-estudante') }}>
+  {{ title_prefix }}{{ title_suffix }}
+  {% block content %}
+    <div{{ content_attributes.addClass('content') }}>
+      <div class="container je-container">
+        {% if title %}
+          <header class="je-header text-center">
+            <h2 class="je-header__title text-center">{{ title }}</h2>
+          </header>
+        {% endif %}
+
+        {% if has_items %}
+          <div class="row justify-content-center g-4 mt-4 je-grid">
+            {% for key, item in item_items %}
+              {% set step = item.entity %}
+              {% set step_title = step.field_text_simple.value|default('')|trim %}
+              {% set step_text = step.field_text_simple_long.value|default('')|trim %}
+              {% if step_title or step_text %}
+                <div class="col-12 col-md-6 col-lg-3">
+                  <div class="je-card text-center d-flex flex-column align-items-center">
+                    <span class="je-badge{% if loop.last %} je-badge--last{% endif %}" aria-hidden="true">{{ loop.index }}</span>
+                    {% if step_title %}
+                      <h3 class="je-card__title">{{ step_title }}</h3>
+                    {% endif %}
+                    {% if step_text %}
+                      <p class="je-card__text">{{ step_text }}</p>
+                    {% endif %}
+                  </div>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endblock %}
+</section>

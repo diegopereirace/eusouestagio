@@ -1,0 +1,19 @@
+uuid: b6c7d8e9-f0a1-4234-b567-4c5678901234
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_text_simple_long
+    - paragraphs.paragraphs_type.item_lista_icone_p
+id: paragraph.item_lista_icone_p.field_text_simple_long
+field_name: field_text_simple_long
+entity_type: paragraph
+bundle: item_lista_icone_p
+label: Descrição
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

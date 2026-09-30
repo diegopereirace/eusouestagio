@@ -1,0 +1,42 @@
+{#
+/**
+ * @file
+ * Paragraph Item de Lista com Ícone (item_lista_icone_p).
+ *
+ * Renderização principal ocorre no Twig do bloco (loop field_itens_lista).
+ * Este template cobre view modes/outros contextos que renderizam o paragraph.
+ */
+#}
+{%
+  set classes = [
+    'paragraph',
+    'paragraph--type--' ~ paragraph.bundle|clean_class,
+    view_mode ? 'paragraph--view-mode--' ~ view_mode|clean_class,
+    'pd-item',
+    'd-flex',
+    'gap-3',
+    'mb-4',
+  ]
+%}
+{% set item_title = content.field_text_simple|render|striptags|trim %}
+{% set item_text = content.field_text_simple_long|render|striptags|trim %}
+{% set has_icon = content.field_image['#items'] is defined and content.field_image['#items'][0] is defined and content.field_image['#items'][0].entity.uri.value is defined %}
+
+{% if has_icon or item_title or item_text %}
+  <div{{ attributes.addClass(classes) }}>
+    {% if has_icon %}
+      {% set icon_uri = content.field_image['#items'][0].entity.uri.value %}
+      <div class="pd-item__icon flex-shrink-0">
+        <img src="{{ file_url(icon_uri) }}" alt="" width="20" height="20" loading="lazy">
+      </div>
+    {% endif %}
+    <div class="pd-item__body">
+      {% if item_title %}
+        <h3 class="pd-item__title">{{ item_title }}</h3>
+      {% endif %}
+      {% if item_text %}
+        <p class="pd-item__text">{{ item_text }}</p>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}

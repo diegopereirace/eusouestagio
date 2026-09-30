@@ -1,0 +1,28 @@
+uuid: e5f6a7b8-c9d0-4123-e456-d4e567890123
+langcode: pt-br
+status: true
+dependencies:
+  content:
+    - 'block_content:perfil_destaque_estudante:c0d1e2f3-a4b5-4678-c901-2def01234567'
+  module:
+    - block_content
+    - system
+  theme:
+    - default
+id: default_perfildestaqueestudante
+theme: default
+region: content_full
+weight: 2
+provider: null
+plugin: 'block_content:c0d1e2f3-a4b5-4678-c901-2def01234567'
+settings:
+  id: 'block_content:c0d1e2f3-a4b5-4678-c901-2def01234567'
+  label: 'Perfil em Destaque'
+  label_display: '0'
+  provider: block_content
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /para-estudantes

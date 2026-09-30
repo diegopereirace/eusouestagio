@@ -1,0 +1,285 @@
+/**
+ * Perfil em Destaque (Estudante) — escopo isolado.
+ * Não alterar .block-beneficios-estudantes / .be-* /
+ * .block-jornada-estudante / .je-* / .hero-estudantes-wrapper.
+ */
+.section-perfil-destaque,
+.block-perfil-destaque-estudante {
+  overflow-x: hidden;
+  width: 100%;
+  margin: 0;
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+.section-perfil-destaque .pd-container,
+.block-perfil-destaque-estudante .pd-container {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 64px;
+  padding-bottom: 64px;
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+/* Coluna esquerda — proporção Figma 528×231 (Fill × Hug) */
+.section-perfil-destaque .pd-visual,
+.block-perfil-destaque-estudante .pd-visual {
+  position: relative;
+  width: 100%;
+  max-width: 528px;
+  aspect-ratio: 528 / 231;
+  margin: 0;
+  padding: 0 0 10px 10px;
+}
+
+.section-perfil-destaque .pd-visual__shadow,
+.block-perfil-destaque-estudante .pd-visual__shadow {
+  position: absolute;
+  z-index: 0;
+  left: 0;
+  top: 10px;
+  right: 10px;
+  bottom: 0;
+  border-radius: 16px;
+  background-color: #d6e4f7;
+  pointer-events: none;
+}
+
+.section-perfil-destaque .pd-profile-card,
+.block-perfil-destaque-estudante .pd-profile-card {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  padding: 1.25rem 1.5rem;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #d6e4f7;
+  box-shadow: 0 10px 28px rgba(148, 163, 184, 0.35);
+  transform: none;
+}
+
+.section-perfil-destaque .pd-profile-card__section,
+.block-perfil-destaque-estudante .pd-profile-card__section {
+  margin: 0;
+}
+
+.section-perfil-destaque .pd-profile-card__section--edu,
+.block-perfil-destaque-estudante .pd-profile-card__section--edu {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.section-perfil-destaque .pd-profile-card__heading,
+.block-perfil-destaque-estudante .pd-profile-card__heading {
+  margin: 0 0 0.65rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+  color: #0f172a;
+}
+
+.section-perfil-destaque .pd-profile-card__tags,
+.block-perfil-destaque-estudante .pd-profile-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.section-perfil-destaque .pd-profile-card__tag,
+.block-perfil-destaque-estudante .pd-profile-card__tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: 0.8125rem;
+  line-height: 1.25;
+  color: #2563eb;
+  background-color: #e8f0fe;
+}
+
+.section-perfil-destaque .pd-profile-card__edu,
+.block-perfil-destaque-estudante .pd-profile-card__edu {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.section-perfil-destaque .pd-profile-card__edu-icon,
+.block-perfil-destaque-estudante .pd-profile-card__edu-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background-color: #e8f0fe;
+  color: #1e40af;
+}
+
+.section-perfil-destaque .pd-profile-card__edu-body,
+.block-perfil-destaque-estudante .pd-profile-card__edu-body {
+  min-width: 0;
+}
+
+.section-perfil-destaque .pd-profile-card__edu-title,
+.block-perfil-destaque-estudante .pd-profile-card__edu-title {
+  margin: 0 0 0.15rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+  color: #0f172a;
+}
+
+.section-perfil-destaque .pd-profile-card__edu-meta,
+.block-perfil-destaque-estudante .pd-profile-card__edu-meta {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: #6b7280;
+}
+
+.section-perfil-destaque .pd-content,
+.block-perfil-destaque-estudante .pd-content {
+  max-width: 528px;
+}
+
+.section-perfil-destaque .pd-title,
+.block-perfil-destaque-estudante .pd-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 1.75rem;
+  line-height: 1.35;
+  color: #0f172a;
+  margin: 0 0 1.5rem;
+  max-width: 528px;
+}
+
+.section-perfil-destaque .pd-item,
+.block-perfil-destaque-estudante .pd-item {
+  align-items: flex-start;
+}
+
+.section-perfil-destaque .pd-item__icon,
+.block-perfil-destaque-estudante .pd-item__icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.section-perfil-destaque .pd-item__icon img,
+.block-perfil-destaque-estudante .pd-item__icon img {
+  display: block;
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.section-perfil-destaque .pd-item__title,
+.block-perfil-destaque-estudante .pd-item__title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 1.0625rem;
+  line-height: 1.35;
+  color: #9d4300;
+  margin: 0 0 0.35rem;
+}
+
+.section-perfil-destaque .pd-item__text,
+.block-perfil-destaque-estudante .pd-item__text {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: #45464d;
+  margin: 0;
+}
+
+.section-perfil-destaque .pd-cta,
+.block-perfil-destaque-estudante .pd-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 208px;
+  min-height: 44px;
+  padding: 0.625rem 1.5rem;
+  margin-top: 0.5rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  line-height: 1.25;
+  color: #ffffff;
+  background-color: #023c62;
+  border: none;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.section-perfil-destaque .pd-cta:hover,
+.section-perfil-destaque .pd-cta:focus,
+.block-perfil-destaque-estudante .pd-cta:hover,
+.block-perfil-destaque-estudante .pd-cta:focus {
+  color: #ffffff;
+  background-color: #012a45;
+  opacity: 0.95;
+  text-decoration: none;
+}
+
+@media (max-width: 991.98px) {
+  .section-perfil-destaque .pd-content,
+  .block-perfil-destaque-estudante .pd-content {
+    max-width: 100%;
+  }
+
+  .section-perfil-destaque .pd-title,
+  .block-perfil-destaque-estudante .pd-title {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .section-perfil-destaque .pd-container,
+  .block-perfil-destaque-estudante .pd-container {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  .section-perfil-destaque .pd-visual,
+  .block-perfil-destaque-estudante .pd-visual {
+    max-width: 100%;
+    aspect-ratio: auto;
+    padding: 0 0 8px 8px;
+  }
+
+  .section-perfil-destaque .pd-visual__shadow,
+  .block-perfil-destaque-estudante .pd-visual__shadow {
+    top: 8px;
+    right: 8px;
+  }
+
+  .section-perfil-destaque .pd-profile-card,
+  .block-perfil-destaque-estudante .pd-profile-card {
+    height: auto;
+    padding: 1.15rem 1.2rem;
+    gap: 1.15rem;
+  }
+
+  .section-perfil-destaque .pd-cta,
+  .block-perfil-destaque-estudante .pd-cta {
+    width: 100%;
+  }
+}

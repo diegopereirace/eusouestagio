@@ -1,0 +1,8 @@
+uuid: e3f4a5b6-c7d8-4901-e234-1f2345678901
+langcode: pt-br
+status: true
+dependencies: {  }
+id: perfil_destaque_estudante
+label: 'Perfil em Destaque'
+revision: false
+description: 'Seção Perfil em Destaque (ilustração + título + lista ícone/texto + CTA) na página Para Estudantes.'

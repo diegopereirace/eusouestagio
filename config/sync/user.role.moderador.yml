@@ -17,6 +17,7 @@ dependencies:
     - block_content.type.nossos_diferenciais
     - block_content.type.nossa_metodologia
     - block_content.type.o_que_fazemos_bt
+    - block_content.type.perfil_destaque_estudante
     - block_content.type.whatsapp
     - filter.format.full_html
     - filter.format.restricted_html
@@ -65,6 +66,7 @@ permissions:
   - 'create nossos_diferenciais block content'
   - 'create o_que_fazemos_bt block content'
   - 'create page content'
+  - 'create perfil_destaque_estudante block content'
   - 'create terms in regime'
   - 'create terms in tags'
   - 'create terms in tecnologias'
@@ -81,6 +83,7 @@ permissions:
   - 'delete any nossos_diferenciais block content'
   - 'delete any o_que_fazemos_bt block content'
   - 'delete any page content'
+  - 'delete any perfil_destaque_estudante block content'
   - 'delete any vagas content'
   - 'delete contato revisions'
   - 'delete own contato content'
@@ -107,6 +110,7 @@ permissions:
   - 'edit any nossos_diferenciais block content'
   - 'edit any o_que_fazemos_bt block content'
   - 'edit any page content'
+  - 'edit any perfil_destaque_estudante block content'
   - 'edit any vagas content'
   - 'edit any whatsapp block content'
   - 'edit own contato content'

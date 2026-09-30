@@ -1,0 +1,43 @@
+uuid: b2c3d4e5-f6a7-4890-b123-a1b234567890
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.item_lista_icone_p.field_image
+    - field.field.paragraph.item_lista_icone_p.field_text_simple
+    - field.field.paragraph.item_lista_icone_p.field_text_simple_long
+    - paragraphs.paragraphs_type.item_lista_icone_p
+  module:
+    - image
+id: paragraph.item_lista_icone_p.default
+targetEntityType: paragraph
+bundle: item_lista_icone_p
+mode: default
+content:
+  field_image:
+    type: image
+    label: hidden
+    settings:
+      image_link: ''
+      image_style: ''
+      image_loading:
+        attribute: lazy
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_text_simple:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_text_simple_long:
+    type: basic_string
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 2
+    region: content
+hidden: {  }

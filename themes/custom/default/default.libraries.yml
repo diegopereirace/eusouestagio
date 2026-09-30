@@ -112,6 +112,12 @@ jornada_estudante:
       assets/css/jornada-estudante.css: {}
   dependencies:
     - default/bootstrap
+perfil_destaque_estudante:
+  css:
+    component:
+      assets/css/perfil-destaque-estudante.css: {}
+  dependencies:
+    - default/bootstrap
 impact_numbers:
   css:
     component:

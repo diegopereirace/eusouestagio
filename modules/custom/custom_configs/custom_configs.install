@@ -8214,3 +8214,732 @@ function _custom_configs_ensure_jornada_estudante_placement(): string {
   return (string) t('Placement default_jornadaestudante já ok.');
 }
 
+/**
+ * Feature 024: Perfil em Destaque (Estudante) — estrutura, seed e placement.
+ */
+function custom_configs_update_11038(): string {
+  $messages = [
+    _custom_configs_ensure_perfil_destaque_estudante_structure(),
+    _custom_configs_seed_perfil_destaque_estudante(),
+    _custom_configs_ensure_perfil_destaque_estudante_placement(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Remove ilustração cadastrável do Perfil em Destaque (coluna esquerda = mock HTML).
+ */
+function custom_configs_update_11039(): string {
+  $messages = [
+    _custom_configs_ensure_perfil_destaque_estudante_structure(),
+    _custom_configs_ensure_perfil_destaque_estudante_displays(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Garante paragraph/block types, field instances e displays Perfil em Destaque.
+ */
+function _custom_configs_ensure_perfil_destaque_estudante_structure(): string {
+  $parts = [];
+
+  if (!\Drupal\paragraphs\Entity\ParagraphsType::load('item_lista_icone_p')) {
+    \Drupal\paragraphs\Entity\ParagraphsType::create([
+      'id' => 'item_lista_icone_p',
+      'label' => 'Item de Lista com Ícone',
+      'description' => 'Item de lista com ícone, título e descrição para a seção Perfil em Destaque.',
+    ])->save();
+    $parts[] = (string) t('Paragraph type item_lista_icone_p criado.');
+  }
+
+  if (!\Drupal\block_content\Entity\BlockContentType::load('perfil_destaque_estudante')) {
+    \Drupal\block_content\Entity\BlockContentType::create([
+      'id' => 'perfil_destaque_estudante',
+      'label' => 'Perfil em Destaque',
+      'revision' => FALSE,
+      'description' => 'Seção Perfil em Destaque (mock visual HTML + título + lista ícone/texto + CTA) na página Para Estudantes.',
+    ])->save();
+    $parts[] = (string) t('Block type perfil_destaque_estudante criado.');
+  }
+
+  $paragraph_fields = [
+    'field_image' => [
+      'label' => 'Ícone',
+      'required' => FALSE,
+      'settings' => [
+        'handler' => 'default:file',
+        'handler_settings' => [],
+        'file_directory' => 'paragraph/item-lista-icone/[date:custom:Y]-[date:custom:m]',
+        'file_extensions' => 'png gif jpg jpeg webp svg',
+        'max_filesize' => '',
+        'max_resolution' => '',
+        'min_resolution' => '',
+        'alt_field' => TRUE,
+        'alt_field_required' => FALSE,
+        'title_field' => TRUE,
+        'title_field_required' => FALSE,
+        'default_image' => [
+          'uuid' => NULL,
+          'alt' => '',
+          'title' => '',
+          'width' => NULL,
+          'height' => NULL,
+        ],
+      ],
+    ],
+    'field_text_simple' => [
+      'label' => 'Título',
+      'required' => TRUE,
+      'settings' => [],
+    ],
+    'field_text_simple_long' => [
+      'label' => 'Descrição',
+      'required' => FALSE,
+      'settings' => [],
+    ],
+  ];
+  foreach ($paragraph_fields as $field_name => $definition) {
+    if (\Drupal\field\Entity\FieldConfig::loadByName('paragraph', 'item_lista_icone_p', $field_name)) {
+      continue;
+    }
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('paragraph', $field_name);
+    if (!$storage) {
+      $parts[] = (string) t('Storage paragraph.@field ausente — rode drush cim -y.', ['@field' => $field_name]);
+      continue;
+    }
+    \Drupal\field\Entity\FieldConfig::create([
+      'field_storage' => $storage,
+      'bundle' => 'item_lista_icone_p',
+      'label' => $definition['label'],
+      'required' => $definition['required'],
+      'settings' => $definition['settings'],
+      'translatable' => FALSE,
+    ])->save();
+    $parts[] = (string) t('Instance paragraph.item_lista_icone_p.@field criada.', ['@field' => $field_name]);
+  }
+
+  // Coluna esquerda é mock HTML/CSS no Twig — sem field_image no bloco.
+  $legacy_image = \Drupal\field\Entity\FieldConfig::loadByName('block_content', 'perfil_destaque_estudante', 'field_image');
+  if ($legacy_image) {
+    $legacy_image->delete();
+    $parts[] = (string) t('Instance block_content.perfil_destaque_estudante.field_image removida (mock HTML).');
+  }
+
+  $block_fields = [
+    'field_text_simple' => [
+      'label' => 'Título da seção',
+      'required' => FALSE,
+      'settings' => [],
+    ],
+    'field_itens_lista' => [
+      'label' => 'Itens',
+      'required' => FALSE,
+      'settings' => [
+        'handler' => 'default:paragraph',
+        'handler_settings' => [
+          'target_bundles' => ['item_lista_icone_p' => 'item_lista_icone_p'],
+          'negate' => 0,
+          'target_bundles_drag_drop' => [
+            'item_lista_icone_p' => [
+              'weight' => 0,
+              'enabled' => TRUE,
+            ],
+          ],
+        ],
+      ],
+    ],
+    'field_link' => [
+      'label' => 'CTA',
+      'required' => FALSE,
+      'settings' => [
+        'title' => 2,
+        'link_type' => 17,
+      ],
+    ],
+  ];
+  foreach ($block_fields as $field_name => $definition) {
+    if (\Drupal\field\Entity\FieldConfig::loadByName('block_content', 'perfil_destaque_estudante', $field_name)) {
+      continue;
+    }
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('block_content', $field_name);
+    if (!$storage) {
+      $parts[] = (string) t('Storage block_content.@field ausente — rode drush cim -y.', ['@field' => $field_name]);
+      continue;
+    }
+    \Drupal\field\Entity\FieldConfig::create([
+      'field_storage' => $storage,
+      'bundle' => 'perfil_destaque_estudante',
+      'label' => $definition['label'],
+      'required' => $definition['required'],
+      'settings' => $definition['settings'],
+      'translatable' => FALSE,
+    ])->save();
+    $parts[] = (string) t('Instance block_content.perfil_destaque_estudante.@field criada.', ['@field' => $field_name]);
+  }
+
+  $parts[] = _custom_configs_ensure_perfil_destaque_estudante_displays();
+
+  if (!$parts) {
+    $parts[] = (string) t('Estrutura Perfil em Destaque já presente.');
+  }
+
+  return implode(' ', array_filter($parts));
+}
+
+/**
+ * Garante form/view displays do bloco e do paragraph Perfil em Destaque.
+ */
+function _custom_configs_ensure_perfil_destaque_estudante_displays(): string {
+  $messages = [];
+  $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+  $view_storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+
+  $p_form = $form_storage->load('paragraph.item_lista_icone_p.default');
+  if (!$p_form) {
+    $p_form = $form_storage->create([
+      'targetEntityType' => 'paragraph',
+      'bundle' => 'item_lista_icone_p',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $p_form_changed = FALSE;
+  $p_form_fields = [
+    'field_image' => [
+      'type' => 'image_image',
+      'weight' => 0,
+      'region' => 'content',
+      'settings' => [
+        'progress_indicator' => 'throbber',
+        'preview_image_style' => 'thumbnail',
+      ],
+      'third_party_settings' => [],
+    ],
+    'field_text_simple' => [
+      'type' => 'string_textfield',
+      'weight' => 1,
+      'region' => 'content',
+      'settings' => ['size' => 60, 'placeholder' => ''],
+      'third_party_settings' => [],
+    ],
+    'field_text_simple_long' => [
+      'type' => 'string_textarea',
+      'weight' => 2,
+      'region' => 'content',
+      'settings' => ['rows' => 4, 'placeholder' => ''],
+      'third_party_settings' => [],
+    ],
+  ];
+  foreach ($p_form_fields as $name => $component) {
+    if ($p_form->getComponent($name) === NULL) {
+      $p_form->setComponent($name, $component);
+      $p_form_changed = TRUE;
+    }
+  }
+  $p_form->removeComponent('created');
+  $p_form->removeComponent('status');
+  if ($p_form_changed || $p_form->isNew()) {
+    $p_form->save();
+    $messages[] = (string) t('Form display paragraph.item_lista_icone_p atualizado.');
+  }
+
+  $p_view = $view_storage->load('paragraph.item_lista_icone_p.default');
+  if (!$p_view) {
+    $p_view = $view_storage->create([
+      'targetEntityType' => 'paragraph',
+      'bundle' => 'item_lista_icone_p',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $p_view_changed = FALSE;
+  $p_view_fields = [
+    'field_image' => [
+      'type' => 'image',
+      'label' => 'hidden',
+      'settings' => [
+        'image_link' => '',
+        'image_style' => '',
+        'image_loading' => ['attribute' => 'lazy'],
+      ],
+      'third_party_settings' => [],
+      'weight' => 0,
+      'region' => 'content',
+    ],
+    'field_text_simple' => [
+      'type' => 'string',
+      'label' => 'hidden',
+      'settings' => ['link_to_entity' => FALSE],
+      'third_party_settings' => [],
+      'weight' => 1,
+      'region' => 'content',
+    ],
+    'field_text_simple_long' => [
+      'type' => 'basic_string',
+      'label' => 'hidden',
+      'settings' => [],
+      'third_party_settings' => [],
+      'weight' => 2,
+      'region' => 'content',
+    ],
+  ];
+  foreach ($p_view_fields as $name => $component) {
+    if ($p_view->getComponent($name) === NULL) {
+      $p_view->setComponent($name, $component);
+      $p_view_changed = TRUE;
+    }
+  }
+  if ($p_view_changed || $p_view->isNew()) {
+    $p_view->save();
+    $messages[] = (string) t('View display paragraph.item_lista_icone_p atualizado.');
+  }
+
+  $b_form = $form_storage->load('block_content.perfil_destaque_estudante.default');
+  if (!$b_form) {
+    $b_form = $form_storage->create([
+      'targetEntityType' => 'block_content',
+      'bundle' => 'perfil_destaque_estudante',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $b_form_changed = FALSE;
+  $b_form_fields = [
+    'info' => [
+      'type' => 'string_textfield',
+      'weight' => 0,
+      'region' => 'content',
+      'settings' => ['size' => 60, 'placeholder' => ''],
+      'third_party_settings' => [],
+    ],
+    'field_text_simple' => [
+      'type' => 'string_textfield',
+      'weight' => 1,
+      'region' => 'content',
+      'settings' => ['size' => 60, 'placeholder' => ''],
+      'third_party_settings' => [],
+    ],
+    'field_itens_lista' => [
+      'type' => 'paragraphs',
+      'weight' => 2,
+      'region' => 'content',
+      'settings' => [
+        'title' => 'Item',
+        'title_plural' => 'Itens',
+        'edit_mode' => 'open',
+        'closed_mode' => 'summary',
+        'autocollapse' => 'none',
+        'closed_mode_threshold' => 0,
+        'add_mode' => 'dropdown',
+        'form_display_mode' => 'default',
+        'default_paragraph_type' => 'item_lista_icone_p',
+        'features' => [
+          'collapse_edit_all' => 'collapse_edit_all',
+          'duplicate' => 'duplicate',
+        ],
+      ],
+      'third_party_settings' => [],
+    ],
+    'field_link' => [
+      'type' => 'link_default',
+      'weight' => 3,
+      'region' => 'content',
+      'settings' => [
+        'placeholder_url' => '',
+        'placeholder_title' => '',
+      ],
+      'third_party_settings' => [],
+    ],
+  ];
+  foreach ($b_form_fields as $name => $component) {
+    if ($b_form->getComponent($name) === NULL) {
+      $b_form->setComponent($name, $component);
+      $b_form_changed = TRUE;
+    }
+  }
+  if ($b_form->getComponent('field_image') !== NULL) {
+    $b_form->removeComponent('field_image');
+    $b_form_changed = TRUE;
+  }
+  $b_form->removeComponent('langcode');
+  if ($b_form_changed || $b_form->isNew()) {
+    $b_form->save();
+    $messages[] = (string) t('Form display block_content.perfil_destaque_estudante atualizado.');
+  }
+
+  $b_view = $view_storage->load('block_content.perfil_destaque_estudante.default');
+  if (!$b_view) {
+    $b_view = $view_storage->create([
+      'targetEntityType' => 'block_content',
+      'bundle' => 'perfil_destaque_estudante',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $b_view_changed = FALSE;
+  $b_view_fields = [
+    'field_text_simple' => [
+      'type' => 'string',
+      'label' => 'hidden',
+      'settings' => ['link_to_entity' => FALSE],
+      'third_party_settings' => [],
+      'weight' => 0,
+      'region' => 'content',
+    ],
+    'field_itens_lista' => [
+      'type' => 'entity_reference_revisions_entity_view',
+      'label' => 'hidden',
+      'settings' => [
+        'view_mode' => 'default',
+        'link' => '',
+      ],
+      'third_party_settings' => [],
+      'weight' => 1,
+      'region' => 'content',
+    ],
+    'field_link' => [
+      'type' => 'link',
+      'label' => 'hidden',
+      'settings' => [
+        'trim_length' => 80,
+        'url_only' => FALSE,
+        'url_plain' => FALSE,
+        'rel' => '',
+        'target' => '',
+      ],
+      'third_party_settings' => [],
+      'weight' => 2,
+      'region' => 'content',
+    ],
+  ];
+  foreach ($b_view_fields as $name => $component) {
+    if ($b_view->getComponent($name) === NULL) {
+      $b_view->setComponent($name, $component);
+      $b_view_changed = TRUE;
+    }
+  }
+  if ($b_view->getComponent('field_image') !== NULL) {
+    $b_view->removeComponent('field_image');
+    $b_view_changed = TRUE;
+  }
+  $b_view->removeComponent('langcode');
+  if ($b_view_changed || $b_view->isNew()) {
+    $b_view->save();
+    $messages[] = (string) t('View display block_content.perfil_destaque_estudante atualizado.');
+  }
+
+  if (!$messages) {
+    $messages[] = (string) t('Displays Perfil em Destaque já ok.');
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
+ * Seed idempotente do bloco Perfil em Destaque (UUID fixo + 3 itens + CTA).
+ *
+ * Coluna esquerda: mock HTML no Twig — sem ilustração cadastrável.
+ */
+function _custom_configs_seed_perfil_destaque_estudante(): string {
+  $uuid = 'c0d1e2f3-a4b5-4678-c901-2def01234567';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+
+  $items_seed = [
+    [
+      'label' => 'Mostre suas habilidades',
+      'text' => 'Vá além do currículo padrão e destaque competências, formação e diferenciais do seu perfil.',
+      'file' => 'icon-1.png',
+    ],
+    [
+      'label' => 'Seja encontrado pelas empresas',
+      'text' => 'Recrutadores buscam ativamente candidatos com perfil completo e atualizado.',
+      'file' => 'icon-2.png',
+    ],
+    [
+      'label' => 'Receba oportunidades relevantes',
+      'text' => 'Notificações personalizadas quando surgirem vagas alinhadas ao seu perfil.',
+      'file' => 'icon-3.png',
+    ],
+  ];
+
+  $title_seed = 'Seu perfil em destaque';
+  $cta_title = 'Completar meu perfil';
+  $cta_uri = 'internal:/painel/estudante/perfil';
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
+  if (!isset($bundle_info['perfil_destaque_estudante'])) {
+    return (string) t('Bundle perfil_destaque_estudante ausente — rode drush cim -y antes do updb.');
+  }
+
+  $paragraph_bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('paragraph');
+  if (!isset($paragraph_bundles['item_lista_icone_p'])) {
+    return (string) t('Bundle item_lista_icone_p ausente — rode drush cim -y antes do updb.');
+  }
+
+  if ($existing) {
+    /** @var \Drupal\block_content\BlockContentInterface $block */
+    $block = reset($existing);
+    $messages = [];
+    $changed = FALSE;
+
+    if ($block->hasField('field_text_simple') && $block->get('field_text_simple')->isEmpty()) {
+      $block->set('field_text_simple', $title_seed);
+      $changed = TRUE;
+      $messages[] = (string) t('Título seed preenchido.');
+    }
+
+    if ($block->hasField('field_link') && $block->get('field_link')->isEmpty()) {
+      $block->set('field_link', [
+        'uri' => $cta_uri,
+        'title' => $cta_title,
+      ]);
+      $changed = TRUE;
+      $messages[] = (string) t('CTA seed preenchido.');
+    }
+
+    if ($block->hasField('field_itens_lista') && $block->get('field_itens_lista')->isEmpty()) {
+      $paragraphs = _custom_configs_build_perfil_destaque_estudante_paragraphs($items_seed);
+      if ($paragraphs !== []) {
+        $block->set('field_itens_lista', $paragraphs);
+        $changed = TRUE;
+        $messages[] = (string) t('@count itens seed anexados.', ['@count' => count($paragraphs)]);
+      }
+    }
+    else {
+      $icons_filled = _custom_configs_fill_perfil_destaque_estudante_icons($block, $items_seed);
+      if ($icons_filled > 0) {
+        $changed = TRUE;
+        $messages[] = (string) t('@count ícone(s) seed anexado(s).', ['@count' => $icons_filled]);
+      }
+    }
+
+    if ($changed) {
+      $block->save();
+    }
+
+    if (!$messages) {
+      $messages[] = (string) t('Bloco Perfil em Destaque (@uuid) já existe — seed ignorado.', ['@uuid' => $uuid]);
+    }
+    return implode(' ', $messages);
+  }
+
+  $paragraphs = _custom_configs_build_perfil_destaque_estudante_paragraphs($items_seed);
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = $storage->create([
+    'type' => 'perfil_destaque_estudante',
+    'uuid' => $uuid,
+    'info' => 'Perfil em Destaque',
+    'status' => TRUE,
+    'field_text_simple' => $title_seed,
+    'field_itens_lista' => $paragraphs,
+    'field_link' => [
+      'uri' => $cta_uri,
+      'title' => $cta_title,
+    ],
+  ]);
+  $block->save();
+
+  return (string) t('Bloco Perfil em Destaque seed criado (@uuid) com @count itens.', [
+    '@uuid' => $uuid,
+    '@count' => count($paragraphs),
+  ]);
+}
+
+/**
+ * Cria paragraphs item_lista_icone_p a partir do seed (título + texto + ícone).
+ *
+ * @param array<int, array{label: string, text: string, file: string}> $items_seed
+ *
+ * @return array<int, array{target_id: int|string, target_revision_id: int|string}>
+ */
+function _custom_configs_build_perfil_destaque_estudante_paragraphs(array $items_seed): array {
+  $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
+  $paragraphs = [];
+
+  foreach ($items_seed as $item) {
+    /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
+    $paragraph = $paragraph_storage->create([
+      'type' => 'item_lista_icone_p',
+      'field_text_simple' => $item['label'],
+      'field_text_simple_long' => $item['text'],
+    ]);
+    $paragraph->save();
+
+    $file = _custom_configs_seed_file_from_module_asset(
+      'perfil-destaque-estudante/' . $item['file'],
+      'public://perfil-destaque-estudante/' . $item['file'],
+      'paragraph',
+      (int) $paragraph->id()
+    );
+    if ($file && $paragraph->hasField('field_image')) {
+      $paragraph->set('field_image', [
+        'target_id' => $file->id(),
+        'alt' => $item['label'],
+      ]);
+      $paragraph->save();
+    }
+
+    $paragraphs[] = [
+      'target_id' => $paragraph->id(),
+      'target_revision_id' => $paragraph->getRevisionId(),
+    ];
+  }
+
+  return $paragraphs;
+}
+
+/**
+ * Anexa ícones seed aos itens existentes somente se field_image estiver vazio.
+ *
+ * @param array<int, array{label: string, text: string, file: string}> $items_seed
+ */
+function _custom_configs_fill_perfil_destaque_estudante_icons(
+  \Drupal\block_content\BlockContentInterface $block,
+  array $items_seed,
+): int {
+  if (!$block->hasField('field_itens_lista') || $block->get('field_itens_lista')->isEmpty()) {
+    return 0;
+  }
+
+  $filled = 0;
+  $new_refs = [];
+  $delta = 0;
+
+  foreach ($block->get('field_itens_lista') as $item) {
+    /** @var \Drupal\paragraphs\ParagraphInterface|null $paragraph */
+    $paragraph = $item->entity;
+    if (!$paragraph || !$paragraph->hasField('field_image')) {
+      $new_refs[] = [
+        'target_id' => $item->target_id,
+        'target_revision_id' => $item->target_revision_id,
+      ];
+      $delta++;
+      continue;
+    }
+
+    if (!$paragraph->get('field_image')->isEmpty()) {
+      $new_refs[] = [
+        'target_id' => $paragraph->id(),
+        'target_revision_id' => $paragraph->getRevisionId(),
+      ];
+      $delta++;
+      continue;
+    }
+
+    $seed = $items_seed[$delta] ?? NULL;
+    if ($seed === NULL) {
+      $new_refs[] = [
+        'target_id' => $paragraph->id(),
+        'target_revision_id' => $paragraph->getRevisionId(),
+      ];
+      $delta++;
+      continue;
+    }
+
+    $file = _custom_configs_seed_file_from_module_asset(
+      'perfil-destaque-estudante/' . $seed['file'],
+      'public://perfil-destaque-estudante/' . $seed['file'],
+      'paragraph',
+      (int) $paragraph->id()
+    );
+    if ($file) {
+      $alt = (string) ($paragraph->get('field_text_simple')->value ?? $seed['label']);
+      $paragraph->set('field_image', [
+        'target_id' => $file->id(),
+        'alt' => $alt,
+      ]);
+      $paragraph->save();
+      $filled++;
+    }
+
+    $new_refs[] = [
+      'target_id' => $paragraph->id(),
+      'target_revision_id' => $paragraph->getRevisionId(),
+    ];
+    $delta++;
+  }
+
+  if ($filled > 0) {
+    $block->set('field_itens_lista', $new_refs);
+  }
+
+  return $filled;
+}
+
+/**
+ * Garante placement default_perfildestaqueestudante em content_full weight 2 /para-estudantes.
+ */
+function _custom_configs_ensure_perfil_destaque_estudante_placement(): string {
+  $plugin = 'block_content:c0d1e2f3-a4b5-4678-c901-2def01234567';
+  $block_id = 'default_perfildestaqueestudante';
+  $storage = \Drupal::entityTypeManager()->getStorage('block');
+
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = $storage->load($block_id);
+  if (!$block) {
+    $block = $storage->create([
+      'id' => $block_id,
+      'theme' => 'default',
+      'region' => 'content_full',
+      'weight' => 2,
+      'provider' => NULL,
+      'plugin' => $plugin,
+      'settings' => [
+        'id' => $plugin,
+        'label' => 'Perfil em Destaque',
+        'label_display' => '0',
+        'provider' => 'block_content',
+        'view_mode' => 'full',
+      ],
+      'visibility' => [
+        'request_path' => [
+          'id' => 'request_path',
+          'negate' => FALSE,
+          'pages' => '/para-estudantes',
+        ],
+      ],
+    ]);
+    $block->save();
+    return (string) t('Placement default_perfildestaqueestudante criado.');
+  }
+
+  $changed = FALSE;
+  if ($block->getRegion() !== 'content_full') {
+    $block->setRegion('content_full');
+    $changed = TRUE;
+  }
+  if ((int) $block->getWeight() !== 2) {
+    $block->setWeight(2);
+    $changed = TRUE;
+  }
+  $settings = $block->get('settings') ?: [];
+  if (($settings['label_display'] ?? NULL) !== '0') {
+    $settings['label_display'] = '0';
+    $block->set('settings', $settings);
+    $changed = TRUE;
+  }
+  if (!$block->status()) {
+    $block->setStatus(TRUE);
+    $changed = TRUE;
+  }
+  $visibility = $block->getVisibility();
+  $pages = (string) ($visibility['request_path']['pages'] ?? '');
+  if (trim($pages) !== '/para-estudantes') {
+    $block->setVisibilityConfig('request_path', [
+      'id' => 'request_path',
+      'negate' => FALSE,
+      'pages' => '/para-estudantes',
+    ]);
+    $changed = TRUE;
+  }
+
+  if ($changed) {
+    $block->save();
+    return (string) t('Placement default_perfildestaqueestudante atualizado (região/visibilidade).');
+  }
+
+  return (string) t('Placement default_perfildestaqueestudante já ok.');
+}
+

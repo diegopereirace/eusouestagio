@@ -1,0 +1,28 @@
+uuid: f2a3b4c5-d6e7-4890-e123-4f0123456789
+langcode: pt-br
+status: true
+dependencies:
+  content:
+    - 'block_content:cta_v1:e1f2a3b4-c5d6-4789-d012-3ef012345678'
+  module:
+    - block_content
+    - system
+  theme:
+    - default
+id: default_ctav1paraestudantes
+theme: default
+region: content_full
+weight: 4
+provider: null
+plugin: 'block_content:e1f2a3b4-c5d6-4789-d012-3ef012345678'
+settings:
+  id: 'block_content:e1f2a3b4-c5d6-4789-d012-3ef012345678'
+  label: 'CTA v1 Para Estudantes'
+  label_display: '0'
+  provider: block_content
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /para-estudantes

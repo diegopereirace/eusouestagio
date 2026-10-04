@@ -1,32 +1,31 @@
 {#
 /**
  * @file
- * Card de vaga — listagem Para Estudantes (page_1).
- * Paridade visual com Home (block_1); sem "Buscar mais vagas".
+ * Card vertical branco — listagem /vagas (page_1).
+ * Classes .item-vaga--lista (nunca .item-vaga--destaque nesta rota).
+ * Feature 028 — isolado de Home (block_1) / PE (block_3) / similares.
  */
 #}
-{% set vaga_url = path('entity.node.canonical', {'node': row._entity.id}) %}
-{% set cursos_items = row._entity.field_cursos_t is defined and row._entity.field_cursos_t is not empty
-  ? row._entity.field_cursos_t
-  : [] %}
-{% set icon_class = 'briefcase' %}
-{% if cursos_items is not empty and cursos_items.0.entity %}
-  {% set curso_term = cursos_items.0.entity %}
-  {% if curso_term.hasField('field_icone_fa') and not curso_term.field_icone_fa.isEmpty %}
-    {% set icon_class = curso_term.field_icone_fa.value %}
-  {% endif %}
-{% endif %}
+{% set node = row._entity %}
+{% set vaga_url = path('entity.node.canonical', {'node': node.id}) %}
+{% set is_destaque = node.hasField('field_vaga_destaque')
+  and not node.field_vaga_destaque.isEmpty
+  and node.field_vaga_destaque.value %}
 
 {% set empresa = '' %}
-{% if row._entity.field_empresa_u is defined and row._entity.field_empresa_u is not empty and row._entity.field_empresa_u.entity %}
-  {% set empresa_user = row._entity.field_empresa_u.entity %}
+{% set logo_uri = '' %}
+{% if node.field_empresa_u is defined and node.field_empresa_u is not empty and node.field_empresa_u.entity %}
+  {% set empresa_user = node.field_empresa_u.entity %}
   {% if empresa_user.hasField('field_nome_fantasia') and not empresa_user.field_nome_fantasia.isEmpty %}
     {% set empresa = empresa_user.field_nome_fantasia.value %}
   {% endif %}
+  {% if empresa_user.hasField('user_picture') and not empresa_user.user_picture.isEmpty and empresa_user.user_picture.entity %}
+    {% set logo_uri = empresa_user.user_picture.entity.uri.value %}
+  {% endif %}
 {% endif %}
 
-{% set cidade = row._entity.field_cidade.value ?? '' %}
-{% set estado = row._entity.field_estados.value ?? '' %}
+{% set cidade = node.field_cidade.value ?? '' %}
+{% set estado = node.field_estados.value ?? '' %}
 {% set local = '' %}
 {% if cidade and estado %}
   {% set local = cidade ~ ', ' ~ estado %}
@@ -36,62 +35,120 @@
   {% set local = estado %}
 {% endif %}
 
+{% set title_text = node.title.value|default('') %}
+{% set bolsa_text = node.field_text_simple.value|default('') %}
+
+{% set regime_label = '' %}
+{% if node.field_regime_t is not empty and node.field_regime_t.0.entity %}
+  {% set regime_label = node.field_regime_t.0.entity.label %}
+{% endif %}
+
+{% set local_display = local %}
+{% if local and regime_label %}
+  {% set local_display = local ~ ' (' ~ regime_label ~ ')' %}
+{% elseif regime_label %}
+  {% set local_display = regime_label %}
+{% endif %}
+
 {% set meta_parts = [] %}
 {% if empresa %}
   {% set meta_parts = meta_parts|merge([empresa]) %}
 {% endif %}
-{% if local %}
-  {% set meta_parts = meta_parts|merge([local]) %}
+{% if local_display %}
+  {% set meta_parts = meta_parts|merge([local_display]) %}
 {% endif %}
 {% set meta_text = meta_parts|join(' • ') %}
-{% set title_text = row._entity.title.value|default('') %}
-{% set salario_text = row._entity.field_text_simple.value|default('') %}
-{% set regime_label = '' %}
-{% if row._entity.field_regime_t is not empty and row._entity.field_regime_t.0.entity %}
-  {% set regime_label = row._entity.field_regime_t.0.entity.label %}
+
+{% set carga_label = '' %}
+{% if node.field_horarios is not empty %}
+  {% set horarios_key = node.field_horarios.value %}
+  {% set allowed = node.field_horarios.fieldDefinition.getSetting('allowed_values') %}
+  {% if allowed[horarios_key] is defined %}
+    {% set carga_label = allowed[horarios_key] %}
+  {% else %}
+    {% set carga_label = horarios_key %}
+  {% endif %}
 {% endif %}
 
-{# Limites de caracteres alinhados à altura fixa do card (Figma / Home). #}
-{% if title_text|length > 42 %}
-  {% set title_text = title_text|slice(0, 41)|trim ~ '…' %}
+{% set tags = [] %}
+{% if node.field_text_simple_multiple_2 is defined and node.field_text_simple_multiple_2 is not empty %}
+  {% for item in node.field_text_simple_multiple_2 %}
+    {% if item.value %}
+      {% set tags = tags|merge([item.value]) %}
+    {% endif %}
+  {% endfor %}
 {% endif %}
-{% if meta_text|length > 48 %}
-  {% set meta_text = meta_text|slice(0, 47)|trim ~ '…' %}
+{% if tags is empty and node.field_cursos_t is defined and node.field_cursos_t is not empty %}
+  {% for item in node.field_cursos_t %}
+    {% if item.entity %}
+      {% set tags = tags|merge([item.entity.label]) %}
+    {% endif %}
+  {% endfor %}
 {% endif %}
-{% if salario_text|length > 28 %}
-  {% set salario_text = salario_text|slice(0, 27)|trim ~ '…' %}
-{% endif %}
-{% if regime_label|length > 14 %}
-  {% set regime_label = regime_label|slice(0, 13)|trim ~ '…' %}
+{% set tags_extra = tags|length > 3 ? tags|length - 3 : 0 %}
+{% set tags_show = tags|slice(0, 3) %}
+
+{% set card_classes = ['item-vaga', 'item-vaga--lista'] %}
+{% if is_destaque %}
+  {% set card_classes = card_classes|merge(['item-vaga--lista--destaque']) %}
 {% endif %}
 
-<div class="item-vaga item-vaga--destaque">
-  <div class="item-inner">
-    <div class="vaga-destaque__top">
-      <span class="vaga-destaque__icon" aria-hidden="true">
-        <i class="fa-solid fa-{{ icon_class }}"></i>
+<article class="{{ card_classes|join(' ') }}">
+  <div class="vaga-lista__inner">
+    {% if is_destaque %}
+      <span class="vaga-lista__badge">
+        <i class="fa-solid fa-star" aria-hidden="true"></i>
+        {{ 'Destaque'|t }}
       </span>
-      {% if regime_label %}
-        <span class="item-regime">{{ regime_label }}</span>
-      {% else %}
-        <span class="item-regime item-regime--empty" aria-hidden="true">&nbsp;</span>
+    {% endif %}
+
+    {% if logo_uri %}
+      <div class="vaga-lista__logo">
+        <img src="{{ file_url(logo_uri) }}" alt="" width="64" height="64" loading="lazy">
+      </div>
+    {% endif %}
+
+    <div class="vaga-lista__body">
+      <h3 class="vaga-lista__title">{{ title_text }}</h3>
+
+      {% if meta_text %}
+        <p class="vaga-lista__meta">{{ meta_text }}</p>
       {% endif %}
-    </div>
 
-    <div class="vaga-destaque__body">
-      <h3 class="vaga-destaque__title" title="{{ row._entity.title.value }}">{{ title_text }}</h3>
-      <p class="vaga-destaque__meta" title="{{ meta_parts|join(' • ') }}">{% if meta_text %}{{ meta_text }}{% else %}&nbsp;{% endif %}</p>
-    </div>
+      {% if bolsa_text or carga_label %}
+        <div class="vaga-lista__facts">
+          {% if bolsa_text %}
+            <span class="vaga-lista__bolsa">{{ bolsa_text }}</span>
+          {% endif %}
+          {% if carga_label %}
+            <span class="vaga-lista__carga">{{ carga_label }}</span>
+          {% endif %}
+        </div>
+      {% endif %}
 
-    <hr class="vaga-destaque__divider" aria-hidden="true">
+      {% if tags_show %}
+        <ul class="vaga-lista__tags">
+          {% for tag in tags_show %}
+            <li class="vaga-lista__tag">{{ tag }}</li>
+          {% endfor %}
+          {% if tags_extra > 0 %}
+            <li class="vaga-lista__tag vaga-lista__tag--more">+{{ tags_extra }}</li>
+          {% endif %}
+        </ul>
+      {% endif %}
 
-    <div class="vaga-destaque__salary-row">
-      <span class="dv-salario" title="{{ row._entity.field_text_simple.value|default('') }}">{% if salario_text %}{{ salario_text }}{% else %}&nbsp;{% endif %}</span>
-      <a href="{{ vaga_url }}" class="vaga-destaque__ver-mais">{{ 'Ver Mais'|t }}</a>
-    </div>
-
-    <div class="vaga-destaque__actions">
-      <a href="{{ vaga_url }}" class="ui-btn ui-btn--destaque">{{ 'Inscreva-se'|t }}</a>
+      <div class="vaga-lista__footer">
+        {% if vaga_published_ago %}
+          <p class="vaga-lista__published">{{ 'Vaga aberta há @interval'|t({'@interval': vaga_published_ago}) }}</p>
+        {% endif %}
+        <div class="vaga-lista__actions">
+          {% if is_destaque %}
+            <a href="{{ vaga_url }}" class="vaga-lista__cta vaga-lista__cta--rapida">{{ 'Candidatura Rápida'|t }}</a>
+          {% else %}
+            <a href="{{ vaga_url }}" class="vaga-lista__cta vaga-lista__cta--outline">{{ 'Ver Detalhes'|t }}</a>
+          {% endif %}
+        </div>
+      </div>
     </div>
   </div>
-</div>
+</article>

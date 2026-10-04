@@ -17,6 +17,7 @@ dependencies:
     - field.field.node.vagas.field_text_simple
     - field.field.node.vagas.field_text_simple_multiple
     - field.field.node.vagas.field_text_simple_multiple_2
+    - field.field.node.vagas.field_vaga_destaque
     - node.type.vagas
   module:
     - path
@@ -131,6 +132,13 @@ content:
     settings:
       size: 60
       placeholder: ''
+    third_party_settings: {  }
+  field_vaga_destaque:
+    type: boolean_checkbox
+    weight: 3
+    region: content
+    settings:
+      display_label: true
     third_party_settings: {  }
   path:
     type: path

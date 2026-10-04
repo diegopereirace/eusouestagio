@@ -8,6 +8,42 @@
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\node\NodeInterface;
+use Drupal\views\Plugin\views\query\QueryPluginBase;
+use Drupal\views\Plugin\views\query\Sql;
+use Drupal\views\ViewExecutable;
+
+/**
+ * Implements hook_views_query_alter().
+ *
+ * Feature 029: em /vagas (page_1), ajusta só a ordem de created (ASC/DESC)
+ * conforme ?sort_order=, mantendo field_vaga_destaque como sort primário.
+ */
+function custom_configs_views_query_alter(ViewExecutable $view, QueryPluginBase $query): void {
+  if ($view->id() !== 'vagas' || ($view->current_display ?? '') !== 'page_1') {
+    return;
+  }
+  if (!$query instanceof Sql) {
+    return;
+  }
+
+  $order = strtoupper((string) \Drupal::request()->query->get('sort_order', 'DESC'));
+  if ($order !== 'ASC' && $order !== 'DESC') {
+    $order = 'DESC';
+  }
+
+  foreach ($query->orderby as &$clause) {
+    $field = (string) ($clause['field'] ?? '');
+    if ($field === '' || !str_contains($field, 'created')) {
+      continue;
+    }
+    // Não alterar sorts de destaque / outros campos.
+    if (str_contains($field, 'field_vaga_destaque')) {
+      continue;
+    }
+    $clause['direction'] = $order;
+  }
+  unset($clause);
+}
 
 /**
  * Max passos allowlisted no form do bundle jornada_estudante (storage permanece -1).

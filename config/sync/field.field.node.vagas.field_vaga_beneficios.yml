@@ -1,0 +1,31 @@
+uuid: 456b0de2-cf89-4bd8-a5bc-4cb15723d9d2
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_vaga_beneficios
+    - node.type.vagas
+    - paragraphs.paragraphs_type.beneficio_vaga_p
+  module:
+    - entity_reference_revisions
+id: node.vagas.field_vaga_beneficios
+field_name: field_vaga_beneficios
+entity_type: node
+bundle: vagas
+label: Benefícios
+description: 'Benefícios com ícone e título (paragraph beneficio_vaga_p).'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      beneficio_vaga_p: beneficio_vaga_p
+    negate: 0
+    target_bundles_drag_drop:
+      beneficio_vaga_p:
+        weight: 0
+        enabled: true
+field_type: entity_reference_revisions

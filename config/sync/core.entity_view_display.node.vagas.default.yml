@@ -17,7 +17,11 @@ dependencies:
     - field.field.node.vagas.field_text_simple
     - field.field.node.vagas.field_text_simple_multiple
     - field.field.node.vagas.field_text_simple_multiple_2
+    - field.field.node.vagas.field_vaga_beneficios
     - field.field.node.vagas.field_vaga_destaque
+    - field.field.node.vagas.field_vaga_etapas_processo
+    - field.field.node.vagas.field_vaga_faq
+    - field.field.node.vagas.field_vaga_requisitos
     - node.type.vagas
   module:
     - options
@@ -128,5 +132,9 @@ content:
 hidden:
   field_candidatos_u: true
   field_empresa_u: true
+  field_vaga_beneficios: true
   field_vaga_destaque: true
+  field_vaga_etapas_processo: true
+  field_vaga_faq: true
+  field_vaga_requisitos: true
   langcode: true

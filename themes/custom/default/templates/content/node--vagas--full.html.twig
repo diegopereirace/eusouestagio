@@ -1,0 +1,362 @@
+{#
+/**
+ * @file
+ * Detalhe full da vaga — layout Figma duas colunas (feature 030).
+ * Sem Match. Sem Ver Empresa. Ações reutilizam script-painel.
+ */
+#}
+{{ attach_library('bootstrap_barrio/node') }}
+{{ attach_library('default/script-painel') }}
+{{ attach_library('default/vagas_detalhe') }}
+
+{%
+  set classes = [
+    'node',
+    'node--type-' ~ node.bundle|clean_class,
+    node.isPromoted() ? 'node--promoted',
+    node.isSticky() ? 'node--sticky',
+    not node.isPublished() ? 'node--unpublished',
+    view_mode ? 'node--view-mode-' ~ view_mode|clean_class,
+    'clearfix',
+    'vaga-detalhe',
+  ]
+%}
+
+{% set empresa = node.field_empresa_u.entity ?? null %}
+{% set empresa_nome = empresa and empresa.field_nome_fantasia.value ? empresa.field_nome_fantasia.value : 'Anônima'|t %}
+{% set logo_uri = '' %}
+{% if empresa and empresa.hasField('user_picture') and not empresa.user_picture.isEmpty and empresa.user_picture.entity %}
+  {% set logo_uri = empresa.user_picture.entity.uri.value %}
+{% endif %}
+{% set cidade = node.field_cidade.value %}
+{% set estado = node.field_estados.value %}
+{% set perfil_pct = vaga_perfil_completo|default(75) %}
+{% set perfil_url = '/painel/estudante/perfil' %}
+{% set login_perfil = '/user/login?destination=' ~ perfil_url|url_encode %}
+{% set canonical_path = path('entity.node.canonical', {'node': node.id}) %}
+
+<article{{ attributes.addClass(classes) }}>
+  <div class="container py-5">
+    <div class="row g-4">
+
+      {# —— Coluna principal —— #}
+      <div class="col-12 col-lg-8">
+
+        <header class="vaga-detalhe__header">
+          <div class="vaga-detalhe__header-top">
+            {% if logo_uri %}
+              <div class="vaga-detalhe__logo">
+                <img src="{{ file_url(logo_uri) }}" alt="" width="72" height="72" loading="lazy">
+              </div>
+            {% endif %}
+            <div class="vaga-detalhe__header-text">
+              <h1{{ title_attributes.addClass('vaga-detalhe__title') }}>{{ label }}</h1>
+              <p class="vaga-detalhe__empresa-nome">{{ empresa_nome }}</p>
+              {% if cidade or estado %}
+                <p class="vaga-detalhe__local">
+                  <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                  {% if cidade and estado %}{{ cidade }}, {{ estado }}
+                  {% elseif cidade %}{{ cidade }}
+                  {% else %}{{ estado }}
+                  {% endif %}
+                </p>
+              {% endif %}
+            </div>
+          </div>
+          <div class="vaga-detalhe__badges">
+            {% if node.field_regime_t is not empty %}
+              {% for item in node.field_regime_t %}
+                {% if item.entity %}
+                  <span class="vaga-detalhe__badge">{{ item.entity.label }}</span>
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+            {% if node.field_horarios is defined and node.field_horarios is not empty %}
+              {% set horarios_labels = [] %}
+              {% for item in node.field_horarios %}
+                {% if item.value %}
+                  {% set horarios_labels = horarios_labels|merge([item.value|capitalize]) %}
+                {% endif %}
+              {% endfor %}
+              {% if horarios_labels %}
+                <span class="vaga-detalhe__badge">{{ horarios_labels|join(', ') }}</span>
+              {% endif %}
+            {% endif %}
+            {% if node.field_text_simple.value %}
+              <span class="vaga-detalhe__badge vaga-detalhe__badge--bolsa">{{ node.field_text_simple.value }}</span>
+            {% endif %}
+            {% if vaga_postado_ha %}
+              <span class="vaga-detalhe__badge vaga-detalhe__badge--muted">{{ 'Postado há @time'|t({'@time': vaga_postado_ha}) }}</span>
+            {% endif %}
+          </div>
+        </header>
+
+        {% if node.field_text_long_formatted.value %}
+          <section class="vaga-detalhe__sobre">
+            <h2 class="vaga-detalhe__section-title">{{ 'Sobre a Vaga'|t }}</h2>
+            <div class="vaga-detalhe__section-body">
+              {{ node.field_text_long_formatted.value|raw }}
+            </div>
+          </section>
+        {% endif %}
+
+        {% set has_requisitos = node.hasField('field_vaga_requisitos') and node.field_vaga_requisitos is not empty %}
+        {% if has_requisitos %}
+          <section class="vaga-detalhe__requisitos">
+            <h2 class="vaga-detalhe__section-title">{{ 'Requisitos'|t }}</h2>
+            <ul class="vaga-detalhe__checks">
+              {% for item in node.field_vaga_requisitos %}
+                {% if item.value %}
+                  <li class="vaga-detalhe__check">
+                    <span class="vaga-detalhe__check-icon" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
+                    <span>{{ item.value }}</span>
+                  </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </section>
+        {% endif %}
+
+        {% set has_beneficios = node.hasField('field_vaga_beneficios') and node.field_vaga_beneficios is not empty %}
+        {% if has_beneficios %}
+          <section class="vaga-detalhe__beneficios">
+            <h2 class="vaga-detalhe__section-title">{{ 'Benefícios'|t }}</h2>
+            <div class="vaga-detalhe__beneficios-grid row g-3">
+              {% for item in node.field_vaga_beneficios %}
+                {% if item.entity %}
+                  {% set ben = item.entity %}
+                  {% set ben_title = ben.field_text_simple.value ?? '' %}
+                  {% set ben_icon = '' %}
+                  {% if ben.hasField('field_image') and not ben.field_image.isEmpty and ben.field_image.entity %}
+                    {% set ben_icon = ben.field_image.entity.uri.value %}
+                  {% endif %}
+                  {% if ben_title or ben_icon %}
+                    <div class="col-6 col-lg-3">
+                      <div class="vaga-detalhe__beneficio-card">
+                        <div class="vaga-detalhe__beneficio-icon">
+                          {% if ben_icon %}
+                            <img src="{{ file_url(ben_icon) }}" alt="" width="32" height="32" loading="lazy">
+                          {% else %}
+                            <i class="fa-solid fa-gift" aria-hidden="true"></i>
+                          {% endif %}
+                        </div>
+                        {% if ben_title %}
+                          <p class="vaga-detalhe__beneficio-title">{{ ben_title }}</p>
+                        {% endif %}
+                      </div>
+                    </div>
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+            </div>
+          </section>
+        {% endif %}
+
+        {% set has_etapas = node.hasField('field_vaga_etapas_processo') and node.field_vaga_etapas_processo is not empty %}
+        {% if has_etapas %}
+          <section class="vaga-detalhe__processo">
+            <h2 class="vaga-detalhe__section-title">{{ 'Processo de Contratação'|t }}</h2>
+            <ol class="vaga-detalhe__stepper">
+              {% for item in node.field_vaga_etapas_processo %}
+                {% if item.value %}
+                  <li class="vaga-detalhe__step{{ loop.last ? ' vaga-detalhe__step--last' : '' }}">
+                    <span class="vaga-detalhe__step-circle" aria-hidden="true">{{ loop.index }}</span>
+                    <span class="vaga-detalhe__step-label">{{ item.value }}</span>
+                  </li>
+                {% endif %}
+              {% endfor %}
+            </ol>
+          </section>
+        {% endif %}
+
+        {% if empresa %}
+          {% set sobre_empresa = empresa.field_sobre_empresa.value ?? '' %}
+          <section class="vaga-detalhe__empresa">
+            <h2 class="vaga-detalhe__section-title">{{ 'Sobre a Empresa'|t }}</h2>
+            <div class="vaga-detalhe__empresa-card">
+              <div class="vaga-detalhe__empresa-card-top">
+                {% if logo_uri %}
+                  <div class="vaga-detalhe__empresa-logo">
+                    <img src="{{ file_url(logo_uri) }}" alt="" width="56" height="56" loading="lazy">
+                  </div>
+                {% endif %}
+                <p class="vaga-detalhe__empresa-card-nome">{{ empresa_nome }}</p>
+              </div>
+              {% if sobre_empresa %}
+                <p class="vaga-detalhe__empresa-sobre">{{ sobre_empresa }}</p>
+              {% endif %}
+            </div>
+          </section>
+        {% endif %}
+
+        {% set faq_items = [] %}
+        {% if node.hasField('field_vaga_faq') and node.field_vaga_faq is not empty %}
+          {% for item in node.field_vaga_faq %}
+            {% if item.entity and item.entity.isPublished() %}
+              {% set faq_items = faq_items|merge([item.entity]) %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+        {% if faq_items %}
+          <section class="vaga-detalhe__faq">
+            <h2 class="vaga-detalhe__section-title">{{ 'Dúvidas Frequentes'|t }}</h2>
+            <div class="accordion" id="vaga-faq-{{ node.id }}">
+              {% for faq in faq_items %}
+                {% set collapse_id = 'vaga-faq-' ~ node.id ~ '-' ~ faq.id %}
+                <div class="accordion-item">
+                  <h3 class="accordion-header" id="heading-{{ collapse_id }}">
+                    <button class="accordion-button{{ not loop.first ? ' collapsed' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#{{ collapse_id }}" aria-expanded="{{ loop.first ? 'true' : 'false' }}" aria-controls="{{ collapse_id }}">
+                      {{ faq.label }}
+                    </button>
+                  </h3>
+                  <div id="{{ collapse_id }}" class="accordion-collapse collapse{{ loop.first ? ' show' : '' }}" aria-labelledby="heading-{{ collapse_id }}" data-bs-parent="#vaga-faq-{{ node.id }}">
+                    <div class="accordion-body">
+                      {% if faq.hasField('field_resposta') and faq.field_resposta.value %}
+                        {{ faq.field_resposta.value|raw }}
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </section>
+        {% endif %}
+
+        <section class="vaga-detalhe__cta">
+          <div class="vaga-detalhe__cta-inner">
+            <h2 class="vaga-detalhe__cta-title">{{ 'Pronto para o próximo passo?'|t }}</h2>
+            <p class="vaga-detalhe__cta-text">{{ 'Candidate-se agora e dê o próximo passo na sua carreira.'|t }}</p>
+            {% if logged_in and user.hasRole('candidato') %}
+              {% if vaga_candidatada %}
+                <button type="button" class="ui-btn ui-btn--primary vaga-detalhe__cta-btn" disabled>
+                  {{ 'Candidatura Enviada'|t }}
+                </button>
+              {% else %}
+                <button type="button"
+                  class="ui-btn ui-btn--primary vaga-detalhe__cta-btn js-candidatar-vaga"
+                  data-node-id="{{ node.id }}">
+                  {{ 'Candidatar-se Agora'|t }}
+                </button>
+              {% endif %}
+            {% elseif not logged_in %}
+              <a href="/user/login?destination={{ canonical_path }}" class="ui-btn ui-btn--primary vaga-detalhe__cta-btn">
+                {{ 'Candidatar-se Agora'|t }}
+              </a>
+            {% endif %}
+          </div>
+        </section>
+
+      </div>
+
+      {# —— Sidebar —— #}
+      <aside class="col-12 col-lg-4">
+
+        <div class="vaga-detalhe__acoes">
+          {% if logged_in and user.hasRole('candidato') %}
+            {% if vaga_candidatada %}
+              <button type="button" class="ui-btn ui-btn--primary w-100 mb-3" disabled>
+                {{ 'Candidatura Enviada'|t }}
+              </button>
+            {% else %}
+              <button type="button"
+                class="ui-btn ui-btn--primary w-100 mb-3 js-candidatar-vaga"
+                data-node-id="{{ node.id }}">
+                {{ 'Candidatar-se'|t }}
+              </button>
+            {% endif %}
+
+            <button type="button" class="ui-btn ui-btn--outline w-100 mb-4 js-salvar-vaga{{ vaga_salva ? ' ui-btn--saved' : '' }}" data-node-id="{{ node.id }}">
+              {{ vaga_salva ? 'Remover dos Salvos'|t : 'Salvar Vaga'|t }}
+            </button>
+          {% elseif not logged_in %}
+            <a href="/user/login?destination={{ canonical_path }}" class="ui-btn ui-btn--primary w-100 mb-3">
+              {{ 'Faça login para se candidatar'|t }}
+            </a>
+            <a href="/cadastro/candidato" class="ui-btn ui-btn--outline w-100 mb-4">
+              {{ 'Criar conta de candidato'|t }}
+            </a>
+          {% endif %}
+
+          <div class="vaga-detalhe__compartilhar">
+            <p class="vaga-detalhe__compartilhar-label">{{ 'Compartilhar'|t }}</p>
+            <div class="vaga-detalhe__compartilhar-btns">
+              <a href="#"
+                 onclick="event.preventDefault(); window.open('https://wa.me/?text=' + encodeURIComponent(window.location.href), '_blank', 'noopener,noreferrer');"
+                 class="vaga-detalhe__share-btn"
+                 title="{{ 'Compartilhar no WhatsApp'|t }}"
+                 aria-label="{{ 'Compartilhar no WhatsApp'|t }}">
+                <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+              </a>
+              <a href="#"
+                 onclick="event.preventDefault(); window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href), '_blank', 'noopener,noreferrer');"
+                 class="vaga-detalhe__share-btn"
+                 title="{{ 'Compartilhar no Facebook'|t }}"
+                 aria-label="{{ 'Compartilhar no Facebook'|t }}">
+                <i class="fa-brands fa-facebook-f" aria-hidden="true"></i>
+              </a>
+              <a href="#"
+                 onclick="event.preventDefault(); window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(window.location.href), '_blank', 'noopener,noreferrer');"
+                 class="vaga-detalhe__share-btn"
+                 title="{{ 'Compartilhar no LinkedIn'|t }}"
+                 aria-label="{{ 'Compartilhar no LinkedIn'|t }}">
+                <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="vaga-detalhe__resumo">
+          <h2 class="vaga-detalhe__resumo-title">{{ 'Resumo da Vaga'|t }}</h2>
+          <dl class="vaga-detalhe__resumo-list">
+            <div class="vaga-detalhe__resumo-row">
+              <dt>{{ 'Período'|t }}</dt>
+              <dd>
+                {% if node.field_horarios is defined and node.field_horarios is not empty %}
+                  {% set periodo = [] %}
+                  {% for item in node.field_horarios %}
+                    {% if item.value %}{% set periodo = periodo|merge([item.value|capitalize]) %}{% endif %}
+                  {% endfor %}
+                  {{ periodo ? periodo|join(', ') : 'Não informado'|t }}
+                {% else %}
+                  {{ 'Não informado'|t }}
+                {% endif %}
+              </dd>
+            </div>
+            <div class="vaga-detalhe__resumo-row">
+              <dt>{{ 'Bolsa'|t }}</dt>
+              <dd>{{ node.field_text_simple.value ?: 'Não informado'|t }}</dd>
+            </div>
+            <div class="vaga-detalhe__resumo-row">
+              <dt>{{ 'Modelo'|t }}</dt>
+              <dd>
+                {% if node.field_regime_t is not empty and node.field_regime_t.0.entity %}
+                  {{ node.field_regime_t.0.entity.label }}
+                {% else %}
+                  {{ 'Não informado'|t }}
+                {% endif %}
+              </dd>
+            </div>
+            <div class="vaga-detalhe__resumo-row">
+              <dt>{{ 'Vagas'|t }}</dt>
+              <dd>{{ 'Não informado'|t }}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="vaga-detalhe__perfil">
+          <h2 class="vaga-detalhe__perfil-title">{{ 'Seu Perfil'|t }}</h2>
+          <div class="vaga-detalhe__perfil-bar" role="progressbar" aria-valuenow="{{ perfil_pct }}" aria-valuemin="0" aria-valuemax="100" aria-label="{{ 'Completude do perfil'|t }}">
+            <div class="vaga-detalhe__perfil-bar-fill" style="width: {{ perfil_pct }}%;"></div>
+          </div>
+          <p class="vaga-detalhe__perfil-pct">{{ '@pct% completo'|t({'@pct': perfil_pct}) }}</p>
+          {% if logged_in and user.hasRole('candidato') %}
+            <a href="{{ perfil_url }}" class="ui-btn ui-btn--outline w-100">{{ 'Completar agora'|t }}</a>
+          {% else %}
+            <a href="{{ login_perfil }}" class="ui-btn ui-btn--outline w-100">{{ 'Completar agora'|t }}</a>
+          {% endif %}
+        </div>
+
+      </aside>
+    </div>
+  </div>
+</article>

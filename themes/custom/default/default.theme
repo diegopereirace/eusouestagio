@@ -286,9 +286,17 @@ function default_preprocess_node__vagas(&$variables)
   $user = \Drupal::currentUser();
   $variables['vaga_salva'] = FALSE;
   $variables['vaga_candidatada'] = FALSE;
+  // Completude estática (feature 030) — sem serviço de cálculo nesta entrega.
+  if (!isset($variables['vaga_perfil_completo'])) {
+    $variables['vaga_perfil_completo'] = 75;
+  }
+
+  /** @var \Drupal\node\NodeInterface $node */
+  $node = $variables['node'];
+  $variables['vaga_postado_ha'] = \Drupal::service('date.formatter')
+    ->formatTimeDiffSince((int) $node->getCreatedTime());
 
   if ($user->isAuthenticated() && in_array('candidato', $user->getRoles())) {
-    $node = $variables['node'];
     $nid = (int) $node->id();
     $uid = (int) $user->id();
 

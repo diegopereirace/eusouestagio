@@ -1,0 +1,36 @@
+uuid: 8c8381be-ee3a-4831-b480-aa678aaa3e67
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.beneficio_vaga_p.field_image
+    - field.field.paragraph.beneficio_vaga_p.field_text_simple
+    - paragraphs.paragraphs_type.beneficio_vaga_p
+  module:
+    - image
+id: paragraph.beneficio_vaga_p.default
+targetEntityType: paragraph
+bundle: beneficio_vaga_p
+mode: default
+content:
+  field_image:
+    type: image
+    label: hidden
+    settings:
+      image_link: ''
+      image_style: ''
+      image_loading:
+        attribute: lazy
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_text_simple:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+      link_rel: canonical
+    third_party_settings: {  }
+    weight: 1
+    region: content
+hidden: {  }

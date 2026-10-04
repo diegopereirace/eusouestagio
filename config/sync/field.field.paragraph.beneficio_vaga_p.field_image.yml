@@ -1,0 +1,38 @@
+uuid: 5a62e3cb-8990-4027-a750-cda0a0405c8e
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_image
+    - paragraphs.paragraphs_type.beneficio_vaga_p
+  module:
+    - image
+id: paragraph.beneficio_vaga_p.field_image
+field_name: field_image
+entity_type: paragraph
+bundle: beneficio_vaga_p
+label: Ícone
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: 'paragraph/beneficio-vaga/[date:custom:Y]-[date:custom:m]'
+  file_extensions: 'png gif jpg jpeg webp svg'
+  max_filesize: ''
+  max_resolution: ''
+  min_resolution: ''
+  alt_field: true
+  alt_field_required: false
+  title_field: true
+  title_field_required: false
+  default_image:
+    uuid: null
+    alt: ''
+    title: ''
+    width: null
+    height: null
+field_type: image

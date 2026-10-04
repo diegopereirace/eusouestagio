@@ -1,0 +1,90 @@
+{#
+/**
+ * @file
+ * Hero de busca de /vagas — textos 100% fixos em código (FR-006, SC-009).
+ *
+ * Theme hook: custom_banners_vagas_hero_search
+ * Isolamento: nunca usar classes .hero-search* (home).
+ */
+#}
+<section id="vagas-hero-search" class="vagas-hero-search">
+  <div class="vagas-hero-search__inner">
+    <h1 class="vagas-hero-search__title">Encontre a oportunidade ideal para sua carreira.</h1>
+    <p class="vagas-hero-search__subtitle">Explore milhares de vagas de estágio em empresas parceiras e dê o próximo passo na sua jornada profissional.</p>
+
+    <form class="vagas-hero-search__form" method="get" action="{{ action|default('/vagas')|e('html_attr') }}" role="search">
+      <div class="vagas-hero-search__fields">
+        <div class="vagas-hero-search__field vagas-hero-search__field--title">
+          <span class="vagas-hero-search__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+              <path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <label class="visually-hidden" for="vagas-hero-title">{{ 'Cargo ou palavra-chave'|t }}</label>
+          <input
+            id="vagas-hero-title"
+            class="vagas-hero-search__input"
+            type="text"
+            name="title"
+            placeholder="{{ 'Cargo ou palavra-chave'|t }}"
+            value="{{ values.title|default('')|e('html_attr') }}"
+            autocomplete="off"
+          >
+        </div>
+        <div class="vagas-hero-search__divider" aria-hidden="true"></div>
+        <div class="vagas-hero-search__field vagas-hero-search__field--cidade">
+          <span class="vagas-hero-search__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 21s7-5.2 7-11a7 7 0 10-14 0c0 5.8 7 11 7 11z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              <circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </span>
+          <label class="visually-hidden" for="vagas-hero-cidade">{{ 'Cidade ou Remoto'|t }}</label>
+          <input
+            id="vagas-hero-cidade"
+            class="vagas-hero-search__input"
+            type="text"
+            name="cidade"
+            placeholder="{{ 'Cidade ou Remoto'|t }}"
+            value="{{ values.cidade|default('')|e('html_attr') }}"
+            autocomplete="off"
+          >
+        </div>
+        <div class="vagas-hero-search__divider" aria-hidden="true"></div>
+        <div class="vagas-hero-search__field vagas-hero-search__field--curso">
+          <span class="vagas-hero-search__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 9.5L12 4l9 5.5-9 5.5L3 9.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M7 12.5v4c0 1.5 2.2 3 5 3s5-1.5 5-3v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M21 10v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <label class="visually-hidden" for="vagas-hero-cursos">{{ 'Seu curso'|t }}</label>
+          <input
+            id="vagas-hero-cursos"
+            class="vagas-hero-search__input"
+            type="text"
+            name="cursos"
+            placeholder="{{ 'Seu curso'|t }}"
+            value="{{ values.cursos|default('')|e('html_attr') }}"
+            autocomplete="off"
+          >
+        </div>
+        <div class="vagas-hero-search__submit-wrap">
+          <button type="submit" class="vagas-hero-search__submit">{{ 'Buscar Vagas'|t }}</button>
+        </div>
+      </div>
+    </form>
+
+    {% if pills %}
+      <ul class="vagas-hero-search__pills" role="list">
+        {% for pill in pills %}
+          <li>
+            <a class="vagas-hero-search__pill" href="{{ pill.url|e('html_attr') }}">{{ pill.label }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+</section>

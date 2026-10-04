@@ -159,6 +159,19 @@ vagas_hero_search:
       assets/css/components/vagas-hero-search.css: {}
   dependencies:
     - default/bootstrap
+vagas_lista_vertical:
+  js:
+    assets/js/vagas-lista-load-more.js: {}
+  css:
+    component:
+      assets/css/components/vagas-lista-vertical.css: {}
+  dependencies:
+    - default/bootstrap
+    - core/drupal
+    - core/jquery
+    - views/views.ajax
+
+
 jquery_mask:
   js:
     /libraries/jquery-mask/jquery.mask.min.js: {}

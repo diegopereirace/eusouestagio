@@ -9974,3 +9974,307 @@ function _custom_configs_ensure_vagas_hero_search_placement(): string {
   return (string) t('Placement default_custom_banners_vagas_hero_search já ok.');
 }
 
+/**
+ * Feature 028: listagem vertical /vagas — field Destaque + View page_1 + cleanup.
+ */
+function custom_configs_update_11045(): string {
+  $messages = [
+    _custom_configs_ensure_field_vaga_destaque(),
+    _custom_configs_ensure_vagas_page_1_lista_vertical(),
+    _custom_configs_cleanup_vagas_out_of_scope_blocks(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Garante storage/instance/form display de field_vaga_destaque no bundle vagas.
+ *
+ * Idempotente: reexecução = no-op se já existir.
+ */
+function _custom_configs_ensure_field_vaga_destaque(): string {
+  $parts = [];
+  $entity_type = 'node';
+  $bundle = 'vagas';
+  $field_name = 'field_vaga_destaque';
+
+  if (!\Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name)) {
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => $entity_type,
+      'type' => 'boolean',
+      'settings' => [],
+      'module' => 'core',
+      'locked' => FALSE,
+      'cardinality' => 1,
+      'translatable' => FALSE,
+      'indexes' => [],
+      'persist_with_no_fields' => FALSE,
+      'custom_storage' => FALSE,
+    ])->save();
+    $parts[] = (string) t('Storage node.field_vaga_destaque criado.');
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName($entity_type, $bundle, $field_name)) {
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name);
+    if (!$storage) {
+      return (string) t('Storage node.field_vaga_destaque ausente — não foi possível criar a instance.');
+    }
+    \Drupal\field\Entity\FieldConfig::create([
+      'field_storage' => $storage,
+      'bundle' => $bundle,
+      'label' => 'Destaque',
+      'description' => 'Marca a vaga como destaque na listagem /vagas (badge, borda e prioridade na ordenação).',
+      'required' => FALSE,
+      'translatable' => FALSE,
+      'default_value' => [
+        ['value' => 0],
+      ],
+      'default_value_callback' => '',
+      'settings' => [
+        'on_label' => 'Sim',
+        'off_label' => 'Não',
+      ],
+    ])->save();
+    $parts[] = (string) t('Instance node.vagas.field_vaga_destaque criada.');
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null $form_display */
+  $form_display = \Drupal::entityTypeManager()
+    ->getStorage('entity_form_display')
+    ->load("$entity_type.$bundle.default");
+  if (!$form_display) {
+    $form_display = \Drupal::entityTypeManager()
+      ->getStorage('entity_form_display')
+      ->create([
+        'targetEntityType' => $entity_type,
+        'bundle' => $bundle,
+        'mode' => 'default',
+        'status' => TRUE,
+      ]);
+  }
+
+  $component = $form_display->getComponent($field_name);
+  $needs_widget = !$component
+    || ($component['type'] ?? '') !== 'boolean_checkbox'
+    || empty($component['settings']['display_label']);
+  if ($needs_widget) {
+    $form_display->setComponent($field_name, [
+      'type' => 'boolean_checkbox',
+      'weight' => 3,
+      'region' => 'content',
+      'settings' => [
+        'display_label' => TRUE,
+      ],
+      'third_party_settings' => [],
+    ]);
+    $form_display->save();
+    $parts[] = (string) t('Form display node.vagas.default: checkbox Destaque garantido.');
+  }
+
+  if (!$parts) {
+    return (string) t('field_vaga_destaque (storage/instance/form) já ok.');
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Garante View vagas page_1: 5/página, AJAX, sorts destaque+created, row_class lista.
+ *
+ * Não altera block_1 / block_2 / block_3 nem filtros expostos (Hero 027).
+ */
+function _custom_configs_ensure_vagas_page_1_lista_vertical(): string {
+  /** @var \Drupal\views\Entity\View|null $view */
+  $view = \Drupal\views\Entity\View::load('vagas');
+  if (!$view) {
+    return (string) t('View vagas ausente — rode drush cim -y antes do updb.');
+  }
+
+  $displays = $view->get('display');
+  if (!isset($displays['page_1'])) {
+    return (string) t('Display page_1 da View vagas ausente.');
+  }
+
+  $options = &$displays['page_1']['display_options'];
+  $changed = FALSE;
+
+  // Pager: 5 itens + full.
+  $pager = $options['pager'] ?? [];
+  $pager_type = (string) ($pager['type'] ?? '');
+  $items = (int) ($pager['options']['items_per_page'] ?? 0);
+  if ($pager_type !== 'full' || $items !== 5) {
+    $options['pager'] = [
+      'type' => 'full',
+      'options' => [
+        'offset' => 0,
+        'pagination_heading_level' => 'h4',
+        'items_per_page' => 5,
+        'total_pages' => NULL,
+        'id' => 0,
+        'tags' => [
+          'next' => 'Avançar ›',
+          'previous' => '‹ Voltar',
+          'first' => '« Primeiro',
+          'last' => 'Último »',
+        ],
+        'expose' => [
+          'items_per_page' => FALSE,
+          'items_per_page_label' => 'Itens por página',
+          'items_per_page_options' => '5, 10, 25, 50',
+          'items_per_page_options_all' => FALSE,
+          'items_per_page_options_all_label' => '- Todos -',
+          'offset' => FALSE,
+          'offset_label' => 'Deslocamento',
+        ],
+        'quantity' => 9,
+      ],
+    ];
+    $options['defaults']['pager'] = FALSE;
+    $changed = TRUE;
+  }
+
+  // AJAX.
+  if (empty($options['use_ajax'])) {
+    $options['use_ajax'] = TRUE;
+    $options['defaults']['use_ajax'] = FALSE;
+    $changed = TRUE;
+  }
+
+  // row_class lista (sem grid 3 cols).
+  $target_row_class = 'col-12';
+  $current_row_class = (string) ($options['style']['options']['row_class'] ?? '');
+  $style_inherited = !isset($options['defaults']['style']) || $options['defaults']['style'] !== FALSE;
+  if ($style_inherited || $current_row_class !== $target_row_class) {
+    $options['style'] = [
+      'type' => 'default',
+      'options' => [
+        'grouping' => [],
+        'row_class' => $target_row_class,
+        'default_row_class' => TRUE,
+      ],
+    ];
+    $options['defaults']['style'] = FALSE;
+    $changed = TRUE;
+  }
+
+  // css_class.
+  $css_class = (string) ($options['css_class'] ?? '');
+  if (strpos($css_class, 'css-vagas-page') === FALSE) {
+    $options['css_class'] = trim($css_class . ' css-vagas-page container');
+    $options['defaults']['css_class'] = FALSE;
+    $changed = TRUE;
+  }
+  elseif (strpos($css_class, 'container') === FALSE) {
+    $options['css_class'] = trim($css_class . ' container');
+    $options['defaults']['css_class'] = FALSE;
+    $changed = TRUE;
+  }
+
+  // Sorts: destaque DESC + created DESC.
+  $sorts = $options['sorts'] ?? [];
+  $has_destaque_sort = isset($sorts['field_vaga_destaque_value']);
+  $has_created_sort = isset($sorts['created']);
+  $sorts_inherited = !isset($options['defaults']['sorts']) || $options['defaults']['sorts'] !== FALSE;
+  $destaque_order = (string) ($sorts['field_vaga_destaque_value']['order'] ?? '');
+  $created_order = (string) ($sorts['created']['order'] ?? '');
+  if ($sorts_inherited || !$has_destaque_sort || !$has_created_sort || $destaque_order !== 'DESC' || $created_order !== 'DESC') {
+    $options['sorts'] = [
+      'field_vaga_destaque_value' => [
+        'id' => 'field_vaga_destaque_value',
+        'table' => 'node__field_vaga_destaque',
+        'field' => 'field_vaga_destaque_value',
+        'relationship' => 'none',
+        'group_type' => 'group',
+        'admin_label' => '',
+        'plugin_id' => 'standard',
+        'order' => 'DESC',
+        'expose' => [
+          'label' => '',
+          'field_identifier' => '',
+        ],
+        'exposed' => FALSE,
+      ],
+      'created' => [
+        'id' => 'created',
+        'table' => 'node_field_data',
+        'field' => 'created',
+        'relationship' => 'none',
+        'group_type' => 'group',
+        'admin_label' => '',
+        'entity_type' => 'node',
+        'entity_field' => 'created',
+        'plugin_id' => 'date',
+        'order' => 'DESC',
+        'expose' => [
+          'label' => '',
+          'field_identifier' => '',
+        ],
+        'exposed' => FALSE,
+        'granularity' => 'second',
+      ],
+    ];
+    $options['defaults']['sorts'] = FALSE;
+    $changed = TRUE;
+  }
+
+  if (!$changed) {
+    return (string) t('View vagas page_1 já alinhada (lista vertical: 5/AJAX/sorts/row_class).');
+  }
+
+  $view->set('display', $displays);
+  $view->save();
+  return (string) t('View vagas page_1 atualizada (lista vertical: 5 itens, AJAX, sorts destaque+created, row_class col-12).');
+}
+
+/**
+ * Desabilita placements “Recomendado para você” / “Melhore seu currículo” em /vagas.
+ *
+ * No-op se ausentes (estado atual do inventário 028).
+ */
+function _custom_configs_cleanup_vagas_out_of_scope_blocks(): string {
+  $needles = [
+    'recomendado para você',
+    'recomendado para voce',
+    'melhore seu currículo',
+    'melhore seu curriculo',
+  ];
+  $disabled = 0;
+
+  /** @var \Drupal\block\BlockInterface[] $blocks */
+  $blocks = \Drupal::entityTypeManager()->getStorage('block')->loadMultiple();
+  foreach ($blocks as $block) {
+    $visibility = $block->getVisibility();
+    $pages = (string) ($visibility['request_path']['pages'] ?? '');
+    $pages_norm = strtolower(str_replace("\r", '', $pages));
+    $paths = array_filter(array_map('trim', preg_split('/\s+/', $pages_norm) ?: []));
+    if (!in_array('/vagas', $paths, TRUE) && !in_array('vagas', $paths, TRUE)) {
+      continue;
+    }
+
+    $haystack = strtolower(implode(' ', [
+      (string) $block->id(),
+      (string) ($block->label() ?? ''),
+      (string) ($block->get('settings')['label'] ?? ''),
+    ]));
+    $match = FALSE;
+    foreach ($needles as $needle) {
+      if (str_contains($haystack, $needle)) {
+        $match = TRUE;
+        break;
+      }
+    }
+    if (!$match || !$block->status()) {
+      continue;
+    }
+    $block->setStatus(FALSE);
+    $block->save();
+    $disabled++;
+  }
+
+  if ($disabled === 0) {
+    return (string) t('Cleanup /vagas: nenhum bloco “Recomendado…” / “Melhore…” ativo (no-op).');
+  }
+  return (string) t('Cleanup /vagas: @count bloco(s) fora de escopo desabilitado(s).', [
+    '@count' => $disabled,
+  ]);
+}
+

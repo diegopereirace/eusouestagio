@@ -17,6 +17,7 @@ dependencies:
     - field.field.node.vagas.field_text_simple
     - field.field.node.vagas.field_text_simple_multiple
     - field.field.node.vagas.field_text_simple_multiple_2
+    - field.field.node.vagas.field_vaga_destaque
     - node.type.vagas
   module:
     - options
@@ -127,4 +128,5 @@ content:
 hidden:
   field_candidatos_u: true
   field_empresa_u: true
+  field_vaga_destaque: true
   langcode: true

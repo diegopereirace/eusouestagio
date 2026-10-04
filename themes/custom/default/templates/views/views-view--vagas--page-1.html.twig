@@ -1,33 +1,9 @@
 {#
 /**
  * @file
- * Theme override for a main view template.
- *
- * Available variables:
- * - attributes: Remaining HTML attributes for the element.
- * - css_name: A css-safe version of the view name.
- * - css_class: The user-specified classes names, if any.
- * - header: The optional header.
- * - footer: The optional footer.
- * - rows: The results of the view query, if any.
- * - empty: The content to display if there are no rows.
- * - pager: The optional pager next/prev links to display.
- * - exposed: Exposed widget form/info to display.
- * - feed_icons: Optional feed icons to display.
- * - more: An optional link to the next page of results.
- * - title: Title of the view, only used when displaying in the admin preview.
- * - title_prefix: Additional output populated by modules, intended to be
- *   displayed in front of the view title.
- * - title_suffix: Additional output populated by modules, intended to be
- *   displayed after the view title.
- * - attachment_before: An optional attachment view to be displayed before the
- *   view content.
- * - attachment_after: An optional attachment view to be displayed after the
- *   view content.
- * - dom_id: Unique id for every view being printed to give unique class for
- *   Javascript.
- *
- * @see template_preprocess_views_view()
+ * Listagem vertical de vagas — View vagas display page_1 (/vagas).
+ * Feature 028: cards .item-vaga--lista.
+ * Feature 029: toolbar (total + ordenar) + aside usuário logado.
  */
 #}
 {%
@@ -39,17 +15,14 @@
     dom_id ? 'js-view-dom-id-' ~ dom_id,
   ]
 %}
+{{ attach_library('default/vagas_lista_vertical') }}
 <div{{ attributes.addClass(classes).addClass('css-vagas-page container') }}>
   {{ title_prefix }}
   {% if title %}
     {{ title }}
   {% endif %}
   {{ title_suffix }}
-  {% if header %}
-    <div class="view-header">
-      {{ header }}
-    </div>
-  {% endif %}
+
   {% if exposed %}
     <div class="view-filters">
       {{ exposed }}
@@ -61,19 +34,75 @@
     </div>
   {% endif %}
 
-  {% if rows %}
-    <div class="view-content row g-4">
-      {{ rows }}
-    </div>
-  {% elseif empty %}
-    <div class="view-empty">
-      {{ empty }}
-    </div>
-  {% endif %}
+  <div class="vagas-lista-layout{{ vagas_show_user_aside ? ' vagas-lista-layout--with-aside' : '' }}">
+    <div class="vagas-lista-layout__main">
+      <div class="vagas-lista-toolbar">
+        <h2 class="vagas-lista-toolbar__total">{{ vagas_total_label }}</h2>
+        <form class="vagas-lista-toolbar__sort" method="get" action="{{ path('view.vagas.page_1') }}">
+          {% for key, value in vagas_sort_preserve %}
+            {% if value is iterable %}
+              {% for item in value %}
+                <input type="hidden" name="{{ key }}[]" value="{{ item }}">
+              {% endfor %}
+            {% else %}
+              <input type="hidden" name="{{ key }}" value="{{ value }}">
+            {% endif %}
+          {% endfor %}
+          <label class="vagas-lista-toolbar__sort-label" for="vagas-sort-order">{{ 'Ordenar por:'|t }}</label>
+          <select id="vagas-sort-order" class="vagas-lista-toolbar__sort-select" name="sort_order" onchange="this.form.submit()">
+            <option value="DESC"{% if vagas_sort_order == 'DESC' %} selected{% endif %}>{{ 'Mais recentes'|t }}</option>
+            <option value="ASC"{% if vagas_sort_order == 'ASC' %} selected{% endif %}>{{ 'Mais antigas'|t }}</option>
+          </select>
+        </form>
+      </div>
 
-  {% if pager %}
-    {{ pager }}
-  {% endif %}
+      {% if rows %}
+        <div class="view-content vagas-lista">
+          {{ rows }}
+        </div>
+      {% elseif empty %}
+        <div class="view-empty">
+          {{ empty }}
+        </div>
+      {% endif %}
+
+      {% if pager %}
+        <div class="vagas-lista-pager">
+          {{ pager }}
+        </div>
+      {% endif %}
+    </div>
+
+    {# Aside só se autenticado: avatar + nome + subtítulo. Sem % de cadastro / Perfil completo. #}
+    {% if vagas_show_user_aside %}
+      <aside class="vagas-lista-layout__aside" aria-label="{{ 'Seu perfil'|t }}">
+        <div class="vagas-user-card">
+          {% if vagas_user_panel_url %}
+            <a class="vagas-user-card__link" href="{{ vagas_user_panel_url }}">
+              <img class="vagas-user-card__avatar" src="{{ vagas_user_avatar_url }}" alt="" width="72" height="72" loading="lazy">
+              <div class="vagas-user-card__body">
+                <p class="vagas-user-card__name">{{ vagas_user_name }}</p>
+                {% if vagas_user_subtitle %}
+                  <p class="vagas-user-card__subtitle">{{ vagas_user_subtitle }}</p>
+                {% endif %}
+              </div>
+            </a>
+          {% else %}
+            <div class="vagas-user-card__static">
+              <img class="vagas-user-card__avatar" src="{{ vagas_user_avatar_url }}" alt="" width="72" height="72" loading="lazy">
+              <div class="vagas-user-card__body">
+                <p class="vagas-user-card__name">{{ vagas_user_name }}</p>
+                {% if vagas_user_subtitle %}
+                  <p class="vagas-user-card__subtitle">{{ vagas_user_subtitle }}</p>
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </aside>
+    {% endif %}
+  </div>
+
   {% if attachment_after %}
     <div class="attachment attachment-after">
       {{ attachment_after }}

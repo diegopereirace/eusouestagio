@@ -708,9 +708,8 @@ function default_preprocess_views_exposed_form(array &$variables): void
 /**
  * Implements hook_preprocess_views_view().
  *
- * Ajusta o cabeçalho da listagem de vagas quando houver filtros ativos,
- * indicando ao usuário que está vendo um resultado de pesquisa.
- * Título alinhado ao Figma / feature 025 (sem link “Ver todas as vagas”).
+ * Feature 028/029: library da listagem; toolbar (total + ordenar);
+ * aside do usuário autenticado. Header H3 legado substituído pelo toolbar.
  */
 function default_preprocess_views_view(array &$variables): void
 {
@@ -720,25 +719,168 @@ function default_preprocess_views_view(array &$variables): void
     return;
   }
 
-  $query = \Drupal::request()->query;
-  $filter_keys = ['nid', 'cursos', 'estado', 'cidade', 'escolaridade', 'regime'];
-  $has_active_filters = FALSE;
+  $variables['#attached']['library'][] = 'default/vagas_lista_vertical';
+  $variables['#cache']['contexts'][] = 'user';
+  $variables['#cache']['contexts'][] = 'url.query_args:sort_order';
 
-  foreach ($filter_keys as $key) {
-    $value = $query->get($key);
+  // Substitui o H3 “Vagas” / “Resultado - Vagas” pelo toolbar Figma (029).
+  $variables['header'] = '';
 
-    if (is_array($value)) {
-      $value = array_filter($value, static fn($item) => $item !== '' && $item !== 'All');
+  $total = (int) ($view->total_rows ?? 0);
+  if ($total === 0 && !empty($view->result)) {
+    $total = count($view->result);
+  }
+  $total_formatted = number_format($total, 0, ',', '.');
+  $variables['vagas_total'] = $total;
+  $variables['vagas_total_label'] = $total === 1
+    ? t('1 vaga encontrada')
+    : t('@count vagas encontradas', ['@count' => $total_formatted]);
+
+  $sort_order = strtoupper((string) \Drupal::request()->query->get('sort_order', 'DESC'));
+  if ($sort_order !== 'ASC' && $sort_order !== 'DESC') {
+    $sort_order = 'DESC';
+  }
+  $variables['vagas_sort_order'] = $sort_order;
+
+  // Preserva filtros atuais no form GET de ordenação.
+  $preserve = [];
+  foreach (\Drupal::request()->query->all() as $key => $value) {
+    if ($key === 'sort_order' || $key === 'page') {
+      continue;
     }
+    if (is_array($value)) {
+      $filtered = array_filter($value, static fn($item) => $item !== '' && $item !== 'All');
+      if ($filtered !== []) {
+        $preserve[$key] = $filtered;
+      }
+      continue;
+    }
+    if ($value !== NULL && $value !== '' && $value !== 'All') {
+      $preserve[$key] = $value;
+    }
+  }
+  $variables['vagas_sort_preserve'] = $preserve;
 
-    if ((is_array($value) && !empty($value)) || (!is_array($value) && $value !== NULL && $value !== '' && $value !== 'All')) {
-      $has_active_filters = TRUE;
-      break;
+  $variables['vagas_show_user_aside'] = FALSE;
+  $variables['vagas_user_name'] = '';
+  $variables['vagas_user_subtitle'] = '';
+  $variables['vagas_user_avatar_url'] = '';
+  $variables['vagas_user_panel_url'] = '';
+
+  $current = \Drupal::currentUser();
+  if (!$current->isAuthenticated()) {
+    return;
+  }
+
+  // Aside só para autenticados — avatar + nome + subtítulo básico (sem % de cadastro).
+  $variables['vagas_show_user_aside'] = TRUE;
+  $variables['vagas_user_avatar_url'] = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='32' fill='%23e8edf3'/%3E%3Ccircle cx='32' cy='24' r='13' fill='%23839ab1'/%3E%3Cpath d='M12 56c2-12 11-19 20-19s18 7 20 19' fill='%23839ab1'/%3E%3C/svg%3E";
+
+  $roles = $current->getRoles();
+  $is_candidato = in_array('candidato', $roles, TRUE);
+  $is_empresa = in_array('empresa', $roles, TRUE);
+  $is_moderador = in_array('moderador', $roles, TRUE);
+
+  if ($is_candidato) {
+    $variables['vagas_user_panel_url'] = '/painel/estudante/perfil';
+    $variables['vagas_user_subtitle'] = (string) t('Estudante');
+  }
+  elseif ($is_empresa) {
+    $variables['vagas_user_panel_url'] = '/painel/empresa/perfil';
+    $variables['vagas_user_subtitle'] = (string) t('Empresa');
+  }
+  elseif ($is_moderador) {
+    $variables['vagas_user_panel_url'] = '/painel/moderador/candidaturas';
+    $variables['vagas_user_subtitle'] = (string) t('Moderador');
+  }
+  else {
+    $variables['vagas_user_panel_url'] = '/user';
+    $variables['vagas_user_subtitle'] = (string) t('Usuário');
+  }
+
+  $account = \Drupal::entityTypeManager()->getStorage('user')->load($current->id());
+  if (!$account instanceof UserInterface) {
+    $variables['vagas_user_name'] = (string) $current->getDisplayName();
+    return;
+  }
+
+  $name = trim((string) $account->getDisplayName());
+  if ($account->hasField('field_nome_completo') && !$account->get('field_nome_completo')->isEmpty()) {
+    $name = trim((string) $account->get('field_nome_completo')->value);
+  }
+  elseif ($account->hasField('field_nome_fantasia') && !$account->get('field_nome_fantasia')->isEmpty()) {
+    $name = trim((string) $account->get('field_nome_fantasia')->value);
+  }
+  $variables['vagas_user_name'] = $name !== '' ? $name : (string) t('Usuário');
+
+  // Estudante: só infos básicas (instituição e/ou tipo de curso). Sem % de cadastro.
+  if ($is_candidato) {
+    $subtitle_bits = [];
+    if ($account->hasField('field_instituicao_ensino') && !$account->get('field_instituicao_ensino')->isEmpty()) {
+      foreach ($account->get('field_instituicao_ensino') as $item) {
+        $paragraph = $item->entity ?? NULL;
+        if ($paragraph && $paragraph->hasField('field_nome_instituicao') && !$paragraph->get('field_nome_instituicao')->isEmpty()) {
+          $inst = trim((string) $paragraph->get('field_nome_instituicao')->value);
+          if ($inst !== '') {
+            $subtitle_bits[] = $inst;
+            break;
+          }
+        }
+      }
+    }
+    if ($account->hasField('field_tipo_curso') && !$account->get('field_tipo_curso')->isEmpty()) {
+      $tipo_key = (string) $account->get('field_tipo_curso')->value;
+      $allowed = $account->get('field_tipo_curso')->getFieldDefinition()->getSetting('allowed_values') ?? [];
+      $tipo_label = trim((string) ($allowed[$tipo_key] ?? $tipo_key));
+      if ($tipo_label !== '') {
+        $subtitle_bits[] = $tipo_label;
+      }
+    }
+    if ($subtitle_bits !== []) {
+      $variables['vagas_user_subtitle'] = implode(' · ', $subtitle_bits);
     }
   }
 
-  $title = $has_active_filters ? 'Resultado - Vagas' : 'Vagas';
-  $variables['header'] = Markup::create('<div class="mt-3 mb-3"><h3 class="text-title mb-0">' . $title . '</h3></div>');
+  if ($account->hasField('user_picture') && !$account->get('user_picture')->isEmpty() && $account->get('user_picture')->entity) {
+    $avatar_uri = $account->get('user_picture')->entity->getFileUri();
+    if (!empty($avatar_uri)) {
+      $file_url_generator = \Drupal::service('file_url_generator');
+      $avatar_url = $file_url_generator->generateAbsoluteString($avatar_uri);
+      $variables['vagas_user_avatar_url'] = $file_url_generator->transformRelative($avatar_url);
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_views_view_field().
+ *
+ * Calcula “Vaga aberta há …” para o card vertical da listagem /vagas (028).
+ */
+function default_preprocess_views_view_field(array &$variables): void
+{
+  $view = $variables['view'] ?? NULL;
+  $field = $variables['field'] ?? NULL;
+  if (!$view instanceof ViewExecutable || $view->id() !== 'vagas' || ($view->current_display ?? '') !== 'page_1') {
+    return;
+  }
+  if (!$field || ($field->field ?? '') !== 'nothing') {
+    return;
+  }
+
+  $row = $variables['row'] ?? NULL;
+  if (!$row instanceof ResultRow || !isset($row->_entity) || !$row->_entity instanceof NodeInterface) {
+    $variables['vaga_published_ago'] = '';
+    return;
+  }
+
+  $created = (int) $row->_entity->getCreatedTime();
+  if ($created <= 0) {
+    $variables['vaga_published_ago'] = '';
+    return;
+  }
+
+  $variables['vaga_published_ago'] = \Drupal::service('date.formatter')
+    ->formatTimeDiffSince($created, ['granularity' => 1]);
 }
 
 /**

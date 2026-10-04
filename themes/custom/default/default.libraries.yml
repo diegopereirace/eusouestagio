@@ -153,6 +153,12 @@ hero_search:
     - core/once
     - core/drupal.autocomplete
     - core/jquery
+vagas_hero_search:
+  css:
+    component:
+      assets/css/components/vagas-hero-search.css: {}
+  dependencies:
+    - default/bootstrap
 jquery_mask:
   js:
     /libraries/jquery-mask/jquery.mask.min.js: {}

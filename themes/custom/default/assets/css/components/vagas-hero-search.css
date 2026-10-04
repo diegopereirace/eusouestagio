@@ -1,0 +1,189 @@
+/**
+ * Hero search (/vagas) — tokens Figma (wrapper 1280, padding 48/32/40).
+ * Escopo exclusivo: .vagas-hero-search (não alterar .hero-search da home).
+ */
+
+.vagas-hero-search {
+  width: 100%;
+  margin: 0 auto;
+  padding: 48px 40px 32px;
+  background: #fff;
+  scroll-margin-top: calc(var(--header-h, 87px) + 0.75rem);
+  overflow-x: clip;
+}
+
+.vagas-hero-search__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.vagas-hero-search__title {
+  margin: 0 0 0.75rem;
+  max-width: 1062px;
+  font-family: Poppins, "Segoe UI", sans-serif;
+  font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+  font-weight: 700;
+  color: #111;
+  line-height: 1.2;
+}
+
+.vagas-hero-search__subtitle {
+  margin: 0 0 1.75rem;
+  max-width: 715px;
+  font-size: 1.0625rem;
+  color: #45464d;
+  line-height: 1.5;
+}
+
+.vagas-hero-search__form {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 0.5rem 0.5rem 0.5rem 1.25rem;
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+}
+
+.vagas-hero-search__fields {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0;
+}
+
+.vagas-hero-search__field {
+  display: flex;
+  align-items: center;
+  flex: 1 1 0;
+  min-width: 0;
+  gap: 0.625rem;
+  padding: 0.35rem 0.75rem;
+}
+
+.vagas-hero-search__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: #94a3b8;
+}
+
+.vagas-hero-search__divider {
+  flex: 0 0 1px;
+  align-self: stretch;
+  width: 1px;
+  margin: 0.5rem 0;
+  background: #e2e8f0;
+}
+
+.vagas-hero-search__input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 0.65rem 0;
+  font-size: 0.9375rem;
+  color: #111;
+  background: transparent;
+  outline: none;
+  box-shadow: none;
+}
+
+.vagas-hero-search__input::placeholder {
+  color: #94a3b8;
+}
+
+.vagas-hero-search__input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.vagas-hero-search__submit-wrap {
+  flex: 0 0 auto;
+  padding-left: 0.5rem;
+}
+
+.vagas-hero-search__submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.85rem 1.75rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #fff;
+  background: #58a83c;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.vagas-hero-search__submit:hover,
+.vagas-hero-search__submit:focus {
+  background: #4d9434;
+  color: #fff;
+}
+
+.vagas-hero-search__pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 0.625rem;
+  list-style: none;
+  margin: 1.25rem 0 0;
+  padding: 0;
+}
+
+.vagas-hero-search__pill {
+  display: inline-block;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  border: 1px solid #bfdbfe;
+  background: #fff;
+  color: #1e3a5f;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.vagas-hero-search__pill:hover,
+.vagas-hero-search__pill:focus {
+  border-color: #93c5fd;
+  background: #f0f7ff;
+  color: #0f172a;
+}
+
+/* Mobile: stack ≤575.98px (SC-002) */
+@media (max-width: 575.98px) {
+  .vagas-hero-search {
+    padding: 32px 16px 24px;
+  }
+
+  .vagas-hero-search__form {
+    border-radius: 24px;
+    padding: 0.75rem;
+  }
+
+  .vagas-hero-search__fields {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .vagas-hero-search__field {
+    padding: 0.35rem 0.5rem;
+  }
+
+  .vagas-hero-search__divider {
+    width: 100%;
+    height: 1px;
+    margin: 0.25rem 0;
+  }
+
+  .vagas-hero-search__submit-wrap {
+    padding: 0.5rem 0 0;
+  }
+
+  .vagas-hero-search__submit {
+    width: 100%;
+  }
+}

@@ -25,6 +25,19 @@ function custom_banners_theme($existing, $type, $theme, $path): array {
       'template' => 'block--hero-search',
       'path' => $path . '/templates',
     ],
+    'custom_banners_vagas_hero_search' => [
+      'variables' => [
+        'action' => '/vagas',
+        'values' => [
+          'title' => '',
+          'cidade' => '',
+          'cursos' => '',
+        ],
+        'pills' => [],
+      ],
+      'template' => 'block--vagas-hero-search',
+      'path' => $path . '/templates',
+    ],
   ];
 }
 

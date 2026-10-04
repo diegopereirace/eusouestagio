@@ -1,0 +1,10 @@
+uuid: c34b3601-6603-4106-b2f4-4eb3103f42ca
+langcode: pt-br
+status: true
+dependencies: {  }
+id: beneficio_vaga_p
+label: 'Benefício da Vaga'
+icon_uuid: null
+icon_default: null
+description: 'Ícone + título de benefício no detalhe da vaga.'
+behavior_plugins: {  }

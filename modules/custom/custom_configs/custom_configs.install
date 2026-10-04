@@ -10278,3 +10278,747 @@ function _custom_configs_cleanup_vagas_out_of_scope_blocks(): string {
   ]);
 }
 
+/**
+ * Feature 030: detalhe da vaga — CT FAQ, paragraph benefícios, fields e migrate.
+ *
+ * Deploy destino: cim → updb → cim → cr. Idempotente.
+ */
+function custom_configs_update_11047(): string {
+  $messages = [
+    _custom_configs_ensure_faq_structure(),
+    _custom_configs_seed_faq_examples(),
+    _custom_configs_ensure_beneficio_vaga_p(),
+    _custom_configs_ensure_field_vaga_requisitos_beneficios(),
+    _custom_configs_ensure_field_vaga_etapas_processo(),
+    _custom_configs_ensure_field_vaga_faq(),
+    _custom_configs_ensure_vagas_detalhe_displays(),
+    _custom_configs_migrate_vaga_requisitos_beneficios_legado(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Garante CT faq + field_resposta + form/view displays.
+ */
+function _custom_configs_ensure_faq_structure(): string {
+  $parts = [];
+  $bundle = 'faq';
+
+  if (!\Drupal\node\Entity\NodeType::load($bundle)) {
+    \Drupal\node\Entity\NodeType::create([
+      'type' => $bundle,
+      'name' => 'FAQ',
+      'description' => 'Perguntas e respostas associáveis a vagas.',
+      'new_revision' => FALSE,
+      'preview_mode' => 0,
+      'display_submitted' => FALSE,
+    ])->save();
+    $parts[] = (string) t('Content Type faq criado.');
+  }
+
+  if (!\Drupal\field\Entity\FieldStorageConfig::loadByName('node', 'field_resposta')) {
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => 'field_resposta',
+      'entity_type' => 'node',
+      'type' => 'text_long',
+      'settings' => [],
+      'module' => 'text',
+      'cardinality' => 1,
+      'translatable' => TRUE,
+    ])->save();
+    $parts[] = (string) t('Storage node.field_resposta criado.');
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName('node', $bundle, 'field_resposta')) {
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('node', 'field_resposta');
+    if ($storage) {
+      \Drupal\field\Entity\FieldConfig::create([
+        'field_storage' => $storage,
+        'bundle' => $bundle,
+        'label' => 'Resposta',
+        'required' => TRUE,
+        'translatable' => FALSE,
+        'settings' => [
+          'allowed_formats' => ['basic_html', 'full_html'],
+        ],
+      ])->save();
+      $parts[] = (string) t('Instance node.faq.field_resposta criada.');
+    }
+  }
+
+  $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+  $view_storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null $form_display */
+  $form_display = $form_storage->load("node.$bundle.default");
+  if (!$form_display) {
+    $form_display = $form_storage->create([
+      'targetEntityType' => 'node',
+      'bundle' => $bundle,
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $form_changed = $form_display->isNew();
+  foreach ([
+    'title' => [
+      'type' => 'string_textfield',
+      'weight' => 0,
+      'settings' => ['size' => 60, 'placeholder' => ''],
+    ],
+    'field_resposta' => [
+      'type' => 'text_textarea',
+      'weight' => 1,
+      'settings' => ['rows' => 5, 'placeholder' => ''],
+    ],
+    'status' => [
+      'type' => 'boolean_checkbox',
+      'weight' => 10,
+      'settings' => ['display_label' => TRUE],
+    ],
+  ] as $name => $component) {
+    if ($form_display->getComponent($name) === NULL) {
+      $form_display->setComponent($name, $component + [
+        'region' => 'content',
+        'third_party_settings' => [],
+      ]);
+      $form_changed = TRUE;
+    }
+  }
+  $form_display->removeComponent('uid');
+  $form_display->removeComponent('created');
+  $form_display->removeComponent('promote');
+  $form_display->removeComponent('sticky');
+  $form_display->removeComponent('path');
+  if ($form_changed) {
+    $form_display->save();
+    $parts[] = (string) t('Form display node.faq.default garantido.');
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null $view_display */
+  $view_display = $view_storage->load("node.$bundle.default");
+  if (!$view_display) {
+    $view_display = $view_storage->create([
+      'targetEntityType' => 'node',
+      'bundle' => $bundle,
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $view_changed = $view_display->isNew();
+  if ($view_display->getComponent('field_resposta') === NULL) {
+    $view_display->setComponent('field_resposta', [
+      'type' => 'text_default',
+      'label' => 'hidden',
+      'weight' => 0,
+      'region' => 'content',
+      'settings' => [],
+      'third_party_settings' => [],
+    ]);
+    $view_changed = TRUE;
+  }
+  if ($view_changed) {
+    $view_display->save();
+    $parts[] = (string) t('View display node.faq.default garantido.');
+  }
+
+  if (!$parts) {
+    return (string) t('Estrutura CT faq já presente.');
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Seeds 2 FAQ de exemplo (UUIDs fixos). Não sobrescreve editorial divergente.
+ */
+function _custom_configs_seed_faq_examples(): string {
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('node');
+  if (!isset($bundle_info['faq'])) {
+    return (string) t('Bundle faq ausente — rode cim/updb structure antes do seed.');
+  }
+
+  $seeds = [
+    [
+      'uuid' => 'b1c2d3e4-f5a6-4789-a012-3456789abc01',
+      'title' => 'Qual a duração do estágio?',
+      'resposta' => 'A duração varia conforme o edital da vaga e o acordo com a instituição de ensino. Consulte a descrição da vaga para o período informado.',
+    ],
+    [
+      'uuid' => 'b1c2d3e4-f5a6-4789-a012-3456789abc02',
+      'title' => 'Existe auxílio home office?',
+      'resposta' => 'Depende da vaga e da empresa. Quando disponível, o benefício aparece na seção Benefícios ou na descrição.',
+    ],
+  ];
+
+  $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+  $parts = [];
+
+  foreach ($seeds as $seed) {
+    $existing = $node_storage->loadByProperties(['uuid' => $seed['uuid']]);
+    /** @var \Drupal\node\NodeInterface|null $node */
+    $node = $existing ? reset($existing) : NULL;
+
+    if (!$node) {
+      $node = $node_storage->create([
+        'type' => 'faq',
+        'uuid' => $seed['uuid'],
+        'title' => $seed['title'],
+        'status' => 1,
+        'uid' => 1,
+      ]);
+      if ($node->hasField('field_resposta')) {
+        $node->set('field_resposta', [
+          'value' => $seed['resposta'],
+          'format' => 'basic_html',
+        ]);
+      }
+      $node->save();
+      $parts[] = (string) t('FAQ seed criado (@uuid).', ['@uuid' => $seed['uuid']]);
+      continue;
+    }
+
+    // Existente: preencher só campos vazios; não sobrescrever título/resposta divergentes.
+    $changed = FALSE;
+    if ($node->getTitle() === '' || $node->getTitle() === NULL) {
+      $node->setTitle($seed['title']);
+      $changed = TRUE;
+    }
+    if ($node->hasField('field_resposta') && $node->get('field_resposta')->isEmpty()) {
+      $node->set('field_resposta', [
+        'value' => $seed['resposta'],
+        'format' => 'basic_html',
+      ]);
+      $changed = TRUE;
+    }
+    if ($changed) {
+      $node->save();
+      $parts[] = (string) t('FAQ seed (@uuid) campos vazios preenchidos.', ['@uuid' => $seed['uuid']]);
+    }
+    else {
+      $parts[] = (string) t('FAQ seed (@uuid) já existe (no-op).', ['@uuid' => $seed['uuid']]);
+    }
+  }
+
+  return implode(' ', $parts);
+}
+
+/**
+ * Garante paragraph beneficio_vaga_p + instances field_image / field_text_simple + displays.
+ */
+function _custom_configs_ensure_beneficio_vaga_p(): string {
+  $parts = [];
+  $bundle = 'beneficio_vaga_p';
+
+  if (!\Drupal\paragraphs\Entity\ParagraphsType::load($bundle)) {
+    \Drupal\paragraphs\Entity\ParagraphsType::create([
+      'id' => $bundle,
+      'label' => 'Benefício da Vaga',
+      'description' => 'Ícone + título de benefício no detalhe da vaga.',
+    ])->save();
+    $parts[] = (string) t('Paragraph type beneficio_vaga_p criado.');
+  }
+
+  $paragraph_fields = [
+    'field_image' => [
+      'label' => 'Ícone',
+      'required' => FALSE,
+      'settings' => [
+        'handler' => 'default:file',
+        'handler_settings' => [],
+        'file_directory' => 'paragraph/beneficio-vaga/[date:custom:Y]-[date:custom:m]',
+        'file_extensions' => 'png gif jpg jpeg webp svg',
+        'max_filesize' => '',
+        'max_resolution' => '',
+        'min_resolution' => '',
+        'alt_field' => TRUE,
+        'alt_field_required' => FALSE,
+        'title_field' => TRUE,
+        'title_field_required' => FALSE,
+        'default_image' => [
+          'uuid' => NULL,
+          'alt' => '',
+          'title' => '',
+          'width' => NULL,
+          'height' => NULL,
+        ],
+      ],
+    ],
+    'field_text_simple' => [
+      'label' => 'Título',
+      'required' => TRUE,
+      'settings' => [],
+    ],
+  ];
+  foreach ($paragraph_fields as $field_name => $definition) {
+    if (\Drupal\field\Entity\FieldConfig::loadByName('paragraph', $bundle, $field_name)) {
+      continue;
+    }
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('paragraph', $field_name);
+    if (!$storage) {
+      $parts[] = (string) t('Storage paragraph.@field ausente — rode drush cim -y.', ['@field' => $field_name]);
+      continue;
+    }
+    \Drupal\field\Entity\FieldConfig::create([
+      'field_storage' => $storage,
+      'bundle' => $bundle,
+      'label' => $definition['label'],
+      'required' => $definition['required'],
+      'settings' => $definition['settings'],
+      'translatable' => FALSE,
+    ])->save();
+    $parts[] = (string) t('Instance paragraph.beneficio_vaga_p.@field criada.', ['@field' => $field_name]);
+  }
+
+  $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+  $view_storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+
+  $p_form = $form_storage->load("paragraph.$bundle.default");
+  if (!$p_form) {
+    $p_form = $form_storage->create([
+      'targetEntityType' => 'paragraph',
+      'bundle' => $bundle,
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $p_form_changed = $p_form->isNew();
+  foreach ([
+    'field_image' => [
+      'type' => 'image_image',
+      'weight' => 0,
+      'settings' => [
+        'progress_indicator' => 'throbber',
+        'preview_image_style' => 'thumbnail',
+      ],
+    ],
+    'field_text_simple' => [
+      'type' => 'string_textfield',
+      'weight' => 1,
+      'settings' => ['size' => 60, 'placeholder' => ''],
+    ],
+  ] as $name => $component) {
+    if ($p_form->getComponent($name) === NULL) {
+      $p_form->setComponent($name, $component + [
+        'region' => 'content',
+        'third_party_settings' => [],
+      ]);
+      $p_form_changed = TRUE;
+    }
+  }
+  $p_form->removeComponent('created');
+  $p_form->removeComponent('status');
+  if ($p_form_changed) {
+    $p_form->save();
+    $parts[] = (string) t('Form display paragraph.beneficio_vaga_p garantido.');
+  }
+
+  $p_view = $view_storage->load("paragraph.$bundle.default");
+  if (!$p_view) {
+    $p_view = $view_storage->create([
+      'targetEntityType' => 'paragraph',
+      'bundle' => $bundle,
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $p_view_changed = $p_view->isNew();
+  foreach ([
+    'field_image' => [
+      'type' => 'image',
+      'weight' => 0,
+      'settings' => [
+        'image_link' => '',
+        'image_style' => '',
+        'image_loading' => ['attribute' => 'lazy'],
+      ],
+    ],
+    'field_text_simple' => [
+      'type' => 'string',
+      'weight' => 1,
+      'settings' => ['link_to_entity' => FALSE],
+    ],
+  ] as $name => $component) {
+    if ($p_view->getComponent($name) === NULL) {
+      $p_view->setComponent($name, $component + [
+        'label' => 'hidden',
+        'region' => 'content',
+        'third_party_settings' => [],
+      ]);
+      $p_view_changed = TRUE;
+    }
+  }
+  if ($p_view_changed) {
+    $p_view->save();
+    $parts[] = (string) t('View display paragraph.beneficio_vaga_p garantido.');
+  }
+
+  if (!$parts) {
+    return (string) t('Paragraph beneficio_vaga_p já presente.');
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Garante field_vaga_requisitos (string multi) e field_vaga_beneficios (ERR paragraphs).
+ */
+function _custom_configs_ensure_field_vaga_requisitos_beneficios(): string {
+  $parts = [];
+  $entity_type = 'node';
+  $bundle = 'vagas';
+
+  if (!\Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, 'field_vaga_requisitos')) {
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => 'field_vaga_requisitos',
+      'entity_type' => $entity_type,
+      'type' => 'string',
+      'settings' => [
+        'max_length' => 255,
+        'case_sensitive' => FALSE,
+        'is_ascii' => FALSE,
+      ],
+      'module' => 'core',
+      'cardinality' => -1,
+      'translatable' => TRUE,
+    ])->save();
+    $parts[] = (string) t('Storage node.field_vaga_requisitos criado.');
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName($entity_type, $bundle, 'field_vaga_requisitos')) {
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, 'field_vaga_requisitos');
+    if ($storage) {
+      \Drupal\field\Entity\FieldConfig::create([
+        'field_storage' => $storage,
+        'bundle' => $bundle,
+        'label' => 'Requisitos',
+        'description' => 'Lista de requisitos exibida com checks no detalhe da vaga.',
+        'required' => FALSE,
+        'translatable' => FALSE,
+      ])->save();
+      $parts[] = (string) t('Instance node.vagas.field_vaga_requisitos criada.');
+    }
+  }
+
+  if (!\Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, 'field_vaga_beneficios')) {
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => 'field_vaga_beneficios',
+      'entity_type' => $entity_type,
+      'type' => 'entity_reference_revisions',
+      'settings' => ['target_type' => 'paragraph'],
+      'cardinality' => -1,
+      'translatable' => TRUE,
+    ])->save();
+    $parts[] = (string) t('Storage node.field_vaga_beneficios criado.');
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName($entity_type, $bundle, 'field_vaga_beneficios')) {
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, 'field_vaga_beneficios');
+    if ($storage) {
+      \Drupal\field\Entity\FieldConfig::create([
+        'field_storage' => $storage,
+        'bundle' => $bundle,
+        'label' => 'Benefícios',
+        'description' => 'Benefícios com ícone e título (paragraph beneficio_vaga_p).',
+        'required' => FALSE,
+        'translatable' => FALSE,
+        'settings' => [
+          'handler' => 'default:paragraph',
+          'handler_settings' => [
+            'target_bundles' => ['beneficio_vaga_p' => 'beneficio_vaga_p'],
+            'negate' => 0,
+            'target_bundles_drag_drop' => [
+              'beneficio_vaga_p' => [
+                'weight' => 0,
+                'enabled' => TRUE,
+              ],
+            ],
+          ],
+        ],
+      ])->save();
+      $parts[] = (string) t('Instance node.vagas.field_vaga_beneficios criada.');
+    }
+  }
+
+  if (!$parts) {
+    return (string) t('Fields requisitos/benefícios já presentes.');
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Garante field_vaga_etapas_processo (string multi) no bundle vagas.
+ */
+function _custom_configs_ensure_field_vaga_etapas_processo(): string {
+  $parts = [];
+  $entity_type = 'node';
+  $bundle = 'vagas';
+  $field_name = 'field_vaga_etapas_processo';
+
+  if (!\Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name)) {
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => $entity_type,
+      'type' => 'string',
+      'settings' => [
+        'max_length' => 255,
+        'case_sensitive' => FALSE,
+        'is_ascii' => FALSE,
+      ],
+      'module' => 'core',
+      'cardinality' => -1,
+      'translatable' => TRUE,
+    ])->save();
+    $parts[] = (string) t('Storage node.field_vaga_etapas_processo criado.');
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName($entity_type, $bundle, $field_name)) {
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name);
+    if ($storage) {
+      \Drupal\field\Entity\FieldConfig::create([
+        'field_storage' => $storage,
+        'bundle' => $bundle,
+        'label' => 'Etapas do processo',
+        'description' => 'Etapas do stepper “Processo de Contratação” no detalhe da vaga.',
+        'required' => FALSE,
+        'translatable' => FALSE,
+      ])->save();
+      $parts[] = (string) t('Instance node.vagas.field_vaga_etapas_processo criada.');
+    }
+  }
+
+  if (!$parts) {
+    return (string) t('field_vaga_etapas_processo já presente.');
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Garante field_vaga_faq (ER → node faq) no bundle vagas.
+ */
+function _custom_configs_ensure_field_vaga_faq(): string {
+  $parts = [];
+  $entity_type = 'node';
+  $bundle = 'vagas';
+  $field_name = 'field_vaga_faq';
+
+  if (!\Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name)) {
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => $entity_type,
+      'type' => 'entity_reference',
+      'settings' => ['target_type' => 'node'],
+      'module' => 'core',
+      'cardinality' => -1,
+      'translatable' => TRUE,
+    ])->save();
+    $parts[] = (string) t('Storage node.field_vaga_faq criado.');
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName($entity_type, $bundle, $field_name)) {
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name);
+    if ($storage) {
+      \Drupal\field\Entity\FieldConfig::create([
+        'field_storage' => $storage,
+        'bundle' => $bundle,
+        'label' => 'FAQ da vaga',
+        'description' => 'Perguntas frequentes associadas a esta vaga.',
+        'required' => FALSE,
+        'translatable' => FALSE,
+        'settings' => [
+          'handler' => 'default:node',
+          'handler_settings' => [
+            'target_bundles' => ['faq' => 'faq'],
+            'sort' => ['field' => '_none', 'direction' => 'ASC'],
+            'auto_create' => FALSE,
+            'auto_create_bundle' => '',
+          ],
+        ],
+      ])->save();
+      $parts[] = (string) t('Instance node.vagas.field_vaga_faq criada.');
+    }
+  }
+
+  if (!$parts) {
+    return (string) t('field_vaga_faq já presente.');
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Garante form/view displays dos novos campos em node.vagas.
+ */
+function _custom_configs_ensure_vagas_detalhe_displays(): string {
+  $parts = [];
+  $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+  $view_storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null $form_display */
+  $form_display = $form_storage->load('node.vagas.default');
+  if (!$form_display) {
+    return (string) t('Form display node.vagas.default ausente — rode drush cim -y.');
+  }
+
+  $form_changed = FALSE;
+  $form_components = [
+    'field_vaga_requisitos' => [
+      'type' => 'string_textfield',
+      'weight' => 20,
+      'settings' => ['size' => 60, 'placeholder' => ''],
+    ],
+    'field_vaga_beneficios' => [
+      'type' => 'paragraphs',
+      'weight' => 21,
+      'settings' => [
+        'title' => 'Benefício',
+        'title_plural' => 'Benefícios',
+        'edit_mode' => 'open',
+        'closed_mode' => 'summary',
+        'autocollapse' => 'none',
+        'closed_mode_threshold' => 0,
+        'add_mode' => 'dropdown',
+        'form_display_mode' => 'default',
+        'default_paragraph_type' => 'beneficio_vaga_p',
+        'features' => [
+          'collapse_edit_all' => 'collapse_edit_all',
+          'duplicate' => 'duplicate',
+        ],
+      ],
+    ],
+    'field_vaga_etapas_processo' => [
+      'type' => 'string_textfield',
+      'weight' => 22,
+      'settings' => ['size' => 60, 'placeholder' => ''],
+    ],
+    'field_vaga_faq' => [
+      'type' => 'entity_reference_autocomplete',
+      'weight' => 23,
+      'settings' => [
+        'match_operator' => 'CONTAINS',
+        'match_limit' => 10,
+        'size' => 60,
+        'placeholder' => '',
+      ],
+    ],
+  ];
+  foreach ($form_components as $name => $component) {
+    if ($form_display->getComponent($name) === NULL && \Drupal\field\Entity\FieldConfig::loadByName('node', 'vagas', $name)) {
+      $form_display->setComponent($name, $component + [
+        'region' => 'content',
+        'third_party_settings' => [],
+      ]);
+      $form_changed = TRUE;
+    }
+  }
+  if ($form_changed) {
+    $form_display->save();
+    $parts[] = (string) t('Form display node.vagas.default: campos detalhe 030 garantidos.');
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null $view_display */
+  $view_display = $view_storage->load('node.vagas.default');
+  if ($view_display) {
+    $view_changed = FALSE;
+    foreach (array_keys($form_components) as $name) {
+      // Twig full lê a entity — manter hidden no view display.
+      if ($view_display->getComponent($name) !== NULL) {
+        $view_display->removeComponent($name);
+        $view_changed = TRUE;
+      }
+      elseif (\Drupal\field\Entity\FieldConfig::loadByName('node', 'vagas', $name)) {
+        // Explicitamente fora do content (hidden).
+        $view_display->removeComponent($name);
+      }
+    }
+    if ($view_changed) {
+      $view_display->save();
+      $parts[] = (string) t('View display node.vagas.default: campos 030 ocultos (Twig full).');
+    }
+  }
+
+  if (!$parts) {
+    return (string) t('Displays node.vagas detalhe 030 já ok.');
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Migra legado field_text_simple_multiple/_2 → novos campos se destino vazio.
+ */
+function _custom_configs_migrate_vaga_requisitos_beneficios_legado(): string {
+  $nids = \Drupal::entityTypeManager()->getStorage('node')->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('type', 'vagas')
+    ->execute();
+  if (!$nids) {
+    return (string) t('Migrate legado requisitos/benefícios: nenhuma vaga.');
+  }
+
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
+  $migrated_req = 0;
+  $migrated_ben = 0;
+
+  foreach ($storage->loadMultiple($nids) as $node) {
+    /** @var \Drupal\node\NodeInterface $node */
+    $changed = FALSE;
+
+    if (
+      $node->hasField('field_vaga_requisitos')
+      && $node->get('field_vaga_requisitos')->isEmpty()
+      && $node->hasField('field_text_simple_multiple')
+      && !$node->get('field_text_simple_multiple')->isEmpty()
+    ) {
+      $values = [];
+      foreach ($node->get('field_text_simple_multiple') as $item) {
+        if ($item->value !== NULL && $item->value !== '') {
+          $values[] = ['value' => $item->value];
+        }
+      }
+      if ($values) {
+        $node->set('field_vaga_requisitos', $values);
+        $changed = TRUE;
+        $migrated_req++;
+      }
+    }
+
+    if (
+      $node->hasField('field_vaga_beneficios')
+      && $node->get('field_vaga_beneficios')->isEmpty()
+      && $node->hasField('field_text_simple_multiple_2')
+      && !$node->get('field_text_simple_multiple_2')->isEmpty()
+    ) {
+      $paragraphs = [];
+      foreach ($node->get('field_text_simple_multiple_2') as $item) {
+        if ($item->value === NULL || $item->value === '') {
+          continue;
+        }
+        /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
+        $paragraph = $paragraph_storage->create([
+          'type' => 'beneficio_vaga_p',
+        ]);
+        if ($paragraph->hasField('field_text_simple')) {
+          $paragraph->set('field_text_simple', $item->value);
+        }
+        $paragraph->save();
+        $paragraphs[] = [
+          'target_id' => $paragraph->id(),
+          'target_revision_id' => $paragraph->getRevisionId(),
+        ];
+      }
+      if ($paragraphs) {
+        $node->set('field_vaga_beneficios', $paragraphs);
+        $changed = TRUE;
+        $migrated_ben++;
+      }
+    }
+
+    if ($changed) {
+      $node->save();
+    }
+  }
+
+  return (string) t('Migrate legado: @req vaga(s) requisitos, @ben vaga(s) benefícios.', [
+    '@req' => $migrated_req,
+    '@ben' => $migrated_ben,
+  ]);
+}
+

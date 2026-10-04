@@ -1,0 +1,11 @@
+uuid: 11ff19f5-871b-42c2-80ec-f7a5f4250cc3
+langcode: pt-br
+status: true
+dependencies: {  }
+name: FAQ
+type: faq
+description: 'Perguntas e respostas associáveis a vagas.'
+help: null
+new_revision: false
+preview_mode: 0
+display_submitted: false

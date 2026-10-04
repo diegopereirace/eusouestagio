@@ -1,0 +1,437 @@
+/**
+ * Detalhe da vaga (view mode full) — feature 030.
+ * Escopo: .vaga-detalhe / .node--type-vagas.node--view-mode-full
+ * Não alterar listagem .item-vaga--lista nem cards .item-vaga--destaque.
+ */
+
+.vaga-detalhe {
+  --vd-navy: #023c62;
+  --vd-orange: #fd7b1a;
+  --vd-resumo-bg: #f3f6f9;
+  --vd-border: #e6ebf0;
+  --vd-text: #1a2b3c;
+  --vd-muted: #6b7c8f;
+  color: var(--vd-text);
+}
+
+.vaga-detalhe__header {
+  margin-bottom: 2rem;
+}
+
+.vaga-detalhe__header-top {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.vaga-detalhe__logo img,
+.vaga-detalhe__empresa-logo img {
+  display: block;
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 1px solid var(--vd-border);
+  background: #fff;
+}
+
+.vaga-detalhe__empresa-logo img {
+  width: 56px;
+  height: 56px;
+}
+
+.vaga-detalhe__title {
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 700;
+  color: var(--vd-navy);
+  margin: 0 0 0.35rem;
+  line-height: 1.25;
+}
+
+.vaga-detalhe__empresa-nome {
+  margin: 0;
+  font-weight: 600;
+  color: var(--vd-text);
+}
+
+.vaga-detalhe__local {
+  margin: 0.35rem 0 0;
+  color: var(--vd-muted);
+  font-size: 0.95rem;
+}
+
+.vaga-detalhe__local i {
+  margin-right: 0.35rem;
+  color: var(--vd-navy);
+}
+
+.vaga-detalhe__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.vaga-detalhe__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: #eef4f8;
+  color: var(--vd-navy);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.vaga-detalhe__badge--bolsa {
+  background: rgba(253, 123, 26, 0.12);
+  color: var(--vd-orange);
+}
+
+.vaga-detalhe__badge--muted {
+  background: #f0f2f5;
+  color: var(--vd-muted);
+  font-weight: 500;
+}
+
+.vaga-detalhe__section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--vd-navy);
+  margin: 0 0 1rem;
+}
+
+.vaga-detalhe__sobre,
+.vaga-detalhe__requisitos,
+.vaga-detalhe__beneficios,
+.vaga-detalhe__processo,
+.vaga-detalhe__empresa,
+.vaga-detalhe__faq {
+  margin-bottom: 2rem;
+}
+
+.vaga-detalhe__section-body {
+  line-height: 1.65;
+}
+
+.vaga-detalhe__checks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.vaga-detalhe__check {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.vaga-detalhe__check-icon {
+  flex: 0 0 1.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: var(--vd-navy);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  margin-top: 0.1rem;
+}
+
+.vaga-detalhe__beneficio-card {
+  background: #fff;
+  border: 1px solid var(--vd-border);
+  border-radius: 12px;
+  padding: 1rem 0.75rem;
+  text-align: center;
+  height: 100%;
+  min-height: 7rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.vaga-detalhe__beneficio-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--vd-navy);
+  font-size: 1.25rem;
+}
+
+.vaga-detalhe__beneficio-icon img {
+  max-width: 32px;
+  max-height: 32px;
+  object-fit: contain;
+}
+
+.vaga-detalhe__beneficio-title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--vd-text);
+}
+
+/* Stepper */
+.vaga-detalhe__stepper {
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0;
+  overflow-x: auto;
+}
+
+.vaga-detalhe__step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1 1 5.5rem;
+  min-width: 5.5rem;
+  text-align: center;
+  padding: 0 0.5rem 0.5rem;
+}
+
+.vaga-detalhe__step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 1.1rem;
+  left: calc(50% + 1.25rem);
+  width: calc(100% - 2.5rem);
+  height: 2px;
+  background: #d5dee7;
+}
+
+.vaga-detalhe__step-circle {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--vd-navy);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.vaga-detalhe__step--last .vaga-detalhe__step-circle {
+  background: var(--vd-orange);
+}
+
+.vaga-detalhe__step-label {
+  font-size: 0.85rem;
+  color: var(--vd-text);
+  font-weight: 500;
+}
+
+/* Empresa card — sem Ver Empresa */
+.vaga-detalhe__empresa-card {
+  border: 1px solid var(--vd-border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  background: #fff;
+}
+
+.vaga-detalhe__empresa-card-top {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.vaga-detalhe__empresa-card-nome {
+  margin: 0;
+  font-weight: 700;
+  color: var(--vd-navy);
+}
+
+.vaga-detalhe__empresa-sobre {
+  margin: 0;
+  color: var(--vd-muted);
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* FAQ */
+.vaga-detalhe__faq .accordion-item {
+  border-color: var(--vd-border);
+}
+
+.vaga-detalhe__faq .accordion-button {
+  font-weight: 600;
+  color: var(--vd-navy);
+  background: #fff;
+}
+
+.vaga-detalhe__faq .accordion-button:not(.collapsed) {
+  color: var(--vd-navy);
+  background: #f7fafc;
+  box-shadow: none;
+}
+
+.vaga-detalhe__faq .accordion-button:focus {
+  box-shadow: 0 0 0 0.2rem rgba(2, 60, 98, 0.15);
+}
+
+/* CTA final */
+.vaga-detalhe__cta {
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.vaga-detalhe__cta-inner {
+  background: var(--vd-navy);
+  color: #fff;
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.vaga-detalhe__cta-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.vaga-detalhe__cta-text {
+  margin: 0 0 1.25rem;
+  opacity: 0.9;
+}
+
+.vaga-detalhe__cta-btn {
+  background: var(--vd-orange) !important;
+  border-color: var(--vd-orange) !important;
+  color: #fff !important;
+  min-width: 14rem;
+}
+
+.vaga-detalhe__cta-btn:disabled {
+  opacity: 0.75;
+}
+
+/* Sidebar */
+.vaga-detalhe__acoes,
+.vaga-detalhe__resumo,
+.vaga-detalhe__perfil {
+  border: 1px solid var(--vd-border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  background: #fff;
+  margin-bottom: 1rem;
+}
+
+.vaga-detalhe__resumo {
+  background: var(--vd-resumo-bg);
+}
+
+.vaga-detalhe__compartilhar-label,
+.vaga-detalhe__resumo-title,
+.vaga-detalhe__perfil-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--vd-navy);
+  margin: 0 0 0.75rem;
+}
+
+.vaga-detalhe__compartilhar-btns {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.vaga-detalhe__share-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 1px solid var(--vd-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--vd-navy);
+  text-decoration: none;
+}
+
+.vaga-detalhe__share-btn:hover {
+  background: #eef4f8;
+  color: var(--vd-navy);
+}
+
+.vaga-detalhe__resumo-list {
+  margin: 0;
+}
+
+.vaga-detalhe__resumo-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid rgba(2, 60, 98, 0.08);
+}
+
+.vaga-detalhe__resumo-row:last-child {
+  border-bottom: 0;
+}
+
+.vaga-detalhe__resumo-row dt {
+  margin: 0;
+  color: var(--vd-muted);
+  font-weight: 500;
+}
+
+.vaga-detalhe__resumo-row dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+}
+
+.vaga-detalhe__perfil-bar {
+  height: 0.5rem;
+  background: #dde5ec;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.vaga-detalhe__perfil-bar-fill {
+  height: 100%;
+  background: var(--vd-orange);
+  border-radius: inherit;
+}
+
+.vaga-detalhe__perfil-pct {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  color: var(--vd-muted);
+}
+
+@media (max-width: 991.98px) {
+  .vaga-detalhe .container {
+    overflow-x: clip;
+  }
+
+  .vaga-detalhe__stepper {
+    flex-wrap: nowrap;
+    padding-bottom: 0.25rem;
+  }
+
+  .vaga-detalhe__step {
+    flex: 0 0 6.5rem;
+  }
+}

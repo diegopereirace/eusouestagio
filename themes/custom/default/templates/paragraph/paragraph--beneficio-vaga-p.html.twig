@@ -1,0 +1,32 @@
+{#
+/**
+ * @file
+ * Paragraph Benefício da Vaga (beneficio_vaga_p) — feature 030.
+ */
+#}
+{%
+  set classes = [
+    'paragraph',
+    'paragraph--type--' ~ paragraph.bundle|clean_class,
+    view_mode ? 'paragraph--view-mode--' ~ view_mode|clean_class,
+    'vaga-detalhe__beneficio-card',
+  ]
+%}
+{% set card_title = content.field_text_simple|render|striptags|trim %}
+{% set has_icon = content.field_image['#items'] is defined and content.field_image['#items'][0] is defined and content.field_image['#items'][0].entity.uri.value is defined %}
+
+{% if has_icon or card_title %}
+  <div{{ attributes.addClass(classes) }}>
+    <div class="vaga-detalhe__beneficio-icon">
+      {% if has_icon %}
+        {% set icon_uri = content.field_image['#items'][0].entity.uri.value %}
+        <img src="{{ file_url(icon_uri) }}" alt="" width="32" height="32" loading="lazy">
+      {% else %}
+        <i class="fa-solid fa-gift" aria-hidden="true"></i>
+      {% endif %}
+    </div>
+    {% if card_title %}
+      <p class="vaga-detalhe__beneficio-title">{{ card_title }}</p>
+    {% endif %}
+  </div>
+{% endif %}

@@ -1,0 +1,19 @@
+uuid: c1befe04-a6bf-43b0-bcef-f4144be4fd7c
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_vaga_requisitos
+    - node.type.vagas
+id: node.vagas.field_vaga_requisitos
+field_name: field_vaga_requisitos
+entity_type: node
+bundle: vagas
+label: Requisitos
+description: 'Lista de requisitos exibida com checks no detalhe da vaga.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

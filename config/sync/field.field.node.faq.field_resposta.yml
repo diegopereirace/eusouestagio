@@ -1,0 +1,26 @@
+uuid: 3b6177d0-6b6e-4392-a847-21ae9c38c30d
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_resposta
+    - filter.format.basic_html
+    - filter.format.full_html
+    - node.type.faq
+  module:
+    - text
+id: node.faq.field_resposta
+field_name: field_resposta
+entity_type: node
+bundle: faq
+label: Resposta
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - basic_html
+    - full_html
+field_type: text_long

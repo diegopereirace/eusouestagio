@@ -135,6 +135,7 @@ Atribuição no cadastro: forms de registro adicionam `candidato` ou `empresa` s
 |--------|--------------|--------|
 | Vaga | `vagas` | Anúncio de estágio |
 | Candidatura | `candidatura` | Relação candidato ↔ vaga + status |
+| FAQ | `faq` | Pergunta (`title`) + resposta (`field_resposta`); associável a vagas via `field_vaga_faq` |
 | Banners | `banners` | Banners unificados (home + internas) |
 | Quem somos | `quem_somos` | Institucional |
 | Contato | `contato` | Página `/contato` (webform + painel) |
@@ -175,10 +176,16 @@ Deploy (layout v2 `/quem-somos`): `drush cex` na origem (estrutura em `config/sy
 | `field_text_simple` | Salário / bolsa (rótulo de produto via UI) |
 | `field_text_simple_2` | Nome empresa em cards (quando aplicável) |
 | `field_text_long_formatted` | Descrição |
-| `field_text_simple_multiple`, `_2` | Listas auxiliares |
+| `field_text_simple_multiple`, `_2` | Listas auxiliares (legado; migração opcional → campos `field_vaga_*` no hook `11047`) |
 | `field_auxilio_transporte` | Auxílio |
 | `field_horarios` | Horários |
 | `field_vaga_destaque` | Boolean “Destaque” (default off); badge/borda/prioridade na listagem `/vagas`; checkbox no form `default` |
+| `field_vaga_requisitos` | String multi — requisitos com checks no detalhe full |
+| `field_vaga_beneficios` | ERR → paragraph `beneficio_vaga_p` (ícone `field_image` + título `field_text_simple`) |
+| `field_vaga_etapas_processo` | String multi — stepper “Processo de Contratação” |
+| `field_vaga_faq` | ER multi → node `faq` — accordion Bootstrap no detalhe |
+
+Detalhe full (feature **030**): Twig `node--vagas--full.html.twig` + library `vagas_detalhe` / CSS `.vaga-detalhe` (grid 8/4; sem Match; sem “Ver Empresa”); seeds FAQ UUID `b1c2d3e4-…abc01` / `…abc02`; deploy `custom_configs_update_11047` + `drush cex` (destino `cim` → `updb` → `cim` → `cr`). Listagem `/vagas` e cards laranja Home/PE **intactos**.
 
 #### 3.1.1b `banners`
 

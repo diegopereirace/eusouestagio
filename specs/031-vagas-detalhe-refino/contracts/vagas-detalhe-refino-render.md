@@ -38,7 +38,7 @@
 
 | Bloco | Conteúdo |
 |-------|----------|
-| Ações | Candidatar-se (largo) + Salvar + Compartilhar — classes/fluxos existentes |
+| Ações | Candidatar-se (largo); Salvar \| Compartilhar lado a lado; Compartilhar abre popover WA/FB/LinkedIn com URL canônica |
 | Resumo da Vaga | Período / Bolsa Auxílio / Modelo / Vagas (“Não informado” se sem campo) |
 
 ## FAQ accordion

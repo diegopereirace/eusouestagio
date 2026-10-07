@@ -126,7 +126,18 @@
         btn.addEventListener('click', function () {
           var button = this;
           var nodeId = button.getAttribute('data-node-id');
-          var originalText = button.textContent.trim();
+          var labelEl = button.querySelector('.js-salvar-vaga-label');
+          var originalText = labelEl
+            ? labelEl.textContent.trim()
+            : button.textContent.trim();
+          var wasSaved = button.classList.contains('ui-btn--saved');
+
+          function renderSalvarLabel(text, saved) {
+            button.innerHTML =
+              '<i class="fa-regular fa-bookmark" aria-hidden="true"></i>' +
+              '<span class="js-salvar-vaga-label">' + text + '</span>';
+            button.classList.toggle('ui-btn--saved', !!saved);
+          }
 
           // Desabilita o botão e exibe spinner.
           button.disabled = true;
@@ -152,23 +163,21 @@
               button.disabled = false;
 
               if (data.status === 'saved') {
-                button.textContent = Drupal.t('Remover dos Salvos');
-                button.classList.add('ui-btn--saved');
+                renderSalvarLabel(Drupal.t('Remover'), true);
                 showActionModal(data.message || Drupal.t('Vaga salva com sucesso.'));
               }
               else if (data.status === 'removed') {
-                button.textContent = Drupal.t('Salvar Vaga');
-                button.classList.remove('ui-btn--saved');
+                renderSalvarLabel(Drupal.t('Salvar'), false);
                 showActionModal(data.message || Drupal.t('Vaga removida dos salvos.'));
               }
               else {
-                button.textContent = originalText;
+                renderSalvarLabel(originalText, wasSaved);
                 showActionModal(data.message || Drupal.t('Nao foi possivel concluir a operacao.'), 'warning');
               }
             })
             .catch(function (error) {
               button.disabled = false;
-              button.textContent = originalText;
+              renderSalvarLabel(originalText, wasSaved);
               showActionModal((error && error.error) || Drupal.t('Ocorreu um erro ao salvar a vaga.'), 'error');
             });
         });

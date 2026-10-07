@@ -12157,3 +12157,576 @@ function _custom_configs_ensure_placement_ctav1vagas(): string {
   return (string) t('Placement default_ctav1vagas já ok.');
 }
 
+/**
+ * Feature 032 — Header da vaga com CT Empresa + fields + seed.
+ *
+ * Destino: cim → updb → cim → cr.
+ * Não migra/remove field_empresa_u; não altera listagem/Hero/cards/seções 031.
+ */
+function custom_configs_update_11049(): string {
+  $messages = [
+    _custom_configs_ensure_node_type_empresa(),
+    _custom_configs_ensure_field_vaga_empresa(),
+    _custom_configs_ensure_field_vaga_carga_horaria(),
+    _custom_configs_ensure_empresa_permissions(),
+    _custom_configs_seed_empresa_ecoconstrutora(),
+    _custom_configs_seed_vaga_engenheiro_civil(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Garante CT empresa + instance field_imagem + form/view displays mínimos.
+ */
+function _custom_configs_ensure_node_type_empresa(): string {
+  $parts = [];
+  $bundle = 'empresa';
+
+  if (!\Drupal\node\Entity\NodeType::load($bundle)) {
+    $type = \Drupal\node\Entity\NodeType::create([
+      'type' => $bundle,
+      'name' => 'Empresa',
+      'description' => 'Perfil público da organização anunciante (logo + nome). Distinto da role user empresa.',
+      'new_revision' => FALSE,
+      'preview_mode' => DRUPAL_OPTIONAL,
+      'display_submitted' => FALSE,
+    ]);
+    $type->setThirdPartySetting('menu_ui', 'available_menus', []);
+    $type->setThirdPartySetting('menu_ui', 'parent', '');
+    $type->save();
+    $parts[] = (string) t('Content Type empresa criado.');
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName('node', $bundle, 'field_imagem')) {
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('node', 'field_imagem');
+    if (!$storage) {
+      $parts[] = (string) t('Storage node.field_imagem ausente — rode drush cim -y antes do updb.');
+    }
+    else {
+      \Drupal\field\Entity\FieldConfig::create([
+        'field_storage' => $storage,
+        'bundle' => $bundle,
+        'label' => 'Logo',
+        'description' => 'Logo da empresa no header do detalhe da vaga.',
+        'required' => FALSE,
+        'translatable' => FALSE,
+        'settings' => [
+          'handler' => 'default:file',
+          'handler_settings' => [],
+          'file_directory' => 'empresa/logo/[date:custom:Y]-[date:custom:m]',
+          'file_extensions' => 'png gif jpg jpeg webp',
+          'max_filesize' => '',
+          'max_resolution' => '',
+          'min_resolution' => '',
+          'alt_field' => TRUE,
+          'alt_field_required' => FALSE,
+          'title_field' => FALSE,
+          'title_field_required' => FALSE,
+          'default_image' => [
+            'uuid' => '',
+            'alt' => '',
+            'title' => '',
+            'width' => NULL,
+            'height' => NULL,
+          ],
+        ],
+      ])->save();
+      $parts[] = (string) t('Instance node.empresa.field_imagem criada.');
+    }
+  }
+
+  $parts[] = _custom_configs_ensure_empresa_displays();
+
+  if (!$parts) {
+    return (string) t('CT empresa já ok.');
+  }
+  return implode(' ', array_filter($parts));
+}
+
+/**
+ * Garante form/view displays default do CT empresa (title + logo).
+ */
+function _custom_configs_ensure_empresa_displays(): string {
+  $parts = [];
+  $bundle = 'empresa';
+  $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+  $view_storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null $form_display */
+  $form_display = $form_storage->load("node.$bundle.default");
+  if (!$form_display) {
+    $form_display = $form_storage->create([
+      'targetEntityType' => 'node',
+      'bundle' => $bundle,
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $form_changed = $form_display->isNew();
+  foreach ([
+    'title' => [
+      'type' => 'string_textfield',
+      'weight' => 0,
+      'settings' => ['size' => 60, 'placeholder' => ''],
+    ],
+    'field_imagem' => [
+      'type' => 'image_image',
+      'weight' => 1,
+      'settings' => [
+        'progress_indicator' => 'throbber',
+        'preview_image_style' => 'thumbnail',
+      ],
+    ],
+    'status' => [
+      'type' => 'boolean_checkbox',
+      'weight' => 10,
+      'settings' => ['display_label' => TRUE],
+    ],
+  ] as $name => $component) {
+    if ($name !== 'title' && $name !== 'status' && !\Drupal\field\Entity\FieldConfig::loadByName('node', $bundle, $name)) {
+      continue;
+    }
+    $current = $form_display->getComponent($name);
+    if ($current === NULL || ($current['type'] ?? '') !== $component['type']) {
+      $form_display->setComponent($name, $component + [
+        'region' => 'content',
+        'third_party_settings' => [],
+      ]);
+      $form_changed = TRUE;
+    }
+  }
+  if ($form_changed) {
+    $form_display->save();
+    $parts[] = (string) t('Form display node.empresa.default garantido.');
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null $view_display */
+  $view_display = $view_storage->load("node.$bundle.default");
+  if (!$view_display) {
+    $view_display = $view_storage->create([
+      'targetEntityType' => 'node',
+      'bundle' => $bundle,
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $view_changed = $view_display->isNew();
+  foreach ([
+    'field_imagem' => [
+      'type' => 'image',
+      'weight' => 0,
+      'label' => 'hidden',
+      'settings' => [
+        'image_link' => '',
+        'image_style' => '',
+        'image_loading' => ['attribute' => 'lazy'],
+      ],
+    ],
+  ] as $name => $component) {
+    if (!\Drupal\field\Entity\FieldConfig::loadByName('node', $bundle, $name)) {
+      continue;
+    }
+    if ($view_display->getComponent($name) === NULL) {
+      $view_display->setComponent($name, $component + [
+        'region' => 'content',
+        'third_party_settings' => [],
+      ]);
+      $view_changed = TRUE;
+    }
+  }
+  if ($view_changed) {
+    $view_display->save();
+    $parts[] = (string) t('View display node.empresa.default garantido.');
+  }
+
+  if (!$parts) {
+    return (string) t('Displays empresa já ok.');
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Garante field_vaga_empresa (ER → node empresa) no bundle vagas + displays.
+ */
+function _custom_configs_ensure_field_vaga_empresa(): string {
+  $parts = [];
+  $entity_type = 'node';
+  $bundle = 'vagas';
+  $field_name = 'field_vaga_empresa';
+
+  if (!\Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name)) {
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => $entity_type,
+      'type' => 'entity_reference',
+      'settings' => ['target_type' => 'node'],
+      'module' => 'core',
+      'cardinality' => 1,
+      'translatable' => TRUE,
+    ])->save();
+    $parts[] = (string) t('Storage node.field_vaga_empresa criado.');
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName($entity_type, $bundle, $field_name)) {
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name);
+    if ($storage) {
+      \Drupal\field\Entity\FieldConfig::create([
+        'field_storage' => $storage,
+        'bundle' => $bundle,
+        'label' => 'Empresa da vaga',
+        'description' => 'Perfil público (CT Empresa) exibido no header do detalhe.',
+        'required' => FALSE,
+        'translatable' => FALSE,
+        'settings' => [
+          'handler' => 'default:node',
+          'handler_settings' => [
+            'target_bundles' => ['empresa' => 'empresa'],
+            'sort' => ['field' => 'title', 'direction' => 'ASC'],
+            'auto_create' => FALSE,
+            'auto_create_bundle' => '',
+          ],
+        ],
+      ])->save();
+      $parts[] = (string) t('Instance node.vagas.field_vaga_empresa criada.');
+    }
+  }
+
+  $parts[] = _custom_configs_ensure_vaga_header_empresa_displays();
+
+  if (!$parts) {
+    return (string) t('field_vaga_empresa já ok.');
+  }
+  return implode(' ', array_filter($parts));
+}
+
+/**
+ * Garante field_vaga_carga_horaria (string) no bundle vagas + displays.
+ */
+function _custom_configs_ensure_field_vaga_carga_horaria(): string {
+  $parts = [];
+  $entity_type = 'node';
+  $bundle = 'vagas';
+  $field_name = 'field_vaga_carga_horaria';
+
+  if (!\Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name)) {
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => $entity_type,
+      'type' => 'string',
+      'settings' => [
+        'max_length' => 255,
+        'case_sensitive' => FALSE,
+        'is_ascii' => FALSE,
+      ],
+      'module' => 'core',
+      'cardinality' => 1,
+      'translatable' => TRUE,
+    ])->save();
+    $parts[] = (string) t('Storage node.field_vaga_carga_horaria criado.');
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName($entity_type, $bundle, $field_name)) {
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name);
+    if ($storage) {
+      \Drupal\field\Entity\FieldConfig::create([
+        'field_storage' => $storage,
+        'bundle' => $bundle,
+        'label' => 'Carga horária',
+        'description' => 'Texto da pill no header (ex.: 30h semanais).',
+        'required' => FALSE,
+        'translatable' => FALSE,
+        'settings' => [],
+      ])->save();
+      $parts[] = (string) t('Instance node.vagas.field_vaga_carga_horaria criada.');
+    }
+  }
+
+  $parts[] = _custom_configs_ensure_vaga_header_empresa_displays();
+
+  if (!$parts) {
+    return (string) t('field_vaga_carga_horaria já ok.');
+  }
+  return implode(' ', array_filter($parts));
+}
+
+/**
+ * Garante form/view components dos campos do header empresa no bundle vagas.
+ */
+function _custom_configs_ensure_vaga_header_empresa_displays(): string {
+  $parts = [];
+  $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+  $view_storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null $form_display */
+  $form_display = $form_storage->load('node.vagas.default');
+  if (!$form_display) {
+    return (string) t('Form display node.vagas.default ausente — rode drush cim -y.');
+  }
+
+  $form_changed = FALSE;
+  $form_components = [
+    'field_vaga_empresa' => [
+      'type' => 'entity_reference_autocomplete',
+      'weight' => 2,
+      'settings' => [
+        'match_operator' => 'CONTAINS',
+        'match_limit' => 10,
+        'size' => 60,
+        'placeholder' => '',
+      ],
+    ],
+    'field_vaga_carga_horaria' => [
+      'type' => 'string_textfield',
+      'weight' => 4,
+      'settings' => ['size' => 60, 'placeholder' => '30h semanais'],
+    ],
+  ];
+  foreach ($form_components as $name => $component) {
+    if (!\Drupal\field\Entity\FieldConfig::loadByName('node', 'vagas', $name)) {
+      continue;
+    }
+    if ($form_display->getComponent($name) === NULL) {
+      $form_display->setComponent($name, $component + [
+        'region' => 'content',
+        'third_party_settings' => [],
+      ]);
+      $form_changed = TRUE;
+    }
+  }
+  if ($form_changed) {
+    $form_display->save();
+    $parts[] = (string) t('Form display vagas: Empresa da vaga / Carga horária.');
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null $view_display */
+  $view_display = $view_storage->load('node.vagas.default');
+  if ($view_display) {
+    $view_changed = FALSE;
+    foreach (['field_vaga_empresa', 'field_vaga_carga_horaria'] as $name) {
+      if (!\Drupal\field\Entity\FieldConfig::loadByName('node', 'vagas', $name)) {
+        continue;
+      }
+      // Twig full consome a entity; ocultar no display default evita ruído.
+      if ($view_display->getComponent($name) !== NULL) {
+        $view_display->removeComponent($name);
+        $view_changed = TRUE;
+      }
+      elseif (!$view_display->getComponent($name) && $view_display->getHighestWeight() !== NULL) {
+        // Já oculto (hidden) — ok.
+      }
+    }
+    // Garantir hidden explícito se o componente nunca foi setado.
+    foreach (['field_vaga_empresa', 'field_vaga_carga_horaria'] as $name) {
+      if (!\Drupal\field\Entity\FieldConfig::loadByName('node', 'vagas', $name)) {
+        continue;
+      }
+      $hidden = $view_display->get('hidden') ?: [];
+      if (!isset($hidden[$name]) && $view_display->getComponent($name) === NULL) {
+        $hidden[$name] = TRUE;
+        $view_display->set('hidden', $hidden);
+        $view_changed = TRUE;
+      }
+    }
+    if ($view_changed) {
+      $view_display->save();
+      $parts[] = (string) t('View display vagas: campos header ocultos (Twig).');
+    }
+  }
+
+  if (!$parts) {
+    return (string) t('Displays header empresa na vaga já ok.');
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Permissões mínimas de CT empresa para papéis editoriais (sem anônimo).
+ */
+function _custom_configs_ensure_empresa_permissions(): string {
+  $permissions = [
+    'create empresa content',
+    'edit any empresa content',
+    'delete any empresa content',
+    'edit own empresa content',
+    'delete own empresa content',
+  ];
+  $role_ids = ['moderador', 'content_editor'];
+  $granted = [];
+
+  foreach ($role_ids as $rid) {
+    /** @var \Drupal\user\RoleInterface|null $role */
+    $role = \Drupal\user\Entity\Role::load($rid);
+    if (!$role) {
+      continue;
+    }
+    $changed = FALSE;
+    foreach ($permissions as $permission) {
+      if (!$role->hasPermission($permission)) {
+        $role->grantPermission($permission);
+        $changed = TRUE;
+      }
+    }
+    if ($changed) {
+      $role->save();
+      $granted[] = $rid;
+    }
+  }
+
+  if (!$granted) {
+    return (string) t('Permissões CT empresa já ok nos papéis editoriais.');
+  }
+  return (string) t('Permissões CT empresa concedidas a: @roles.', [
+    '@roles' => implode(', ', $granted),
+  ]);
+}
+
+/**
+ * Seed idempotente: Empresa EcoConstrutora + logo asset.
+ */
+function _custom_configs_seed_empresa_ecoconstrutora(): string {
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('node');
+  if (!isset($bundle_info['empresa'])) {
+    return (string) t('Bundle empresa ausente — rode ensures/cim antes do seed.');
+  }
+
+  $uuid = 'f6a7b8c9-d0e1-4234-e567-89abcdef0123';
+  $title = 'EcoConstrutora';
+  $asset = 'vaga-header-empresa/logo-ecoconstrutora.png';
+  $dest = 'public://empresa/logo-ecoconstrutora.png';
+
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $by_uuid = $storage->loadByProperties(['uuid' => $uuid]);
+
+  if ($by_uuid) {
+    /** @var \Drupal\node\NodeInterface $node */
+    $node = reset($by_uuid);
+    $changed = FALSE;
+    // Não sobrescrever título editorial divergente.
+    if ($node->hasField('field_imagem') && $node->get('field_imagem')->isEmpty()) {
+      $file = _custom_configs_seed_file_from_module_asset($asset, $dest, 'node', (int) $node->id());
+      if ($file) {
+        $node->set('field_imagem', [
+          'target_id' => $file->id(),
+          'alt' => $title,
+        ]);
+        $changed = TRUE;
+      }
+    }
+    if ($changed) {
+      $node->save();
+      return (string) t('Empresa EcoConstrutora (@uuid): logo preenchido em campo vazio.', [
+        '@uuid' => $uuid,
+      ]);
+    }
+    return (string) t('Empresa EcoConstrutora (@uuid) já presente.', ['@uuid' => $uuid]);
+  }
+
+  /** @var \Drupal\node\NodeInterface $node */
+  $node = $storage->create([
+    'type' => 'empresa',
+    'uuid' => $uuid,
+    'title' => $title,
+    'status' => 1,
+    'uid' => 1,
+  ]);
+  $node->save();
+
+  $file = _custom_configs_seed_file_from_module_asset($asset, $dest, 'node', (int) $node->id());
+  if ($file) {
+    $node->set('field_imagem', [
+      'target_id' => $file->id(),
+      'alt' => $title,
+    ]);
+    $node->save();
+  }
+
+  return (string) t('Empresa EcoConstrutora (@uuid) criada.', ['@uuid' => $uuid]);
+}
+
+/**
+ * Seed idempotente: vaga Engenheiro Civil vinculada à EcoConstrutora.
+ */
+function _custom_configs_seed_vaga_engenheiro_civil(): string {
+  if (!\Drupal\field\Entity\FieldConfig::loadByName('node', 'vagas', 'field_vaga_empresa')) {
+    return (string) t('field_vaga_empresa ausente — rode ensures antes do seed da vaga.');
+  }
+
+  $uuid = 'a7b8c9d0-e1f2-4345-f678-9abcdef01234';
+  $empresa_uuid = 'f6a7b8c9-d0e1-4234-e567-89abcdef0123';
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+
+  $empresa_nodes = $storage->loadByProperties(['uuid' => $empresa_uuid]);
+  if (!$empresa_nodes) {
+    return (string) t('Empresa seed ausente — rode _custom_configs_seed_empresa_ecoconstrutora antes.');
+  }
+  /** @var \Drupal\node\NodeInterface $empresa */
+  $empresa = reset($empresa_nodes);
+
+  $regime_terms = \Drupal::entityTypeManager()
+    ->getStorage('taxonomy_term')
+    ->loadByProperties(['vid' => 'regime', 'name' => 'Presencial']);
+  $regime_id = $regime_terms ? (int) reset($regime_terms)->id() : NULL;
+
+  $defaults = [
+    'title' => 'Engenheiro Civil',
+    'field_vaga_empresa' => $empresa->id(),
+    'field_vaga_carga_horaria' => '30h semanais',
+    'field_text_simple' => 'R$ 1.800,00',
+    'field_cidade' => 'São Paulo',
+    'field_estados' => 'SP',
+    'field_regime_t' => $regime_id,
+  ];
+
+  $by_uuid = $storage->loadByProperties(['uuid' => $uuid]);
+  if ($by_uuid) {
+    /** @var \Drupal\node\NodeInterface $node */
+    $node = reset($by_uuid);
+    $changed = FALSE;
+    foreach ($defaults as $field => $value) {
+      if ($field === 'title') {
+        continue;
+      }
+      if (!$node->hasField($field)) {
+        continue;
+      }
+      if ($node->get($field)->isEmpty() && $value !== NULL && $value !== '') {
+        $node->set($field, $value);
+        $changed = TRUE;
+      }
+    }
+    if (!$node->isPublished()) {
+      $node->setPublished();
+      $changed = TRUE;
+    }
+    if ($changed) {
+      $node->save();
+      return (string) t('Vaga Engenheiro Civil (@uuid): campos vazios preenchidos.', [
+        '@uuid' => $uuid,
+      ]);
+    }
+    return (string) t('Vaga Engenheiro Civil (@uuid) já presente.', ['@uuid' => $uuid]);
+  }
+
+  $values = [
+    'type' => 'vagas',
+    'uuid' => $uuid,
+    'title' => $defaults['title'],
+    'status' => 1,
+    'uid' => 1,
+    'field_vaga_empresa' => $defaults['field_vaga_empresa'],
+    'field_vaga_carga_horaria' => $defaults['field_vaga_carga_horaria'],
+    'field_text_simple' => $defaults['field_text_simple'],
+    'field_cidade' => $defaults['field_cidade'],
+    'field_estados' => $defaults['field_estados'],
+  ];
+  if ($regime_id) {
+    $values['field_regime_t'] = $regime_id;
+  }
+
+  /** @var \Drupal\node\NodeInterface $node */
+  $node = $storage->create($values);
+  $node->save();
+
+  return (string) t('Vaga Engenheiro Civil (@uuid) criada.', ['@uuid' => $uuid]);
+}
+

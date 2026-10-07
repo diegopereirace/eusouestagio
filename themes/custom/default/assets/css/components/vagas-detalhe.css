@@ -1,5 +1,5 @@
 /**
- * Detalhe da vaga (view mode full) — feature 031 refino.
+ * Detalhe da vaga (view mode full) — feature 031 refino + 032 header empresa.
  * Escopo: .vaga-detalhe / .node--type-vagas.node--view-mode-full
  * Não alterar listagem .item-vaga--lista nem cards .item-vaga--destaque.
  */
@@ -8,44 +8,70 @@
   --vd-navy: #023c62;
   --vd-orange: #fd7b1a;
   --vd-resumo-bg: #f3f6f9;
-  --vd-border: #e6ebf0;
+  --vd-border: #e5e7eb;
   --vd-text: #1a2b3c;
   --vd-muted: #6b7c8f;
+  --vd-pill-bg: #eef4f8;
   color: var(--vd-text);
 }
 
 .vaga-detalhe__header {
   margin-bottom: 2rem;
+  padding: 1.5rem 1.75rem;
+  background: #fff;
+  border: 1px solid var(--vd-border);
+  border-radius: 16px;
 }
 
 .vaga-detalhe__header-top {
   display: flex;
-  gap: 1rem;
+  gap: 1.25rem;
   align-items: flex-start;
 }
 
-.vaga-detalhe__logo img,
+.vaga-detalhe__logo img {
+  display: block;
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--vd-border);
+  background: #fff;
+  flex-shrink: 0;
+}
+
 .vaga-detalhe__empresa-logo img {
   display: block;
-  width: 72px;
-  height: 72px;
+  width: 56px;
+  height: 56px;
   object-fit: contain;
   border-radius: 12px;
   border: 1px solid var(--vd-border);
   background: #fff;
 }
 
-.vaga-detalhe__empresa-logo img {
-  width: 56px;
-  height: 56px;
+.vaga-detalhe__header-text {
+  min-width: 0;
+  flex: 1;
 }
 
 .vaga-detalhe__title {
   font-size: clamp(1.5rem, 2.5vw, 2rem);
-  font-weight: 700;
+  font-weight: 600;
   color: var(--vd-navy);
-  margin: 0 0 0.35rem;
+  margin: 0 0 0.5rem;
   line-height: 1.25;
+  word-break: break-word;
+}
+
+.vaga-detalhe__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--vd-text);
 }
 
 .vaga-detalhe__empresa-nome {
@@ -54,14 +80,25 @@
   color: var(--vd-text);
 }
 
+.vaga-detalhe__verified {
+  color: #16a34a;
+  font-size: 0.95rem;
+}
+
+.vaga-detalhe__meta-sep {
+  color: var(--vd-muted);
+}
+
 .vaga-detalhe__local {
-  margin: 0.35rem 0 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
   color: var(--vd-muted);
   font-size: 0.95rem;
 }
 
 .vaga-detalhe__local i {
-  margin-right: 0.35rem;
   color: var(--vd-navy);
 }
 
@@ -69,20 +106,21 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-top: 1rem;
+  margin-top: 1.25rem;
 }
 
 .vaga-detalhe__badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.35rem 0.75rem;
+  padding: 0.35rem 0.85rem;
   border-radius: 999px;
-  background: #eef4f8;
+  background: var(--vd-pill-bg);
   color: var(--vd-navy);
   font-size: 0.85rem;
   font-weight: 600;
 }
 
+/* Legado — seção Sobre / usos fora do header unificado. */
 .vaga-detalhe__badge--bolsa {
   background: rgba(253, 123, 26, 0.12);
   color: var(--vd-orange);
@@ -373,5 +411,26 @@
 @media (max-width: 991.98px) {
   .vaga-detalhe .container {
     overflow-x: clip;
+  }
+}
+
+@media (max-width: 576px) {
+  .vaga-detalhe__header {
+    padding: 1.15rem 1rem;
+  }
+
+  .vaga-detalhe__header-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+  }
+
+  .vaga-detalhe__logo img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .vaga-detalhe__meta {
+    row-gap: 0.25rem;
   }
 }

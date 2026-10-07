@@ -18,7 +18,9 @@ dependencies:
     - field.field.node.vagas.field_text_simple_multiple
     - field.field.node.vagas.field_text_simple_multiple_2
     - field.field.node.vagas.field_vaga_beneficios
+    - field.field.node.vagas.field_vaga_carga_horaria
     - field.field.node.vagas.field_vaga_destaque
+    - field.field.node.vagas.field_vaga_empresa
     - field.field.node.vagas.field_vaga_etapas_processo
     - field.field.node.vagas.field_vaga_faq
     - field.field.node.vagas.field_vaga_requisitos
@@ -156,12 +158,30 @@ content:
         collapse_edit_all: collapse_edit_all
         duplicate: duplicate
     third_party_settings: {  }
+  field_vaga_carga_horaria:
+    type: string_textfield
+    weight: 4
+    region: content
+    settings:
+      size: 60
+      placeholder: '30h semanais'
+    third_party_settings: {  }
   field_vaga_destaque:
     type: boolean_checkbox
     weight: 3
     region: content
     settings:
       display_label: true
+    third_party_settings: {  }
+  field_vaga_empresa:
+    type: entity_reference_autocomplete
+    weight: 2
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
     third_party_settings: {  }
   field_vaga_etapas_processo:
     type: string_textfield

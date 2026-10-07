@@ -140,6 +140,7 @@ Atribuição no cadastro: forms de registro adicionam `candidato` ou `empresa` s
 | Quem somos | `quem_somos` | Institucional |
 | Contato | `contato` | Página `/contato` (webform + painel) |
 | Depoimento | `depoimento` | Prova social B2B no carrossel de `/para-empresas` (título = autor; `field_text_simple` cargo; `field_text_simple_long` texto; `field_imagem` foto) |
+| Empresa | `empresa` | Perfil público da organização no header do detalhe da vaga (título = nome; `field_imagem` = logo). **Distinto** da role user `empresa`. Seed EcoConstrutora UUID `f6a7b8c9-d0e1-4234-e567-89abcdef0123` |
 | Página básica | `page` | Páginas estáticas; shell de `/para-empresas` (só blocos) |
 
 #### 3.1.0b `/para-empresas` (landing B2B — Página básica)
@@ -167,7 +168,9 @@ Deploy (layout v2 `/quem-somos`): `drush cex` na origem (estrutura em `config/sy
 
 | Campo | Tipo / uso |
 |-------|------------|
-| `field_empresa_u` | Entity reference → `user` (role `empresa`) |
+| `field_empresa_u` | Entity reference → `user` (role `empresa`) — legado painel/candidaturas; seção “Sobre a Empresa” no detalhe; **não** fonte do header (032) |
+| `field_vaga_empresa` | Entity reference card. 1 → node `empresa` — logo/nome/badge no header do detalhe |
+| `field_vaga_carga_horaria` | String — texto da pill de carga (ex. “30h semanais”); distinto de `field_horarios` (turno) |
 | `field_candidatos_u` | Entity reference multi → `user` (legado; ver §1.3) |
 | `field_cursos_t` | Taxonomy (cursos) |
 | `field_regime_t` | Taxonomy (regime) |
@@ -178,14 +181,14 @@ Deploy (layout v2 `/quem-somos`): `drush cex` na origem (estrutura em `config/sy
 | `field_text_long_formatted` | Descrição |
 | `field_text_simple_multiple`, `_2` | Listas auxiliares (legado; migração opcional → campos `field_vaga_*` no hook `11047`) |
 | `field_auxilio_transporte` | Auxílio |
-| `field_horarios` | Horários |
+| `field_horarios` | Horários / turno (Manhã/Tarde/Noite) — resumo/sidebar; **fora** das 4 pills do header 032 |
 | `field_vaga_destaque` | Boolean “Destaque” (default off); badge/borda/prioridade na listagem `/vagas`; checkbox no form `default` |
 | `field_vaga_requisitos` | Text long formatted — requisitos com checks CSS no detalhe full |
 | `field_vaga_beneficios` | ERR → paragraph `beneficio_vaga_p` (ícone `field_image` + título `field_text_simple`) |
 | `field_vaga_etapas_processo` | String multi — schema mantido; **fora** da UI full (031) |
 | `field_vaga_faq` | ER card. **1** → node `faq` (coleção) — accordion Bootstrap no detalhe |
 
-Detalhe full (feature **031** refino de **030**): Twig `node--vagas--full.html.twig` + library `vagas_detalhe` / CSS `.vaga-detalhe` (grid 8/4; sem Match / Processo / Seu Perfil / CTA inline; sem “Ver Empresa”); FAQ coleção seed UUID `c3d4e5f6-…def0` (2× `faq_item_p`); CTA final via bloco `cta_v1` placement `default_ctav1vagas`; deploy `custom_configs_update_11048` + `drush cex` (destino `cim` → `updb` → `cim` → `cr`). Listagem `/vagas` e cards laranja Home/PE **intactos**.
+Detalhe full (feature **031** refino de **030** + header **032**): Twig `node--vagas--full.html.twig` + library `vagas_detalhe` / CSS `.vaga-detalhe` (grid 8/4; header card Figma via CT `empresa` / `field_vaga_empresa` + `field_vaga_carga_horaria`; sem Match / Processo / Seu Perfil / CTA inline; sem “Ver Empresa”); FAQ coleção seed UUID `c3d4e5f6-…def0` (2× `faq_item_p`); CTA final via bloco `cta_v1` placement `default_ctav1vagas`; vaga seed header UUID `a7b8c9d0-e1f2-4345-f678-9abcdef01234` (“Engenheiro Civil”); deploy `custom_configs_update_11048` (031) + `custom_configs_update_11049` (032) + `drush cex` (destino `cim` → `updb` → `cim` → `cr`). Listagem `/vagas` e cards laranja Home/PE **intactos**. `field_empresa_u` permanece (sem migração em massa).
 
 #### 3.1.1b `banners`
 

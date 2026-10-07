@@ -369,20 +369,26 @@ h6 {
 	display: none;
 }
 
-.row-top {
+/* Especificidade acima de .row / .row > * do Bootstrap: libs de página
+   (ex.: vagas_detalhe) podem recarregar bootstrap.min.css depois do style.css
+   e, com usuário logado, quebravam o topo (logo 100% + menu na linha de baixo). */
+.row.row-top {
+	display: flex;
 	align-items: center;
 	flex-wrap: nowrap;
 	gap: 1rem;
 }
 
-.row-top > .col-top {
+.row.row-top > .col-top {
 	flex-shrink: 1;
+	width: auto;
+	max-width: none;
 	padding-right: 0;
 	padding-left: 0;
 	margin-top: 0;
 }
 
-.col-top-1 {
+.row.row-top > .col-top-1 {
 	flex: 0 0 auto;
 	width: auto;
 	max-width: 166px;
@@ -398,12 +404,13 @@ h6 {
 	object-fit: contain;
 }
 
-.col-top-2 {
+.row.row-top > .col-top-2 {
 	flex: 1 1 auto;
 	width: auto;
 	min-width: 0;
 	gap: 1rem;
 	flex-wrap: nowrap;
+	align-items: center;
 }
 
 .wrap-menu {
@@ -1950,11 +1957,11 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 }
 
 @media (max-width: 1199.98px) {
-	.row-top {
+	.row.row-top {
 		gap: 0.75rem;
 	}
 
-	.col-top-1 {
+	.row.row-top > .col-top-1 {
 		max-width: 140px;
 	}
 
@@ -1964,7 +1971,7 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 		max-height: 65px;
 	}
 
-	.col-top-2 {
+	.row.row-top > .col-top-2 {
 		gap: 0.65rem;
 	}
 
@@ -1999,11 +2006,11 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 }
 
 @media (max-width: 991.98px) {
-	.row-top {
+	.row.row-top {
 		gap: 0.5rem;
 	}
 
-	.col-top-1 {
+	.row.row-top > .col-top-1 {
 		max-width: 120px;
 	}
 
@@ -2013,7 +2020,7 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 		max-height: 56px;
 	}
 
-	.col-top-2 {
+	.row.row-top > .col-top-2 {
 		gap: 0.45rem;
 		justify-content: flex-end;
 	}

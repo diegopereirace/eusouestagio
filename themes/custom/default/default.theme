@@ -286,10 +286,7 @@ function default_preprocess_node__vagas(&$variables)
   $user = \Drupal::currentUser();
   $variables['vaga_salva'] = FALSE;
   $variables['vaga_candidatada'] = FALSE;
-  // Completude estática (feature 030) — sem serviço de cálculo nesta entrega.
-  if (!isset($variables['vaga_perfil_completo'])) {
-    $variables['vaga_perfil_completo'] = 75;
-  }
+  // Feature 031: card “Seu Perfil” removido do Twig full — sem vaga_perfil_completo.
 
   /** @var \Drupal\node\NodeInterface $node */
   $node = $variables['node'];

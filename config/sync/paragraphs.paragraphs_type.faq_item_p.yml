@@ -1,0 +1,10 @@
+uuid: 70b85b6d-c2f1-4eb7-992a-d219ca586172
+langcode: pt-br
+status: true
+dependencies: {  }
+id: faq_item_p
+label: 'Item FAQ'
+icon_uuid: null
+icon_default: null
+description: 'Pergunta + resposta de uma coleção FAQ.'
+behavior_plugins: {  }

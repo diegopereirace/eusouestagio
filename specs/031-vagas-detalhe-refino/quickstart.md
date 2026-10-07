@@ -73,9 +73,10 @@ docker compose exec drupal drush cr
 
 ## E) Sidebar ações + resumo (US4)
 
-1. Ações: Candidatar-se largo + Salvar + Compartilhar (fluxos existentes).
-2. Resumo: Período / Bolsa / Modelo / Vagas (“Não informado” se aplicável).
-3. Anônimo e candidato: estados preservados.
+1. Ações: Candidatar-se largo; abaixo, Salvar | Compartilhar lado a lado (outline).
+2. Compartilhar: botão abre popover com WhatsApp / Facebook / LinkedIn (URL canônica da vaga).
+3. Resumo: Período / Bolsa Auxílio / Modelo / Vagas (“Não informado” se aplicável).
+4. Anônimo e candidato: estados preservados (anônimo: login + Criar conta | Compartilhar).
 
 ---
 

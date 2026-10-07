@@ -213,6 +213,10 @@
       <div class="col-12 col-lg-4">
         <aside class="vaga-sidebar">
 
+          {% set share_url = url('entity.node.canonical', {'node': node.id}, {'absolute': true})|render|striptags|trim %}
+          {% set share_url_encoded = share_url|url_encode %}
+          {{ attach_library('default/vagas_detalhe') }}
+
           {% if logged_in and user.hasRole('candidato') %}
             {% if vaga_candidatada %}
               <button type="button" class="ui-btn ui-btn--primary w-100 mb-3" disabled>
@@ -226,44 +230,37 @@
               </button>
             {% endif %}
 
-            <button type="button" class="ui-btn ui-btn--outline w-100 mb-4 js-salvar-vaga{{ vaga_salva ? ' ui-btn--saved' : '' }}" data-node-id="{{ node.id }}">
-              {{ vaga_salva ? 'Remover dos Salvos'|t : 'Salvar Vaga'|t }}
-            </button>
+            <div class="vaga-detalhe__acoes-secundarias">
+              <button type="button" class="ui-btn ui-btn--outline js-salvar-vaga{{ vaga_salva ? ' ui-btn--saved' : '' }}" data-node-id="{{ node.id }}">
+                <i class="fa-regular fa-bookmark" aria-hidden="true"></i>
+                <span class="js-salvar-vaga-label">{{ vaga_salva ? 'Remover'|t : 'Salvar'|t }}</span>
+              </button>
+              {% include '@default/content/includes/vaga-share-popover.html.twig' with {
+                share_url_encoded: share_url_encoded,
+                node_id: node.id,
+              } only %}
+            </div>
           {% elseif not logged_in %}
             <a href="/user/login?destination={{ url('entity.node.canonical', {'node': node.id}) }}" class="ui-btn ui-btn--primary w-100 mb-3">
               {{ 'Faça login para se candidatar'|t }}
             </a>
-            <a href="/cadastro/candidato" class="ui-btn ui-btn--outline w-100 mb-4">
-              {{ 'Criar conta de candidato'|t }}
-            </a>
-          {% endif %}
-
-          <div class="vaga-compartilhar">
-            <p class="vaga-compartilhar-label">{{ 'Compartilhar'|t }}</p>
-            <div class="vaga-compartilhar-btns">
-              <a href="#"
-                 onclick="event.preventDefault(); window.open('https://wa.me/?text=' + encodeURIComponent(window.location.href), '_blank', 'noopener,noreferrer');"
-                 class="vaga-share-btn"
-                 title="{{ 'Compartilhar no WhatsApp'|t }}"
-                 aria-label="{{ 'Compartilhar no WhatsApp'|t }}">
-                <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+            <div class="vaga-detalhe__acoes-secundarias">
+              <a href="/cadastro/candidato" class="ui-btn ui-btn--outline">
+                {{ 'Criar conta'|t }}
               </a>
-              <a href="#"
-                 onclick="event.preventDefault(); window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href), '_blank', 'noopener,noreferrer');"
-                 class="vaga-share-btn"
-                 title="{{ 'Compartilhar no Facebook'|t }}"
-                 aria-label="{{ 'Compartilhar no Facebook'|t }}">
-                <i class="fa-brands fa-facebook-f" aria-hidden="true"></i>
-              </a>
-              <a href="#"
-                 onclick="event.preventDefault(); window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(window.location.href), '_blank', 'noopener,noreferrer');"
-                 class="vaga-share-btn"
-                 title="{{ 'Compartilhar no LinkedIn'|t }}"
-                 aria-label="{{ 'Compartilhar no LinkedIn'|t }}">
-                <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
-              </a>
+              {% include '@default/content/includes/vaga-share-popover.html.twig' with {
+                share_url_encoded: share_url_encoded,
+                node_id: node.id,
+              } only %}
             </div>
-          </div>
+          {% else %}
+            <div class="vaga-detalhe__acoes-secundarias vaga-detalhe__acoes-secundarias--share-only">
+              {% include '@default/content/includes/vaga-share-popover.html.twig' with {
+                share_url_encoded: share_url_encoded,
+                node_id: node.id,
+              } only %}
+            </div>
+          {% endif %}
 
         </aside>
       </div>

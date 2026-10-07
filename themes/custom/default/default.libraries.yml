@@ -177,11 +177,15 @@ vagas_lista_vertical:
     - core/jquery
     - views/views.ajax
 vagas_detalhe:
+  js:
+    assets/js/vagas-detalhe-share.js: {}
   css:
     component:
       assets/css/components/vagas-detalhe.css: {}
   dependencies:
     - default/bootstrap
+    - core/drupal
+    - core/once
 
 
 jquery_mask:

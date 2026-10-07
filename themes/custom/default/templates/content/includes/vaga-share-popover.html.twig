@@ -1,0 +1,53 @@
+{#
+/**
+ * @file
+ * Botão Compartilhar + popover (WhatsApp, Facebook, LinkedIn).
+ *
+ * Variáveis:
+ * - share_url_encoded: URL canônica absoluta da vaga, já url-encoded.
+ * - node_id: ID do node (para ids ARIA únicos).
+ */
+#}
+{% set panel_id = 'vaga-share-panel-' ~ node_id %}
+<div class="vaga-detalhe__share js-vaga-share">
+  <button type="button"
+    class="ui-btn ui-btn--outline vaga-detalhe__share-toggle js-vaga-share-toggle"
+    aria-expanded="false"
+    aria-controls="{{ panel_id }}"
+    aria-haspopup="true">
+    <i class="fa-solid fa-share-nodes" aria-hidden="true"></i>
+    {{ 'Compartilhar'|t }}
+  </button>
+  <div id="{{ panel_id }}"
+    class="vaga-detalhe__share-panel js-vaga-share-panel"
+    role="menu"
+    hidden>
+    <a href="https://wa.me/?text={{ share_url_encoded }}"
+       class="vaga-detalhe__share-btn"
+       target="_blank"
+       rel="noopener noreferrer"
+       role="menuitem"
+       title="{{ 'Compartilhar no WhatsApp'|t }}"
+       aria-label="{{ 'Compartilhar no WhatsApp'|t }}">
+      <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+    </a>
+    <a href="https://www.facebook.com/sharer/sharer.php?u={{ share_url_encoded }}"
+       class="vaga-detalhe__share-btn"
+       target="_blank"
+       rel="noopener noreferrer"
+       role="menuitem"
+       title="{{ 'Compartilhar no Facebook'|t }}"
+       aria-label="{{ 'Compartilhar no Facebook'|t }}">
+      <i class="fa-brands fa-facebook-f" aria-hidden="true"></i>
+    </a>
+    <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ share_url_encoded }}"
+       class="vaga-detalhe__share-btn"
+       target="_blank"
+       rel="noopener noreferrer"
+       role="menuitem"
+       title="{{ 'Compartilhar no LinkedIn'|t }}"
+       aria-label="{{ 'Compartilhar no LinkedIn'|t }}">
+      <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
+    </a>
+  </div>
+</div>

@@ -277,6 +277,42 @@ function default_preprocess_views_view__banners__block_para_estudantes(array &$v
 }
 
 /**
+ * Tempo relativo pt-BR para a pill “Postado há…” do header da vaga (feature 032).
+ *
+ * <1h → “menos de 1 hora”; <24h → hora(s); ≥1d → dia(s); nunca negativo.
+ */
+function _default_format_vaga_postado_ha(int $created): string {
+  $now = (int) \Drupal::time()->getRequestTime();
+  $diff = max(0, $now - $created);
+
+  if ($diff < 3600) {
+    return (string) t('menos de 1 hora');
+  }
+
+  if ($diff < 86400) {
+    $hours = (int) floor($diff / 3600);
+    return $hours === 1
+      ? (string) t('1 hora')
+      : (string) t('@count horas', ['@count' => $hours]);
+  }
+
+  $days = (int) floor($diff / 86400);
+  return $days === 1
+    ? (string) t('1 dia')
+    : (string) t('@count dias', ['@count' => $days]);
+}
+
+/**
+ * Implements hook_preprocess_HOOK() for node__vagas__full.
+ *
+ * O theme registry de node__vagas__full não lista default_preprocess_node__vagas;
+ * redispatch explícito para pills/candidatura no detalhe.
+ */
+function default_preprocess_node__vagas__full(array &$variables): void {
+  default_preprocess_node__vagas($variables);
+}
+
+/**
  * Implements hook_preprocess_node() for vagas nodes.
  *
  * Verifica se a vaga já está salva pelo estudante logado.
@@ -290,8 +326,7 @@ function default_preprocess_node__vagas(&$variables)
 
   /** @var \Drupal\node\NodeInterface $node */
   $node = $variables['node'];
-  $variables['vaga_postado_ha'] = \Drupal::service('date.formatter')
-    ->formatTimeDiffSince((int) $node->getCreatedTime());
+  $variables['vaga_postado_ha'] = _default_format_vaga_postado_ha((int) $node->getCreatedTime());
 
   if ($user->isAuthenticated() && in_array('candidato', $user->getRoles())) {
     $nid = (int) $node->id();

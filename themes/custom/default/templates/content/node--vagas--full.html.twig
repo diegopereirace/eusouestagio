@@ -1,7 +1,8 @@
 {#
 /**
  * @file
- * Detalhe full da vaga — layout Figma duas colunas (feature 031 refino).
+ * Detalhe full da vaga — layout Figma duas colunas (031) + header empresa (032).
+ * Header: field_vaga_empresa (node). Sobre a Empresa: field_empresa_u (legado).
  * Sem Match / Processo / Seu Perfil / CTA inline. Sem Ver Empresa.
  * FAQ via coleção field_faq_itens. CTA final = bloco default_ctav1vagas.
  */
@@ -23,14 +24,41 @@
   ]
 %}
 
+{# Legado 031 — seção “Sobre a Empresa” (não alimentar o header). #}
 {% set empresa = node.field_empresa_u.entity ?? null %}
 {% set empresa_nome = empresa and empresa.field_nome_fantasia.value ? empresa.field_nome_fantasia.value : 'Anônima'|t %}
 {% set logo_uri = '' %}
 {% if empresa and empresa.hasField('user_picture') and not empresa.user_picture.isEmpty and empresa.user_picture.entity %}
   {% set logo_uri = empresa.user_picture.entity.uri.value %}
 {% endif %}
+
+{# Header 032 — node Empresa publicado/acessível via field_vaga_empresa. #}
+{% set empresa_node = null %}
+{% set header_logo_uri = '' %}
+{% if node.hasField('field_vaga_empresa') and node.field_vaga_empresa is not empty and node.field_vaga_empresa.entity %}
+  {% set _empresa_candidate = node.field_vaga_empresa.entity %}
+  {% if _empresa_candidate.isPublished() %}
+    {% set empresa_node = _empresa_candidate %}
+    {% if empresa_node.hasField('field_imagem') and not empresa_node.field_imagem.isEmpty and empresa_node.field_imagem.entity %}
+      {% set header_logo_uri = empresa_node.field_imagem.entity.uri.value %}
+    {% endif %}
+  {% endif %}
+{% endif %}
+
 {% set cidade = node.field_cidade.value %}
 {% set estado = node.field_estados.value %}
+{% set local_label = '' %}
+{% if cidade and estado %}
+  {% set local_label = cidade ~ ', ' ~ estado %}
+{% elseif cidade %}
+  {% set local_label = cidade %}
+{% elseif estado %}
+  {% set local_label = estado %}
+{% endif %}
+{% set carga_horaria = '' %}
+{% if node.hasField('field_vaga_carga_horaria') and node.field_vaga_carga_horaria.value %}
+  {% set carga_horaria = node.field_vaga_carga_horaria.value %}
+{% endif %}
 {% set canonical_path = path('entity.node.canonical', {'node': node.id}) %}
 {% set share_url = url('entity.node.canonical', {'node': node.id}, {'absolute': true})|render|striptags|trim %}
 {% set share_url_encoded = share_url|url_encode %}
@@ -44,20 +72,27 @@
 
         <header class="vaga-detalhe__header">
           <div class="vaga-detalhe__header-top">
-            {% if logo_uri %}
+            {% if header_logo_uri %}
               <div class="vaga-detalhe__logo">
-                <img src="{{ file_url(logo_uri) }}" alt="" width="72" height="72" loading="lazy">
+                <img src="{{ file_url(header_logo_uri) }}" alt="{{ empresa_node.label }}" width="96" height="96" loading="lazy">
               </div>
             {% endif %}
             <div class="vaga-detalhe__header-text">
               <h1{{ title_attributes.addClass('vaga-detalhe__title') }}>{{ label }}</h1>
-              <p class="vaga-detalhe__empresa-nome">{{ empresa_nome }}</p>
-              {% if cidade or estado %}
-                <p class="vaga-detalhe__local">
-                  <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
-                  {% if cidade and estado %}{{ cidade }}, {{ estado }}
-                  {% elseif cidade %}{{ cidade }}
-                  {% else %}{{ estado }}
+              {% if empresa_node or local_label %}
+                <p class="vaga-detalhe__meta">
+                  {% if empresa_node %}
+                    <span class="vaga-detalhe__empresa-nome">{{ empresa_node.label }}</span>
+                    <i class="fa-solid fa-circle-check vaga-detalhe__verified" aria-hidden="true" title="{{ 'Empresa verificada'|t }}"></i>
+                  {% endif %}
+                  {% if empresa_node and local_label %}
+                    <span class="vaga-detalhe__meta-sep" aria-hidden="true">•</span>
+                  {% endif %}
+                  {% if local_label %}
+                    <span class="vaga-detalhe__local">
+                      <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                      {{ local_label }}
+                    </span>
                   {% endif %}
                 </p>
               {% endif %}
@@ -71,22 +106,14 @@
                 {% endif %}
               {% endfor %}
             {% endif %}
-            {% if node.field_horarios is defined and node.field_horarios is not empty %}
-              {% set horarios_labels = [] %}
-              {% for item in node.field_horarios %}
-                {% if item.value %}
-                  {% set horarios_labels = horarios_labels|merge([item.value|capitalize]) %}
-                {% endif %}
-              {% endfor %}
-              {% if horarios_labels %}
-                <span class="vaga-detalhe__badge">{{ horarios_labels|join(', ') }}</span>
-              {% endif %}
+            {% if carga_horaria %}
+              <span class="vaga-detalhe__badge">{{ carga_horaria }}</span>
             {% endif %}
             {% if node.field_text_simple.value %}
-              <span class="vaga-detalhe__badge vaga-detalhe__badge--bolsa">{{ node.field_text_simple.value }}</span>
+              <span class="vaga-detalhe__badge">{{ node.field_text_simple.value }}</span>
             {% endif %}
             {% if vaga_postado_ha %}
-              <span class="vaga-detalhe__badge vaga-detalhe__badge--muted">{{ 'Postado há @time'|t({'@time': vaga_postado_ha}) }}</span>
+              <span class="vaga-detalhe__badge">{{ 'Postado há @time'|t({'@time': vaga_postado_ha}) }}</span>
             {% endif %}
           </div>
         </header>

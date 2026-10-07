@@ -1,0 +1,33 @@
+uuid: d6fd8762-0ddb-4aab-bcf1-8f22bf8837ce
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.node.empresa.field_imagem
+    - node.type.empresa
+  module:
+    - image
+    - user
+id: node.empresa.default
+targetEntityType: node
+bundle: empresa
+mode: default
+content:
+  field_imagem:
+    type: image
+    label: hidden
+    settings:
+      image_link: ''
+      image_style: ''
+      image_loading:
+        attribute: lazy
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  langcode: true

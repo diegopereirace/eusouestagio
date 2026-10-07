@@ -1,0 +1,31 @@
+uuid: e5f6a7b8-c9d0-4123-d456-789abcdef012
+langcode: pt-br
+status: true
+dependencies:
+  content:
+    - 'block_content:cta_v1:d4e5f6a7-b8c9-4012-c345-6789abcdef01'
+  module:
+    - block_content
+    - node
+  theme:
+    - default
+id: default_ctav1vagas
+theme: default
+region: content_full
+weight: 10
+provider: null
+plugin: 'block_content:d4e5f6a7-b8c9-4012-c345-6789abcdef01'
+settings:
+  id: 'block_content:d4e5f6a7-b8c9-4012-c345-6789abcdef01'
+  label: 'CTA v1 Vagas'
+  label_display: '0'
+  provider: block_content
+  view_mode: full
+visibility:
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      vagas: vagas

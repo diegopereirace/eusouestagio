@@ -11022,3 +11022,1138 @@ function _custom_configs_migrate_vaga_requisitos_beneficios_legado(): string {
   ]);
 }
 
+/**
+ * Feature 031 — Detalhe da Vaga refino (FAQ coleção, requisitos text_long, CTA vagas).
+ *
+ * Destino: cim → updb → cim → cr.
+ */
+function custom_configs_update_11048(): string {
+  $messages = [
+    _custom_configs_ensure_faq_item_p(),
+    _custom_configs_ensure_field_faq_itens(),
+    // Seed antes do migrate para a fusão 030 encontrar a coleção canônica.
+    _custom_configs_seed_faq_collection_example(),
+    _custom_configs_migrate_faq_1to1_to_collection(),
+    _custom_configs_ensure_field_vaga_faq_cardinality_1(),
+    _custom_configs_migrate_recreate_field_vaga_requisitos_text_long(),
+    _custom_configs_ensure_vagas_detalhe_displays_031(),
+    _custom_configs_seed_cta_v1_vagas(),
+    _custom_configs_ensure_placement_ctav1vagas(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Garante paragraph faq_item_p + storages field_pergunta / field_resposta + displays.
+ */
+function _custom_configs_ensure_faq_item_p(): string {
+  $parts = [];
+  $bundle = 'faq_item_p';
+
+  if (!\Drupal\paragraphs\Entity\ParagraphsType::load($bundle)) {
+    \Drupal\paragraphs\Entity\ParagraphsType::create([
+      'id' => $bundle,
+      'label' => 'Item FAQ',
+      'description' => 'Pergunta + resposta de uma coleção FAQ.',
+    ])->save();
+    $parts[] = (string) t('Paragraph type faq_item_p criado.');
+  }
+
+  if (!\Drupal\field\Entity\FieldStorageConfig::loadByName('paragraph', 'field_pergunta')) {
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => 'field_pergunta',
+      'entity_type' => 'paragraph',
+      'type' => 'string',
+      'settings' => [
+        'max_length' => 255,
+        'case_sensitive' => FALSE,
+        'is_ascii' => FALSE,
+      ],
+      'module' => 'core',
+      'cardinality' => 1,
+      'translatable' => TRUE,
+    ])->save();
+    $parts[] = (string) t('Storage paragraph.field_pergunta criado.');
+  }
+
+  if (!\Drupal\field\Entity\FieldStorageConfig::loadByName('paragraph', 'field_resposta')) {
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => 'field_resposta',
+      'entity_type' => 'paragraph',
+      'type' => 'text_long',
+      'settings' => [],
+      'module' => 'text',
+      'cardinality' => 1,
+      'translatable' => TRUE,
+    ])->save();
+    $parts[] = (string) t('Storage paragraph.field_resposta criado.');
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName('paragraph', $bundle, 'field_pergunta')) {
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('paragraph', 'field_pergunta');
+    if ($storage) {
+      \Drupal\field\Entity\FieldConfig::create([
+        'field_storage' => $storage,
+        'bundle' => $bundle,
+        'label' => 'Pergunta',
+        'required' => TRUE,
+        'translatable' => FALSE,
+      ])->save();
+      $parts[] = (string) t('Instance paragraph.faq_item_p.field_pergunta criada.');
+    }
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName('paragraph', $bundle, 'field_resposta')) {
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('paragraph', 'field_resposta');
+    if ($storage) {
+      \Drupal\field\Entity\FieldConfig::create([
+        'field_storage' => $storage,
+        'bundle' => $bundle,
+        'label' => 'Resposta',
+        'required' => TRUE,
+        'translatable' => FALSE,
+        'settings' => [
+          'allowed_formats' => ['basic_html', 'full_html'],
+        ],
+      ])->save();
+      $parts[] = (string) t('Instance paragraph.faq_item_p.field_resposta criada.');
+    }
+  }
+
+  $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+  $view_storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+
+  $p_form = $form_storage->load("paragraph.$bundle.default");
+  if (!$p_form) {
+    $p_form = $form_storage->create([
+      'targetEntityType' => 'paragraph',
+      'bundle' => $bundle,
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $p_form_changed = $p_form->isNew();
+  foreach ([
+    'field_pergunta' => [
+      'type' => 'string_textfield',
+      'weight' => 0,
+      'settings' => ['size' => 60, 'placeholder' => ''],
+    ],
+    'field_resposta' => [
+      'type' => 'text_textarea',
+      'weight' => 1,
+      'settings' => ['rows' => 5, 'placeholder' => ''],
+    ],
+  ] as $name => $component) {
+    if ($p_form->getComponent($name) === NULL) {
+      $p_form->setComponent($name, $component + [
+        'region' => 'content',
+        'third_party_settings' => [],
+      ]);
+      $p_form_changed = TRUE;
+    }
+  }
+  $p_form->removeComponent('created');
+  $p_form->removeComponent('status');
+  if ($p_form_changed) {
+    $p_form->save();
+    $parts[] = (string) t('Form display paragraph.faq_item_p garantido.');
+  }
+
+  $p_view = $view_storage->load("paragraph.$bundle.default");
+  if (!$p_view) {
+    $p_view = $view_storage->create([
+      'targetEntityType' => 'paragraph',
+      'bundle' => $bundle,
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $p_view_changed = $p_view->isNew();
+  foreach ([
+    'field_pergunta' => [
+      'type' => 'string',
+      'weight' => 0,
+      'settings' => ['link_to_entity' => FALSE],
+    ],
+    'field_resposta' => [
+      'type' => 'text_default',
+      'weight' => 1,
+      'settings' => [],
+    ],
+  ] as $name => $component) {
+    if ($p_view->getComponent($name) === NULL) {
+      $p_view->setComponent($name, $component + [
+        'label' => 'hidden',
+        'region' => 'content',
+        'third_party_settings' => [],
+      ]);
+      $p_view_changed = TRUE;
+    }
+  }
+  if ($p_view_changed) {
+    $p_view->save();
+    $parts[] = (string) t('View display paragraph.faq_item_p garantido.');
+  }
+
+  if (!$parts) {
+    return (string) t('Paragraph faq_item_p já presente.');
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Garante field_faq_itens (ERR → faq_item_p) no CT faq; oculta field_resposta legado no form.
+ */
+function _custom_configs_ensure_field_faq_itens(): string {
+  $parts = [];
+  $entity_type = 'node';
+  $bundle = 'faq';
+  $field_name = 'field_faq_itens';
+
+  if (!\Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name)) {
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => $entity_type,
+      'type' => 'entity_reference_revisions',
+      'settings' => ['target_type' => 'paragraph'],
+      'cardinality' => -1,
+      'translatable' => TRUE,
+    ])->save();
+    $parts[] = (string) t('Storage node.field_faq_itens criado.');
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName($entity_type, $bundle, $field_name)) {
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name);
+    if ($storage) {
+      \Drupal\field\Entity\FieldConfig::create([
+        'field_storage' => $storage,
+        'bundle' => $bundle,
+        'label' => 'Itens do FAQ',
+        'description' => 'Perguntas e respostas da coleção FAQ.',
+        'required' => FALSE,
+        'translatable' => FALSE,
+        'settings' => [
+          'handler' => 'default:paragraph',
+          'handler_settings' => [
+            'target_bundles' => ['faq_item_p' => 'faq_item_p'],
+            'negate' => 0,
+            'target_bundles_drag_drop' => [
+              'faq_item_p' => [
+                'weight' => 0,
+                'enabled' => TRUE,
+              ],
+            ],
+          ],
+        ],
+      ])->save();
+      $parts[] = (string) t('Instance node.faq.field_faq_itens criada.');
+    }
+  }
+
+  $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+  $view_storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null $form_display */
+  $form_display = $form_storage->load("node.$bundle.default");
+  if (!$form_display) {
+    $form_display = $form_storage->create([
+      'targetEntityType' => 'node',
+      'bundle' => $bundle,
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $form_changed = $form_display->isNew();
+
+  if ($form_display->getComponent('title') === NULL) {
+    $form_display->setComponent('title', [
+      'type' => 'string_textfield',
+      'weight' => 0,
+      'region' => 'content',
+      'settings' => ['size' => 60, 'placeholder' => ''],
+      'third_party_settings' => [],
+    ]);
+    $form_changed = TRUE;
+  }
+
+  if ($form_display->getComponent($field_name) === NULL && \Drupal\field\Entity\FieldConfig::loadByName($entity_type, $bundle, $field_name)) {
+    $form_display->setComponent($field_name, [
+      'type' => 'paragraphs',
+      'weight' => 1,
+      'region' => 'content',
+      'settings' => [
+        'title' => 'Item',
+        'title_plural' => 'Itens',
+        'edit_mode' => 'open',
+        'closed_mode' => 'summary',
+        'autocollapse' => 'none',
+        'closed_mode_threshold' => 0,
+        'add_mode' => 'dropdown',
+        'form_display_mode' => 'default',
+        'default_paragraph_type' => 'faq_item_p',
+        'features' => [
+          'collapse_edit_all' => 'collapse_edit_all',
+          'duplicate' => 'duplicate',
+        ],
+      ],
+      'third_party_settings' => [],
+    ]);
+    $form_changed = TRUE;
+  }
+
+  // Ocultar field_resposta legado no form (storage permanece).
+  if ($form_display->getComponent('field_resposta') !== NULL) {
+    $form_display->removeComponent('field_resposta');
+    $form_changed = TRUE;
+  }
+
+  $form_display->removeComponent('uid');
+  $form_display->removeComponent('created');
+  $form_display->removeComponent('promote');
+  $form_display->removeComponent('sticky');
+  $form_display->removeComponent('path');
+
+  if ($form_changed) {
+    $form_display->save();
+    $parts[] = (string) t('Form display node.faq.default atualizado (coleção).');
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null $view_display */
+  $view_display = $view_storage->load("node.$bundle.default");
+  if (!$view_display) {
+    $view_display = $view_storage->create([
+      'targetEntityType' => 'node',
+      'bundle' => $bundle,
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $view_changed = $view_display->isNew();
+  if ($view_display->getComponent($field_name) === NULL && \Drupal\field\Entity\FieldConfig::loadByName($entity_type, $bundle, $field_name)) {
+    $view_display->setComponent($field_name, [
+      'type' => 'entity_reference_revisions_entity_view',
+      'label' => 'hidden',
+      'weight' => 0,
+      'region' => 'content',
+      'settings' => [
+        'view_mode' => 'default',
+        'link' => '',
+      ],
+      'third_party_settings' => [],
+    ]);
+    $view_changed = TRUE;
+  }
+  if ($view_changed) {
+    $view_display->save();
+    $parts[] = (string) t('View display node.faq.default atualizado (coleção).');
+  }
+
+  if (!$parts) {
+    return (string) t('field_faq_itens já presente.');
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Cria um paragraph faq_item_p a partir de pergunta/resposta.
+ *
+ * @return array{target_id: int|string, target_revision_id: int|string}
+ */
+function _custom_configs_create_faq_item_paragraph(string $pergunta, string $resposta): array {
+  $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
+  /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
+  $paragraph = $paragraph_storage->create(['type' => 'faq_item_p']);
+  if ($paragraph->hasField('field_pergunta')) {
+    $paragraph->set('field_pergunta', $pergunta);
+  }
+  if ($paragraph->hasField('field_resposta')) {
+    $paragraph->set('field_resposta', [
+      'value' => $resposta,
+      'format' => 'basic_html',
+    ]);
+  }
+  $paragraph->save();
+  return [
+    'target_id' => $paragraph->id(),
+    'target_revision_id' => $paragraph->getRevisionId(),
+  ];
+}
+
+/**
+ * Migra FAQ 1:1 (title + field_resposta) → field_faq_itens; funde seeds 030 na coleção seed.
+ */
+function _custom_configs_migrate_faq_1to1_to_collection(): string {
+  if (!\Drupal\field\Entity\FieldConfig::loadByName('node', 'faq', 'field_faq_itens')) {
+    return (string) t('Migrate FAQ 1:1: field_faq_itens ausente.');
+  }
+
+  $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+  $nids = $node_storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('type', 'faq')
+    ->execute();
+  if (!$nids) {
+    return (string) t('Migrate FAQ 1:1: nenhum node faq.');
+  }
+
+  $migrated = 0;
+  $seed_uuids = [
+    'b1c2d3e4-f5a6-4789-a012-3456789abc01',
+    'b1c2d3e4-f5a6-4789-a012-3456789abc02',
+  ];
+  $collection_uuid = 'c3d4e5f6-a7b8-4901-b234-56789abcdef0';
+
+  foreach ($node_storage->loadMultiple($nids) as $node) {
+    /** @var \Drupal\node\NodeInterface $node */
+    if (!$node->hasField('field_faq_itens')) {
+      continue;
+    }
+
+    // Já tem itens → coleção; não re-migrar.
+    if (!$node->get('field_faq_itens')->isEmpty()) {
+      continue;
+    }
+
+    $title = (string) $node->getTitle();
+    $resposta = '';
+    if ($node->hasField('field_resposta') && !$node->get('field_resposta')->isEmpty()) {
+      $resposta = (string) ($node->get('field_resposta')->value ?? '');
+    }
+    if ($title === '' && $resposta === '') {
+      continue;
+    }
+
+    // Seeds 030: serão fundidos na coleção seed; não criar itens neles.
+    if (in_array($node->uuid(), $seed_uuids, TRUE)) {
+      continue;
+    }
+
+    $item = _custom_configs_create_faq_item_paragraph(
+      $title !== '' ? $title : (string) t('Pergunta'),
+      $resposta !== '' ? $resposta : '<p></p>'
+    );
+    $node->set('field_faq_itens', [$item]);
+    // Title passa a ser nome da coleção (prefixo se ainda for a pergunta).
+    if ($title !== '' && !str_starts_with($title, 'FAQ')) {
+      $node->setTitle((string) t('FAQ — @q', ['@q' => mb_substr($title, 0, 80)]));
+    }
+    $node->save();
+    $migrated++;
+  }
+
+  // Fundir seeds 030 na coleção canônica (se existir ou após seed).
+  $collection = $node_storage->loadByProperties(['uuid' => $collection_uuid]);
+  /** @var \Drupal\node\NodeInterface|null $colecao */
+  $colecao = $collection ? reset($collection) : NULL;
+  $fused = 0;
+  if ($colecao && $colecao->hasField('field_faq_itens')) {
+    $existing_perguntas = [];
+    foreach ($colecao->get('field_faq_itens') as $item) {
+      if ($item->entity && $item->entity->hasField('field_pergunta')) {
+        $existing_perguntas[] = mb_strtolower(trim((string) $item->entity->get('field_pergunta')->value));
+      }
+    }
+    $refs = $colecao->get('field_faq_itens')->getValue();
+    foreach ($seed_uuids as $uuid) {
+      $found = $node_storage->loadByProperties(['uuid' => $uuid]);
+      /** @var \Drupal\node\NodeInterface|null $seed */
+      $seed = $found ? reset($found) : NULL;
+      if (!$seed) {
+        continue;
+      }
+      $pergunta = (string) $seed->getTitle();
+      $resposta = '';
+      if ($seed->hasField('field_resposta') && !$seed->get('field_resposta')->isEmpty()) {
+        $resposta = (string) ($seed->get('field_resposta')->value ?? '');
+      }
+      $key = mb_strtolower(trim($pergunta));
+      if ($key === '' || in_array($key, $existing_perguntas, TRUE)) {
+        continue;
+      }
+      $refs[] = _custom_configs_create_faq_item_paragraph($pergunta, $resposta !== '' ? $resposta : '<p></p>');
+      $existing_perguntas[] = $key;
+      $fused++;
+    }
+    if ($fused > 0) {
+      $colecao->set('field_faq_itens', $refs);
+      $colecao->save();
+    }
+  }
+
+  return (string) t('Migrate FAQ 1:1: @n coleções migradas; @f itens fundidos dos seeds 030.', [
+    '@n' => $migrated,
+    '@f' => $fused,
+  ]);
+}
+
+/**
+ * Seed 1 coleção FAQ (UUID fixo) com 2 itens Figma. Idempotente.
+ */
+function _custom_configs_seed_faq_collection_example(): string {
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('node');
+  if (!isset($bundle_info['faq'])) {
+    return (string) t('Bundle faq ausente — rode cim/updb structure antes do seed.');
+  }
+  if (!\Drupal\field\Entity\FieldConfig::loadByName('node', 'faq', 'field_faq_itens')) {
+    return (string) t('field_faq_itens ausente — ensure antes do seed coleção.');
+  }
+
+  $uuid = 'c3d4e5f6-a7b8-4901-b234-56789abcdef0';
+  $title = 'FAQ — Exemplo';
+  $items_seed = [
+    [
+      'pergunta' => 'Qual a duração do estágio?',
+      'resposta' => 'A duração varia conforme o edital da vaga e o acordo com a instituição de ensino. Consulte a descrição da vaga para o período informado.',
+    ],
+    [
+      'pergunta' => 'Existe auxílio home office?',
+      'resposta' => 'Depende da vaga e da empresa. Quando disponível, o benefício aparece na seção Benefícios ou na descrição.',
+    ],
+  ];
+
+  $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+  $existing = $node_storage->loadByProperties(['uuid' => $uuid]);
+  /** @var \Drupal\node\NodeInterface|null $node */
+  $node = $existing ? reset($existing) : NULL;
+
+  if (!$node) {
+    $refs = [];
+    foreach ($items_seed as $item) {
+      $refs[] = _custom_configs_create_faq_item_paragraph($item['pergunta'], $item['resposta']);
+    }
+    $node = $node_storage->create([
+      'type' => 'faq',
+      'uuid' => $uuid,
+      'title' => $title,
+      'status' => 1,
+      'uid' => 1,
+      'field_faq_itens' => $refs,
+    ]);
+    $node->save();
+    return (string) t('FAQ coleção seed criada (@uuid) com 2 itens.', ['@uuid' => $uuid]);
+  }
+
+  // Existente: preencher título vazio; adicionar itens faltantes por pergunta (não sobrescrever).
+  $changed = FALSE;
+  if ($node->getTitle() === '' || $node->getTitle() === NULL) {
+    $node->setTitle($title);
+    $changed = TRUE;
+  }
+
+  $existing_perguntas = [];
+  $refs = [];
+  if ($node->hasField('field_faq_itens')) {
+    foreach ($node->get('field_faq_itens') as $item) {
+      $refs[] = [
+        'target_id' => $item->target_id,
+        'target_revision_id' => $item->target_revision_id,
+      ];
+      if ($item->entity && $item->entity->hasField('field_pergunta')) {
+        $existing_perguntas[] = mb_strtolower(trim((string) $item->entity->get('field_pergunta')->value));
+      }
+    }
+  }
+
+  $added = 0;
+  foreach ($items_seed as $item) {
+    $key = mb_strtolower(trim($item['pergunta']));
+    if (in_array($key, $existing_perguntas, TRUE)) {
+      continue;
+    }
+    $refs[] = _custom_configs_create_faq_item_paragraph($item['pergunta'], $item['resposta']);
+    $existing_perguntas[] = $key;
+    $added++;
+    $changed = TRUE;
+  }
+
+  if ($changed) {
+    $node->set('field_faq_itens', $refs);
+    $node->save();
+    return (string) t('FAQ coleção seed (@uuid): @n itens adicionados / campos vazios preenchidos.', [
+      '@uuid' => $uuid,
+      '@n' => $added,
+    ]);
+  }
+
+  return (string) t('FAQ coleção seed (@uuid) já existe (no-op).', ['@uuid' => $uuid]);
+}
+
+/**
+ * Consolida refs múltiplas e ajusta field_vaga_faq para cardinality 1.
+ */
+function _custom_configs_ensure_field_vaga_faq_cardinality_1(): string {
+  $parts = [];
+  $entity_type = 'node';
+  $bundle = 'vagas';
+  $field_name = 'field_vaga_faq';
+
+  $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name);
+  if (!$storage) {
+    // Criar já com card. 1 se ausente.
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => $entity_type,
+      'type' => 'entity_reference',
+      'settings' => ['target_type' => 'node'],
+      'module' => 'core',
+      'cardinality' => 1,
+      'translatable' => TRUE,
+    ])->save();
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name);
+    $parts[] = (string) t('Storage node.field_vaga_faq criado (card. 1).');
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName($entity_type, $bundle, $field_name) && $storage) {
+    \Drupal\field\Entity\FieldConfig::create([
+      'field_storage' => $storage,
+      'bundle' => $bundle,
+      'label' => 'FAQ da vaga',
+      'description' => 'Coleção FAQ associada a esta vaga (uma por vaga).',
+      'required' => FALSE,
+      'translatable' => FALSE,
+      'settings' => [
+        'handler' => 'default:node',
+        'handler_settings' => [
+          'target_bundles' => ['faq' => 'faq'],
+          'sort' => ['field' => '_none', 'direction' => 'ASC'],
+          'auto_create' => FALSE,
+          'auto_create_bundle' => '',
+        ],
+      ],
+    ])->save();
+    $parts[] = (string) t('Instance node.vagas.field_vaga_faq criada.');
+  }
+
+  // Consolidar N → 1 antes de reduzir cardinality.
+  $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+  $nids = $node_storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('type', 'vagas')
+    ->execute();
+  $consolidated = 0;
+  $collection_uuid = 'c3d4e5f6-a7b8-4901-b234-56789abcdef0';
+
+  foreach ($node_storage->loadMultiple($nids ?: []) as $vaga) {
+    /** @var \Drupal\node\NodeInterface $vaga */
+    if (!$vaga->hasField($field_name) || $vaga->get($field_name)->isEmpty()) {
+      continue;
+    }
+    $refs = $vaga->get($field_name)->referencedEntities();
+    if (count($refs) <= 1) {
+      // Preferir coleção com itens se a única ref ainda for 1:1 órfã.
+      continue;
+    }
+
+    // Preferir a coleção seed se estiver entre as refs; senão a 1ª com itens; senão a 1ª.
+    $chosen = NULL;
+    foreach ($refs as $faq) {
+      if ($faq->uuid() === $collection_uuid) {
+        $chosen = $faq;
+        break;
+      }
+    }
+    if (!$chosen) {
+      foreach ($refs as $faq) {
+        if ($faq->hasField('field_faq_itens') && !$faq->get('field_faq_itens')->isEmpty()) {
+          $chosen = $faq;
+          break;
+        }
+      }
+    }
+    if (!$chosen) {
+      $chosen = reset($refs);
+    }
+
+    // Fundir itens das outras refs na escolhida (sem duplicar pergunta).
+    if ($chosen->hasField('field_faq_itens')) {
+      $existing_perguntas = [];
+      $item_refs = $chosen->get('field_faq_itens')->getValue();
+      foreach ($chosen->get('field_faq_itens') as $item) {
+        if ($item->entity && $item->entity->hasField('field_pergunta')) {
+          $existing_perguntas[] = mb_strtolower(trim((string) $item->entity->get('field_pergunta')->value));
+        }
+      }
+      foreach ($refs as $faq) {
+        if ((int) $faq->id() === (int) $chosen->id()) {
+          continue;
+        }
+        if ($faq->hasField('field_faq_itens') && !$faq->get('field_faq_itens')->isEmpty()) {
+          foreach ($faq->get('field_faq_itens') as $item) {
+            if (!$item->entity || !$item->entity->hasField('field_pergunta')) {
+              continue;
+            }
+            $key = mb_strtolower(trim((string) $item->entity->get('field_pergunta')->value));
+            if ($key === '' || in_array($key, $existing_perguntas, TRUE)) {
+              continue;
+            }
+            $item_refs[] = [
+              'target_id' => $item->target_id,
+              'target_revision_id' => $item->target_revision_id,
+            ];
+            $existing_perguntas[] = $key;
+          }
+        }
+        elseif ($faq->hasField('field_resposta') && !$faq->get('field_resposta')->isEmpty()) {
+          $pergunta = (string) $faq->getTitle();
+          $key = mb_strtolower(trim($pergunta));
+          if ($key !== '' && !in_array($key, $existing_perguntas, TRUE)) {
+            $item_refs[] = _custom_configs_create_faq_item_paragraph(
+              $pergunta,
+              (string) ($faq->get('field_resposta')->value ?? '')
+            );
+            $existing_perguntas[] = $key;
+          }
+        }
+      }
+      $chosen->set('field_faq_itens', $item_refs);
+      $chosen->save();
+    }
+
+    $vaga->set($field_name, ['target_id' => $chosen->id()]);
+    $vaga->save();
+    $consolidated++;
+  }
+  if ($consolidated) {
+    $parts[] = (string) t('@n vaga(s) com FAQ consolidado para 1 coleção.', ['@n' => $consolidated]);
+  }
+
+  // Ajustar cardinality do storage.
+  if ($storage && (int) $storage->getCardinality() !== 1) {
+    $storage->setCardinality(1);
+    $storage->save();
+    $parts[] = (string) t('field_vaga_faq cardinality → 1.');
+  }
+
+  // Garantir handler só bundle faq na instance.
+  $instance = \Drupal\field\Entity\FieldConfig::loadByName($entity_type, $bundle, $field_name);
+  if ($instance) {
+    $settings = $instance->getSettings();
+    $bundles = $settings['handler_settings']['target_bundles'] ?? [];
+    if ($bundles !== ['faq' => 'faq']) {
+      $settings['handler'] = 'default:node';
+      $settings['handler_settings'] = [
+        'target_bundles' => ['faq' => 'faq'],
+        'sort' => ['field' => '_none', 'direction' => 'ASC'],
+        'auto_create' => FALSE,
+        'auto_create_bundle' => '',
+      ];
+      $instance->setSettings($settings);
+      $instance->setDescription('Coleção FAQ associada a esta vaga (uma por vaga).');
+      $instance->save();
+      $parts[] = (string) t('Instance field_vaga_faq handler/bundle atualizados.');
+    }
+  }
+
+  if (!$parts) {
+    return (string) t('field_vaga_faq card. 1 já ok.');
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Migra string multi → HTML lista; recreate storage text_long card. 1 (mesmo machine name).
+ */
+function _custom_configs_migrate_recreate_field_vaga_requisitos_text_long(): string {
+  $entity_type = 'node';
+  $bundle = 'vagas';
+  $field_name = 'field_vaga_requisitos';
+  $parts = [];
+
+  $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name);
+  if ($storage && $storage->getType() === 'text_long') {
+    return (string) t('field_vaga_requisitos já é text_long (no-op).');
+  }
+
+  // 1) Ler valores string multi.
+  $migrated_html = [];
+  if ($storage) {
+    $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+    $nids = $node_storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('type', $bundle)
+      ->execute();
+    foreach ($node_storage->loadMultiple($nids ?: []) as $node) {
+      /** @var \Drupal\node\NodeInterface $node */
+      if (!$node->hasField($field_name) || $node->get($field_name)->isEmpty()) {
+        continue;
+      }
+      $lis = [];
+      foreach ($node->get($field_name) as $item) {
+        if ($item->value !== NULL && $item->value !== '') {
+          $lis[] = '<li>' . htmlspecialchars((string) $item->value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</li>';
+        }
+      }
+      if ($lis) {
+        $migrated_html[(int) $node->id()] = '<ul>' . implode('', $lis) . '</ul>';
+      }
+    }
+  }
+
+  // 2) Remover instance + storage string.
+  $instance = \Drupal\field\Entity\FieldConfig::loadByName($entity_type, $bundle, $field_name);
+  if ($instance) {
+    $instance->delete();
+    $parts[] = (string) t('Instance string field_vaga_requisitos removida.');
+  }
+  $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name);
+  if ($storage) {
+    $storage->delete();
+    $parts[] = (string) t('Storage string field_vaga_requisitos removido.');
+  }
+
+  // Purgar dados de field deletados (necessário antes de recriar mesmo nome).
+  for ($i = 0; $i < 30; $i++) {
+    field_purge_batch(50);
+  }
+
+  // 3) Recreate text_long card. 1.
+  if (!\Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name)) {
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => $entity_type,
+      'type' => 'text_long',
+      'settings' => [],
+      'module' => 'text',
+      'cardinality' => 1,
+      'translatable' => TRUE,
+    ])->save();
+    $parts[] = (string) t('Storage text_long field_vaga_requisitos criado.');
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName($entity_type, $bundle, $field_name)) {
+    $new_storage = \Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name);
+    if ($new_storage) {
+      \Drupal\field\Entity\FieldConfig::create([
+        'field_storage' => $new_storage,
+        'bundle' => $bundle,
+        'label' => 'Requisitos',
+        'description' => 'Requisitos em texto formatado (lista com checks no detalhe).',
+        'required' => FALSE,
+        'translatable' => FALSE,
+        'settings' => [
+          'allowed_formats' => ['basic_html', 'full_html'],
+        ],
+      ])->save();
+      $parts[] = (string) t('Instance text_long field_vaga_requisitos criada.');
+    }
+  }
+
+  // 4) Restaurar valores migrados se destino vazio.
+  $restored = 0;
+  if ($migrated_html) {
+    $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+    foreach ($migrated_html as $nid => $html) {
+      /** @var \Drupal\node\NodeInterface|null $node */
+      $node = $node_storage->load($nid);
+      if (!$node || !$node->hasField($field_name)) {
+        continue;
+      }
+      if (!$node->get($field_name)->isEmpty()) {
+        continue;
+      }
+      $node->set($field_name, [
+        'value' => $html,
+        'format' => 'basic_html',
+      ]);
+      $node->save();
+      $restored++;
+    }
+    $parts[] = (string) t('@n vaga(s) com requisitos migrados para HTML.', ['@n' => $restored]);
+  }
+
+  if (!$parts) {
+    return (string) t('Recreate field_vaga_requisitos: nada a fazer.');
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Form/view displays 031: requisitos textarea formatado; FAQ card. 1; benefícios paragraphs.
+ */
+function _custom_configs_ensure_vagas_detalhe_displays_031(): string {
+  $parts = [];
+  $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+  $view_storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null $form_display */
+  $form_display = $form_storage->load('node.vagas.default');
+  if (!$form_display) {
+    return (string) t('Form display node.vagas.default ausente — rode drush cim -y.');
+  }
+
+  $form_changed = FALSE;
+  $form_components = [
+    'field_vaga_requisitos' => [
+      'type' => 'text_textarea',
+      'weight' => 20,
+      'settings' => ['rows' => 8, 'placeholder' => ''],
+    ],
+    'field_vaga_beneficios' => [
+      'type' => 'paragraphs',
+      'weight' => 21,
+      'settings' => [
+        'title' => 'Benefício',
+        'title_plural' => 'Benefícios',
+        'edit_mode' => 'open',
+        'closed_mode' => 'summary',
+        'autocollapse' => 'none',
+        'closed_mode_threshold' => 0,
+        'add_mode' => 'dropdown',
+        'form_display_mode' => 'default',
+        'default_paragraph_type' => 'beneficio_vaga_p',
+        'features' => [
+          'collapse_edit_all' => 'collapse_edit_all',
+          'duplicate' => 'duplicate',
+        ],
+      ],
+    ],
+    'field_vaga_faq' => [
+      'type' => 'entity_reference_autocomplete',
+      'weight' => 23,
+      'settings' => [
+        'match_operator' => 'CONTAINS',
+        'match_limit' => 10,
+        'size' => 60,
+        'placeholder' => '',
+      ],
+    ],
+  ];
+
+  foreach ($form_components as $name => $component) {
+    if (!\Drupal\field\Entity\FieldConfig::loadByName('node', 'vagas', $name)) {
+      continue;
+    }
+    $current = $form_display->getComponent($name);
+    // Forçar widget correto para requisitos (string_textfield → text_textarea).
+    if ($current === NULL || ($name === 'field_vaga_requisitos' && ($current['type'] ?? '') !== 'text_textarea')) {
+      $form_display->setComponent($name, $component + [
+        'region' => 'content',
+        'third_party_settings' => [],
+      ]);
+      $form_changed = TRUE;
+    }
+    elseif ($current === NULL) {
+      $form_display->setComponent($name, $component + [
+        'region' => 'content',
+        'third_party_settings' => [],
+      ]);
+      $form_changed = TRUE;
+    }
+  }
+
+  // Etapas: manter no form se existir (schema permanece; fora da UI full).
+  if ($form_changed) {
+    $form_display->save();
+    $parts[] = (string) t('Form display node.vagas.default: campos detalhe 031 garantidos.');
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null $view_display */
+  $view_display = $view_storage->load('node.vagas.default');
+  if ($view_display) {
+    $view_changed = FALSE;
+    foreach (['field_vaga_requisitos', 'field_vaga_beneficios', 'field_vaga_faq', 'field_vaga_etapas_processo'] as $name) {
+      if ($view_display->getComponent($name) !== NULL) {
+        $view_display->removeComponent($name);
+        $view_changed = TRUE;
+      }
+    }
+    if ($view_changed) {
+      $view_display->save();
+      $parts[] = (string) t('View display node.vagas.default: campos 031 ocultos (Twig full).');
+    }
+  }
+
+  if (!$parts) {
+    return (string) t('Displays node.vagas detalhe 031 já ok.');
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Seed bloco cta_v1 para detalhe de vagas (UUID fixo).
+ */
+function _custom_configs_seed_cta_v1_vagas(): string {
+  $uuid = 'd4e5f6a7-b8c9-4012-c345-6789abcdef01';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
+  if (!isset($bundle_info['cta_v1'])) {
+    return (string) t('Bundle cta_v1 ausente — rode drush cim -y antes do updb.');
+  }
+
+  $seed_title = 'Pronto para o próximo passo?';
+  $seed_subtitle = 'Candidate-se agora e dê o próximo passo na sua carreira com a Eu Sou Estágio.';
+  $seed_primary = [
+    'uri' => 'internal:/cadastro/candidato',
+    'title' => 'Candidatar-se Agora',
+  ];
+
+  if ($existing) {
+    /** @var \Drupal\block_content\BlockContentInterface $block */
+    $block = reset($existing);
+    $messages = [];
+    $changed = FALSE;
+
+    if ($block->hasField('field_text_simple') && $block->get('field_text_simple')->isEmpty()) {
+      $block->set('field_text_simple', $seed_title);
+      $changed = TRUE;
+      $messages[] = (string) t('Título CTA vagas preenchido.');
+    }
+    if ($block->hasField('field_text_simple_long') && $block->get('field_text_simple_long')->isEmpty()) {
+      $block->set('field_text_simple_long', $seed_subtitle);
+      $changed = TRUE;
+      $messages[] = (string) t('Subtítulo CTA vagas preenchido.');
+    }
+    if ($block->hasField('field_link') && $block->get('field_link')->isEmpty()) {
+      $block->set('field_link', $seed_primary);
+      $changed = TRUE;
+      $messages[] = (string) t('Botão primário CTA vagas preenchido.');
+    }
+
+    if ($changed) {
+      $block->save();
+    }
+    if (!$messages) {
+      $messages[] = (string) t('Bloco CTA vagas (@uuid) já existe — seed ignorado.', ['@uuid' => $uuid]);
+    }
+    return implode(' ', $messages);
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = $storage->create([
+    'type' => 'cta_v1',
+    'uuid' => $uuid,
+    'info' => 'CTA v1 Vagas',
+    'status' => TRUE,
+    'field_text_simple' => $seed_title,
+    'field_text_simple_long' => $seed_subtitle,
+    'field_link' => $seed_primary,
+  ]);
+  $block->save();
+
+  return (string) t('Bloco CTA vagas seed criado (@uuid).', ['@uuid' => $uuid]);
+}
+
+/**
+ * Garante placement default_ctav1vagas (content_full, entity_bundle:node = vagas).
+ */
+function _custom_configs_ensure_placement_ctav1vagas(): string {
+  $plugin = 'block_content:d4e5f6a7-b8c9-4012-c345-6789abcdef01';
+  $block_id = 'default_ctav1vagas';
+  $placement_uuid = 'e5f6a7b8-c9d0-4123-d456-789abcdef012';
+  $storage = \Drupal::entityTypeManager()->getStorage('block');
+
+  $visibility_bundle = [
+    'entity_bundle:node' => [
+      'id' => 'entity_bundle:node',
+      'negate' => FALSE,
+      'context_mapping' => [
+        'node' => '@node.node_route_context:node',
+      ],
+      'bundles' => [
+        'vagas' => 'vagas',
+      ],
+    ],
+  ];
+
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = $storage->load($block_id);
+  if (!$block) {
+    $block = $storage->create([
+      'id' => $block_id,
+      'uuid' => $placement_uuid,
+      'theme' => 'default',
+      'region' => 'content_full',
+      'weight' => 10,
+      'provider' => NULL,
+      'plugin' => $plugin,
+      'settings' => [
+        'id' => $plugin,
+        'label' => 'CTA v1 Vagas',
+        'label_display' => '0',
+        'provider' => 'block_content',
+        'view_mode' => 'full',
+      ],
+      'visibility' => $visibility_bundle,
+    ]);
+    $block->save();
+    return (string) t('Placement default_ctav1vagas criado.');
+  }
+
+  $changed = FALSE;
+  if ($block->getPluginId() !== $plugin) {
+    $block->delete();
+    $block = $storage->create([
+      'id' => $block_id,
+      'uuid' => $placement_uuid,
+      'theme' => 'default',
+      'region' => 'content_full',
+      'weight' => 10,
+      'provider' => NULL,
+      'plugin' => $plugin,
+      'settings' => [
+        'id' => $plugin,
+        'label' => 'CTA v1 Vagas',
+        'label_display' => '0',
+        'provider' => 'block_content',
+        'view_mode' => 'full',
+      ],
+      'visibility' => $visibility_bundle,
+    ]);
+    $block->save();
+    return (string) t('Placement default_ctav1vagas reapontado para CTA vagas.');
+  }
+  if ($block->getRegion() !== 'content_full') {
+    $block->setRegion('content_full');
+    $changed = TRUE;
+  }
+  if ((int) $block->getWeight() !== 10) {
+    $block->setWeight(10);
+    $changed = TRUE;
+  }
+  $settings = $block->get('settings') ?: [];
+  if (($settings['label_display'] ?? NULL) !== '0') {
+    $settings['label_display'] = '0';
+    $block->set('settings', $settings);
+    $changed = TRUE;
+  }
+  if (($settings['label'] ?? '') !== 'CTA v1 Vagas') {
+    $settings['label'] = 'CTA v1 Vagas';
+    $block->set('settings', $settings);
+    $changed = TRUE;
+  }
+  if (!$block->status()) {
+    $block->setStatus(TRUE);
+    $changed = TRUE;
+  }
+
+  $visibility = $block->getVisibility();
+  $bundles = $visibility['entity_bundle:node']['bundles'] ?? [];
+  if ($bundles !== ['vagas' => 'vagas']) {
+    $block->setVisibilityConfig('entity_bundle:node', [
+      'id' => 'entity_bundle:node',
+      'negate' => FALSE,
+      'context_mapping' => [
+        'node' => '@node.node_route_context:node',
+      ],
+      'bundles' => [
+        'vagas' => 'vagas',
+      ],
+    ]);
+    // Remover request_path se houver.
+    if (isset($visibility['request_path'])) {
+      $block->setVisibilityConfig('request_path', []);
+    }
+    $changed = TRUE;
+  }
+
+  if ($changed) {
+    $block->save();
+    return (string) t('Placement default_ctav1vagas atualizado (região/visibilidade).');
+  }
+
+  return (string) t('Placement default_ctav1vagas já ok.');
+}
+

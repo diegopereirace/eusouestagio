@@ -1,19 +1,26 @@
-uuid: c1befe04-a6bf-43b0-bcef-f4144be4fd7c
+uuid: f3555abd-8339-458f-bef6-19abd29a049d
 langcode: pt-br
 status: true
 dependencies:
   config:
     - field.storage.node.field_vaga_requisitos
+    - filter.format.basic_html
+    - filter.format.full_html
     - node.type.vagas
+  module:
+    - text
 id: node.vagas.field_vaga_requisitos
 field_name: field_vaga_requisitos
 entity_type: node
 bundle: vagas
 label: Requisitos
-description: 'Lista de requisitos exibida com checks no detalhe da vaga.'
+description: 'Requisitos em texto formatado (lista com checks no detalhe).'
 required: false
 translatable: false
 default_value: {  }
 default_value_callback: ''
-settings: {  }
-field_type: string
+settings:
+  allowed_formats:
+    - basic_html
+    - full_html
+field_type: text_long

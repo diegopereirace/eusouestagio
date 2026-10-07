@@ -1,5 +1,5 @@
 /**
- * Detalhe da vaga (view mode full) — feature 030.
+ * Detalhe da vaga (view mode full) — feature 031 refino.
  * Escopo: .vaga-detalhe / .node--type-vagas.node--view-mode-full
  * Não alterar listagem .item-vaga--lista nem cards .item-vaga--destaque.
  */
@@ -104,7 +104,6 @@
 .vaga-detalhe__sobre,
 .vaga-detalhe__requisitos,
 .vaga-detalhe__beneficios,
-.vaga-detalhe__processo,
 .vaga-detalhe__empresa,
 .vaga-detalhe__faq {
   margin-bottom: 2rem;
@@ -114,7 +113,9 @@
   line-height: 1.65;
 }
 
-.vaga-detalhe__checks {
+/* Requisitos — Text long HTML com checks CSS (sem bullets padrão) */
+.vaga-detalhe__requisitos-body ul,
+.vaga-detalhe__requisitos-body ol {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -122,13 +123,22 @@
   gap: 0.75rem;
 }
 
-.vaga-detalhe__check {
+.vaga-detalhe__requisitos-body li,
+.vaga-detalhe__requisitos-body p {
+  position: relative;
   display: flex;
   gap: 0.75rem;
   align-items: flex-start;
+  margin: 0;
+  padding-left: 0;
+  line-height: 1.5;
 }
 
-.vaga-detalhe__check-icon {
+.vaga-detalhe__requisitos-body li::before,
+.vaga-detalhe__requisitos-body p::before {
+  content: "\f00c";
+  font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif;
+  font-weight: 900;
   flex: 0 0 1.5rem;
   width: 1.5rem;
   height: 1.5rem;
@@ -140,6 +150,8 @@
   justify-content: center;
   font-size: 0.7rem;
   margin-top: 0.1rem;
+  line-height: 1.5rem;
+  text-align: center;
 }
 
 .vaga-detalhe__beneficio-card {
@@ -180,64 +192,6 @@
   color: var(--vd-text);
 }
 
-/* Stepper */
-.vaga-detalhe__stepper {
-  list-style: none;
-  margin: 0;
-  padding: 0.5rem 0 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 0;
-  overflow-x: auto;
-}
-
-.vaga-detalhe__step {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1 1 5.5rem;
-  min-width: 5.5rem;
-  text-align: center;
-  padding: 0 0.5rem 0.5rem;
-}
-
-.vaga-detalhe__step:not(:last-child)::after {
-  content: "";
-  position: absolute;
-  top: 1.1rem;
-  left: calc(50% + 1.25rem);
-  width: calc(100% - 2.5rem);
-  height: 2px;
-  background: #d5dee7;
-}
-
-.vaga-detalhe__step-circle {
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 50%;
-  background: var(--vd-navy);
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.95rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 0.5rem;
-  position: relative;
-  z-index: 1;
-}
-
-.vaga-detalhe__step--last .vaga-detalhe__step-circle {
-  background: var(--vd-orange);
-}
-
-.vaga-detalhe__step-label {
-  font-size: 0.85rem;
-  color: var(--vd-text);
-  font-weight: 500;
-}
-
 /* Empresa card — sem Ver Empresa */
 .vaga-detalhe__empresa-card {
   border: 1px solid var(--vd-border);
@@ -269,7 +223,7 @@
   overflow: hidden;
 }
 
-/* FAQ */
+/* FAQ accordion */
 .vaga-detalhe__faq .accordion-item {
   border-color: var(--vd-border);
 }
@@ -290,47 +244,9 @@
   box-shadow: 0 0 0 0.2rem rgba(2, 60, 98, 0.15);
 }
 
-/* CTA final */
-.vaga-detalhe__cta {
-  margin-top: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.vaga-detalhe__cta-inner {
-  background: var(--vd-navy);
-  color: #fff;
-  border-radius: 16px;
-  padding: 2rem 1.5rem;
-  text-align: center;
-}
-
-.vaga-detalhe__cta-title {
-  margin: 0 0 0.5rem;
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: #fff;
-}
-
-.vaga-detalhe__cta-text {
-  margin: 0 0 1.25rem;
-  opacity: 0.9;
-}
-
-.vaga-detalhe__cta-btn {
-  background: var(--vd-orange) !important;
-  border-color: var(--vd-orange) !important;
-  color: #fff !important;
-  min-width: 14rem;
-}
-
-.vaga-detalhe__cta-btn:disabled {
-  opacity: 0.75;
-}
-
-/* Sidebar */
+/* Sidebar — ações + resumo (sem perfil) */
 .vaga-detalhe__acoes,
-.vaga-detalhe__resumo,
-.vaga-detalhe__perfil {
+.vaga-detalhe__resumo {
   border: 1px solid var(--vd-border);
   border-radius: 12px;
   padding: 1.25rem;
@@ -343,8 +259,7 @@
 }
 
 .vaga-detalhe__compartilhar-label,
-.vaga-detalhe__resumo-title,
-.vaga-detalhe__perfil-title {
+.vaga-detalhe__resumo-title {
   font-size: 1rem;
   font-weight: 700;
   color: var(--vd-navy);
@@ -401,37 +316,8 @@
   text-align: right;
 }
 
-.vaga-detalhe__perfil-bar {
-  height: 0.5rem;
-  background: #dde5ec;
-  border-radius: 999px;
-  overflow: hidden;
-  margin-bottom: 0.5rem;
-}
-
-.vaga-detalhe__perfil-bar-fill {
-  height: 100%;
-  background: var(--vd-orange);
-  border-radius: inherit;
-}
-
-.vaga-detalhe__perfil-pct {
-  margin: 0 0 0.75rem;
-  font-size: 0.9rem;
-  color: var(--vd-muted);
-}
-
 @media (max-width: 991.98px) {
   .vaga-detalhe .container {
     overflow-x: clip;
-  }
-
-  .vaga-detalhe__stepper {
-    flex-wrap: nowrap;
-    padding-bottom: 0.25rem;
-  }
-
-  .vaga-detalhe__step {
-    flex: 0 0 6.5rem;
   }
 }

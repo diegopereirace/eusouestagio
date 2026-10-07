@@ -1,13 +1,13 @@
-uuid: 1a199532-a3ad-4edf-8623-6e8083b1944b
+uuid: 42c1adb9-6234-46d6-9733-74007d4d4f3f
 langcode: pt-br
 status: true
 dependencies:
   module:
-    - node
+    - paragraphs
     - text
-id: node.field_vaga_requisitos
-field_name: field_vaga_requisitos
-entity_type: node
+id: paragraph.field_resposta
+field_name: field_resposta
+entity_type: paragraph
 type: text_long
 settings: {  }
 module: text

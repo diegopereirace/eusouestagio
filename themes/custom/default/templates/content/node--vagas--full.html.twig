@@ -1,8 +1,9 @@
 {#
 /**
  * @file
- * Detalhe full da vaga — layout Figma duas colunas (feature 030).
- * Sem Match. Sem Ver Empresa. Ações reutilizam script-painel.
+ * Detalhe full da vaga — layout Figma duas colunas (feature 031 refino).
+ * Sem Match / Processo / Seu Perfil / CTA inline. Sem Ver Empresa.
+ * FAQ via coleção field_faq_itens. CTA final = bloco default_ctav1vagas.
  */
 #}
 {{ attach_library('bootstrap_barrio/node') }}
@@ -30,9 +31,6 @@
 {% endif %}
 {% set cidade = node.field_cidade.value %}
 {% set estado = node.field_estados.value %}
-{% set perfil_pct = vaga_perfil_completo|default(75) %}
-{% set perfil_url = '/painel/estudante/perfil' %}
-{% set login_perfil = '/user/login?destination=' ~ perfil_url|url_encode %}
 {% set canonical_path = path('entity.node.canonical', {'node': node.id}) %}
 
 <article{{ attributes.addClass(classes) }}>
@@ -100,20 +98,13 @@
           </section>
         {% endif %}
 
-        {% set has_requisitos = node.hasField('field_vaga_requisitos') and node.field_vaga_requisitos is not empty %}
+        {% set has_requisitos = node.hasField('field_vaga_requisitos') and node.field_vaga_requisitos.value %}
         {% if has_requisitos %}
           <section class="vaga-detalhe__requisitos">
             <h2 class="vaga-detalhe__section-title">{{ 'Requisitos'|t }}</h2>
-            <ul class="vaga-detalhe__checks">
-              {% for item in node.field_vaga_requisitos %}
-                {% if item.value %}
-                  <li class="vaga-detalhe__check">
-                    <span class="vaga-detalhe__check-icon" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
-                    <span>{{ item.value }}</span>
-                  </li>
-                {% endif %}
-              {% endfor %}
-            </ul>
+            <div class="vaga-detalhe__requisitos-body">
+              {{ node.field_vaga_requisitos.value|raw }}
+            </div>
           </section>
         {% endif %}
 
@@ -152,23 +143,6 @@
           </section>
         {% endif %}
 
-        {% set has_etapas = node.hasField('field_vaga_etapas_processo') and node.field_vaga_etapas_processo is not empty %}
-        {% if has_etapas %}
-          <section class="vaga-detalhe__processo">
-            <h2 class="vaga-detalhe__section-title">{{ 'Processo de Contratação'|t }}</h2>
-            <ol class="vaga-detalhe__stepper">
-              {% for item in node.field_vaga_etapas_processo %}
-                {% if item.value %}
-                  <li class="vaga-detalhe__step{{ loop.last ? ' vaga-detalhe__step--last' : '' }}">
-                    <span class="vaga-detalhe__step-circle" aria-hidden="true">{{ loop.index }}</span>
-                    <span class="vaga-detalhe__step-label">{{ item.value }}</span>
-                  </li>
-                {% endif %}
-              {% endfor %}
-            </ol>
-          </section>
-        {% endif %}
-
         {% if empresa %}
           {% set sobre_empresa = empresa.field_sobre_empresa.value ?? '' %}
           <section class="vaga-detalhe__empresa">
@@ -189,69 +163,52 @@
           </section>
         {% endif %}
 
-        {% set faq_items = [] %}
-        {% if node.hasField('field_vaga_faq') and node.field_vaga_faq is not empty %}
-          {% for item in node.field_vaga_faq %}
-            {% if item.entity and item.entity.isPublished() %}
-              {% set faq_items = faq_items|merge([item.entity]) %}
-            {% endif %}
-          {% endfor %}
+        {% set faq_paras = [] %}
+        {% if node.hasField('field_vaga_faq') and node.field_vaga_faq is not empty and node.field_vaga_faq.entity %}
+          {% set faq_colecao = node.field_vaga_faq.entity %}
+          {% if faq_colecao.isPublished() and faq_colecao.hasField('field_faq_itens') and faq_colecao.field_faq_itens is not empty %}
+            {% for item in faq_colecao.field_faq_itens %}
+              {% if item.entity %}
+                {% set faq_paras = faq_paras|merge([item.entity]) %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
         {% endif %}
-        {% if faq_items %}
+        {% if faq_paras %}
           <section class="vaga-detalhe__faq">
             <h2 class="vaga-detalhe__section-title">{{ 'Dúvidas Frequentes'|t }}</h2>
             <div class="accordion" id="vaga-faq-{{ node.id }}">
-              {% for faq in faq_items %}
-                {% set collapse_id = 'vaga-faq-' ~ node.id ~ '-' ~ faq.id %}
-                <div class="accordion-item">
-                  <h3 class="accordion-header" id="heading-{{ collapse_id }}">
-                    <button class="accordion-button{{ not loop.first ? ' collapsed' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#{{ collapse_id }}" aria-expanded="{{ loop.first ? 'true' : 'false' }}" aria-controls="{{ collapse_id }}">
-                      {{ faq.label }}
-                    </button>
-                  </h3>
-                  <div id="{{ collapse_id }}" class="accordion-collapse collapse{{ loop.first ? ' show' : '' }}" aria-labelledby="heading-{{ collapse_id }}" data-bs-parent="#vaga-faq-{{ node.id }}">
-                    <div class="accordion-body">
-                      {% if faq.hasField('field_resposta') and faq.field_resposta.value %}
-                        {{ faq.field_resposta.value|raw }}
-                      {% endif %}
+              {% for para in faq_paras %}
+                {% set collapse_id = 'vaga-faq-' ~ node.id ~ '-' ~ (para.id ?: loop.index0) %}
+                {% set pergunta = para.field_pergunta.value ?? '' %}
+                {% set resposta = para.field_resposta.value ?? '' %}
+                {% if pergunta or resposta %}
+                  <div class="accordion-item">
+                    <h3 class="accordion-header" id="heading-{{ collapse_id }}">
+                      <button class="accordion-button{{ not loop.first ? ' collapsed' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#{{ collapse_id }}" aria-expanded="{{ loop.first ? 'true' : 'false' }}" aria-controls="{{ collapse_id }}">
+                        {{ pergunta }}
+                      </button>
+                    </h3>
+                    <div id="{{ collapse_id }}" class="accordion-collapse collapse{{ loop.first ? ' show' : '' }}" aria-labelledby="heading-{{ collapse_id }}" data-bs-parent="#vaga-faq-{{ node.id }}">
+                      <div class="accordion-body">
+                        {% if resposta %}
+                          {{ resposta|raw }}
+                        {% endif %}
+                      </div>
                     </div>
                   </div>
-                </div>
+                {% endif %}
               {% endfor %}
             </div>
           </section>
         {% endif %}
-
-        <section class="vaga-detalhe__cta">
-          <div class="vaga-detalhe__cta-inner">
-            <h2 class="vaga-detalhe__cta-title">{{ 'Pronto para o próximo passo?'|t }}</h2>
-            <p class="vaga-detalhe__cta-text">{{ 'Candidate-se agora e dê o próximo passo na sua carreira.'|t }}</p>
-            {% if logged_in and user.hasRole('candidato') %}
-              {% if vaga_candidatada %}
-                <button type="button" class="ui-btn ui-btn--primary vaga-detalhe__cta-btn" disabled>
-                  {{ 'Candidatura Enviada'|t }}
-                </button>
-              {% else %}
-                <button type="button"
-                  class="ui-btn ui-btn--primary vaga-detalhe__cta-btn js-candidatar-vaga"
-                  data-node-id="{{ node.id }}">
-                  {{ 'Candidatar-se Agora'|t }}
-                </button>
-              {% endif %}
-            {% elseif not logged_in %}
-              <a href="/user/login?destination={{ canonical_path }}" class="ui-btn ui-btn--primary vaga-detalhe__cta-btn">
-                {{ 'Candidatar-se Agora'|t }}
-              </a>
-            {% endif %}
-          </div>
-        </section>
 
       </div>
 
       {# —— Sidebar —— #}
       <aside class="col-12 col-lg-4">
 
-        <div class="vaga-detalhe__acoes">
+        <div class="vaga-detalhe__acoes" id="vaga-acoes">
           {% if logged_in and user.hasRole('candidato') %}
             {% if vaga_candidatada %}
               <button type="button" class="ui-btn ui-btn--primary w-100 mb-3" disabled>
@@ -341,19 +298,6 @@
               <dd>{{ 'Não informado'|t }}</dd>
             </div>
           </dl>
-        </div>
-
-        <div class="vaga-detalhe__perfil">
-          <h2 class="vaga-detalhe__perfil-title">{{ 'Seu Perfil'|t }}</h2>
-          <div class="vaga-detalhe__perfil-bar" role="progressbar" aria-valuenow="{{ perfil_pct }}" aria-valuemin="0" aria-valuemax="100" aria-label="{{ 'Completude do perfil'|t }}">
-            <div class="vaga-detalhe__perfil-bar-fill" style="width: {{ perfil_pct }}%;"></div>
-          </div>
-          <p class="vaga-detalhe__perfil-pct">{{ '@pct% completo'|t({'@pct': perfil_pct}) }}</p>
-          {% if logged_in and user.hasRole('candidato') %}
-            <a href="{{ perfil_url }}" class="ui-btn ui-btn--outline w-100">{{ 'Completar agora'|t }}</a>
-          {% else %}
-            <a href="{{ login_perfil }}" class="ui-btn ui-btn--outline w-100">{{ 'Completar agora'|t }}</a>
-          {% endif %}
         </div>
 
       </aside>

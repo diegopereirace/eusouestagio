@@ -1,0 +1,72 @@
+{#
+/**
+ * @file
+ * Cartão de ações da sidebar do detalhe da vaga (feature 033).
+ *
+ * Variáveis (include only):
+ * - node
+ * - logged_in
+ * - user
+ * - vaga_candidatada
+ * - vaga_salva
+ * - share_url_encoded
+ */
+#}
+{% set apply_url = path('custom_panel.vagas_candidatar', {'node': node.id}) %}
+{% set toggle_url = path('custom_panel.vagas_salvas_toggle') %}
+{% set canonical_path = path('entity.node.canonical', {'node': node.id}) %}
+{% set is_candidato = logged_in and user.hasRole('candidato') %}
+
+<div class="vaga-detalhe__acoes" id="vaga-acoes">
+  {% if is_candidato %}
+    {% if vaga_candidatada %}
+      <button type="button" class="vaga-detalhe__btn-candidatar w-100" disabled>
+        {{ 'Candidatura Enviada'|t }}
+      </button>
+    {% else %}
+      <a href="{{ apply_url }}"
+        class="vaga-detalhe__btn-candidatar w-100 js-candidatar-vaga"
+        data-node-id="{{ node.id }}"
+        data-apply-url="{{ apply_url }}"
+        data-method="POST">
+        {{ 'Candidatar-se'|t }}
+      </a>
+    {% endif %}
+
+    <div class="vaga-detalhe__acoes-secundarias d-flex gap-3 mt-3">
+      <button type="button"
+        class="ui-btn ui-btn--outline flex-grow-1 js-salvar-vaga{{ vaga_salva ? ' ui-btn--saved' : '' }}"
+        data-node-id="{{ node.id }}"
+        data-nid="{{ node.id }}"
+        data-toggle-url="{{ toggle_url }}"
+        data-method="POST">
+        <i class="fa-regular fa-bookmark" aria-hidden="true"></i>
+        <span class="js-salvar-vaga-label">{{ vaga_salva ? 'Remover'|t : 'Salvar'|t }}</span>
+      </button>
+      {% include '@default/content/includes/vaga-share-popover.html.twig' with {
+        share_url_encoded: share_url_encoded,
+        node_id: node.id,
+      } only %}
+    </div>
+  {% elseif not logged_in %}
+    <a href="{{ path('user.login', {}, {'query': {'destination': canonical_path}}) }}" class="vaga-detalhe__btn-candidatar w-100">
+      {{ 'Faça login para se candidatar'|t }}
+    </a>
+    <div class="vaga-detalhe__acoes-secundarias d-flex gap-3 mt-3">
+      <a href="{{ path('custom_configs_users.candidato_registration') }}" class="ui-btn ui-btn--outline flex-grow-1">
+        {{ 'Criar conta'|t }}
+      </a>
+      {% include '@default/content/includes/vaga-share-popover.html.twig' with {
+        share_url_encoded: share_url_encoded,
+        node_id: node.id,
+      } only %}
+    </div>
+  {% else %}
+    <div class="vaga-detalhe__acoes-secundarias vaga-detalhe__acoes-secundarias--share-only d-flex gap-3 mt-3">
+      {% include '@default/content/includes/vaga-share-popover.html.twig' with {
+        share_url_encoded: share_url_encoded,
+        node_id: node.id,
+      } only %}
+    </div>
+  {% endif %}
+</div>

@@ -145,12 +145,15 @@
             '<span class="salvar-vaga-spinner"></span> ' +
             Drupal.t('Salvando…');
 
+          var toggleUrl = button.getAttribute('data-toggle-url') || Drupal.url('painel/estudante/vagas-salvas/toggle');
+          var toggleMethod = button.getAttribute('data-method') || 'POST';
+
           // Chamada AJAX real ao endpoint de toggle.
           fetch(Drupal.url('session/token'))
             .then(function (res) { return res.text(); })
             .then(function (csrfToken) {
-              return fetch(Drupal.url('painel/estudante/vagas-salvas/toggle'), {
-                method: 'POST',
+              return fetch(toggleUrl, {
+                method: toggleMethod,
                 headers: {
                   'Content-Type': 'application/x-www-form-urlencoded',
                   'X-CSRF-Token': csrfToken,
@@ -185,12 +188,24 @@
 
       // ── Botão "Candidatar-se" ──────────────────────────────────────────
       once('candidatar-vaga', '.js-candidatar-vaga', context).forEach(function (btn) {
-        btn.addEventListener('click', function () {
+        btn.addEventListener('click', function (event) {
           var button = this;
-          var nodeId = button.getAttribute('data-node-id');
+          if (button.tagName === 'A') {
+            event.preventDefault();
+          }
+          if (button.getAttribute('aria-disabled') === 'true' || button.disabled) {
+            return;
+          }
 
-          // Trava o botão e exibe spinner (mockup de loading).
-          button.disabled = true;
+          var nodeId = button.getAttribute('data-node-id');
+          var applyUrl = button.getAttribute('data-apply-url') || button.getAttribute('href') || Drupal.url('vaga/apply/' + nodeId);
+          var applyMethod = button.getAttribute('data-method') || 'POST';
+          var originalHtml = button.innerHTML;
+
+          button.setAttribute('aria-disabled', 'true');
+          if (button.tagName === 'BUTTON') {
+            button.disabled = true;
+          }
           button.innerHTML =
             '<span class="salvar-vaga-spinner"></span> ' +
             Drupal.t('Enviando…');
@@ -198,8 +213,8 @@
           fetch(Drupal.url('session/token'))
             .then(function (res) { return res.text(); })
             .then(function (csrfToken) {
-              return fetch(Drupal.url('vaga/apply/' + nodeId), {
-                method: 'POST',
+              return fetch(applyUrl, {
+                method: applyMethod,
                 headers: {
                   'Content-Type': 'application/x-www-form-urlencoded',
                   'X-CSRF-Token': csrfToken,
@@ -209,19 +224,30 @@
             .then(parseJsonResponse)
             .then(function (data) {
               if (data.success || data.status === 'candidatado' || data.status === 'already') {
-                // Substitui o botão por estado desabilitado.
-                button.disabled = true;
+                button.setAttribute('aria-disabled', 'true');
+                if (button.tagName === 'BUTTON') {
+                  button.disabled = true;
+                }
+                else {
+                  button.removeAttribute('href');
+                }
                 button.textContent = Drupal.t('Candidatura Enviada');
                 showActionModal(data.message || Drupal.t('Sua candidatura foi registrada.'));
               } else {
-                button.disabled = false;
-                button.textContent = Drupal.t('Candidatar-se');
+                button.removeAttribute('aria-disabled');
+                if (button.tagName === 'BUTTON') {
+                  button.disabled = false;
+                }
+                button.innerHTML = originalHtml;
                 showActionModal(data.message || Drupal.t('Nao foi possivel registrar sua candidatura.'), 'warning');
               }
             })
             .catch(function (error) {
-              button.disabled = false;
-              button.textContent = Drupal.t('Candidatar-se');
+              button.removeAttribute('aria-disabled');
+              if (button.tagName === 'BUTTON') {
+                button.disabled = false;
+              }
+              button.innerHTML = originalHtml;
               showActionModal((error && error.error) || Drupal.t('Ocorreu um erro ao enviar sua candidatura.'), 'error');
             });
         });

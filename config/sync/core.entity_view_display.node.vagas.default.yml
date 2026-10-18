@@ -23,6 +23,8 @@ dependencies:
     - field.field.node.vagas.field_vaga_empresa
     - field.field.node.vagas.field_vaga_etapas_processo
     - field.field.node.vagas.field_vaga_faq
+    - field.field.node.vagas.field_vaga_periodo
+    - field.field.node.vagas.field_vaga_quantidade
     - field.field.node.vagas.field_vaga_requisitos
     - node.type.vagas
   module:
@@ -140,5 +142,7 @@ hidden:
   field_vaga_empresa: true
   field_vaga_etapas_processo: true
   field_vaga_faq: true
+  field_vaga_periodo: true
+  field_vaga_quantidade: true
   field_vaga_requisitos: true
   langcode: true

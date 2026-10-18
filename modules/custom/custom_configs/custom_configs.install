@@ -12671,10 +12671,12 @@ function _custom_configs_seed_vaga_engenheiro_civil(): string {
     'title' => 'Engenheiro Civil',
     'field_vaga_empresa' => $empresa->id(),
     'field_vaga_carga_horaria' => '30h semanais',
-    'field_text_simple' => 'R$ 1.800,00',
-    'field_cidade' => 'São Paulo',
-    'field_estados' => 'SP',
+    'field_text_simple' => 'R$ 1.500/mês',
+    'field_cidade' => 'Curitiba',
+    'field_estados' => 'PR',
     'field_regime_t' => $regime_id,
+    'field_vaga_periodo' => '6 meses +',
+    'field_vaga_quantidade' => 2,
   ];
 
   $by_uuid = $storage->loadByProperties(['uuid' => $uuid]);
@@ -12722,11 +12724,348 @@ function _custom_configs_seed_vaga_engenheiro_civil(): string {
   if ($regime_id) {
     $values['field_regime_t'] = $regime_id;
   }
+  if (\Drupal\field\Entity\FieldConfig::loadByName('node', 'vagas', 'field_vaga_periodo')) {
+    $values['field_vaga_periodo'] = $defaults['field_vaga_periodo'];
+  }
+  if (\Drupal\field\Entity\FieldConfig::loadByName('node', 'vagas', 'field_vaga_quantidade')) {
+    $values['field_vaga_quantidade'] = $defaults['field_vaga_quantidade'];
+  }
 
   /** @var \Drupal\node\NodeInterface $node */
   $node = $storage->create($values);
   $node->save();
 
   return (string) t('Vaga Engenheiro Civil (@uuid) criada.', ['@uuid' => $uuid]);
+}
+
+/**
+ * Feature 033 — Resumo da sidebar: período, quantidade e seed do layout.
+ *
+ * Destino: cim → updb → cim → cr.
+ * Não cria rota nova. Não altera header, Match, Perfil nem listagem.
+ */
+function custom_configs_update_11050(): string {
+  $messages = [
+    _custom_configs_ensure_vaga_resumo_fields(),
+    _custom_configs_ensure_estado_pr(),
+    _custom_configs_seed_empresa_ecoconstrutora(),
+    _custom_configs_seed_vaga_engenheiro_civil(),
+    _custom_configs_align_vaga_resumo_seed(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Garante storages/instances de período e quantidade no bundle vagas + displays.
+ */
+function _custom_configs_ensure_vaga_resumo_fields(): string {
+  $parts = [];
+  $parts[] = _custom_configs_ensure_vaga_string_field(
+    'field_vaga_periodo',
+    'Período',
+    'Duração exibida no resumo da vaga (ex.: 6 meses +).'
+  );
+  $parts[] = _custom_configs_ensure_vaga_integer_field(
+    'field_vaga_quantidade',
+    'Vagas',
+    'Quantidade de vagas exibida no resumo (ex.: 2).'
+  );
+  $parts[] = _custom_configs_ensure_vaga_resumo_displays();
+  return implode(' ', array_filter($parts));
+}
+
+/**
+ * Cria storage string + instance no bundle vagas se ainda não existirem.
+ */
+function _custom_configs_ensure_vaga_string_field(string $field_name, string $label, string $description): string {
+  $entity_type = 'node';
+  $bundle = 'vagas';
+  $parts = [];
+
+  if (!\Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name)) {
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => $entity_type,
+      'type' => 'string',
+      'settings' => [
+        'max_length' => 255,
+        'case_sensitive' => FALSE,
+        'is_ascii' => FALSE,
+      ],
+      'module' => 'core',
+      'cardinality' => 1,
+      'translatable' => TRUE,
+    ])->save();
+    $parts[] = (string) t('Storage node.@field criado.', ['@field' => $field_name]);
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName($entity_type, $bundle, $field_name)) {
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name);
+    if ($storage) {
+      \Drupal\field\Entity\FieldConfig::create([
+        'field_storage' => $storage,
+        'bundle' => $bundle,
+        'label' => $label,
+        'description' => $description,
+        'required' => FALSE,
+        'translatable' => FALSE,
+        'settings' => [],
+      ])->save();
+      $parts[] = (string) t('Instance node.vagas.@field criada.', ['@field' => $field_name]);
+    }
+  }
+
+  if (!$parts) {
+    return (string) t('@field já ok.', ['@field' => $field_name]);
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Cria storage integer unsigned + instance no bundle vagas se ainda não existirem.
+ */
+function _custom_configs_ensure_vaga_integer_field(string $field_name, string $label, string $description): string {
+  $entity_type = 'node';
+  $bundle = 'vagas';
+  $parts = [];
+
+  if (!\Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name)) {
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => $entity_type,
+      'type' => 'integer',
+      'settings' => [
+        'unsigned' => TRUE,
+        'size' => 'normal',
+      ],
+      'module' => 'core',
+      'cardinality' => 1,
+      'translatable' => TRUE,
+    ])->save();
+    $parts[] = (string) t('Storage node.@field criado.', ['@field' => $field_name]);
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName($entity_type, $bundle, $field_name)) {
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name);
+    if ($storage) {
+      \Drupal\field\Entity\FieldConfig::create([
+        'field_storage' => $storage,
+        'bundle' => $bundle,
+        'label' => $label,
+        'description' => $description,
+        'required' => FALSE,
+        'translatable' => FALSE,
+        'settings' => [
+          'min' => NULL,
+          'max' => NULL,
+          'prefix' => '',
+          'suffix' => '',
+        ],
+      ])->save();
+      $parts[] = (string) t('Instance node.vagas.@field criada.', ['@field' => $field_name]);
+    }
+  }
+
+  if (!$parts) {
+    return (string) t('@field já ok.', ['@field' => $field_name]);
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Garante form widgets e oculta período/quantidade no view display default.
+ */
+function _custom_configs_ensure_vaga_resumo_displays(): string {
+  $parts = [];
+  $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+  $view_storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null $form_display */
+  $form_display = $form_storage->load('node.vagas.default');
+  if (!$form_display) {
+    return (string) t('Form display node.vagas.default ausente — rode drush cim -y.');
+  }
+
+  $form_changed = FALSE;
+  $form_components = [
+    'field_vaga_periodo' => [
+      'type' => 'string_textfield',
+      'weight' => 18,
+      'settings' => ['size' => 60, 'placeholder' => '6 meses +'],
+    ],
+    'field_vaga_quantidade' => [
+      'type' => 'number',
+      'weight' => 19,
+      'settings' => ['placeholder' => '2'],
+    ],
+  ];
+  foreach ($form_components as $name => $component) {
+    if (!\Drupal\field\Entity\FieldConfig::loadByName('node', 'vagas', $name)) {
+      continue;
+    }
+    if ($form_display->getComponent($name) === NULL) {
+      $form_display->setComponent($name, $component + [
+        'region' => 'content',
+        'third_party_settings' => [],
+      ]);
+      $form_changed = TRUE;
+    }
+  }
+  if ($form_changed) {
+    $form_display->save();
+    $parts[] = (string) t('Form display vagas: Período / Vagas.');
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null $view_display */
+  $view_display = $view_storage->load('node.vagas.default');
+  if ($view_display) {
+    $view_changed = FALSE;
+    $hidden = $view_display->get('hidden') ?: [];
+    foreach (['field_vaga_periodo', 'field_vaga_quantidade'] as $name) {
+      if (!\Drupal\field\Entity\FieldConfig::loadByName('node', 'vagas', $name)) {
+        continue;
+      }
+      if ($view_display->getComponent($name) !== NULL) {
+        $view_display->removeComponent($name);
+        $view_changed = TRUE;
+      }
+      if (empty($hidden[$name])) {
+        $hidden[$name] = TRUE;
+        $view_changed = TRUE;
+      }
+    }
+    if ($view_changed) {
+      $view_display->set('hidden', $hidden);
+      $view_display->save();
+      $parts[] = (string) t('View display vagas: período e quantidade ocultos (Twig).');
+    }
+  }
+
+  if (!$parts) {
+    return (string) t('Displays do resumo da vaga já ok.');
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Alinha a vaga seed ao layout do resumo sem sobrescrever editorial divergente.
+ *
+ * O trio São Paulo / SP / "R$ 1.800,00" é o seed intocado da feature 032.
+ */
+function _custom_configs_align_vaga_resumo_seed(): string {
+  $uuid = 'a7b8c9d0-e1f2-4345-f678-9abcdef01234';
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $by_uuid = $storage->loadByProperties([
+    'uuid' => $uuid,
+    'type' => 'vagas',
+  ]);
+  if (!$by_uuid) {
+    return (string) t('Vaga seed ausente para alinhamento do resumo.');
+  }
+
+  /** @var \Drupal\node\NodeInterface $node */
+  $node = reset($by_uuid);
+  $changed = FALSE;
+
+  $cidade = $node->hasField('field_cidade') ? (string) $node->get('field_cidade')->value : '';
+  $estado = $node->hasField('field_estados') ? (string) $node->get('field_estados')->value : '';
+  $bolsa = $node->hasField('field_text_simple') ? (string) $node->get('field_text_simple')->value : '';
+  $is_previous_seed = $cidade === 'São Paulo'
+    && $estado === 'SP'
+    && $bolsa === 'R$ 1.800,00';
+
+  if ($is_previous_seed) {
+    $node->set('field_cidade', 'Curitiba');
+    $node->set('field_estados', 'PR');
+    $node->set('field_text_simple', 'R$ 1.500/mês');
+    $changed = TRUE;
+  }
+
+  $fill = [
+    'field_vaga_periodo' => '6 meses +',
+    'field_vaga_quantidade' => 2,
+    'field_vaga_carga_horaria' => '30h semanais',
+    'field_cidade' => 'Curitiba',
+    'field_estados' => 'PR',
+    'field_text_simple' => 'R$ 1.500/mês',
+  ];
+  foreach ($fill as $field => $value) {
+    if (!$node->hasField($field) || !$node->get($field)->isEmpty()) {
+      continue;
+    }
+    $node->set($field, $value);
+    $changed = TRUE;
+  }
+
+  if ($node->hasField('field_regime_t') && $node->get('field_regime_t')->isEmpty()) {
+    $regime_terms = \Drupal::entityTypeManager()
+      ->getStorage('taxonomy_term')
+      ->loadByProperties(['vid' => 'regime', 'name' => 'Presencial']);
+    if ($regime_terms) {
+      $node->set('field_regime_t', (int) reset($regime_terms)->id());
+      $changed = TRUE;
+    }
+  }
+
+  if ($changed) {
+    $node->save();
+    return (string) t('Vaga Engenheiro Civil (@uuid): resumo alinhado ao layout.', [
+      '@uuid' => $uuid,
+    ]);
+  }
+  return (string) t('Vaga Engenheiro Civil (@uuid): resumo já alinhado.', [
+    '@uuid' => $uuid,
+  ]);
+}
+
+/**
+ * Garante a sigla PR (Paraná) na lista field_estados.
+ *
+ * O storage legado rotula a sigla PA como "Paraná" e não tem PR.
+ * PA passa a "Pará" só quando o rótulo ainda é exatamente "Paraná".
+ * Nodes já gravados com PA continuam com a sigla PA.
+ */
+function _custom_configs_ensure_estado_pr(): string {
+  $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('node', 'field_estados');
+  if (!$storage) {
+    return (string) t('Storage node.field_estados ausente.');
+  }
+
+  // getSetting() devolve o mapa simplificado sigla => rótulo (não a lista value/label).
+  $allowed = $storage->getSetting('allowed_values');
+  if (!is_array($allowed)) {
+    return (string) t('Lista field_estados ilegível.');
+  }
+
+  $changed = FALSE;
+  if (($allowed['PA'] ?? NULL) === 'Paraná') {
+    $allowed['PA'] = 'Pará';
+    $changed = TRUE;
+  }
+
+  if (!array_key_exists('PR', $allowed)) {
+    $next = [];
+    $inserted = FALSE;
+    foreach ($allowed as $sigla => $rotulo) {
+      if (!$inserted && $sigla === 'RJ') {
+        $next['PR'] = 'Paraná';
+        $inserted = TRUE;
+      }
+      $next[$sigla] = $rotulo;
+    }
+    if (!$inserted) {
+      $next['PR'] = 'Paraná';
+    }
+    $allowed = $next;
+    $changed = TRUE;
+  }
+
+  if (!$changed) {
+    return (string) t('Lista field_estados já contém PR.');
+  }
+
+  $storage->setSetting('allowed_values', $allowed);
+  $storage->save();
+  return (string) t('Lista field_estados: sigla PR (Paraná) garantida.');
 }
 

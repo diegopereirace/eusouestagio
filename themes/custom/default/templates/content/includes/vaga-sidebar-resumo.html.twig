@@ -1,0 +1,51 @@
+{#
+/**
+ * @file
+ * Cartão "Resumo da Vaga" da sidebar (feature 033).
+ *
+ * Período = field_vaga_periodo. Quantidade = field_vaga_quantidade.
+ * Bolsa = field_text_simple. Modelo = field_regime_t.
+ * field_horarios (turno) não entra neste cartão.
+ *
+ * Variáveis (include only):
+ * - node
+ */
+#}
+{% set periodo = '' %}
+{% if node.hasField('field_vaga_periodo') and node.field_vaga_periodo.value %}
+  {% set periodo = node.field_vaga_periodo.value %}
+{% endif %}
+
+{% set bolsa = node.field_text_simple.value ?? '' %}
+
+{% set modelo = '' %}
+{% if node.field_regime_t is not empty and node.field_regime_t.0.entity %}
+  {% set modelo = node.field_regime_t.0.entity.label %}
+{% endif %}
+
+{% set quantidade = '' %}
+{% if node.hasField('field_vaga_quantidade') and not node.field_vaga_quantidade.isEmpty %}
+  {% set quantidade = '%02d'|format(node.field_vaga_quantidade.value) %}
+{% endif %}
+
+<div class="vaga-detalhe__resumo">
+  <h2 class="vaga-detalhe__resumo-title">{{ 'Resumo da Vaga'|t }}</h2>
+  <dl class="vaga-detalhe__resumo-list">
+    <div class="vaga-detalhe__resumo-row d-flex justify-content-between mb-2">
+      <dt>{{ 'Período'|t }}</dt>
+      <dd>{{ periodo ?: 'Não informado'|t }}</dd>
+    </div>
+    <div class="vaga-detalhe__resumo-row d-flex justify-content-between mb-2">
+      <dt>{{ 'Bolsa Auxílio'|t }}</dt>
+      <dd>{{ bolsa ?: 'Não informado'|t }}</dd>
+    </div>
+    <div class="vaga-detalhe__resumo-row d-flex justify-content-between mb-2">
+      <dt>{{ 'Modelo'|t }}</dt>
+      <dd>{{ modelo ?: 'Não informado'|t }}</dd>
+    </div>
+    <div class="vaga-detalhe__resumo-row d-flex justify-content-between mb-2">
+      <dt>{{ 'Vagas'|t }}</dt>
+      <dd>{{ quantidade ?: 'Não informado'|t }}</dd>
+    </div>
+  </dl>
+</div>

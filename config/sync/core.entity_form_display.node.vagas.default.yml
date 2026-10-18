@@ -23,6 +23,8 @@ dependencies:
     - field.field.node.vagas.field_vaga_empresa
     - field.field.node.vagas.field_vaga_etapas_processo
     - field.field.node.vagas.field_vaga_faq
+    - field.field.node.vagas.field_vaga_periodo
+    - field.field.node.vagas.field_vaga_quantidade
     - field.field.node.vagas.field_vaga_requisitos
     - node.type.vagas
   module:
@@ -200,6 +202,21 @@ content:
       match_limit: 10
       size: 60
       placeholder: ''
+    third_party_settings: {  }
+  field_vaga_periodo:
+    type: string_textfield
+    weight: 18
+    region: content
+    settings:
+      size: 60
+      placeholder: '6 meses +'
+    third_party_settings: {  }
+  field_vaga_quantidade:
+    type: number
+    weight: 19
+    region: content
+    settings:
+      placeholder: '2'
     third_party_settings: {  }
   field_vaga_requisitos:
     type: text_textarea

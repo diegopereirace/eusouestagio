@@ -1,0 +1,20 @@
+uuid: d88f4526-b0ba-42ef-8150-f0c793b0e81d
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_vaga_quantidade
+field_name: field_vaga_quantidade
+entity_type: node
+type: integer
+settings:
+  unsigned: true
+  size: normal
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

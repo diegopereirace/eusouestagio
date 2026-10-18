@@ -176,19 +176,21 @@ Deploy (layout v2 `/quem-somos`): `drush cex` na origem (estrutura em `config/sy
 | `field_regime_t` | Taxonomy (regime) |
 | `field_tecnologias_t` | Taxonomy (fallback/exibição) |
 | `field_cidade`, `field_estados`, `field_bairro` | Localização |
-| `field_text_simple` | Salário / bolsa (rótulo de produto via UI) |
+| `field_text_simple` | Salário / bolsa — linha “Bolsa Auxílio” do resumo da sidebar (033) |
 | `field_text_simple_2` | Nome empresa em cards (quando aplicável) |
 | `field_text_long_formatted` | Descrição |
 | `field_text_simple_multiple`, `_2` | Listas auxiliares (legado; migração opcional → campos `field_vaga_*` no hook `11047`) |
 | `field_auxilio_transporte` | Auxílio |
-| `field_horarios` | Horários / turno (Manhã/Tarde/Noite) — resumo/sidebar; **fora** das 4 pills do header 032 |
+| `field_horarios` | Horários / turno (Manhã/Tarde/Noite) — **fora** das pills do header 032 e **fora** do resumo da sidebar (033) |
+| `field_vaga_periodo` | String — período de duração no resumo da sidebar (ex. “6 meses +”) |
+| `field_vaga_quantidade` | Integer — quantidade de vagas no resumo (ex. 2, exibido “02”) |
 | `field_vaga_destaque` | Boolean “Destaque” (default off); badge/borda/prioridade na listagem `/vagas`; checkbox no form `default` |
 | `field_vaga_requisitos` | Text long formatted — requisitos com checks CSS no detalhe full |
 | `field_vaga_beneficios` | ERR → paragraph `beneficio_vaga_p` (ícone `field_image` + título `field_text_simple`) |
 | `field_vaga_etapas_processo` | String multi — schema mantido; **fora** da UI full (031) |
 | `field_vaga_faq` | ER card. **1** → node `faq` (coleção) — accordion Bootstrap no detalhe |
 
-Detalhe full (feature **031** refino de **030** + header **032**): Twig `node--vagas--full.html.twig` + library `vagas_detalhe` / CSS `.vaga-detalhe` (grid 8/4; header card Figma via CT `empresa` / `field_vaga_empresa` + `field_vaga_carga_horaria`; sem Match / Processo / Seu Perfil / CTA inline; sem “Ver Empresa”); FAQ coleção seed UUID `c3d4e5f6-…def0` (2× `faq_item_p`); CTA final via bloco `cta_v1` placement `default_ctav1vagas`; vaga seed header UUID `a7b8c9d0-e1f2-4345-f678-9abcdef01234` (“Engenheiro Civil”); deploy `custom_configs_update_11048` (031) + `custom_configs_update_11049` (032) + `drush cex` (destino `cim` → `updb` → `cim` → `cr`). Listagem `/vagas` e cards laranja Home/PE **intactos**. `field_empresa_u` permanece (sem migração em massa).
+Detalhe full (feature **031** refino de **030** + header **032** + sidebar **033**): Twig `node--vagas--full.html.twig` + library `vagas_detalhe` / CSS `.vaga-detalhe` (grid 8/4; header card Figma via CT `empresa` / `field_vaga_empresa` + `field_vaga_carga_horaria`; sidebar ações + resumo — Candidatar-se via rota `custom_panel.vagas_candidatar` POST `/vaga/apply/{node}`, Salvar via `custom_panel.vagas_salvas_toggle`; resumo lê `field_vaga_periodo`, `field_text_simple`, `field_regime_t`, `field_vaga_quantidade`; sem Match / Processo / Seu Perfil / CTA inline; sem “Ver Empresa”); FAQ coleção seed UUID `c3d4e5f6-…def0` (2× `faq_item_p`); CTA final via bloco `cta_v1` placement `default_ctav1vagas`; vaga seed UUID `a7b8c9d0-e1f2-4345-f678-9abcdef01234` (“Engenheiro Civil”, Curitiba/PR, bolsa “R$ 1.500/mês”, período “6 meses +”, quantidade 2); deploy `custom_configs_update_11048` (031) + `custom_configs_update_11049` (032) + `custom_configs_update_11050` (033) + `drush cex` (destino `cim` → `updb` → `cim` → `cr`). Listagem `/vagas` e cards laranja Home/PE **intactos**. `field_empresa_u` permanece (sem migração em massa).
 
 #### 3.1.1b `banners`
 

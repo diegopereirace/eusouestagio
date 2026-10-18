@@ -1,5 +1,5 @@
 /**
- * Detalhe da vaga (view mode full) — feature 031 refino + 032 header empresa.
+ * Detalhe da vaga (view mode full) — 031 refino + 032 header + 033 sidebar.
  * Escopo: .vaga-detalhe / .node--type-vagas.node--view-mode-full
  * Não alterar listagem .item-vaga--lista nem cards .item-vaga--destaque.
  */
@@ -7,7 +7,7 @@
 .vaga-detalhe {
   --vd-navy: #023c62;
   --vd-orange: #fd7b1a;
-  --vd-resumo-bg: #f3f6f9;
+  --vd-resumo-bg: #f4f6f9;
   --vd-border: #e5e7eb;
   --vd-text: #1a2b3c;
   --vd-muted: #6b7c8f;
@@ -282,7 +282,43 @@
   box-shadow: 0 0 0 0.2rem rgba(2, 60, 98, 0.15);
 }
 
-/* Sidebar — ações + resumo (sem perfil) */
+/* Sidebar — ações + resumo (sem perfil / sem match) */
+.vaga-detalhe__btn-candidatar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 80px;
+  padding: 1rem 1.5rem;
+  border: 0;
+  border-radius: 12px;
+  background: var(--vd-orange);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.125rem;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.vaga-detalhe__btn-candidatar:hover,
+.vaga-detalhe__btn-candidatar:focus {
+  background: #e56e12;
+  color: #fff;
+  text-decoration: none;
+}
+
+.vaga-detalhe__btn-candidatar:disabled,
+.vaga-detalhe__btn-candidatar[aria-disabled="true"] {
+  background: #8ea0ae;
+  color: #fff;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .vaga-detalhe__acoes,
 .vaga-detalhe__resumo {
   border: 1px solid var(--vd-border);
@@ -313,7 +349,10 @@
 
 .vaga-detalhe__acoes-secundarias > .ui-btn,
 .vaga-detalhe__acoes-secundarias > .vaga-detalhe__share {
-  flex: 1 1 0;
+  /* 50/50 com gap-3 (1rem). flex-basis 0 não iguala o <button> ao wrapper. */
+  flex: none;
+  width: calc(50% - 0.5rem);
+  max-width: calc(50% - 0.5rem);
   min-width: 0;
 }
 
@@ -322,12 +361,13 @@
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  width: 100%;
   margin: 0;
 }
 
 .vaga-detalhe__acoes-secundarias--share-only > .vaga-detalhe__share {
-  flex: 1 1 100%;
+  flex: none;
+  width: 100%;
+  max-width: 100%;
 }
 
 .vaga-detalhe__share {

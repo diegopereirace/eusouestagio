@@ -1,10 +1,10 @@
 {#
 /**
  * @file
- * Detalhe full da vaga — layout Figma duas colunas (031) + header empresa (032).
+ * Detalhe full da vaga — layout Figma duas colunas (031) + header empresa (032/034).
  * Sidebar 033: ações (candidatar / salvar / compartilhar) + resumo.
- * Header: field_vaga_empresa (node). Sobre a Empresa: field_empresa_u (legado).
- * Sem Match / Processo / Seu Perfil / CTA inline. Sem Ver Empresa.
+ * Header: field_vaga_empresa (node) com link para página pública da empresa (034).
+ * Sem bloco “Sobre a Empresa” (removido em 034). Sem Match / Processo / Seu Perfil / CTA inline.
  * FAQ via coleção field_faq_itens. CTA final = bloco default_ctav1vagas.
  */
 #}
@@ -25,21 +25,15 @@
   ]
 %}
 
-{# Legado 031 — seção “Sobre a Empresa” (não alimentar o header). #}
-{% set empresa = node.field_empresa_u.entity ?? null %}
-{% set empresa_nome = empresa and empresa.field_nome_fantasia.value ? empresa.field_nome_fantasia.value : 'Anônima'|t %}
-{% set logo_uri = '' %}
-{% if empresa and empresa.hasField('user_picture') and not empresa.user_picture.isEmpty and empresa.user_picture.entity %}
-  {% set logo_uri = empresa.user_picture.entity.uri.value %}
-{% endif %}
-
-{# Header 032 — node Empresa publicado/acessível via field_vaga_empresa. #}
+{# Header 032/034 — node Empresa publicado/acessível via field_vaga_empresa. #}
 {% set empresa_node = null %}
 {% set header_logo_uri = '' %}
+{% set empresa_url = '' %}
 {% if node.hasField('field_vaga_empresa') and node.field_vaga_empresa is not empty and node.field_vaga_empresa.entity %}
   {% set _empresa_candidate = node.field_vaga_empresa.entity %}
   {% if _empresa_candidate.isPublished() %}
     {% set empresa_node = _empresa_candidate %}
+    {% set empresa_url = path('entity.node.canonical', {'node': empresa_node.id}) %}
     {% if empresa_node.hasField('field_imagem') and not empresa_node.field_imagem.isEmpty and empresa_node.field_imagem.entity %}
       {% set header_logo_uri = empresa_node.field_imagem.entity.uri.value %}
     {% endif %}
@@ -82,7 +76,7 @@
               {% if empresa_node or local_label %}
                 <p class="vaga-detalhe__meta">
                   {% if empresa_node %}
-                    <span class="vaga-detalhe__empresa-nome">{{ empresa_node.label }}</span>
+                    <a href="{{ empresa_url }}" class="vaga-detalhe__empresa-nome">{{ empresa_node.label }}</a>
                     <i class="fa-solid fa-circle-check vaga-detalhe__verified" aria-hidden="true" title="{{ 'Empresa verificada'|t }}"></i>
                   {% endif %}
                   {% if empresa_node and local_label %}
@@ -168,26 +162,6 @@
                   {% endif %}
                 {% endif %}
               {% endfor %}
-            </div>
-          </section>
-        {% endif %}
-
-        {% if empresa %}
-          {% set sobre_empresa = empresa.field_sobre_empresa.value ?? '' %}
-          <section class="vaga-detalhe__empresa">
-            <h2 class="vaga-detalhe__section-title">{{ 'Sobre a Empresa'|t }}</h2>
-            <div class="vaga-detalhe__empresa-card">
-              <div class="vaga-detalhe__empresa-card-top">
-                {% if logo_uri %}
-                  <div class="vaga-detalhe__empresa-logo">
-                    <img src="{{ file_url(logo_uri) }}" alt="" width="56" height="56" loading="lazy">
-                  </div>
-                {% endif %}
-                <p class="vaga-detalhe__empresa-card-nome">{{ empresa_nome }}</p>
-              </div>
-              {% if sobre_empresa %}
-                <p class="vaga-detalhe__empresa-sobre">{{ sobre_empresa }}</p>
-              {% endif %}
             </div>
           </section>
         {% endif %}

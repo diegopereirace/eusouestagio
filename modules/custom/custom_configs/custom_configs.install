@@ -12282,7 +12282,7 @@ function _custom_configs_ensure_empresa_displays(): string {
   foreach ([
     'title' => [
       'type' => 'string_textfield',
-      'weight' => 0,
+      'weight' => -5,
       'settings' => ['size' => 60, 'placeholder' => ''],
     ],
     'field_imagem' => [
@@ -12293,9 +12293,24 @@ function _custom_configs_ensure_empresa_displays(): string {
         'preview_image_style' => 'thumbnail',
       ],
     ],
+    'field_text_long_formatted' => [
+      'type' => 'text_textarea',
+      'weight' => 2,
+      'settings' => ['rows' => 8, 'placeholder' => ''],
+    ],
+    'field_cidade' => [
+      'type' => 'string_textfield',
+      'weight' => 3,
+      'settings' => ['size' => 60, 'placeholder' => ''],
+    ],
+    'field_estados' => [
+      'type' => 'options_select',
+      'weight' => 4,
+      'settings' => [],
+    ],
     'status' => [
       'type' => 'boolean_checkbox',
-      'weight' => 10,
+      'weight' => 120,
       'settings' => ['display_label' => TRUE],
     ],
   ] as $name => $component) {
@@ -12337,6 +12352,24 @@ function _custom_configs_ensure_empresa_displays(): string {
         'image_style' => '',
         'image_loading' => ['attribute' => 'lazy'],
       ],
+    ],
+    'field_text_long_formatted' => [
+      'type' => 'text_default',
+      'weight' => 1,
+      'label' => 'above',
+      'settings' => [],
+    ],
+    'field_cidade' => [
+      'type' => 'string',
+      'weight' => 2,
+      'label' => 'inline',
+      'settings' => ['link_to_entity' => FALSE],
+    ],
+    'field_estados' => [
+      'type' => 'list_default',
+      'weight' => 3,
+      'label' => 'inline',
+      'settings' => [],
     ],
   ] as $name => $component) {
     if (!\Drupal\field\Entity\FieldConfig::loadByName('node', $bundle, $name)) {
@@ -13210,5 +13243,243 @@ function custom_configs_update_11051(): string {
     _custom_configs_ensure_estado_pr(),
   ];
   return implode(' ', array_filter($messages));
+}
+
+/**
+ * Feature 034 — página pública empresa + Sobre a Vaga no detalhe.
+ *
+ * Destino: cim → updb → cim → cr. Idempotente.
+ * Não remove field_empresa_u. Não altera listagem /vagas.
+ */
+function custom_configs_update_11052(): string {
+  $messages = [
+    _custom_configs_ensure_empresa_pagina_fields(),
+    _custom_configs_ensure_empresa_displays(),
+    _custom_configs_ensure_pathauto_empresa(),
+    _custom_configs_seed_empresa_ecoconstrutora(),
+    _custom_configs_align_empresa_pagina_seed(),
+    _custom_configs_seed_vaga_engenheiro_civil(),
+    _custom_configs_align_vaga_sobre_seed(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Garante instances Sobre/Cidade/Estado no CT empresa.
+ */
+function _custom_configs_ensure_empresa_pagina_fields(): string {
+  $parts = [];
+  $bundle = 'empresa';
+
+  if (!\Drupal\node\Entity\NodeType::load($bundle)) {
+    return (string) t('CT empresa ausente — rode ensures 032/cim antes.');
+  }
+
+  $defs = [
+    'field_text_long_formatted' => [
+      'label' => 'Sobre a Empresa',
+      'description' => 'Texto público sobre a organização.',
+      'required' => FALSE,
+      'settings' => [
+        'allowed_formats' => ['basic_html', 'full_html'],
+      ],
+    ],
+    'field_cidade' => [
+      'label' => 'Cidade',
+      'description' => '',
+      'required' => FALSE,
+      'settings' => [],
+    ],
+    'field_estados' => [
+      'label' => 'Estado',
+      'description' => '',
+      'required' => FALSE,
+      'settings' => [],
+    ],
+  ];
+
+  foreach ($defs as $field_name => $meta) {
+    if (\Drupal\field\Entity\FieldConfig::loadByName('node', $bundle, $field_name)) {
+      continue;
+    }
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('node', $field_name);
+    if (!$storage) {
+      $parts[] = (string) t('Storage node.@field ausente — rode drush cim -y antes do updb.', [
+        '@field' => $field_name,
+      ]);
+      continue;
+    }
+    $values = [
+      'field_storage' => $storage,
+      'bundle' => $bundle,
+      'label' => $meta['label'],
+      'description' => $meta['description'],
+      'required' => $meta['required'],
+      'translatable' => FALSE,
+    ];
+    if ($meta['settings']) {
+      $values['settings'] = $meta['settings'];
+    }
+    \Drupal\field\Entity\FieldConfig::create($values)->save();
+    $parts[] = (string) t('Instance node.empresa.@field criada.', ['@field' => $field_name]);
+  }
+
+  if (!$parts) {
+    return (string) t('Fields página empresa já ok.');
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Garante Pathauto /empresa/[node:title] e regenera alias dos nodes empresa.
+ */
+function _custom_configs_ensure_pathauto_empresa(): string {
+  if (!\Drupal::moduleHandler()->moduleExists('pathauto')) {
+    return (string) t('Módulo pathauto ausente.');
+  }
+
+  $parts = [];
+  $storage = \Drupal::entityTypeManager()->getStorage('pathauto_pattern');
+  /** @var \Drupal\pathauto\PathautoPatternInterface|null $pattern */
+  $pattern = $storage->load('empresa');
+  if (!$pattern) {
+    /** @var \Drupal\pathauto\PathautoPatternInterface $pattern */
+    $pattern = $storage->create([
+      'id' => 'empresa',
+      'label' => 'Empresa',
+      'type' => 'canonical_entities:node',
+      'pattern' => '/empresa/[node:title]',
+      'weight' => -5,
+      'status' => TRUE,
+    ]);
+    $pattern->addSelectionCondition([
+      'id' => 'entity_bundle:node',
+      'negate' => FALSE,
+      'context_mapping' => [
+        'node' => 'node',
+      ],
+      'bundles' => [
+        'empresa' => 'empresa',
+      ],
+    ]);
+    $pattern->save();
+    $parts[] = (string) t('Pathauto pattern empresa criado.');
+  }
+
+  if (\Drupal::hasService('pathauto.generator')) {
+    $generator = \Drupal::service('pathauto.generator');
+    $nodes = \Drupal::entityTypeManager()->getStorage('node')->loadByProperties([
+      'type' => 'empresa',
+    ]);
+    $updated = 0;
+    foreach ($nodes as $node) {
+      if ($node->isPublished()) {
+        $generator->updateEntityAlias($node, 'bulkupdate');
+        $updated++;
+      }
+    }
+    if ($updated) {
+      $parts[] = (string) t('Aliases Pathauto regenerados para @n empresa(s).', [
+        '@n' => $updated,
+      ]);
+    }
+  }
+
+  if (!$parts) {
+    return (string) t('Pathauto empresa já ok.');
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Preenche sobre/cidade/estado da EcoConstrutora quando vazios.
+ */
+function _custom_configs_align_empresa_pagina_seed(): string {
+  $uuid = 'f6a7b8c9-d0e1-4234-e567-89abcdef0123';
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $nodes = $storage->loadByProperties(['uuid' => $uuid]);
+  if (!$nodes) {
+    return (string) t('Empresa seed ausente — rode seed EcoConstrutora antes.');
+  }
+
+  /** @var \Drupal\node\NodeInterface $node */
+  $node = reset($nodes);
+  $changed = FALSE;
+
+  $sobre = '<p>A EcoConstrutora é referência em engenharia sustentável, unindo inovação e responsabilidade ambiental em cada projeto.</p>';
+  if ($node->hasField('field_text_long_formatted') && $node->get('field_text_long_formatted')->isEmpty()) {
+    $node->set('field_text_long_formatted', [
+      'value' => $sobre,
+      'format' => 'basic_html',
+    ]);
+    $changed = TRUE;
+  }
+  if ($node->hasField('field_cidade') && $node->get('field_cidade')->isEmpty()) {
+    $node->set('field_cidade', 'Curitiba');
+    $changed = TRUE;
+  }
+  if ($node->hasField('field_estados') && $node->get('field_estados')->isEmpty()) {
+    $node->set('field_estados', 'PR');
+    $changed = TRUE;
+  }
+
+  if ($changed) {
+    $node->save();
+    if (\Drupal::hasService('pathauto.generator')) {
+      \Drupal::service('pathauto.generator')->updateEntityAlias($node, 'update');
+    }
+    return (string) t('Empresa EcoConstrutora (@uuid): dados da página preenchidos.', [
+      '@uuid' => $uuid,
+    ]);
+  }
+
+  return (string) t('Empresa EcoConstrutora (@uuid): página já alinhada.', [
+    '@uuid' => $uuid,
+  ]);
+}
+
+/**
+ * Preenche Sobre a Vaga e Requisitos da vaga seed quando vazios.
+ */
+function _custom_configs_align_vaga_sobre_seed(): string {
+  $uuid = 'a7b8c9d0-e1f2-4345-f678-9abcdef01234';
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $nodes = $storage->loadByProperties(['uuid' => $uuid]);
+  if (!$nodes) {
+    return (string) t('Vaga Engenheiro Civil ausente.');
+  }
+
+  /** @var \Drupal\node\NodeInterface $node */
+  $node = reset($nodes);
+  $changed = FALSE;
+
+  $sobre = '<p>Buscamos um estagiário(a) proativo(a) e apaixonado(a) por inovação para integrar o time da EcoConstrutora. Você acompanhará o ciclo de vida de projetos sustentáveis, desde o planejamento até a execução em campo.</p><p>O foco do dia a dia está no controle de cronograma, medições de obra e elaboração de relatórios técnicos que apoiam decisões de engenharia.</p>';
+  if ($node->hasField('field_text_long_formatted') && $node->get('field_text_long_formatted')->isEmpty()) {
+    $node->set('field_text_long_formatted', [
+      'value' => $sobre,
+      'format' => 'basic_html',
+    ]);
+    $changed = TRUE;
+  }
+
+  $requisitos = '<ul><li>Cursando Engenharia Civil (5º semestre em diante)</li><li>Domínio intermediário de AutoCAD e Revit</li><li>Excelente capacidade de comunicação e trabalho em equipe</li></ul>';
+  if ($node->hasField('field_vaga_requisitos') && $node->get('field_vaga_requisitos')->isEmpty()) {
+    $node->set('field_vaga_requisitos', [
+      'value' => $requisitos,
+      'format' => 'basic_html',
+    ]);
+    $changed = TRUE;
+  }
+
+  if ($changed) {
+    $node->save();
+    return (string) t('Vaga Engenheiro Civil (@uuid): Sobre a Vaga/Requisitos preenchidos.', [
+      '@uuid' => $uuid,
+    ]);
+  }
+
+  return (string) t('Vaga Engenheiro Civil (@uuid): Sobre a Vaga já alinhado.', [
+    '@uuid' => $uuid,
+  ]);
 }
 

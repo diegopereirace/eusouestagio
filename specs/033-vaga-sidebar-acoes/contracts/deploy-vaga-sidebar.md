@@ -1,7 +1,7 @@
 # Contract: deploy da sidebar (campos + seed)
 
 **Feature**: `033-vaga-sidebar-acoes`  
-**Hook**: `custom_configs_update_11050`  
+**Hooks**: `custom_configs_update_11050` (campos/seed) + `custom_configs_update_11051` (repair requisitos text_long + remap PA→PR legado)  
 **Módulo**: `custom_configs`
 
 ## Origem

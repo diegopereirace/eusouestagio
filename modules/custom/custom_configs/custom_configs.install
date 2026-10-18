@@ -10967,14 +10967,29 @@ function _custom_configs_migrate_vaga_requisitos_beneficios_legado(): string {
       && $node->hasField('field_text_simple_multiple')
       && !$node->get('field_text_simple_multiple')->isEmpty()
     ) {
-      $values = [];
+      $lines = [];
       foreach ($node->get('field_text_simple_multiple') as $item) {
         if ($item->value !== NULL && $item->value !== '') {
-          $values[] = ['value' => $item->value];
+          $lines[] = (string) $item->value;
         }
       }
-      if ($values) {
-        $node->set('field_vaga_requisitos', $values);
+      if ($lines) {
+        // Com cim→updb o destino já pode ser text_long (card. 1); nunca gravar multi-delta.
+        $req_storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('node', 'field_vaga_requisitos');
+        if ($req_storage && $req_storage->getType() === 'text_long') {
+          $lis = array_map(static function (string $line): string {
+            return '<li>' . htmlspecialchars($line, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</li>';
+          }, $lines);
+          $node->set('field_vaga_requisitos', [
+            'value' => '<ul>' . implode('', $lis) . '</ul>',
+            'format' => 'basic_html',
+          ]);
+        }
+        else {
+          $node->set('field_vaga_requisitos', array_map(static function (string $line): array {
+            return ['value' => $line];
+          }, $lines));
+        }
         $changed = TRUE;
         $migrated_req++;
       }
@@ -11762,7 +11777,8 @@ function _custom_configs_migrate_recreate_field_vaga_requisitos_text_long(): str
 
   $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name);
   if ($storage && $storage->getType() === 'text_long') {
-    return (string) t('field_vaga_requisitos já é text_long (no-op).');
+    // cim→updb: storage já text_long; ainda pode faltar HTML a partir do legado multi.
+    return _custom_configs_repair_vaga_requisitos_from_legado();
   }
 
   // 1) Ler valores string multi.
@@ -13023,7 +13039,7 @@ function _custom_configs_align_vaga_resumo_seed(): string {
  *
  * O storage legado rotula a sigla PA como "Paraná" e não tem PR.
  * PA passa a "Pará" só quando o rótulo ainda é exatamente "Paraná".
- * Nodes já gravados com PA continuam com a sigla PA.
+ * Nesse momento, nodes com PA (significado legado = Paraná) são remapeados para PR.
  */
 function _custom_configs_ensure_estado_pr(): string {
   $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('node', 'field_estados');
@@ -13037,10 +13053,13 @@ function _custom_configs_ensure_estado_pr(): string {
     return (string) t('Lista field_estados ilegível.');
   }
 
+  $parts = [];
   $changed = FALSE;
+  $remap_pa_legado = FALSE;
   if (($allowed['PA'] ?? NULL) === 'Paraná') {
     $allowed['PA'] = 'Pará';
     $changed = TRUE;
+    $remap_pa_legado = TRUE;
   }
 
   if (!array_key_exists('PR', $allowed)) {
@@ -13060,12 +13079,136 @@ function _custom_configs_ensure_estado_pr(): string {
     $changed = TRUE;
   }
 
-  if (!$changed) {
-    return (string) t('Lista field_estados já contém PR.');
+  if ($changed) {
+    $storage->setSetting('allowed_values', $allowed);
+    $storage->save();
+    $parts[] = (string) t('Lista field_estados: sigla PR (Paraná) garantida.');
+  }
+  else {
+    $parts[] = (string) t('Lista field_estados já contém PR.');
   }
 
-  $storage->setSetting('allowed_values', $allowed);
-  $storage->save();
-  return (string) t('Lista field_estados: sigla PR (Paraná) garantida.');
+  // Remap one-shot: PA legado (= Paraná) → PR. Flag evita reprocessar Pará legítimo depois.
+  if ($remap_pa_legado || !\Drupal::state()->get('custom_configs.estados_pa_legado_remapped')) {
+    $parts[] = _custom_configs_remap_estados_pa_legado_to_pr();
+  }
+
+  return implode(' ', array_filter($parts));
+}
+
+/**
+ * Remapeia nodes vagas com field_estados=PA → PR (legado PA = Paraná).
+ *
+ * Idempotente via state key após a primeira execução bem-sucedida.
+ */
+function _custom_configs_remap_estados_pa_legado_to_pr(): string {
+  $state = \Drupal::state();
+  if ($state->get('custom_configs.estados_pa_legado_remapped')) {
+    return (string) t('Remap PA→PR legado já aplicado.');
+  }
+
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $nids = $storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('type', 'vagas')
+    ->condition('field_estados', 'PA')
+    ->execute();
+
+  $updated = 0;
+  foreach ($storage->loadMultiple($nids ?: []) as $node) {
+    /** @var \Drupal\node\NodeInterface $node */
+    if (!$node->hasField('field_estados')) {
+      continue;
+    }
+    $node->set('field_estados', 'PR');
+    $node->save();
+    $updated++;
+  }
+
+  $state->set('custom_configs.estados_pa_legado_remapped', TRUE);
+  return (string) t('Remap field_estados PA→PR: @n vaga(s).', ['@n' => $updated]);
+}
+
+/**
+ * Repara requisitos incompletos quando o destino já era text_long no cim→updb.
+ *
+ * Reconstrói HTML &lt;ul&gt;&lt;li&gt; a partir de field_text_simple_multiple se o destino
+ * estiver vazio ou for só o primeiro item do legado (migração parcial).
+ */
+function _custom_configs_repair_vaga_requisitos_from_legado(): string {
+  $req_storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('node', 'field_vaga_requisitos');
+  if (!$req_storage || $req_storage->getType() !== 'text_long') {
+    return (string) t('Repair requisitos: field_vaga_requisitos não é text_long.');
+  }
+
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $nids = $storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('type', 'vagas')
+    ->execute();
+  if (!$nids) {
+    return (string) t('Repair requisitos: nenhuma vaga.');
+  }
+
+  $repaired = 0;
+  foreach ($storage->loadMultiple($nids) as $node) {
+    /** @var \Drupal\node\NodeInterface $node */
+    if (
+      !$node->hasField('field_vaga_requisitos')
+      || !$node->hasField('field_text_simple_multiple')
+      || $node->get('field_text_simple_multiple')->isEmpty()
+    ) {
+      continue;
+    }
+
+    $lines = [];
+    foreach ($node->get('field_text_simple_multiple') as $item) {
+      if ($item->value !== NULL && $item->value !== '') {
+        $lines[] = (string) $item->value;
+      }
+    }
+    if (count($lines) < 2) {
+      // Um único item: só preenche se destino vazio.
+      if (!$lines || !$node->get('field_vaga_requisitos')->isEmpty()) {
+        continue;
+      }
+    }
+    else {
+      $current = (string) ($node->get('field_vaga_requisitos')->value ?? '');
+      $first = $lines[0];
+      $looks_partial = $current === ''
+        || $current === $first
+        || $current === htmlspecialchars($first, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+        || $current === '<ul><li>' . htmlspecialchars($first, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</li></ul>';
+      if (!$looks_partial) {
+        continue;
+      }
+    }
+
+    $lis = array_map(static function (string $line): string {
+      return '<li>' . htmlspecialchars($line, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</li>';
+    }, $lines);
+    $node->set('field_vaga_requisitos', [
+      'value' => '<ul>' . implode('', $lis) . '</ul>',
+      'format' => 'basic_html',
+    ]);
+    $node->save();
+    $repaired++;
+  }
+
+  return (string) t('Repair requisitos: @n vaga(s) reconstruída(s) do legado.', ['@n' => $repaired]);
+}
+
+/**
+ * Feature 033 follow-up — repara requisitos text_long e remap PA→PR legado.
+ *
+ * Destino: cim → updb → cim → cr. Idempotente.
+ */
+function custom_configs_update_11051(): string {
+  $messages = [
+    _custom_configs_repair_vaga_requisitos_from_legado(),
+    _custom_configs_ensure_estado_pr(),
+  ];
+  return implode(' ', array_filter($messages));
 }
 

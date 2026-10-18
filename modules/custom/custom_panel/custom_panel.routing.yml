@@ -28,6 +28,7 @@ custom_panel.vagas_salvas_toggle:
     _controller: '\Drupal\custom_panel\Controller\VagasSalvasController::toggle'
   requirements:
     _role: 'candidato'
+    _csrf_request_header_token: 'TRUE'
   methods: [POST]
 
 custom_panel.vagas_salvas_listagem:
@@ -52,6 +53,7 @@ custom_panel.vagas_candidatar:
     _controller: '\Drupal\custom_panel\Controller\VagasAplicadasController::apply'
   requirements:
     _role: 'candidato'
+    _csrf_request_header_token: 'TRUE'
     node: \d+
   methods: [POST]
 

@@ -121,9 +121,10 @@ class VagasAplicadasController extends ControllerBase
 
     if (!empty($existing_candidacy)) {
       return new JsonResponse([
-        'success' => false,
+        'success' => true,
+        'status' => 'already',
         'message' => $this->t('Você já se candidatou para esta vaga.'),
-      ], 409); // 409 Conflict
+      ], 409); // 409 Conflict — UI trata como candidatura já enviada.
     }
 
     // Cria o novo nó de candidatura.

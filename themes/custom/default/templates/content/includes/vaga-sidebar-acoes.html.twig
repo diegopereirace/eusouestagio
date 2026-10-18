@@ -52,10 +52,7 @@
     <a href="{{ path('user.login', {}, {'query': {'destination': canonical_path}}) }}" class="vaga-detalhe__btn-candidatar w-100">
       {{ 'Faça login para se candidatar'|t }}
     </a>
-    <div class="vaga-detalhe__acoes-secundarias d-flex gap-3 mt-3">
-      <a href="{{ path('custom_configs_users.candidato_registration') }}" class="ui-btn ui-btn--outline flex-grow-1">
-        {{ 'Criar conta'|t }}
-      </a>
+    <div class="vaga-detalhe__acoes-secundarias vaga-detalhe__acoes-secundarias--share-only d-flex gap-3 mt-3">
       {% include '@default/content/includes/vaga-share-popover.html.twig' with {
         share_url_encoded: share_url_encoded,
         node_id: node.id,

@@ -181,7 +181,10 @@
             .catch(function (error) {
               button.disabled = false;
               renderSalvarLabel(originalText, wasSaved);
-              showActionModal((error && error.error) || Drupal.t('Ocorreu um erro ao salvar a vaga.'), 'error');
+              showActionModal(
+                (error && (error.message || error.error)) || Drupal.t('Ocorreu um erro ao salvar a vaga.'),
+                'error'
+              );
             });
         });
       });
@@ -221,7 +224,21 @@
                 },
               });
             })
-            .then(parseJsonResponse)
+            .then(function (response) {
+              return response.json().then(function (data) {
+                // 409 = já candidatado: UI estabiliza em "Candidatura Enviada".
+                if (response.status === 409 || data.status === 'already') {
+                  return Object.assign({}, data, {
+                    success: true,
+                    status: 'already',
+                  });
+                }
+                if (!response.ok) {
+                  throw data;
+                }
+                return data;
+              });
+            })
             .then(function (data) {
               if (data.success || data.status === 'candidatado' || data.status === 'already') {
                 button.setAttribute('aria-disabled', 'true');
@@ -248,7 +265,10 @@
                 button.disabled = false;
               }
               button.innerHTML = originalHtml;
-              showActionModal((error && error.error) || Drupal.t('Ocorreu um erro ao enviar sua candidatura.'), 'error');
+              showActionModal(
+                (error && (error.message || error.error)) || Drupal.t('Ocorreu um erro ao enviar sua candidatura.'),
+                'error'
+              );
             });
         });
       });

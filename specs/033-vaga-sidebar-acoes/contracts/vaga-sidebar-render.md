@@ -36,13 +36,13 @@ Botão desabilitado “Candidatura Enviada”, mesma classe visual, sem `js-cand
 
 ### Anônimo
 
-Link primário para `user.login` com `destination` = caminho canônico da vaga. Sem classe `js-candidatar-vaga`.
+Link primário para `user.login` com `destination` = caminho canônico da vaga. Sem classe `js-candidatar-vaga`. Secundários: só Compartilhar (modifier `--share-only`). Sem “Criar conta” nem Salvar.
 
 ### Outros papéis autenticados
 
-Só Compartilhar.
+Só Compartilhar (`--share-only`).
 
-### Secundários (candidato ou anônimo)
+### Secundários (candidato)
 
 ```html
 <div class="vaga-detalhe__acoes-secundarias d-flex gap-3 mt-3">
@@ -56,7 +56,7 @@ Só Compartilhar.
 </div>
 ```
 
-Salvar só para role `candidato`. O JS lê `data-toggle-url` (fallback: caminho já usado hoje).
+Salvar só para role `candidato`. O JS lê `data-toggle-url` (fallback: caminho já usado hoje). HTTP 409 / `status: already` na candidatura → botão “Candidatura Enviada”.
 
 ## Cartão de resumo
 

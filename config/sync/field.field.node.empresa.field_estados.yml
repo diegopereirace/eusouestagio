@@ -1,0 +1,21 @@
+uuid: e1f2a3b4-c5d6-4789-a012-bcdef0340006
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_estados
+    - node.type.empresa
+  module:
+    - options
+id: node.empresa.field_estados
+field_name: field_estados
+entity_type: node
+bundle: empresa
+label: Estado
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

@@ -3,16 +3,36 @@ langcode: pt-br
 status: true
 dependencies:
   config:
+    - field.field.node.empresa.field_cidade
+    - field.field.node.empresa.field_estados
     - field.field.node.empresa.field_imagem
+    - field.field.node.empresa.field_text_long_formatted
     - node.type.empresa
   module:
     - image
+    - options
+    - text
     - user
 id: node.empresa.default
 targetEntityType: node
 bundle: empresa
 mode: default
 content:
+  field_cidade:
+    type: string
+    label: inline
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_estados:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 3
+    region: content
   field_imagem:
     type: image
     label: hidden
@@ -23,6 +43,13 @@ content:
         attribute: lazy
     third_party_settings: {  }
     weight: 0
+    region: content
+  field_text_long_formatted:
+    type: text_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
     region: content
   links:
     settings: {  }

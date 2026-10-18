@@ -1,0 +1,130 @@
+/* Feature 034 — página pública temporária do CT empresa */
+
+.empresa-pagina {
+  --ep-navy: #023c62;
+  --ep-text: #1a1a2e;
+  --ep-muted: #6b7280;
+  --ep-border: #e5e7eb;
+  --ep-card: #f4f6f9;
+}
+
+.empresa-pagina__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  background: #fff;
+  border: 1px solid var(--ep-border);
+  border-radius: 16px;
+}
+
+.empresa-pagina__logo {
+  flex-shrink: 0;
+  width: 96px;
+  height: 96px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #e8f5e9;
+}
+
+.empresa-pagina__logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.empresa-pagina__title {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 700;
+  color: var(--ep-navy);
+}
+
+.empresa-pagina__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--ep-muted);
+}
+
+.empresa-pagina__verified {
+  color: #16a34a;
+}
+
+.empresa-pagina__local {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.empresa-pagina__local i {
+  color: var(--ep-navy);
+}
+
+.empresa-pagina__section-title {
+  margin: 0 0 1rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ep-navy);
+}
+
+.empresa-pagina__sobre,
+.empresa-pagina__vagas {
+  margin-bottom: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px dashed var(--ep-border);
+}
+
+.empresa-pagina__section-body {
+  color: var(--ep-text);
+  line-height: 1.65;
+  font-size: 1rem;
+}
+
+.empresa-pagina__section-body p:last-child {
+  margin-bottom: 0;
+}
+
+.empresa-pagina__vaga-card {
+  display: block;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 0.75rem;
+  background: var(--ep-card);
+  border: 1px solid var(--ep-border);
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.empresa-pagina__vaga-card:hover,
+.empresa-pagina__vaga-card:focus {
+  border-color: var(--ep-navy);
+  box-shadow: 0 2px 8px rgba(2, 60, 98, 0.08);
+  text-decoration: none;
+  color: inherit;
+}
+
+.empresa-pagina__vaga-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ep-navy);
+}
+
+.empresa-pagina__vaga-meta {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ep-muted);
+}
+
+.empresa-pagina__empty {
+  margin: 0;
+  color: var(--ep-muted);
+  font-size: 0.95rem;
+}

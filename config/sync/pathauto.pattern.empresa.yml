@@ -1,0 +1,22 @@
+uuid: e1f2a3b4-c5d6-4789-a012-bcdef0340002
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - node
+id: empresa
+label: Empresa
+type: 'canonical_entities:node'
+pattern: '/empresa/[node:title]'
+selection_criteria:
+  a1b2c3d4-e5f6-4789-a012-bcdef0340003:
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: node
+    bundles:
+      empresa: empresa
+    uuid: a1b2c3d4-e5f6-4789-a012-bcdef0340003
+selection_logic: and
+weight: -5
+relationships: {  }

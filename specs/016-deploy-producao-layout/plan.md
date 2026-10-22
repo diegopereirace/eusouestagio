@@ -15,7 +15,7 @@ Executar e formalizar o **deploy em produção** do release consolidado (feature
 **Primary Dependencies**: Drush, Composer, Git no servidor; `config/sync` versionado; `custom_configs_update_11001`–`11019` + `custom_banners_update_11002`–`11004` já mergeados. **Nenhuma dependência nova.**  
 **Storage**: PostgreSQL 16 (dump gzipado em `../backups/`, fora da raiz pública); config ativa sincronizada a partir de `config/sync`  
 **Testing**: verificação pós-deploy por rota (HTTP 200 + seletores HTML) e inspeção de log — ver [quickstart.md](quickstart.md); sem suite automatizada dedicada  
-**Target Platform**: VPS produção — Apache + HTTPS (Let's Encrypt), app em `/var/www/html`, acesso `ssh -i C:\Users\diego\.ssh\id_rsa root@177.153.59.190`  
+**Target Platform**: VPS produção — Apache + HTTPS (Let's Encrypt), app em `/var/www/html`, acesso SSH pelas variáveis locais `EUSOU_SSH_KEY` e `EUSOU_SSH_HOST` (fora do Git)  
 **Project Type**: operação de release/deploy (runbook) sobre codebase Drupal 11  
 **Performance Goals**: indisponibilidade percebida < 5 min (SC-006); rotas críticas HTTP 200 em ≤ 3 s pós-deploy (SC-003)  
 **Constraints**: backup verificado como portão (FR-001/002); zero passo manual no admin (FR-009); cada etapa verificada antes da próxima (FR-010); `.env`/`settings.php` de produção não versionados e não tocados pela esteira; nunca editar `core/`/`vendor/`; pt-BR  

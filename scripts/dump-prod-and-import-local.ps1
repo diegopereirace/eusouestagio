@@ -28,10 +28,10 @@
   Só baixa o dump; não recria/importa o banco local.
 
 .PARAMETER SshKey
-  Caminho da chave privada SSH. Default: ~/.ssh/id_rsa do usuário atual.
+  Caminho da chave privada SSH. Obrigatório via -SshKey ou a variável de ambiente EUSOU_SSH_KEY. Não há caminho padrão no repositório.
 
 .PARAMETER SshHost
-  Host SSH de produção. Default: root@177.153.59.190.
+  Destino SSH (usuário@host). Obrigatório via -SshHost ou a variável de ambiente EUSOU_SSH_HOST. Não há destino padrão no repositório.
 
 .PARAMETER RemoteDrupalPath
   Diretório raiz do Drupal na VPS. Default: /var/www/html.
@@ -49,8 +49,8 @@
 [CmdletBinding()]
 param(
     [switch]$SkipImport,
-    [string]$SshKey          = "$env:USERPROFILE\.ssh\id_rsa",
-    [string]$SshHost         = 'root@177.153.59.190',
+    [string]$SshKey          = $env:EUSOU_SSH_KEY,
+    [string]$SshHost         = $env:EUSOU_SSH_HOST,
     [string]$RemoteDrupalPath = '/var/www/html',
     [string]$ContainerName    = 'eusouestagio-postgres'
 )
@@ -85,8 +85,11 @@ if (-not (Test-Path $dumpDir)) {
 }
 
 # --- Sanidade -----------------------------------------------------------------
+if ([string]::IsNullOrWhiteSpace($SshKey) -or [string]::IsNullOrWhiteSpace($SshHost)) {
+    throw "Defina EUSOU_SSH_KEY e EUSOU_SSH_HOST no ambiente local (ou passe -SshKey e -SshHost). O repositório não guarda destino nem chave."
+}
 if (-not (Test-Path $SshKey)) {
-    throw "Chave SSH não encontrada: $SshKey"
+    throw "Chave SSH não encontrada no caminho informado."
 }
 foreach ($bin in @('ssh', 'scp')) {
     if (-not (Get-Command $bin -ErrorAction SilentlyContinue)) {

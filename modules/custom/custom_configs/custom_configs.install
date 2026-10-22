@@ -13265,6 +13265,143 @@ function custom_configs_update_11052(): string {
 }
 
 /**
+ * Garante link Candidaturas no painel moderador/admin (deployável).
+ *
+ * - Seed idempotente do menu_link_content no menu `moderador`.
+ * - Bloco `default_painelmoderador` visível também para `administrator`
+ *   e restrito a `/painel` + `/painel/*`.
+ * Destino: cim → updb → cim → cr.
+ */
+function custom_configs_update_11053(): string {
+  $messages = [
+    _custom_configs_seed_moderador_candidaturas_menu_link(),
+    _custom_configs_ensure_painel_moderador_block_visibility(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Seed do link "Candidaturas" no menu Painel Moderador.
+ */
+function _custom_configs_seed_moderador_candidaturas_menu_link(): string {
+  $uuid = '689df8cb-99b9-4979-a90e-423d03cf9bf0';
+  $uri = 'internal:/painel/moderador/candidaturas';
+  $menu_name = 'moderador';
+  $storage = \Drupal::entityTypeManager()->getStorage('menu_link_content');
+
+  $by_uuid = $storage->loadByProperties(['uuid' => $uuid]);
+  if ($by_uuid) {
+    /** @var \Drupal\menu_link_content\MenuLinkContentInterface $link */
+    $link = reset($by_uuid);
+    $changed = FALSE;
+    if (!$link->isEnabled()) {
+      $link->set('enabled', TRUE);
+      $changed = TRUE;
+    }
+    if ($link->getTitle() !== 'Candidaturas') {
+      $link->set('title', 'Candidaturas');
+      $changed = TRUE;
+    }
+    if (($link->link->uri ?? '') !== $uri) {
+      $link->set('link', ['uri' => $uri]);
+      $changed = TRUE;
+    }
+    if ($changed) {
+      $link->save();
+      return (string) t('Link Candidaturas (@uuid) alinhado.', ['@uuid' => $uuid]);
+    }
+    return (string) t('Link Candidaturas (@uuid) já existe — seed ignorado.', ['@uuid' => $uuid]);
+  }
+
+  // Evita duplicata por URI no mesmo menu (link legado sem o UUID canônico).
+  $by_uri = $storage->loadByProperties([
+    'menu_name' => $menu_name,
+    'link__uri' => $uri,
+  ]);
+  if ($by_uri) {
+    /** @var \Drupal\menu_link_content\MenuLinkContentInterface $existing */
+    $existing = reset($by_uri);
+    $existing->set('title', 'Candidaturas');
+    $existing->set('enabled', TRUE);
+    $existing->set('weight', 0);
+    $existing->save();
+    return (string) t('Link Candidaturas existente no menu moderador alinhavado (uuid=@uuid).', [
+      '@uuid' => $existing->uuid(),
+    ]);
+  }
+
+  if (!\Drupal::entityTypeManager()->getStorage('menu')->load($menu_name)) {
+    return (string) t('Menu @menu ausente — rode drush cim -y antes do updb.', [
+      '@menu' => $menu_name,
+    ]);
+  }
+
+  $storage->create([
+    'uuid' => $uuid,
+    'menu_name' => $menu_name,
+    'title' => 'Candidaturas',
+    'link' => ['uri' => $uri],
+    'weight' => 0,
+    'enabled' => TRUE,
+    'expanded' => FALSE,
+  ])->save();
+
+  return (string) t('Link Candidaturas criado no menu moderador (@uuid).', ['@uuid' => $uuid]);
+}
+
+/**
+ * Garante visibilidade do bloco Painel Moderador para admin + moderador.
+ */
+function _custom_configs_ensure_painel_moderador_block_visibility(): string {
+  $config = \Drupal::configFactory()->getEditable('block.block.default_painelmoderador');
+  if ($config->isNew()) {
+    return (string) t('Bloco default_painelmoderador ausente — rode drush cim -y antes do updb.');
+  }
+
+  $visibility = $config->get('visibility') ?? [];
+  $changed = FALSE;
+
+  $roles = $visibility['user_role']['roles'] ?? [];
+  if (!isset($roles['administrator'])) {
+    $roles['administrator'] = 'administrator';
+    $changed = TRUE;
+  }
+  if (!isset($roles['moderador'])) {
+    $roles['moderador'] = 'moderador';
+    $changed = TRUE;
+  }
+  if ($changed || !isset($visibility['user_role'])) {
+    $visibility['user_role'] = [
+      'id' => 'user_role',
+      'negate' => FALSE,
+      'context_mapping' => [
+        'user' => '@user.current_user_context:current_user',
+      ],
+      'roles' => $roles,
+    ];
+    $changed = TRUE;
+  }
+
+  $pages = $visibility['request_path']['pages'] ?? '';
+  $expected_pages = "/painel\r\n/painel/*";
+  if ($pages !== $expected_pages) {
+    $visibility['request_path'] = [
+      'id' => 'request_path',
+      'negate' => FALSE,
+      'pages' => $expected_pages,
+    ];
+    $changed = TRUE;
+  }
+
+  if (!$changed) {
+    return (string) t('Bloco default_painelmoderador já visível para admin/moderador em /painel — no-op.');
+  }
+
+  $config->set('visibility', $visibility)->save();
+  return (string) t('Bloco default_painelmoderador: visibilidade admin+moderador em /painel.');
+}
+
+/**
  * Garante instances Sobre/Cidade/Estado no CT empresa.
  */
 function _custom_configs_ensure_empresa_pagina_fields(): string {

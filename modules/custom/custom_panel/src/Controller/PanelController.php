@@ -33,11 +33,11 @@ class PanelController extends ControllerBase
       return new RedirectResponse(Url::fromRoute('custom_panel.painel_estudante_perfil')->toString());
     }
 
-    if (in_array('moderador', $roles, TRUE)) {
+    if (in_array('moderador', $roles, TRUE) || in_array('administrator', $roles, TRUE)) {
       return new RedirectResponse(Url::fromRoute('custom_panel.moderador_candidaturas_listagem')->toString());
     }
 
-    // Usuários sem role candidato/empresa (ex: admin) vão para o perfil padrão.
+    // Usuários sem role de painel vão para o perfil padrão do Drupal.
     return new RedirectResponse(Url::fromRoute('user.page')->toString());
   }
 

@@ -41,7 +41,7 @@ Permitir que estudantes descubram e se candidatem a vagas de estágio, que empre
 |----|-------------|------|--------------------|
 | UC-01 | Cadastro de estudante | Anônimo → Candidato | Conta com role `candidato`, perfil inicial, e-mail de boas-vindas; moderadores notificados |
 | UC-02 | Cadastro de empresa | Anônimo → Empresa | Conta com role `empresa`, dados cadastrais (CNPJ etc.); moderadores notificados |
-| UC-03 | Login e redirecionamento ao painel | Autenticado | `/painel` redireciona conforme role (estudante / empresa / moderador) |
+| UC-03 | Login e redirecionamento ao painel | Autenticado | `/painel` redireciona conforme role (estudante / empresa / moderador / administrator → candidaturas) |
 | UC-04 | Completar / editar perfil estudante | Candidato | Dados pessoais, endereço (CEP), formação, paragraphs de instituição/cursos/experiências |
 | UC-05 | Completar / editar perfil empresa | Empresa | Razão social, fantasia, CNPJ, endereço, responsável |
 | UC-06 | Descobrir vagas | Público / Candidato | View `vagas` `page_1` em `/vagas` com filtros (curso, estado, cidade, escolaridade); landing `/para-estudantes` mostra destaque `block_3` (3 cards) |
@@ -51,7 +51,7 @@ Permitir que estudantes descubram e se candidatem a vagas de estágio, que empre
 | UC-10 | Acompanhar candidaturas (estudante) | Candidato | `/painel/estudante/vagas-aplicadas` |
 | UC-11 | Publicar / gerir vagas | Empresa / Admin | Node `vagas` vinculado a `field_empresa_u`; notificação a moderadores |
 | UC-12 | Ver candidaturas recebidas | Empresa | `/painel/empresa/candidaturas` (vagas da própria empresa) |
-| UC-13 | Triagem de candidaturas | Moderador / Admin | `/painel/moderador/candidaturas` + POST de status |
+| UC-13 | Triagem de candidaturas | Moderador / Admin | `/painel/moderador/candidaturas` + POST de status; link no menu `moderador` (sidebar) e em Admin → Conteúdo (`custom_panel.admin_candidaturas`); bloco sidebar também para `administrator` (`11053`) |
 | UC-14 | Alterar senha | Candidato / Empresa | Rotas dedicadas no painel |
 | UC-15 | Lookup de CEP | Formulários | `GET /api/cep/{cep}` (proxy ViaCEP, flood-limited) |
 | UC-16 | Páginas institucionais | Público | Nodes/páginas (`quem-somos`, `para-empresas`) e blocos/banners |

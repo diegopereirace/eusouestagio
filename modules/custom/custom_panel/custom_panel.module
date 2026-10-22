@@ -50,7 +50,7 @@ function _custom_panel_login_redirect(array &$form, FormStateInterface $form_sta
         $form_state->setRedirect('custom_panel.painel_estudante_perfil');
     } elseif ($user->hasRole('empresa')) {
         $form_state->setRedirect('custom_panel.painel_empresa_perfil');
-    } elseif ($user->hasRole('moderador')) {
+    } elseif ($user->hasRole('moderador') || $user->hasRole('administrator')) {
         $form_state->setRedirect('custom_panel.moderador_candidaturas_listagem');
     }
 }

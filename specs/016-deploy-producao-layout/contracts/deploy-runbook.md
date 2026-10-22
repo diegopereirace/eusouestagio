@@ -12,7 +12,7 @@ Contrato operacional estável para deploys deste codebase: mesma sequência, mes
 
 | # | Item | Verificação |
 |---|------|-------------|
-| 1 | Acesso SSH | `ssh -i C:\Users\diego\.ssh\id_rsa root@177.153.59.190` |
+| 1 | Acesso SSH | variáveis locais `EUSOU_SSH_KEY` e `EUSOU_SSH_HOST` (fora do Git) |
 | 2 | Workdir | `/var/www/html` |
 | 3 | `settings.php` alinhado a `settings.php.prod` | `config_sync_directory = 'config/sync'` (senão: corrigir com `.bak` antes de prosseguir) |
 | 4 | Working tree do servidor limpo | `git status` sem alterações pendentes (preservar arquivos de ambiente) |

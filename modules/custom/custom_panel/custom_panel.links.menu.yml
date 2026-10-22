@@ -1,0 +1,9 @@
+# Link no menu Admin (toolbar) — versionado com o módulo.
+# O item da sidebar do painel (menu "moderador") é seedado em custom_configs_update_11053.
+
+custom_panel.admin_candidaturas:
+  title: 'Candidaturas (painel)'
+  description: 'Verificar e triar candidaturas de estágio'
+  route_name: custom_panel.moderador_candidaturas_listagem
+  parent: system.admin_content
+  weight: 5

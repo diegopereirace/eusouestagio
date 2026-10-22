@@ -62,7 +62,7 @@ Feature operacional: não cria entidades Drupal novas. O modelo abaixo descreve 
 | Aspecto | Valor |
 |---------|--------|
 | VPS | Apache + HTTPS (Let's Encrypt) |
-| Acesso | `ssh -i C:\Users\diego\.ssh\id_rsa root@177.153.59.190` |
+| Acesso | variáveis locais `EUSOU_SSH_KEY` e `EUSOU_SSH_HOST` (fora do Git) |
 | App | `/var/www/html` (raiz pública `web/`) |
 | Banco | PostgreSQL 16 |
 | Drush | `php vendor/bin/drush.php` a partir de `/var/www/html` |

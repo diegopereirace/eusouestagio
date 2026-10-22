@@ -7,7 +7,7 @@ Guia para provar a troca de ponta a ponta. Contratos: [runtime local](contracts/
 ## Pré-requisitos
 
 1. Docker no ambiente local; Compose deste repositório; volume `postgres_data` já populado.
-2. Produção, só na janela combinada: SSH `ssh -i C:\Users\diego\.ssh\id_rsa root@177.153.59.190`, workdir `/var/www/html`.
+2. Produção, só na janela combinada: SSH pelas variáveis locais `EUSOU_SSH_KEY` e `EUSOU_SSH_HOST` (fora do Git), workdir `/var/www/html`.
 3. Nenhuma destas checagens edita `core/`, `vendor/`, `custom.ini` ou o `composer.json`.
 
 O portão, nos dois ambientes, é: versão **8.4.27 ou patch 8.4 posterior**, e **não** 8.5. Em PHP isso é `PHP_VERSION_ID >= 80427 && PHP_VERSION_ID < 80500`.

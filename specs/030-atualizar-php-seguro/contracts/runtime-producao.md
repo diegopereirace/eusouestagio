@@ -14,7 +14,7 @@ Não é a esteira de config do [deploy-runbook](../../016-deploy-producao-layout
 
 | # | Item | Verificação |
 |---|------|-------------|
-| 1 | SSH | `ssh -i C:\Users\diego\.ssh\id_rsa root@177.153.59.190` |
+| 1 | SSH | variáveis locais `EUSOU_SSH_KEY` e `EUSOU_SSH_HOST` (fora do Git) |
 | 2 | Workdir | `/var/www/html` |
 | 3 | SAPI atual | `mods-enabled/php8.3.load` presente; `php -v` na linha 8.3 |
 | 4 | Pacotes 8.3 instalados | `libapache2-mod-php8.3` e `php8.3-cli` permanecem (alvo de retorno) |

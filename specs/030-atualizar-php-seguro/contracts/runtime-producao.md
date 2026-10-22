@@ -33,8 +33,8 @@ Cada passo exige sucesso antes do próximo. Candidato fora do portão ⇒ **não
 | 1 | PPA + índice | `ppa:ondrej/php` habilitado e `apt update` ok. O site continua em 8.3 |
 | 2 | Portão do candidato | `libapache2-mod-php8.4` e `php8.4-cli` candidatos na linha 8.4, versão upstream ≥ 8.4.27 e < 8.5.0. Senão ⇒ abortar |
 | 3 | Download | `apt-get install -d` dos pacotes abaixo. Apache ainda em 8.3 |
-| 4 | Instalação | instalar só: `php8.4-cli`, `php8.4-common`, `libapache2-mod-php8.4`, `php8.4-curl`, `php8.4-gd`, `php8.4-intl`, `php8.4-mbstring`, `php8.4-opcache`, `php8.4-pgsql`, `php8.4-readline`, `php8.4-xml`, `php8.4-zip`. Sem `php8.4-fpm`. Sem purgar 8.3 |
-| 5 | Restart | `systemctl restart apache2`. Indisponibilidade observável &lt; 2 min a partir do passo 4 |
+| 4 | Instalação | instalar só: `php8.4-cli`, `php8.4-common`, `libapache2-mod-php8.4`, `php8.4-curl`, `php8.4-gd`, `php8.4-intl`, `php8.4-mbstring`, `php8.4-opcache`, `php8.4-pgsql`, `php8.4-readline`, `php8.4-xml`, `php8.4-zip`. Sem `php8.4-fpm`. Sem purgar 8.3. O pacote `php-common` sobe junto, como dependência. Se o postinst disser `php8.3 module already enabled, not enabling PHP 8.4`, o Apache ainda está no 8.3: aí `a2dismod php8.3`, `a2enmod php8.4` e `update-alternatives --set php /usr/bin/php8.4` |
+| 5 | Restart | `systemctl restart apache2` depois do módulo 8.4 estar habilitado. Indisponibilidade observável &lt; 2 min a partir do passo 4 |
 | 6 | Versão | CLI `php -v` na faixa 8.4.27+ / &lt; 8.5; `mods-enabled/php8.4.load` presente e `php8.3.load` ausente; `dpkg` de `libapache2-mod-php8.4` na mesma versão upstream do CLI |
 | 7 | Cache | `php vendor/bin/drush.php cache:rebuild` com exit 0 |
 | 8 | Site | home em HTTPS abre com o conteúdo anterior |

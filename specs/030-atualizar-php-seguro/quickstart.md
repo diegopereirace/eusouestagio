@@ -64,7 +64,7 @@ test ! -e /etc/apache2/mods-enabled/php8.3.load
 php vendor/bin/drush.php cache:rebuild
 ```
 
-Abrir a home em HTTPS. A janela em que o site deixou de responder, contada a partir do `apt install` com os `.deb` já baixados, fica abaixo de 2 minutos.
+Se o postinst deixar o Apache no módulo 8.3, habilitar `php8.4` e desabilitar `php8.3` antes do restart. Abrir a home em HTTPS. A janela em que o site deixou de responder, contada a partir do `apt install` com os `.deb` já baixados, fica abaixo de 2 minutos.
 
 **Abortar antes da instalação** se o candidato do apt não estiver na faixa 8.4.27+ / < 8.5. O site permanece em 8.3.6.
 

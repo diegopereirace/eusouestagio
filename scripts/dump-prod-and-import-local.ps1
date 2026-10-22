@@ -31,7 +31,7 @@
   Caminho da chave privada SSH. Default: ~/.ssh/id_rsa do usuário atual.
 
 .PARAMETER SshHost
-  Host SSH de produção. Default: root@177.153.59.190.
+  Host SSH de produção. Default: a variável EUSOU_SSH_HOST.
 
 .PARAMETER RemoteDrupalPath
   Diretório raiz do Drupal na VPS. Default: /var/www/html.
@@ -49,8 +49,8 @@
 [CmdletBinding()]
 param(
     [switch]$SkipImport,
-    [string]$SshKey          = "$env:USERPROFILE\.ssh\id_rsa",
-    [string]$SshHost         = 'root@177.153.59.190',
+    [string]$SshKey          = $env:EUSOU_SSH_KEY,
+    [string]$SshHost         = $env:EUSOU_SSH_HOST,
     [string]$RemoteDrupalPath = '/var/www/html',
     [string]$ContainerName    = 'eusouestagio-postgres'
 )

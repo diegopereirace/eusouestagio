@@ -5,10 +5,7 @@ alwaysApply: false
 # Infraestrutura e VPS de Produção
 
 - **Ambiente:** Servidor de produção em VPS rodando Apache.
-- **SSH (produção):** Sempre que for preciso consultar o ambiente de produção, usar:
-  ```
-  ssh -i C:\Users\diego\.ssh\id_rsa root@177.153.59.190
-  ```
+- **SSH (produção):** Host, usuário e caminho da chave ficam só no ambiente local do operador (`EUSOU_SSH_HOST` e `EUSOU_SSH_KEY`). Não gravar IP, usuário, caminho de chave nem o comando SSH completo em regras, skills, specs ou no Git.
 - **Caminho Web:** O diretório raiz público da aplicação está localizado em `/var/www/html`.
 - **Segurança:** O arquivo `.env` contém credenciais críticas e NUNCA deve ser commitado no Git. Modificações na estrutura do `.env` devem ser refletidas em um `.env.example`.
 - **SSL/TLS:** A aplicação roda sob HTTPS (Let's Encrypt). Certifique-se de não criar redirecionamentos de rota que quebrem a estrutura do certificado.

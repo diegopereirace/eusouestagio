@@ -35,4 +35,4 @@
 - Critérios de sucesso medem o identificador de versão, o tempo até as páginas voltarem e a preservação de banco e arquivos.
 - Seção Key Entities omitida: a entrega não introduz entidade de negócio.
 - Itens incompletos exigiriam atualização da spec antes de `/speckit-clarify` ou `/speckit-plan` — nenhum pendente.
-- Próximo passo recomendado: `/speckit-plan`.
+- Próximo passo recomendado: `/speckit-implement`.

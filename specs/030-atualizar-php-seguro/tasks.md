@@ -84,11 +84,11 @@
 - [X] T022 [US4] Habilitar `ppa:ondrej/php` e rodar `apt update`, deixando o site em PHP 8.3, conforme `specs/030-atualizar-php-seguro/contracts/runtime-producao.md` passo 1 e `specs/030-atualizar-php-seguro/research.md` (R5)
 - [X] T023 [US4] Ler o candidato de `libapache2-mod-php8.4` e de `php8.4-cli`; só continuar se a versão upstream for ≥ 8.4.27 e < 8.5.0; caso contrário abortar sem `apt install` e manter 8.3.6 (`specs/030-atualizar-php-seguro/contracts/runtime-producao.md` passo 2, SC-005)
 - [X] T024 [US4] Baixar sem instalar, com `apt-get install -d`, os pacotes `php8.4-cli`, `php8.4-common`, `libapache2-mod-php8.4`, `php8.4-curl`, `php8.4-gd`, `php8.4-intl`, `php8.4-mbstring`, `php8.4-opcache`, `php8.4-pgsql`, `php8.4-readline`, `php8.4-xml` e `php8.4-zip`; Apache continua em 8.3 (`specs/030-atualizar-php-seguro/contracts/runtime-producao.md` passo 3)
-- [ ] T025 [US4] Instalar somente o conjunto do passo 3 de `specs/030-atualizar-php-seguro/contracts/runtime-producao.md`; não instalar `php8.4-fpm` e não purgar `php8.3-*`; a partir deste `apt-get install` a indisponibilidade observável deve ficar abaixo de 2 minutos (FR-010)
-- [ ] T026 [US4] Recarregar o processo com `systemctl restart apache2` (não só reload), conforme `specs/030-atualizar-php-seguro/plan.md` (decisão 7) e `specs/030-atualizar-php-seguro/contracts/runtime-producao.md` passo 5
-- [ ] T027 [US4] Validar o portão em produção: CLI na faixa 8.4.27+ / < 8.5, `/etc/apache2/mods-enabled/php8.4.load` presente, `php8.3.load` ausente, e `dpkg` de `libapache2-mod-php8.4` na mesma versão upstream do CLI (`specs/030-atualizar-php-seguro/quickstart.md` seção C e contrato passo 6)
-- [ ] T028 [US4] Rodar `php vendor/bin/drush.php cache:rebuild` com exit 0 e abrir a home em HTTPS e o login; conteúdo e imagens anteriores, sessão autentica, banco e arquivos intactos, dump do T021 ainda no disco (`specs/030-atualizar-php-seguro/contracts/runtime-producao.md` passos 7–8 e contrato de verificação)
-- [ ] T029 [US4] Se T027 ou T028 falharem, executar o retorno de `specs/030-atualizar-php-seguro/contracts/runtime-producao.md` e `specs/030-atualizar-php-seguro/quickstart.md` seção D: `a2dismod php8.4`, `a2enmod php8.3`, `update-alternatives --set php /usr/bin/php8.3`, `systemctl restart apache2`, sem restaurar o dump; se T027 e T028 passarem, confirmar que os pacotes `php8.3-*` permanecem instalados e que o dump não foi usado (FR-011)
+- [X] T025 [US4] Instalar somente o conjunto do passo 3 de `specs/030-atualizar-php-seguro/contracts/runtime-producao.md`; não instalar `php8.4-fpm` e não purgar `php8.3-*`; a partir deste `apt-get install` a indisponibilidade observável deve ficar abaixo de 2 minutos (FR-010)
+- [X] T026 [US4] Recarregar o processo com `systemctl restart apache2` (não só reload), conforme `specs/030-atualizar-php-seguro/plan.md` (decisão 7) e `specs/030-atualizar-php-seguro/contracts/runtime-producao.md` passo 5
+- [X] T027 [US4] Validar o portão em produção: CLI na faixa 8.4.27+ / < 8.5, `/etc/apache2/mods-enabled/php8.4.load` presente, `php8.3.load` ausente, e `dpkg` de `libapache2-mod-php8.4` na mesma versão upstream do CLI (`specs/030-atualizar-php-seguro/quickstart.md` seção C e contrato passo 6)
+- [X] T028 [US4] Rodar `php vendor/bin/drush.php cache:rebuild` com exit 0 e abrir a home em HTTPS e o login; conteúdo e imagens anteriores, sessão autentica, banco e arquivos intactos, dump do T021 ainda no disco (`specs/030-atualizar-php-seguro/contracts/runtime-producao.md` passos 7–8 e contrato de verificação)
+- [X] T029 [US4] Se T027 ou T028 falharem, executar o retorno de `specs/030-atualizar-php-seguro/contracts/runtime-producao.md` e `specs/030-atualizar-php-seguro/quickstart.md` seção D: `a2dismod php8.4`, `a2enmod php8.3`, `update-alternatives --set php /usr/bin/php8.3`, `systemctl restart apache2`, sem restaurar o dump; se T027 e T028 passarem, confirmar que os pacotes `php8.3-*` permanecem instalados e que o dump não foi usado (FR-011)
 
 **Checkpoint**: produção na linha 8.4.27+ com janela curta, ou site ainda (ou de volta) em 8.3 sem perda de banco. Não há `git pull`, `cim` nem `updb` nesta história.
 
@@ -98,10 +98,10 @@
 
 **Objetivo**: fechar o diff mínimo, a regra do agente e a consistência dos artefatos com o que foi executado.
 
-- [ ] T030 [P] Atualizar o bloco SPECKIT em `.cursor/rules/specify-rules.mdc` para apontar `specs/030-atualizar-php-seguro/tasks.md` como gerado
-- [ ] T031 [P] Revisar consistência cruzada spec ↔ plan ↔ research ↔ data-model ↔ contratos ↔ quickstart (faixa 8.4.27+ / < 8.5, sem paliativo de ini, sem trava Composer, sem FPM) sob `specs/030-atualizar-php-seguro/`
-- [ ] T032 Confirmar que o diff de código desta feature é somente `Dockerfile`: `composer.json`, `docker-compose.yml`, `docker/php/custom.ini`, `core/` e `vendor/` sem alteração (FR-007, FR-012 e `specs/030-atualizar-php-seguro/plan.md`)
-- [ ] T033 Atualizar a nota de próximo passo em `specs/030-atualizar-php-seguro/checklists/requirements.md` para `/speckit-implement`, agora que `tasks.md` existe
+- [X] T030 [P] Atualizar o bloco SPECKIT em `.cursor/rules/specify-rules.mdc` para apontar `specs/030-atualizar-php-seguro/tasks.md` como gerado
+- [X] T031 [P] Revisar consistência cruzada spec ↔ plan ↔ research ↔ data-model ↔ contratos ↔ quickstart (faixa 8.4.27+ / < 8.5, sem paliativo de ini, sem trava Composer, sem FPM) sob `specs/030-atualizar-php-seguro/`
+- [X] T032 Confirmar que o diff de código desta feature é somente `Dockerfile`: `composer.json`, `docker-compose.yml`, `docker/php/custom.ini`, `core/` e `vendor/` sem alteração (FR-007, FR-012 e `specs/030-atualizar-php-seguro/plan.md`)
+- [X] T033 Atualizar a nota de próximo passo em `specs/030-atualizar-php-seguro/checklists/requirements.md` para `/speckit-implement`, agora que `tasks.md` existe
 
 ---
 

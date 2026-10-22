@@ -60,7 +60,7 @@ A spec não tem `[NEEDS CLARIFICATION]`. As decisões abaixo fecham as Assumptio
 
 **Decision**: backup conferido **antes** de qualquer `apt install` que troque o módulo. Em seguida: adicionar o PPA e `apt update` (ainda no 8.3); abortar se o candidato não for 8.4.27+ na linha 8.4; `apt-get install -d` para encher o cache; só então `apt-get install` dos pacotes listados; `systemctl restart apache2`; ler versão; `php vendor/bin/drush.php cache:rebuild`.
 
-**Rationale**: o postinst de `libapache2-mod-php8.4` desabilita o outro `mod_php` e passa a atender o site. Por isso a versão tem de ser aceita **antes** do install, e os `.deb` têm de estar no disco para a troca caber em menos de 2 minutos. Restart, e não só reload, porque o módulo é carregado no processo do Apache. Não há `cim` nem `updb`: o banco e a config não mudam de forma.
+**Rationale**: a troca de módulo é o que tira o site do 8.3. Em 22/10/2026 o postinst de `libapache2-mod-php8.4` nesta VPS não desabilitou o 8.3 (`php8.3 module already enabled, not enabling PHP 8.4`); a virada foi `a2dismod php8.3`, `a2enmod php8.4` e a alternativa `php` em `/usr/bin/php8.4`, seguida de restart. Por isso a versão tem de ser aceita **antes** do install, e os `.deb` têm de estar no disco para a troca caber em menos de 2 minutos. Restart, e não só reload, porque o módulo é carregado no processo do Apache. Não há `cim` nem `updb`: o banco e a config não mudam de forma.
 
 **Alternatives considered**: instalar e só depois olhar `php -v` — se o candidato viesse errado, o site já teria virado; `apachectl graceful` — pode deixar worker no módulo antigo.
 

@@ -6,7 +6,7 @@ Guia de validação ponta a ponta do release (Home + Quem Somos). Contrato norma
 
 ## Pré-requisitos
 
-1. Acesso SSH: `ssh -i C:\Users\diego\.ssh\id_rsa root@177.153.59.190`; workdir `/var/www/html`.
+1. Acesso SSH pelas variáveis locais `EUSOU_SSH_KEY` e `EUSOU_SSH_HOST` (fora do Git); workdir `/var/www/html`.
 2. `settings.php` de produção alinhado a `settings.php.prod` (`config_sync_directory = 'config/sync'`).
 3. `main` contendo todo `origin/dev` (merge realizado na esteira ou previamente).
 4. Drush invocável: `php vendor/bin/drush.php status`.

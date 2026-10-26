@@ -192,6 +192,12 @@ empresa_pagina:
       assets/css/components/empresa-pagina.css: {}
   dependencies:
     - default/bootstrap
+login_card:
+  css:
+    component:
+      assets/css/components/login.css: {}
+  dependencies:
+    - default/bootstrap
 
 jquery_mask:
   js:

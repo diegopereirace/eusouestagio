@@ -1,0 +1,14 @@
+{#
+/**
+ * @file
+ * Abas locais só em /user/login.
+ *
+ * O template do Barrio omite o id do bloco. Aqui o id nativo
+ * (block-default-primary-local-tasks) permanece no <nav>.
+ */
+#}
+{% if content %}
+  <nav{{ attributes.addClass('tabs', 'login-card__tasks') }} aria-label="{{ 'Tabs'|t }}">
+    {{ content }}
+  </nav>
+{% endif %}

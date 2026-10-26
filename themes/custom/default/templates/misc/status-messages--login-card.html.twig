@@ -1,0 +1,19 @@
+{#
+/**
+ * @file
+ * Mensagens de /user/login, inline no card. Sem modal.
+ *
+ * Grupos (alert/role/messages) vêm de custom_panel_preprocess_status_messages().
+ */
+#}
+{% if login_message_groups %}
+  <div class="login-card__messages" data-drupal-messages>
+    {% for group in login_message_groups %}
+      <div class="alert alert-{{ group.alert }} mb-0" role="{{ group.role }}">
+        {% for message in group.messages %}
+          <p class="mb-0{{ not loop.last ? ' mb-2' }}">{{ message }}</p>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}

@@ -1,5 +1,6 @@
 <?php
 
+use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\Entity\User;
@@ -22,11 +23,98 @@ function _custom_panel_vaga_empresa_submit(array &$form, FormStateInterface $for
 /**
  * Implements hook_form_user_login_form_alter().
  *
- * Adiciona submit handler para redirecionar ao painel após login.
+ * Anexa a library do card, classes Bootstrap e placeholders.
+ * O redirecionamento por papel permanece em _custom_panel_login_redirect.
  */
 function custom_panel_form_user_login_form_alter(array &$form, FormStateInterface $form_state, $form_id)
 {
     $form['#submit'][] = '_custom_panel_login_redirect';
+    $form['#attached']['library'][] = 'default/login_card';
+
+    $form['name']['#attributes']['class'][] = 'form-control';
+    $form['name']['#attributes']['class'][] = 'form-control-lg';
+    $form['name']['#attributes']['class'][] = 'rounded-3';
+    $form['name']['#attributes']['placeholder'] = t('Digite seu e-mail ou usuário');
+
+    $form['pass']['#attributes']['class'][] = 'form-control';
+    $form['pass']['#attributes']['class'][] = 'form-control-lg';
+    $form['pass']['#attributes']['class'][] = 'rounded-3';
+    $form['pass']['#attributes']['placeholder'] = t('Sua senha');
+
+    $form['actions']['submit']['#attributes']['class'][] = 'btn';
+    $form['actions']['submit']['#attributes']['class'][] = 'btn-primary';
+    $form['actions']['submit']['#attributes']['class'][] = 'btn-lg';
+    $form['actions']['submit']['#attributes']['class'][] = 'w-100';
+    $form['actions']['submit']['#attributes']['class'][] = 'mt-4';
+}
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ *
+ * Na tela de login, a aba nativa user.pass usa o rótulo do card.
+ */
+function custom_panel_menu_local_tasks_alter(array &$data, $route_name, RefinableCacheableDependencyInterface &$cacheability): void
+{
+    if ($route_name !== 'user.login' || !isset($data['tabs'][0]['user.pass'])) {
+        return;
+    }
+
+    $data['tabs'][0]['user.pass']['#link']['title'] = t('Esqueceu a senha?');
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter() for status messages.
+ *
+ * Em /user/login as mensagens ficam inline no card, sem o modal global.
+ */
+function custom_panel_theme_suggestions_status_messages_alter(array &$suggestions, array $variables): void
+{
+    if (\Drupal::routeMatch()->getRouteName() === 'user.login') {
+        $suggestions[] = 'status_messages__login_card';
+    }
+}
+
+/**
+ * Implements hook_preprocess_HOOK() for status messages.
+ */
+function custom_panel_preprocess_status_messages(array &$variables): void
+{
+    if (\Drupal::routeMatch()->getRouteName() !== 'user.login') {
+        return;
+    }
+
+    $variables['#cache']['contexts'][] = 'route';
+    $map = [
+        'error' => 'danger',
+        'warning' => 'warning',
+        'status' => 'success',
+    ];
+    $groups = [];
+    foreach ($variables['message_list'] ?? [] as $type => $messages) {
+        $groups[] = [
+            'alert' => $map[$type] ?? 'success',
+            'role' => $type === 'error' ? 'alert' : 'status',
+            'messages' => $messages,
+        ];
+    }
+    $variables['login_message_groups'] = $groups;
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter() for blocks.
+ *
+ * No login, as abas locais ganham id real e a classe login-card__tasks.
+ */
+function custom_panel_theme_suggestions_block_alter(array &$suggestions, array $variables): void
+{
+    if (\Drupal::routeMatch()->getRouteName() !== 'user.login') {
+        return;
+    }
+
+    $plugin_id = $variables['elements']['#plugin_id'] ?? '';
+    if ($plugin_id === 'local_tasks_block') {
+        $suggestions[] = 'block__login_local_tasks';
+    }
 }
 
 /**

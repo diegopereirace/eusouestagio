@@ -463,10 +463,10 @@ h6 {
 	transition: transform 0.2s ease;
 }
 
-.wrap-menu .nav-link:hover,
-.wrap-menu .nav-link:focus,
-.wrap-menu .nav-link.active,
-.wrap-menu .nav-link.is-active {
+#header .wrap-menu .nav-link:hover,
+#header .wrap-menu .nav-link:focus,
+#header .wrap-menu .nav-link.active,
+#header .wrap-menu .nav-link.is-active {
 	color: var(--brand-orange);
 }
 
@@ -491,9 +491,11 @@ h6 {
 	white-space: nowrap;
 }
 
-/* Auth CTAs — usuário deslogado (Login + Cadastrar) — Figma TopNavBar (radius 8px) */
-.btn-top-login,
-.btn-top-cadastrar {
+/* Auth CTAs — usuário deslogado (Login + Cadastrar) — Figma TopNavBar (radius 8px).
+   #header + .btn vencem .btn / .btn:hover do Bootstrap quando uma lib de página
+   (login, contato, vagas) recoloca bootstrap.min.css depois do style.css. */
+#header .btn.btn-top-login,
+#header .btn.btn-top-cadastrar {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -506,29 +508,29 @@ h6 {
 	transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, filter 0.15s ease;
 }
 
-.btn-top-login {
+#header .btn.btn-top-login {
 	background-color: #eef1f4;
 	color: var(--brand-navy);
 	border: 1px solid #e1e5ea;
 	font-weight: 500;
 }
 
-.btn-top-login:hover,
-.btn-top-login:focus {
+#header .btn.btn-top-login:hover,
+#header .btn.btn-top-login:focus {
 	background-color: #e3e7ec;
 	color: var(--brand-navy);
 	border-color: #d0d6dd;
 }
 
-.btn-top-cadastrar {
+#header .btn.btn-top-cadastrar {
 	background-color: var(--brand-orange);
 	color: #fff;
 	border: 1px solid var(--brand-orange);
 	font-weight: 600;
 }
 
-.btn-top-cadastrar:hover,
-.btn-top-cadastrar:focus {
+#header .btn.btn-top-cadastrar:hover,
+#header .btn.btn-top-cadastrar:focus {
 	background-color: #e67812;
 	border-color: #e67812;
 	color: #fff;
@@ -1948,8 +1950,8 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 		gap: 0.5rem;
 	}
 
-	.btn-top-login,
-	.btn-top-cadastrar {
+	#header .btn.btn-top-login,
+	#header .btn.btn-top-cadastrar {
 		min-height: 38px;
 		padding: 0.4rem 0.9rem;
 		font-size: 0.8125rem;
@@ -1992,8 +1994,8 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 		margin-left: 0;
 	}
 
-	.btn-top-login,
-	.btn-top-cadastrar {
+	#header .btn.btn-top-login,
+	#header .btn.btn-top-cadastrar {
 		min-height: 36px;
 		padding: 0.35rem 0.75rem;
 		font-size: 0.8rem;
@@ -2036,8 +2038,8 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 		gap: 0.35rem;
 	}
 
-	.btn-top-login,
-	.btn-top-cadastrar {
+	#header .btn.btn-top-login,
+	#header .btn.btn-top-cadastrar {
 		min-height: 34px;
 		padding: 0.3rem 0.65rem;
 		font-size: 0.75rem;
@@ -2064,8 +2066,8 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 		height: auto;
 	}
 
-	.top-mobile-actions--guest .btn-top-login,
-	.top-mobile-actions--guest .btn-top-cadastrar {
+	#header .top-mobile-actions--guest .btn.btn-top-login,
+	#header .top-mobile-actions--guest .btn.btn-top-cadastrar {
 		min-height: 46px;
 		font-size: 0.95rem;
 		padding: 12px 24px;

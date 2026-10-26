@@ -12,7 +12,7 @@
     "require": {
         "composer/installers": "^2.3",
         "drupal/admin_toolbar": "3.6.3",
-        "drupal/bootstrap_barrio": "5.5.20",
+        "drupal/bootstrap_barrio": "5.5.22",
         "drupal/captcha": "2.0.10",
         "drupal/coffee": "2.0.1",
         "drupal/core-composer-scaffold": "^11.4",
@@ -22,7 +22,7 @@
         "drupal/devel": "5.5",
         "drupal/devel_php": "2.0.1",
         "drupal/field_group": "4.0",
-        "drupal/metatag": "2.2",
+        "drupal/metatag": "2.2.1",
         "drupal/mimemail": "^2.0",
         "drupal/paragraphs": "^1.21",
         "drupal/pathauto": "1.15",

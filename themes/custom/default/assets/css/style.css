@@ -2084,62 +2084,115 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 	}
 }
 
+/* ── Node Vagas — Layout geral (header + conteúdo + sidebar) ──────── */
+.vaga-layout {
+	margin-top: 1.5rem;
+}
+
 /* ── Node Vagas — Header ─────────────────────────────── */
 .vaga-header {
-	padding: 1.5rem 0 1rem;
-	border-bottom: 1px solid #e5e7eb;
+	background: #fff;
+	border: 1px solid #e5e7eb;
+	border-radius: 12px;
+	padding: 1.5rem;
 	margin-bottom: 1.5rem;
 }
 
+.vaga-header__top {
+	display: flex;
+	align-items: flex-start;
+	gap: 1rem;
+}
+
+.vaga-header__logo {
+	flex-shrink: 0;
+	width: 64px;
+	height: 64px;
+	border-radius: 10px;
+	overflow: hidden;
+	border: 1px solid #e5e7eb;
+	background: #f5f7f8;
+}
+
+.vaga-header__logo img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.vaga-header__titulo-bloco {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
 .vaga-titulo {
-	font-size: 1.5rem;
+	font-size: 1.6rem;
 	font-weight: 700;
-	color: #1a1a2e;
+	color: var(--brand-navy);
 	margin-bottom: 0.25rem;
 }
 
 .vaga-empresa {
-	font-size: 1rem;
+	font-size: 0.9375rem;
+	font-weight: 600;
 	color: #4b5563;
-	margin-bottom: 0.75rem;
+}
+
+.vaga-empresa__separador {
+	margin: 0 0.4rem;
+	color: #9ca3af;
+	font-weight: 400;
 }
 
 .vaga-meta {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 0.5rem 1.25rem;
-	font-size: 0.875rem;
-	color: #6b7280;
+	gap: 0.5rem;
 }
 
-.vaga-meta-item {
-	display: flex;
+.vaga-badge {
+	display: inline-flex;
 	align-items: center;
-	gap: 0.35rem;
+	gap: 0.3rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	padding: 0.25rem 0.7rem;
+	border-radius: 999px;
+	line-height: 1.3;
 }
 
-.vaga-meta-item i {
-	font-size: 0.8rem;
-	color: #9ca3af;
+.vaga-badge i {
+	font-size: 0.7rem;
 }
 
 .vaga-badge--regime {
-	display: inline-block;
 	background-color: #22c55e;
 	color: #fff;
-	font-size: 0.75rem;
-	font-weight: 600;
-	padding: 0.2rem 0.65rem;
-	border-radius: 999px;
+}
+
+.vaga-badge--neutro {
+	background-color: #f1f5f9;
+	color: #334155;
+}
+
+.vaga-badge--muted {
+	background-color: transparent;
+	color: #9ca3af;
+	font-weight: 500;
+	padding-left: 0.2rem;
 }
 
 @media (max-width: 767.98px) {
 	.vaga-titulo {
-		font-size: 1.2rem;
+		font-size: 1.3rem;
+	}
+	.vaga-header {
+		padding: 1.25rem;
 	}
 	.vaga-meta {
-		gap: 0.4rem 1rem;
+		gap: 0.4rem;
 	}
 }
 
@@ -2153,20 +2206,32 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 }
 
 .vaga-section-title {
-	font-size: 1.1rem;
+	font-size: 1.25rem;
 	font-weight: 700;
-	color: #1a1a2e;
+	color: var(--brand-navy);
 	margin-bottom: 0.75rem;
+}
+
+/* Cartão branco que envolve o conteúdo de cada seção (texto ou lista) */
+.vaga-section-card {
+	background: #fff;
+	border: 1px solid #e5e7eb;
+	border-radius: 12px;
+	padding: 1.25rem 1.5rem;
 }
 
 .vaga-section-body {
 	font-size: 0.9375rem;
-	color: #374151;
+	color: #334155;
 	line-height: 1.7;
 }
 
 .vaga-section-body p {
 	margin-bottom: 0.75rem;
+}
+
+.vaga-section-body p:last-child {
+	margin-bottom: 0;
 }
 
 .vaga-section-body ul,
@@ -2186,8 +2251,12 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 	padding-left: 1.25rem;
 	margin-bottom: 0.5rem;
 	font-size: 0.9375rem;
-	color: #374151;
+	color: #334155;
 	line-height: 1.6;
+}
+
+.vaga-lista-requisitos li:last-child {
+	margin-bottom: 0;
 }
 
 .vaga-lista-requisitos li::before {
@@ -2212,8 +2281,12 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 	padding-left: 1.25rem;
 	margin-bottom: 0.5rem;
 	font-size: 0.9375rem;
-	color: #374151;
+	color: #334155;
 	line-height: 1.6;
+}
+
+.vaga-lista-beneficios li:last-child {
+	margin-bottom: 0;
 }
 
 .vaga-lista-beneficios li::before {
@@ -2262,6 +2335,7 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 	border: 1px solid #e5e7eb;
 	border-radius: 12px;
 	padding: 1.25rem;
+	box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
 }
 
 .vaga-compartilhar-label {

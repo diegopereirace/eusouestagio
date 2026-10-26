@@ -17,7 +17,7 @@
 
 .vaga-detalhe__header {
   margin-bottom: 2rem;
-  padding: 1.5rem 1.75rem;
+  padding: 1.25rem 1.5rem 1.15rem;
   background: #fff;
   border: 1px solid var(--vd-border);
   border-radius: 16px;
@@ -25,14 +25,14 @@
 
 .vaga-detalhe__header-top {
   display: flex;
-  gap: 1.25rem;
-  align-items: flex-start;
+  gap: 1rem;
+  align-items: center;
 }
 
 .vaga-detalhe__logo img {
   display: block;
-  width: 96px;
-  height: 96px;
+  width: 100px;
+  height: 100px;
   object-fit: cover;
   border-radius: 12px;
   border: 1px solid var(--vd-border);
@@ -59,8 +59,8 @@
   font-size: clamp(1.5rem, 2.5vw, 2rem);
   font-weight: 600;
   color: var(--vd-navy);
-  margin: 0 0 0.5rem;
-  line-height: 1.25;
+  margin: 0 0 0.2rem;
+  line-height: 1.2;
   word-break: break-word;
 }
 
@@ -112,19 +112,21 @@ a.vaga-detalhe__empresa-nome:focus {
 .vaga-detalhe__badges {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.5rem;
-  margin-top: 1.25rem;
+  margin-top: 0.65rem;
 }
 
 .vaga-detalhe__badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.35rem 0.85rem;
+  padding: 0.28rem 0.85rem;
   border-radius: 999px;
   background: var(--vd-pill-bg);
   color: var(--vd-navy);
   font-size: 0.85rem;
   font-weight: 600;
+  line-height: 1.35;
 }
 
 /* Legado — seção Sobre / usos fora do header unificado. */
@@ -463,7 +465,7 @@ a.vaga-detalhe__empresa-nome:focus {
 
 @media (max-width: 576px) {
   .vaga-detalhe__header {
-    padding: 1.15rem 1rem;
+    padding: 1rem 0.9rem 0.9rem;
   }
 
   .vaga-detalhe__header-top {

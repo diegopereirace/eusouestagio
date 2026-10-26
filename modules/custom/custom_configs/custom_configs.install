@@ -13620,3 +13620,152 @@ function _custom_configs_align_vaga_sobre_seed(): string {
   ]);
 }
 
+/**
+ * Ajuste de estilo da página de vaga — garante que toda vaga renderize o
+ * layout completo de seções (Sobre a Vaga, Requisitos, Benefícios, Auxílio
+ * Transporte, Horários, Cursos), preenchendo com placeholder genérico apenas
+ * os campos vazios. Nunca sobrescreve conteúdo editorial já existente.
+ */
+function custom_configs_update_11054(): string {
+  return _custom_configs_backfill_vagas_layout_fields();
+}
+
+/**
+ * Preenche campos opcionais vazios de todos os nós `vagas` com placeholder
+ * genérico, para que o novo layout em cartões fique consistente entre
+ * vagas diferentes.
+ *
+ * Idempotente: só altera (e salva) o nó quando algum campo estava vazio;
+ * reexecução em nós já completos é no-op. Não sobrescreve valor existente.
+ */
+function _custom_configs_backfill_vagas_layout_fields(): string {
+  $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+  $vagas = $node_storage->loadByProperties(['type' => 'vagas']);
+
+  if (!$vagas) {
+    return (string) t('Backfill de vagas: nenhum nó do tipo vagas encontrado (no-op).');
+  }
+
+  $simple_placeholders = [
+    'field_text_long_formatted' => [
+      'value' => '<p>Descrição da vaga a ser detalhada pela empresa.</p>',
+      'format' => 'basic_html',
+    ],
+    'field_text_simple_multiple' => ['Requisito a definir pela empresa.'],
+    'field_text_simple_multiple_2' => ['Benefício a definir pela empresa.'],
+    'field_auxilio_transporte' => 'A definir.',
+    'field_horarios' => 'manha',
+  ];
+
+  $updated_nodes = 0;
+  $updated_fields = 0;
+
+  foreach ($vagas as $node) {
+    /** @var \Drupal\node\NodeInterface $node */
+    $changed = FALSE;
+
+    foreach ($simple_placeholders as $field_name => $default_value) {
+      if (!$node->hasField($field_name) || !$node->get($field_name)->isEmpty()) {
+        continue;
+      }
+      $node->set($field_name, $default_value);
+      $changed = TRUE;
+      $updated_fields++;
+    }
+
+    // field_cursos_t (taxonomia 'curso'): só preenche se estiver vazio,
+    // reaproveitando (ou criando) um termo placeholder "A definir".
+    if ($node->hasField('field_cursos_t') && $node->get('field_cursos_t')->isEmpty()) {
+      $term = _custom_configs_get_or_create_curso_generico_term();
+      if ($term) {
+        $node->set('field_cursos_t', [['target_id' => $term->id()]]);
+        $changed = TRUE;
+        $updated_fields++;
+      }
+    }
+
+    if ($changed) {
+      $node->save();
+      $updated_nodes++;
+    }
+  }
+
+  if ($updated_nodes === 0) {
+    return (string) t('Backfill de vagas: todos os @count nó(s) já possuíam os campos de layout preenchidos (no-op).', [
+      '@count' => count($vagas),
+    ]);
+  }
+
+  return (string) t('Backfill de vagas: @nodes de @total nó(s) atualizado(s), @fields campo(s) preenchido(s) com placeholder.', [
+    '@nodes' => $updated_nodes,
+    '@total' => count($vagas),
+    '@fields' => $updated_fields,
+  ]);
+}
+
+/**
+ * Obtém (ou cria) o termo placeholder "A definir" no vocabulário `curso`,
+ * usado quando a vaga não tem nenhum curso associado.
+ */
+function _custom_configs_get_or_create_curso_generico_term(): ?\Drupal\taxonomy\TermInterface {
+  $term_storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+  $existing = $term_storage->loadByProperties([
+    'vid' => 'curso',
+    'name' => 'A definir',
+  ]);
+  if ($existing) {
+    return reset($existing);
+  }
+
+  /** @var \Drupal\taxonomy\TermInterface $term */
+  $term = $term_storage->create([
+    'vid' => 'curso',
+    'name' => 'A definir',
+  ]);
+  $term->save();
+  return $term;
+}
+
+/**
+ * Preenche field_vaga_carga_horaria vazio para a pill de horas semanais
+ * no header da página de vaga. Não sobrescreve valor editorial.
+ */
+function custom_configs_update_11055(): string {
+  return _custom_configs_backfill_vaga_carga_horaria();
+}
+
+/**
+ * Placeholder idempotente de carga horária nos nós `vagas`.
+ */
+function _custom_configs_backfill_vaga_carga_horaria(): string {
+  $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+  $vagas = $node_storage->loadByProperties(['type' => 'vagas']);
+
+  if (!$vagas) {
+    return (string) t('Backfill carga horária: nenhum nó do tipo vagas encontrado (no-op).');
+  }
+
+  $placeholder = 'A definir pela empresa.';
+  $updated = 0;
+
+  foreach ($vagas as $node) {
+    /** @var \Drupal\node\NodeInterface $node */
+    if (!$node->hasField('field_vaga_carga_horaria') || !$node->get('field_vaga_carga_horaria')->isEmpty()) {
+      continue;
+    }
+    $node->set('field_vaga_carga_horaria', $placeholder);
+    $node->save();
+    $updated++;
+  }
+
+  if ($updated === 0) {
+    return (string) t('Backfill carga horária: todos os @count nó(s) já possuíam o campo preenchido (no-op).', [
+      '@count' => count($vagas),
+    ]);
+  }
+
+  return (string) t('Backfill carga horária: @count nó(s) preenchido(s) com placeholder.', [
+    '@count' => $updated,
+  ]);
+}
+

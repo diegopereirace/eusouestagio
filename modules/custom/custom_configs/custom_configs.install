@@ -14175,3 +14175,136 @@ function custom_configs_update_11058(): string {
   return _custom_configs_normalize_vaga_beneficios_padrao();
 }
 
+/**
+ * Feature 038 — FAQ Accordion: ensures + seed coleção + vínculo Engenheiro Civil.
+ *
+ * Não cria View. Destino: cim → updb → cim → cr.
+ */
+function custom_configs_update_11059(): string {
+  $messages = [
+    _custom_configs_ensure_faq_structure(),
+    _custom_configs_ensure_faq_item_p(),
+    // Reoculta field_resposta legado no form (ensure_faq_structure pode reexibir).
+    _custom_configs_ensure_field_faq_itens(),
+    _custom_configs_seed_faq_collection_example(),
+    _custom_configs_link_vaga_engenheiro_civil_faq(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Liga a vaga Engenheiro Civil à coleção FAQ seed se field_vaga_faq estiver vazio.
+ *
+ * Não cria a vaga. Não sobrescreve vínculo editorial já preenchido.
+ */
+function _custom_configs_link_vaga_engenheiro_civil_faq(): string {
+  $vaga_uuid = 'a7b8c9d0-e1f2-4345-f678-9abcdef01234';
+  $faq_uuid = 'c3d4e5f6-a7b8-4901-b234-56789abcdef0';
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+
+  $vagas = $storage->loadByProperties(['uuid' => $vaga_uuid]);
+  if (!$vagas) {
+    return (string) t('Vaga Engenheiro Civil ausente (@uuid) — vínculo FAQ não aplicado.', [
+      '@uuid' => $vaga_uuid,
+    ]);
+  }
+
+  /** @var \Drupal\node\NodeInterface $vaga */
+  $vaga = reset($vagas);
+  if (!$vaga->hasField('field_vaga_faq')) {
+    return (string) t('Vaga Engenheiro Civil (@uuid): field_vaga_faq ausente.', [
+      '@uuid' => $vaga_uuid,
+    ]);
+  }
+  if (!$vaga->get('field_vaga_faq')->isEmpty()) {
+    return (string) t('Vaga Engenheiro Civil (@uuid): FAQ já vinculado — preservado.', [
+      '@uuid' => $vaga_uuid,
+    ]);
+  }
+
+  $faqs = $storage->loadByProperties(['uuid' => $faq_uuid]);
+  if (!$faqs) {
+    return (string) t('Coleção FAQ seed ausente (@faq) — vínculo Engenheiro Civil não aplicado.', [
+      '@faq' => $faq_uuid,
+    ]);
+  }
+
+  /** @var \Drupal\node\NodeInterface $faq */
+  $faq = reset($faqs);
+  $vaga->set('field_vaga_faq', $faq->id());
+  $vaga->save();
+
+  return (string) t('Vaga Engenheiro Civil (@uuid): vínculo FAQ seed criado.', [
+    '@uuid' => $vaga_uuid,
+  ]);
+}
+
+/**
+ * Feature 038 follow-up — FAQ seed em todas as vagas com field_vaga_faq vazio.
+ *
+ * Complementa 11059 (só Engenheiro Civil). Destino: cim → updb → cim → cr.
+ */
+function custom_configs_update_11060(): string {
+  $messages = [
+    _custom_configs_seed_faq_collection_example(),
+    _custom_configs_link_vagas_faq_seed_when_empty(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Liga a coleção FAQ seed a todas as vagas com field_vaga_faq vazio.
+ *
+ * Não sobrescreve vínculo editorial. Não cria vagas.
+ */
+function _custom_configs_link_vagas_faq_seed_when_empty(): string {
+  $faq_uuid = 'c3d4e5f6-a7b8-4901-b234-56789abcdef0';
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName('node', 'vagas', 'field_vaga_faq')) {
+    return (string) t('field_vaga_faq ausente — vínculo em massa não aplicado.');
+  }
+
+  $faqs = $storage->loadByProperties(['uuid' => $faq_uuid]);
+  if (!$faqs) {
+    return (string) t('Coleção FAQ seed ausente (@faq) — vínculo em massa não aplicado.', [
+      '@faq' => $faq_uuid,
+    ]);
+  }
+  /** @var \Drupal\node\NodeInterface $faq */
+  $faq = reset($faqs);
+  $faq_id = (int) $faq->id();
+
+  $nids = $storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('type', 'vagas')
+    ->execute();
+  if (!$nids) {
+    return (string) t('Nenhuma vaga encontrada para vínculo FAQ.');
+  }
+
+  $linked = 0;
+  $preserved = 0;
+  $skipped = 0;
+  foreach ($storage->loadMultiple($nids) as $vaga) {
+    /** @var \Drupal\node\NodeInterface $vaga */
+    if (!$vaga->hasField('field_vaga_faq')) {
+      $skipped++;
+      continue;
+    }
+    if (!$vaga->get('field_vaga_faq')->isEmpty()) {
+      $preserved++;
+      continue;
+    }
+    $vaga->set('field_vaga_faq', $faq_id);
+    $vaga->save();
+    $linked++;
+  }
+
+  return (string) t('FAQ seed nas vagas: @linked vinculado(s), @preserved preservado(s), @skipped sem campo.', [
+    '@linked' => $linked,
+    '@preserved' => $preserved,
+    '@skipped' => $skipped,
+  ]);
+}
+

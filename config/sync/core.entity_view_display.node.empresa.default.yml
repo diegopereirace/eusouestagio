@@ -7,6 +7,7 @@ dependencies:
     - field.field.node.empresa.field_estados
     - field.field.node.empresa.field_imagem
     - field.field.node.empresa.field_text_long_formatted
+    - field.field.node.empresa.field_text_simple
     - node.type.empresa
   module:
     - image
@@ -23,15 +24,16 @@ content:
     label: inline
     settings:
       link_to_entity: false
+      link_rel: canonical
     third_party_settings: {  }
-    weight: 2
+    weight: 3
     region: content
   field_estados:
     type: list_default
     label: inline
     settings: {  }
     third_party_settings: {  }
-    weight: 3
+    weight: 4
     region: content
   field_imagem:
     type: image
@@ -48,6 +50,15 @@ content:
     type: text_default
     label: above
     settings: {  }
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_text_simple:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+      link_rel: canonical
     third_party_settings: {  }
     weight: 1
     region: content

@@ -1,0 +1,19 @@
+uuid: 52b40eb4-d284-4cae-b4af-68a344aa36e6
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_text_simple
+    - node.type.empresa
+id: node.empresa.field_text_simple
+field_name: field_text_simple
+entity_type: node
+bundle: empresa
+label: 'Resumo curto'
+description: 'Subtítulo do cartão “Sobre a Empresa” no detalhe da vaga (até 255 caracteres). Não substitui a descrição longa da página da empresa.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

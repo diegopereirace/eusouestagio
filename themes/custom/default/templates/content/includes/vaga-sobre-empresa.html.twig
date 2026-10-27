@@ -1,0 +1,39 @@
+{#
+/**
+ * @file
+ * Cartão "Sobre a Empresa" no detalhe da vaga (feature 037).
+ *
+ * Variáveis (include only):
+ * - empresa_node: node Empresa publicado e acessível (field_vaga_empresa).
+ *
+ * Não lê field_empresa_u. Subtítulo só se field_text_simple trim não vazio.
+ */
+#}
+{% set logo_uri = '' %}
+{% if empresa_node.hasField('field_imagem') and not empresa_node.field_imagem.isEmpty and empresa_node.field_imagem.entity %}
+  {% set logo_uri = empresa_node.field_imagem.entity.uri.value %}
+{% endif %}
+
+{% set resumo = '' %}
+{% if empresa_node.hasField('field_text_simple') and not empresa_node.field_text_simple.isEmpty %}
+  {% set resumo = empresa_node.field_text_simple.value|trim %}
+{% endif %}
+
+<section class="vaga-detalhe__empresa">
+  <div class="vaga-detalhe__empresa-card">
+    {% if logo_uri %}
+      <div class="vaga-detalhe__empresa-logo">
+        <img src="{{ file_url(logo_uri) }}" alt="{{ empresa_node.label }}" width="80" height="80" loading="lazy">
+      </div>
+    {% endif %}
+    <div class="vaga-detalhe__empresa-texts">
+      <h2 class="vaga-detalhe__empresa-card-nome">{{ 'Sobre a @nome'|t({'@nome': empresa_node.label}) }}</h2>
+      {% if resumo %}
+        <p class="vaga-detalhe__empresa-sobre">{{ resumo }}</p>
+      {% endif %}
+    </div>
+    <a href="{{ path('entity.node.canonical', {'node': empresa_node.id}) }}" class="vaga-detalhe__empresa-cta">
+      {{ 'Ver Empresa'|t }}
+    </a>
+  </div>
+</section>

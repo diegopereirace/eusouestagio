@@ -13779,14 +13779,12 @@ function custom_configs_update_11056(): string {
 }
 
 /**
- * Backfill idempotente de field_vaga_beneficios + flip required: TRUE.
+ * Seed canônico dos 4 benefícios Figma (título + asset).
  *
- * Para cada nó `vagas` com a coleção vazia, cria 4 paragraphs beneficio_vaga_p
- * (ícone + título) a partir de assets versionados. Vagas já preenchidas não
- * são tocadas. Se algum asset faltar, aborta sem escrita e sem flipar required.
+ * @return list<array{title: string, file: string}>
  */
-function _custom_configs_backfill_vaga_beneficios_padrao(): string {
-  $seeds = [
+function _custom_configs_vaga_beneficios_padrao_seeds(): array {
+  return [
     [
       'title' => 'Plano de Carreira',
       'file' => 'beneficios-01.png',
@@ -13804,20 +13802,92 @@ function _custom_configs_backfill_vaga_beneficios_padrao(): string {
       'file' => 'beneficios-04.png',
     ],
   ];
+}
 
+/**
+ * Valida legibilidade dos 4 assets de benefícios; NULL se ok, senão mensagem.
+ */
+function _custom_configs_vaga_beneficios_padrao_assets_ok(): ?string {
   $module_path = \Drupal::service('extension.list.module')->getPath('custom_configs');
-  foreach ($seeds as $seed) {
+  foreach (_custom_configs_vaga_beneficios_padrao_seeds() as $seed) {
     $relative = 'beneficios/' . $seed['file'];
     $source = DRUPAL_ROOT . '/' . $module_path . '/assets/' . $relative;
     if (!is_readable($source)) {
-      return (string) t('Backfill benefícios: asset ausente: @path', [
+      return (string) t('Benefícios padrão: asset ausente: @path', [
         '@path' => $relative,
       ]);
     }
   }
+  return NULL;
+}
+
+/**
+ * Cria os 4 paragraphs beneficio_vaga_p padrão (ícone + título).
+ *
+ * @return list<array{target_id: int|string, target_revision_id: int|string}>
+ */
+function _custom_configs_build_vaga_beneficios_padrao_paragraphs(): array {
+  $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
+  $paragraphs = [];
+  foreach (_custom_configs_vaga_beneficios_padrao_seeds() as $seed) {
+    /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
+    $paragraph = $paragraph_storage->create([
+      'type' => 'beneficio_vaga_p',
+      'field_text_simple' => $seed['title'],
+    ]);
+    $paragraph->save();
+
+    $file = _custom_configs_seed_file_from_module_asset(
+      'beneficios/' . $seed['file'],
+      'public://beneficios/' . $seed['file'],
+      'paragraph',
+      (int) $paragraph->id()
+    );
+    if ($file && $paragraph->hasField('field_image')) {
+      $paragraph->set('field_image', [
+        'target_id' => $file->id(),
+        'alt' => $seed['title'],
+      ]);
+      $paragraph->save();
+    }
+
+    $paragraphs[] = [
+      'target_id' => $paragraph->id(),
+      'target_revision_id' => $paragraph->getRevisionId(),
+    ];
+  }
+  return $paragraphs;
+}
+
+/**
+ * True se a vaga já tem exatamente os 4 títulos Figma na ordem canônica.
+ */
+function _custom_configs_vaga_beneficios_ja_padrao(\Drupal\node\NodeInterface $node): bool {
+  $expected = array_column(_custom_configs_vaga_beneficios_padrao_seeds(), 'title');
+  $current = [];
+  foreach ($node->get('field_vaga_beneficios') as $item) {
+    if (!$item->entity) {
+      continue;
+    }
+    $current[] = trim((string) ($item->entity->get('field_text_simple')->value ?? ''));
+  }
+  return $current === $expected;
+}
+
+/**
+ * Backfill idempotente de field_vaga_beneficios + flip required: TRUE.
+ *
+ * Para cada nó `vagas` com a coleção vazia, cria 4 paragraphs beneficio_vaga_p
+ * (ícone + título) a partir de assets versionados. Vagas já preenchidas não
+ * são tocadas. Se algum asset faltar, aborta sem escrita e sem flipar required.
+ */
+function _custom_configs_backfill_vaga_beneficios_padrao(): string {
+  $asset_error = _custom_configs_vaga_beneficios_padrao_assets_ok();
+  if ($asset_error !== NULL) {
+    return str_replace('Benefícios padrão:', 'Backfill benefícios:', $asset_error);
+  }
 
   $node_storage = \Drupal::entityTypeManager()->getStorage('node');
-  $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
   $vagas = $node_storage->loadByProperties(['type' => 'vagas']);
   $total = count($vagas);
   $updated = 0;
@@ -13834,36 +13904,7 @@ function _custom_configs_backfill_vaga_beneficios_padrao(): string {
       continue;
     }
 
-    $paragraphs = [];
-    foreach ($seeds as $seed) {
-      /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
-      $paragraph = $paragraph_storage->create([
-        'type' => 'beneficio_vaga_p',
-        'field_text_simple' => $seed['title'],
-      ]);
-      $paragraph->save();
-
-      $file = _custom_configs_seed_file_from_module_asset(
-        'beneficios/' . $seed['file'],
-        'public://beneficios/' . $seed['file'],
-        'paragraph',
-        (int) $paragraph->id()
-      );
-      if ($file && $paragraph->hasField('field_image')) {
-        $paragraph->set('field_image', [
-          'target_id' => $file->id(),
-          'alt' => $seed['title'],
-        ]);
-        $paragraph->save();
-      }
-
-      $paragraphs[] = [
-        'target_id' => $paragraph->id(),
-        'target_revision_id' => $paragraph->getRevisionId(),
-      ];
-    }
-
-    $node->set('field_vaga_beneficios', $paragraphs);
+    $node->set('field_vaga_beneficios', _custom_configs_build_vaga_beneficios_padrao_paragraphs());
     $node->save();
     $updated++;
   }
@@ -13882,5 +13923,255 @@ function _custom_configs_backfill_vaga_beneficios_padrao(): string {
     '@skipped' => $skipped,
     '@total' => $total,
   ]);
+}
+
+/**
+ * Normaliza TODAS as vagas para os 4 benefícios Figma (substitui editoriais).
+ *
+ * Idempotente: vagas que já têm exatamente os 4 títulos na ordem canônica
+ * não são tocadas. Demais têm a coleção substituída; paragraphs antigos
+ * são removidos após o detach.
+ */
+function _custom_configs_normalize_vaga_beneficios_padrao(): string {
+  $asset_error = _custom_configs_vaga_beneficios_padrao_assets_ok();
+  if ($asset_error !== NULL) {
+    return $asset_error;
+  }
+
+  $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+  $vagas = $node_storage->loadByProperties(['type' => 'vagas']);
+  $total = count($vagas);
+  $updated = 0;
+  $skipped = 0;
+
+  foreach ($vagas as $node) {
+    /** @var \Drupal\node\NodeInterface $node */
+    if (!$node->hasField('field_vaga_beneficios')) {
+      $skipped++;
+      continue;
+    }
+    if (_custom_configs_vaga_beneficios_ja_padrao($node)) {
+      $skipped++;
+      continue;
+    }
+
+    $old_paragraphs = [];
+    foreach ($node->get('field_vaga_beneficios') as $item) {
+      if ($item->entity) {
+        $old_paragraphs[] = $item->entity;
+      }
+    }
+
+    $node->set('field_vaga_beneficios', _custom_configs_build_vaga_beneficios_padrao_paragraphs());
+    $node->save();
+
+    foreach ($old_paragraphs as $old) {
+      $old->delete();
+    }
+    $updated++;
+  }
+
+  return (string) t('Normalizar benefícios: @updated vagas alinhadas ao Figma, @skipped já padrão, @total total.', [
+    '@updated' => $updated,
+    '@skipped' => $skipped,
+    '@total' => $total,
+  ]);
+}
+
+/**
+ * Feature 037 — Resumo curto da Empresa + cartão no detalhe da vaga.
+ *
+ * Destino: cim → updb → cim → cr. Idempotente.
+ * Não reabre 11052. Não cria storage novo (reusa field_text_simple).
+ */
+function custom_configs_update_11057(): string {
+  $messages = [
+    _custom_configs_ensure_empresa_resumo_field(),
+    _custom_configs_ensure_empresa_resumo_displays(),
+    _custom_configs_seed_empresa_resumo(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Garante instance node.empresa.field_text_simple (“Resumo curto”).
+ */
+function _custom_configs_ensure_empresa_resumo_field(): string {
+  $bundle = 'empresa';
+  $field_name = 'field_text_simple';
+
+  if (!\Drupal\node\Entity\NodeType::load($bundle)) {
+    return (string) t('CT empresa ausente — rode ensures 032/034/cim antes.');
+  }
+
+  if (\Drupal\field\Entity\FieldConfig::loadByName('node', $bundle, $field_name)) {
+    return (string) t('Instance node.empresa.field_text_simple já existente.');
+  }
+
+  $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('node', $field_name);
+  if (!$storage) {
+    return (string) t('Storage node.field_text_simple ausente — rode drush cim -y antes do updb.');
+  }
+
+  \Drupal\field\Entity\FieldConfig::create([
+    'field_storage' => $storage,
+    'bundle' => $bundle,
+    'label' => 'Resumo curto',
+    'description' => 'Subtítulo do cartão “Sobre a Empresa” no detalhe da vaga (até 255 caracteres). Não substitui a descrição longa da página da empresa.',
+    'required' => FALSE,
+    'translatable' => FALSE,
+  ])->save();
+
+  return (string) t('Instance node.empresa.field_text_simple criada.');
+}
+
+/**
+ * Garante field_text_simple nos displays default da Empresa (1ª inserção).
+ *
+ * Form: weight 2 entre logo e descrição longa; empurra long/cidade/estado
+ * se ainda estiverem em 2/3/4. View: weight após o logo; mesma regra.
+ * Reexecução: componente presente → não regrava pesos.
+ */
+function _custom_configs_ensure_empresa_resumo_displays(): string {
+  $parts = [];
+  $bundle = 'empresa';
+  $field_name = 'field_text_simple';
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName('node', $bundle, $field_name)) {
+    return (string) t('Instance node.empresa.field_text_simple ausente — displays adiado.');
+  }
+
+  $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+  $view_storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null $form_display */
+  $form_display = $form_storage->load("node.$bundle.default");
+  if (!$form_display) {
+    $form_display = $form_storage->create([
+      'targetEntityType' => 'node',
+      'bundle' => $bundle,
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+
+  if ($form_display->getComponent($field_name) === NULL) {
+    $push_map = [
+      'field_text_long_formatted' => [2, 3],
+      'field_cidade' => [3, 4],
+      'field_estados' => [4, 5],
+    ];
+    foreach ($push_map as $name => [$from, $to]) {
+      $component = $form_display->getComponent($name);
+      if ($component !== NULL && (int) ($component['weight'] ?? -1) === $from) {
+        $component['weight'] = $to;
+        if (!isset($component['third_party_settings']) || !is_array($component['third_party_settings'])) {
+          $component['third_party_settings'] = [];
+        }
+        $form_display->setComponent($name, $component);
+      }
+    }
+    // PathautoWidget exige third_party_settings array; o YAML legado omite a chave.
+    $path_component = $form_display->getComponent('path');
+    if ($path_component !== NULL && (!isset($path_component['third_party_settings']) || !is_array($path_component['third_party_settings']))) {
+      $path_component['third_party_settings'] = [];
+      $form_display->setComponent('path', $path_component);
+    }
+    $form_display->setComponent($field_name, [
+      'type' => 'string_textfield',
+      'weight' => 2,
+      'region' => 'content',
+      'settings' => ['size' => 60, 'placeholder' => ''],
+      'third_party_settings' => [],
+    ]);
+    $form_display->save();
+    $parts[] = (string) t('Form display node.empresa.default: Resumo curto inserido.');
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null $view_display */
+  $view_display = $view_storage->load("node.$bundle.default");
+  if (!$view_display) {
+    $view_display = $view_storage->create([
+      'targetEntityType' => 'node',
+      'bundle' => $bundle,
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+
+  if ($view_display->getComponent($field_name) === NULL) {
+    // Logo em 0; resumo em 1; empurra long/cidade/estado se ainda em 1/2/3.
+    $push_map = [
+      'field_text_long_formatted' => [1, 2],
+      'field_cidade' => [2, 3],
+      'field_estados' => [3, 4],
+    ];
+    foreach ($push_map as $name => [$from, $to]) {
+      $component = $view_display->getComponent($name);
+      if ($component !== NULL && (int) ($component['weight'] ?? -1) === $from) {
+        $component['weight'] = $to;
+        $view_display->setComponent($name, $component);
+      }
+    }
+    $view_display->setComponent($field_name, [
+      'type' => 'string',
+      'weight' => 1,
+      'label' => 'above',
+      'region' => 'content',
+      'settings' => ['link_to_entity' => FALSE],
+      'third_party_settings' => [],
+    ]);
+    $view_display->save();
+    $parts[] = (string) t('View display node.empresa.default: Resumo curto inserido.');
+  }
+
+  if (!$parts) {
+    return (string) t('Displays Resumo curto já ok.');
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Seed do resumo curto da EcoConstrutora (só se vazio).
+ */
+function _custom_configs_seed_empresa_resumo(): string {
+  $uuid = 'f6a7b8c9-d0e1-4234-e567-89abcdef0123';
+  $resumo = 'Líder regional em construções sustentáveis e infraestrutura urbana de alto impacto.';
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $nodes = $storage->loadByProperties(['uuid' => $uuid]);
+  if (!$nodes) {
+    return (string) t('Empresa seed ausente — resumo não aplicado (@uuid).', [
+      '@uuid' => $uuid,
+    ]);
+  }
+
+  /** @var \Drupal\node\NodeInterface $node */
+  $node = reset($nodes);
+  if (!$node->hasField('field_text_simple')) {
+    return (string) t('Empresa EcoConstrutora (@uuid): campo field_text_simple ausente.', [
+      '@uuid' => $uuid,
+    ]);
+  }
+  if (!$node->get('field_text_simple')->isEmpty()) {
+    return (string) t('Empresa EcoConstrutora (@uuid): resumo já preenchido — preservado.', [
+      '@uuid' => $uuid,
+    ]);
+  }
+
+  $node->set('field_text_simple', $resumo);
+  $node->save();
+  return (string) t('Empresa EcoConstrutora (@uuid): resumo curto preenchido.', [
+    '@uuid' => $uuid,
+  ]);
+}
+
+/**
+ * Feature 036 follow-up — Normaliza benefícios de todas as vagas ao Figma.
+ *
+ * Complementa 11056 (que só preenchia coleções vazias): substitui benefícios
+ * editoriais divergentes pelos 4 itens padrão. Destino: cim → updb → cim → cr.
+ */
+function custom_configs_update_11058(): string {
+  return _custom_configs_normalize_vaga_beneficios_padrao();
 }
 

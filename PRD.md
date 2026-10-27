@@ -140,7 +140,7 @@ Atribuição no cadastro: forms de registro adicionam `candidato` ou `empresa` s
 | Quem somos | `quem_somos` | Institucional |
 | Contato | `contato` | Página `/contato` (webform + painel) |
 | Depoimento | `depoimento` | Prova social B2B no carrossel de `/para-empresas` (título = autor; `field_text_simple` cargo; `field_text_simple_long` texto; `field_imagem` foto) |
-| Empresa | `empresa` | Perfil público da organização (título = nome; `field_imagem` = logo; `field_text_long_formatted` = Sobre; `field_cidade` / `field_estados` = local). Página canônica Pathauto `/empresa/[node:title]`; link no nome do header da vaga. **Distinto** da role user `empresa`. Seed EcoConstrutora UUID `f6a7b8c9-d0e1-4234-e567-89abcdef0123` |
+| Empresa | `empresa` | Perfil público da organização (título = nome; `field_imagem` = logo; `field_text_long_formatted` = Sobre; `field_text_simple` = Resumo curto do cartão no detalhe da vaga, opcional ≤255; `field_cidade` / `field_estados` = local). Página canônica Pathauto `/empresa/[node:title]`; o resumo curto **não** entra no Twig da página pública. **Distinto** da role user `empresa`. Seed EcoConstrutora UUID `f6a7b8c9-d0e1-4234-e567-89abcdef0123` |
 | Página básica | `page` | Páginas estáticas; shell de `/para-empresas` (só blocos) |
 
 #### 3.1.0b `/para-empresas` (landing B2B — Página básica)
@@ -168,7 +168,7 @@ Deploy (layout v2 `/quem-somos`): `drush cex` na origem (estrutura em `config/sy
 
 | Campo | Tipo / uso |
 |-------|------------|
-| `field_empresa_u` | Entity reference → `user` (role `empresa`) — legado painel/candidaturas; **não** fonte do header nem da seção pública (034 removeu “Sobre a Empresa” do detalhe) |
+| `field_empresa_u` | Entity reference → `user` (role `empresa`) — legado painel/candidaturas; **não** fonte do header nem do cartão “Sobre a Empresa” (037) |
 | `field_vaga_empresa` | Entity reference card. 1 → node `empresa` — logo/nome (link)/badge no header do detalhe |
 | `field_vaga_carga_horaria` | String — texto da pill de carga (ex. “30h semanais”); distinto de `field_horarios` (turno) |
 | `field_candidatos_u` | Entity reference multi → `user` (legado; ver §1.3) |
@@ -186,11 +186,11 @@ Deploy (layout v2 `/quem-somos`): `drush cex` na origem (estrutura em `config/sy
 | `field_vaga_quantidade` | Integer — quantidade de vagas no resumo (ex. 2, exibido “02”) |
 | `field_vaga_destaque` | Boolean “Destaque” (default off); badge/borda/prioridade na listagem `/vagas`; checkbox no form `default` |
 | `field_vaga_requisitos` | Text long formatted — requisitos com checks CSS no detalhe full |
-| `field_vaga_beneficios` | ERR → paragraph `beneficio_vaga_p` (ícone `field_image` + título `field_text_simple`); **obrigatório** (feature **036** — backfill padrão Figma + `required: true` via `custom_configs_update_11056`) |
+| `field_vaga_beneficios` | ERR → paragraph `beneficio_vaga_p` (ícone `field_image` + título `field_text_simple`); **obrigatório**; 4 itens padrão Figma em todas as vagas (feature **036** — backfill vazias + `required: true` via `11056`; normalização de editoriais divergentes via `11058`) |
 | `field_vaga_etapas_processo` | String multi — schema mantido; **fora** da UI full (031) |
 | `field_vaga_faq` | ER card. **1** → node `faq` (coleção) — accordion Bootstrap no detalhe |
 
-Detalhe full (feature **031** refino de **030** + header **032** + sidebar **033** + página empresa **034**): Twig `node--vagas--full.html.twig` + library `vagas_detalhe` / CSS `.vaga-detalhe` (grid 8/4; header via CT `empresa` / `field_vaga_empresa` — nome com link para `/empresa/*` + `field_vaga_carga_horaria`; coluna principal: Sobre a Vaga / Requisitos / Benefícios / FAQ; **sem** bloco “Sobre a Empresa”; sidebar ações + resumo — Candidatar-se via rota `custom_panel.vagas_candidatar` POST `/vaga/apply/{node}`, Salvar via `custom_panel.vagas_salvas_toggle`; resumo lê `field_vaga_periodo`, `field_text_simple`, `field_regime_t`, `field_vaga_quantidade`; sem Match / Processo / Seu Perfil / CTA inline); página empresa: Twig `node--empresa--full.html.twig` + library `empresa_pagina` + View `empresa_vagas` `block_empresa`; FAQ coleção seed UUID `c3d4e5f6-…def0` (2× `faq_item_p`); CTA final via bloco `cta_v1` placement `default_ctav1vagas`; vaga seed UUID `a7b8c9d0-e1f2-4345-f678-9abcdef01234` (“Engenheiro Civil”, Curitiba/PR, bolsa “R$ 1.500/mês”, período “6 meses +”, quantidade 2, Sobre a Vaga seedado); deploy `custom_configs_update_11048`–`11052` + `drush cex` (destino `cim` → `updb` → `cim` → `cr`). Listagem `/vagas` e cards laranja Home/PE **intactos**. `field_empresa_u` permanece (sem migração em massa).
+Detalhe full (feature **031** refino de **030** + header **032** + sidebar **033** + página empresa **034** + cartão **037**): Twig `node--vagas--full.html.twig` + library `vagas_detalhe` / CSS `.vaga-detalhe` (grid 8/4; header via CT `empresa` / `field_vaga_empresa` — nome + `field_vaga_carga_horaria`; coluna principal: Sobre a Vaga / Requisitos / Benefícios / cartão “Sobre a Empresa” (logo + título + `field_text_simple` da empresa + “Ver Empresa”) / FAQ — cartão só com empresa publicada e `access('view')`; sidebar ações + resumo — Candidatar-se via rota `custom_panel.vagas_candidatar` POST `/vaga/apply/{node}`, Salvar via `custom_panel.vagas_salvas_toggle`; resumo lê `field_vaga_periodo`, `field_text_simple`, `field_regime_t`, `field_vaga_quantidade`; sem Match / Processo / Seu Perfil / CTA inline); página empresa: Twig `node--empresa--full.html.twig` + library `empresa_pagina` + View `empresa_vagas` `block_empresa` (sem imprimir o resumo curto); FAQ coleção seed UUID `c3d4e5f6-…def0` (2× `faq_item_p`); CTA final via bloco `cta_v1` placement `default_ctav1vagas`; vaga seed UUID `a7b8c9d0-e1f2-4345-f678-9abcdef01234` (“Engenheiro Civil”, Curitiba/PR, bolsa “R$ 1.500/mês”, período “6 meses +”, quantidade 2, Sobre a Vaga seedado); deploy `custom_configs_update_11048`–`11052` + `11057` (resumo curto) + `drush cex` (destino `cim` → `updb` → `cim` → `cr`). Listagem `/vagas` e cards laranja Home/PE **intactos**. `field_empresa_u` permanece (sem migração em massa).
 
 #### 3.1.1b `banners`
 

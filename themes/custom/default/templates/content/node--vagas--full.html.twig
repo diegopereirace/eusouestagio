@@ -4,7 +4,8 @@
  * Detalhe full da vaga — layout Figma duas colunas (031) + header empresa (032/034).
  * Sidebar 033: ações (candidatar / salvar / compartilhar) + resumo.
  * Header: field_vaga_empresa (node) — nome sem link (texto + verificado).
- * Sem bloco “Sobre a Empresa” (removido em 034). Sem Match / Processo / Seu Perfil / CTA inline.
+ * Cartão “Sobre a Empresa” (037) entre Benefícios e FAQ — só com empresa publicada/acessível.
+ * Sem Match / Processo / Seu Perfil / CTA inline.
  * FAQ via coleção field_faq_itens. CTA final = bloco default_ctav1vagas.
  * Ícones verificado/localização/check: assets/images/icon-verificado.png,
  * icon-localizacao.png e icon-check.png (design oficial), não Font Awesome.
@@ -151,7 +152,7 @@
                           {% if ben_icon %}
                             <img src="{{ file_url(ben_icon) }}" alt="" width="48" height="48" loading="lazy">
                           {% else %}
-                            <i class="fa-solid fa-gift" aria-hidden="true"></i>
+                            <img src="{{ vaga_beneficio_icon_fallbacks[loop.index0 % 4] }}" alt="" width="48" height="48" loading="lazy">
                           {% endif %}
                         </div>
                         {% if ben_title %}
@@ -164,6 +165,11 @@
               {% endfor %}
             </div>
           </section>
+        {% endif %}
+
+        {# show_empresa_card: preprocess — Twig sandbox não permite Node::access(). #}
+        {% if show_empresa_card and empresa_node %}
+          {% include '@default/content/includes/vaga-sobre-empresa.html.twig' %}
         {% endif %}
 
         {% set faq_paras = [] %}

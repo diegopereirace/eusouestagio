@@ -307,9 +307,30 @@ function _default_format_vaga_postado_ha(int $created): string {
  *
  * O theme registry de node__vagas__full não lista default_preprocess_node__vagas;
  * redispatch explícito para pills/candidatura no detalhe.
+ * Feature 037: flag do cartão Sobre a Empresa (Twig sandbox bloqueia access()).
  */
 function default_preprocess_node__vagas__full(array &$variables): void {
   default_preprocess_node__vagas($variables);
+
+  $variables['show_empresa_card'] = FALSE;
+  $theme_path = \Drupal::service('extension.list.theme')->getPath('default');
+  $icon_base = rtrim(\Drupal::request()->getBasePath(), '/') . '/' . $theme_path . '/assets/images/beneficios/';
+  $variables['vaga_beneficio_icon_fallbacks'] = [
+    $icon_base . 'beneficios-01.png',
+    $icon_base . 'beneficios-02.png',
+    $icon_base . 'beneficios-03.png',
+    $icon_base . 'beneficios-04.png',
+  ];
+  /** @var \Drupal\node\NodeInterface $node */
+  $node = $variables['node'];
+  if ($node->hasField('field_vaga_empresa') && !$node->get('field_vaga_empresa')->isEmpty()) {
+    $empresa = $node->get('field_vaga_empresa')->entity;
+    if ($empresa instanceof \Drupal\node\NodeInterface
+      && $empresa->isPublished()
+      && $empresa->access('view')) {
+      $variables['show_empresa_card'] = TRUE;
+    }
+  }
 }
 
 /**

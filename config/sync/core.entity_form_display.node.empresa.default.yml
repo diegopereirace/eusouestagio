@@ -7,6 +7,7 @@ dependencies:
     - field.field.node.empresa.field_estados
     - field.field.node.empresa.field_imagem
     - field.field.node.empresa.field_text_long_formatted
+    - field.field.node.empresa.field_text_simple
     - image.style.thumbnail
     - node.type.empresa
   module:
@@ -26,7 +27,7 @@ content:
     third_party_settings: {  }
   field_cidade:
     type: string_textfield
-    weight: 3
+    weight: 4
     region: content
     settings:
       size: 60
@@ -34,7 +35,7 @@ content:
     third_party_settings: {  }
   field_estados:
     type: options_select
-    weight: 4
+    weight: 5
     region: content
     settings: {  }
     third_party_settings: {  }
@@ -48,10 +49,18 @@ content:
     third_party_settings: {  }
   field_text_long_formatted:
     type: text_textarea
-    weight: 2
+    weight: 3
     region: content
     settings:
       rows: 8
+      placeholder: ''
+    third_party_settings: {  }
+  field_text_simple:
+    type: string_textfield
+    weight: 2
+    region: content
+    settings:
+      size: 60
       placeholder: ''
     third_party_settings: {  }
   langcode:
@@ -66,6 +75,7 @@ content:
     weight: 30
     region: content
     settings: {  }
+    third_party_settings: {  }
   status:
     type: boolean_checkbox
     weight: 120

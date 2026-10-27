@@ -312,25 +312,53 @@
   }
 }
 
-/* FAQ accordion */
+/* FAQ accordion — cards isolados (038) */
+.vaga-detalhe__faq .accordion {
+  --bs-accordion-btn-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%231a2b3c'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  --bs-accordion-btn-active-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%231a2b3c'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  --bs-accordion-border-width: 0;
+  --bs-accordion-border-color: transparent;
+  --bs-accordion-btn-focus-border-color: transparent;
+  --bs-accordion-active-color: var(--vd-navy);
+  --bs-accordion-active-bg: #fff;
+  --bs-accordion-btn-bg: #fff;
+  --bs-accordion-bg: #fff;
+}
+
 .vaga-detalhe__faq .accordion-item {
-  border-color: var(--vd-border);
+  margin-bottom: 1rem;
+  background: #fff;
+  border: 1px solid var(--vd-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.vaga-detalhe__faq .accordion-item:last-child {
+  margin-bottom: 0;
 }
 
 .vaga-detalhe__faq .accordion-button {
   font-weight: 600;
   color: var(--vd-navy);
   background: #fff;
+  box-shadow: none;
+  white-space: normal;
+  text-align: left;
 }
 
 .vaga-detalhe__faq .accordion-button:not(.collapsed) {
   color: var(--vd-navy);
-  background: #f7fafc;
+  background: #fff;
   box-shadow: none;
 }
 
 .vaga-detalhe__faq .accordion-button:focus {
   box-shadow: 0 0 0 0.2rem rgba(2, 60, 98, 0.15);
+}
+
+.vaga-detalhe__faq .accordion-button::after {
+  flex-shrink: 0;
+  margin-left: 0.75rem;
 }
 
 /* Sidebar — ações + resumo (sem perfil / sem match) */

@@ -13769,3 +13769,118 @@ function _custom_configs_backfill_vaga_carga_horaria(): string {
   ]);
 }
 
+/**
+ * Feature 036 — Benefícios padrão em todas as vagas (backfill + required).
+ *
+ * Destino: cim → updb → cim → cr.
+ */
+function custom_configs_update_11056(): string {
+  return _custom_configs_backfill_vaga_beneficios_padrao();
+}
+
+/**
+ * Backfill idempotente de field_vaga_beneficios + flip required: TRUE.
+ *
+ * Para cada nó `vagas` com a coleção vazia, cria 4 paragraphs beneficio_vaga_p
+ * (ícone + título) a partir de assets versionados. Vagas já preenchidas não
+ * são tocadas. Se algum asset faltar, aborta sem escrita e sem flipar required.
+ */
+function _custom_configs_backfill_vaga_beneficios_padrao(): string {
+  $seeds = [
+    [
+      'title' => 'Plano de Carreira',
+      'file' => 'beneficios-01.png',
+    ],
+    [
+      'title' => 'Vale Transporte',
+      'file' => 'beneficios-02.png',
+    ],
+    [
+      'title' => 'Vale Refeição',
+      'file' => 'beneficios-03.png',
+    ],
+    [
+      'title' => 'Horário Flexível',
+      'file' => 'beneficios-04.png',
+    ],
+  ];
+
+  $module_path = \Drupal::service('extension.list.module')->getPath('custom_configs');
+  foreach ($seeds as $seed) {
+    $relative = 'beneficios/' . $seed['file'];
+    $source = DRUPAL_ROOT . '/' . $module_path . '/assets/' . $relative;
+    if (!is_readable($source)) {
+      return (string) t('Backfill benefícios: asset ausente: @path', [
+        '@path' => $relative,
+      ]);
+    }
+  }
+
+  $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+  $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
+  $vagas = $node_storage->loadByProperties(['type' => 'vagas']);
+  $total = count($vagas);
+  $updated = 0;
+  $skipped = 0;
+
+  foreach ($vagas as $node) {
+    /** @var \Drupal\node\NodeInterface $node */
+    if (!$node->hasField('field_vaga_beneficios')) {
+      $skipped++;
+      continue;
+    }
+    if (!$node->get('field_vaga_beneficios')->isEmpty()) {
+      $skipped++;
+      continue;
+    }
+
+    $paragraphs = [];
+    foreach ($seeds as $seed) {
+      /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
+      $paragraph = $paragraph_storage->create([
+        'type' => 'beneficio_vaga_p',
+        'field_text_simple' => $seed['title'],
+      ]);
+      $paragraph->save();
+
+      $file = _custom_configs_seed_file_from_module_asset(
+        'beneficios/' . $seed['file'],
+        'public://beneficios/' . $seed['file'],
+        'paragraph',
+        (int) $paragraph->id()
+      );
+      if ($file && $paragraph->hasField('field_image')) {
+        $paragraph->set('field_image', [
+          'target_id' => $file->id(),
+          'alt' => $seed['title'],
+        ]);
+        $paragraph->save();
+      }
+
+      $paragraphs[] = [
+        'target_id' => $paragraph->id(),
+        'target_revision_id' => $paragraph->getRevisionId(),
+      ];
+    }
+
+    $node->set('field_vaga_beneficios', $paragraphs);
+    $node->save();
+    $updated++;
+  }
+
+  /** @var \Drupal\field\Entity\FieldConfig|null $field */
+  $field = \Drupal::entityTypeManager()
+    ->getStorage('field_config')
+    ->load('node.vagas.field_vaga_beneficios');
+  if ($field && !$field->isRequired()) {
+    $field->setRequired(TRUE);
+    $field->save();
+  }
+
+  return (string) t('Backfill benefícios: @updated vagas atualizadas, @skipped já preenchidas, @total total.', [
+    '@updated' => $updated,
+    '@skipped' => $skipped,
+    '@total' => $total,
+  ]);
+}
+

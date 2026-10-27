@@ -203,7 +203,7 @@
   background: #fff;
   border: 1px solid var(--vd-border);
   border-radius: 12px;
-  padding: 1rem 0.75rem;
+  padding: 1.25rem 1rem;
   text-align: center;
   height: 100%;
   min-height: 7rem;
@@ -215,18 +215,18 @@
 }
 
 .vaga-detalhe__beneficio-icon {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 3rem;
+  height: 3rem;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--vd-navy);
-  font-size: 1.25rem;
+  font-size: 1.5rem;
 }
 
 .vaga-detalhe__beneficio-icon img {
-  max-width: 32px;
-  max-height: 32px;
+  max-width: 48px;
+  max-height: 48px;
   object-fit: contain;
 }
 
@@ -234,7 +234,7 @@
   margin: 0;
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--vd-text);
+  color: var(--vd-navy);
 }
 
 /* Empresa card — sem Ver Empresa */

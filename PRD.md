@@ -186,7 +186,7 @@ Deploy (layout v2 `/quem-somos`): `drush cex` na origem (estrutura em `config/sy
 | `field_vaga_quantidade` | Integer — quantidade de vagas no resumo (ex. 2, exibido “02”) |
 | `field_vaga_destaque` | Boolean “Destaque” (default off); badge/borda/prioridade na listagem `/vagas`; checkbox no form `default` |
 | `field_vaga_requisitos` | Text long formatted — requisitos com checks CSS no detalhe full |
-| `field_vaga_beneficios` | ERR → paragraph `beneficio_vaga_p` (ícone `field_image` + título `field_text_simple`) |
+| `field_vaga_beneficios` | ERR → paragraph `beneficio_vaga_p` (ícone `field_image` + título `field_text_simple`); **obrigatório** (feature **036** — backfill padrão Figma + `required: true` via `custom_configs_update_11056`) |
 | `field_vaga_etapas_processo` | String multi — schema mantido; **fora** da UI full (031) |
 | `field_vaga_faq` | ER card. **1** → node `faq` (coleção) — accordion Bootstrap no detalhe |
 

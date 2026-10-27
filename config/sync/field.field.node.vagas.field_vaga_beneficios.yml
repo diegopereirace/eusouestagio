@@ -14,7 +14,7 @@ entity_type: node
 bundle: vagas
 label: Benefícios
 description: 'Benefícios com ícone e título (paragraph beneficio_vaga_p).'
-required: false
+required: true
 translatable: false
 default_value: {  }
 default_value_callback: ''

@@ -20,7 +20,7 @@
     <div class="vaga-detalhe__beneficio-icon">
       {% if has_icon %}
         {% set icon_uri = content.field_image['#items'][0].entity.uri.value %}
-        <img src="{{ file_url(icon_uri) }}" alt="" width="32" height="32" loading="lazy">
+        <img src="{{ file_url(icon_uri) }}" alt="" width="48" height="48" loading="lazy">
       {% else %}
         <i class="fa-solid fa-gift" aria-hidden="true"></i>
       {% endif %}

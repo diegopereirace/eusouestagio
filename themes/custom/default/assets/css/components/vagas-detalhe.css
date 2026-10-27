@@ -17,7 +17,7 @@
 
 .vaga-detalhe__header {
   margin-bottom: 2rem;
-  padding: 1.25rem 1.5rem 1.15rem;
+  padding: 1.75rem 2rem;
   background: #fff;
   border: 1px solid var(--vd-border);
   border-radius: 16px;
@@ -25,14 +25,14 @@
 
 .vaga-detalhe__header-top {
   display: flex;
-  gap: 1rem;
+  gap: 1.25rem;
   align-items: center;
 }
 
 .vaga-detalhe__logo img {
   display: block;
-  width: 100px;
-  height: 100px;
+  width: 112px;
+  height: 112px;
   object-fit: cover;
   border-radius: 12px;
   border: 1px solid var(--vd-border);
@@ -56,10 +56,10 @@
 }
 
 .vaga-detalhe__title {
-  font-size: clamp(1.5rem, 2.5vw, 2rem);
-  font-weight: 600;
+  font-size: clamp(1.75rem, 2.8vw, 2.25rem);
+  font-weight: 700;
   color: var(--vd-navy);
-  margin: 0 0 0.2rem;
+  margin: 0 0 0.35rem;
   line-height: 1.2;
   word-break: break-word;
 }
@@ -68,9 +68,9 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.35rem 0.5rem;
+  gap: 0.4rem 0.6rem;
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 1rem;
   color: var(--vd-text);
 }
 
@@ -87,9 +87,13 @@ a.vaga-detalhe__empresa-nome:focus {
   text-decoration: underline;
 }
 
+/* Ícone "Empresa verificada" (asset do design — não Font Awesome). */
 .vaga-detalhe__verified {
-  color: #16a34a;
-  font-size: 0.95rem;
+  display: inline-block;
+  width: 1.0625rem;
+  height: 1rem;
+  background: url('../../images/icon-verificado.png') no-repeat center / contain;
+  flex-shrink: 0;
 }
 
 .vaga-detalhe__meta-sep {
@@ -99,34 +103,45 @@ a.vaga-detalhe__empresa-nome:focus {
 .vaga-detalhe__local {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
   margin: 0;
   color: var(--vd-muted);
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
-.vaga-detalhe__local i {
-  color: var(--vd-navy);
+/* Ícone de localização (asset do design — não Font Awesome). */
+.vaga-detalhe__local-icon {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.9375rem;
+  background: url('../../images/icon-localizacao.png') no-repeat center / contain;
+  flex-shrink: 0;
 }
 
 .vaga-detalhe__badges {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.65rem;
+  gap: 0.6rem;
+  margin-top: 1rem;
 }
 
 .vaga-detalhe__badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.28rem 0.85rem;
+  padding: 0.4rem 1rem;
   border-radius: 999px;
   background: var(--vd-pill-bg);
   color: var(--vd-navy);
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   font-weight: 600;
   line-height: 1.35;
+}
+
+/* Badge de regime (Presencial/Remoto/Híbrido) — destaque em azul, 1º badge do header. */
+.vaga-detalhe__badge--regime {
+  background: #e3f0ff;
+  color: #0b5ed7;
 }
 
 /* Legado — seção Sobre / usos fora do header unificado. */
@@ -136,8 +151,8 @@ a.vaga-detalhe__empresa-nome:focus {
 }
 
 .vaga-detalhe__badge--muted {
-  background: #f0f2f5;
-  color: var(--vd-muted);
+  background: #f4f5f7;
+  color: #9aa1ab;
   font-weight: 500;
 }
 
@@ -465,7 +480,7 @@ a.vaga-detalhe__empresa-nome:focus {
 
 @media (max-width: 576px) {
   .vaga-detalhe__header {
-    padding: 1rem 0.9rem 0.9rem;
+    padding: 1.25rem 1rem;
   }
 
   .vaga-detalhe__header-top {
@@ -475,11 +490,11 @@ a.vaga-detalhe__empresa-nome:focus {
   }
 
   .vaga-detalhe__logo img {
-    width: 80px;
-    height: 80px;
+    width: 84px;
+    height: 84px;
   }
 
   .vaga-detalhe__meta {
-    row-gap: 0.25rem;
+    row-gap: 0.3rem;
   }
 }

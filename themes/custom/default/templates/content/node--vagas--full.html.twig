@@ -3,11 +3,11 @@
  * @file
  * Detalhe full da vaga — layout Figma duas colunas (031) + header empresa (032/034).
  * Sidebar 033: ações (candidatar / salvar / compartilhar) + resumo.
- * Header: field_vaga_empresa (node) com link para página pública da empresa (034).
+ * Header: field_vaga_empresa (node) — nome sem link (texto + verificado).
  * Sem bloco “Sobre a Empresa” (removido em 034). Sem Match / Processo / Seu Perfil / CTA inline.
  * FAQ via coleção field_faq_itens. CTA final = bloco default_ctav1vagas.
- * Ícones verificado/localização: assets/images/icon-verificado.png e
- * icon-localizacao.png (design oficial), não Font Awesome.
+ * Ícones verificado/localização/check: assets/images/icon-verificado.png,
+ * icon-localizacao.png e icon-check.png (design oficial), não Font Awesome.
  */
 #}
 {{ attach_library('bootstrap_barrio/node') }}
@@ -30,12 +30,10 @@
 {# Header 032/034 — node Empresa publicado/acessível via field_vaga_empresa. #}
 {% set empresa_node = null %}
 {% set header_logo_uri = '' %}
-{% set empresa_url = '' %}
 {% if node.hasField('field_vaga_empresa') and node.field_vaga_empresa is not empty and node.field_vaga_empresa.entity %}
   {% set _empresa_candidate = node.field_vaga_empresa.entity %}
   {% if _empresa_candidate.isPublished() %}
     {% set empresa_node = _empresa_candidate %}
-    {% set empresa_url = path('entity.node.canonical', {'node': empresa_node.id}) %}
     {% if empresa_node.hasField('field_imagem') and not empresa_node.field_imagem.isEmpty and empresa_node.field_imagem.entity %}
       {% set header_logo_uri = empresa_node.field_imagem.entity.uri.value %}
     {% endif %}
@@ -78,7 +76,7 @@
               {% if empresa_node or local_label %}
                 <p class="vaga-detalhe__meta">
                   {% if empresa_node %}
-                    <a href="{{ empresa_url }}" class="vaga-detalhe__empresa-nome">{{ empresa_node.label }}</a>
+                    <span class="vaga-detalhe__empresa-nome">{{ empresa_node.label }}</span>
                     <span class="vaga-detalhe__verified" role="img" aria-label="{{ 'Empresa verificada'|t }}" title="{{ 'Empresa verificada'|t }}"></span>
                   {% endif %}
                   {% if empresa_node and local_label %}

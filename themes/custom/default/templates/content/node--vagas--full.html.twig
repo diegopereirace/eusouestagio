@@ -6,6 +6,8 @@
  * Header: field_vaga_empresa (node) com link para página pública da empresa (034).
  * Sem bloco “Sobre a Empresa” (removido em 034). Sem Match / Processo / Seu Perfil / CTA inline.
  * FAQ via coleção field_faq_itens. CTA final = bloco default_ctav1vagas.
+ * Ícones verificado/localização: assets/images/icon-verificado.png e
+ * icon-localizacao.png (design oficial), não Font Awesome.
  */
 #}
 {{ attach_library('bootstrap_barrio/node') }}
@@ -68,7 +70,7 @@
           <div class="vaga-detalhe__header-top">
             {% if header_logo_uri %}
               <div class="vaga-detalhe__logo">
-                <img src="{{ file_url(header_logo_uri) }}" alt="{{ empresa_node.label }}" width="96" height="96" loading="lazy">
+                <img src="{{ file_url(header_logo_uri) }}" alt="{{ empresa_node.label }}" width="112" height="112" loading="lazy">
               </div>
             {% endif %}
             <div class="vaga-detalhe__header-text">
@@ -77,14 +79,14 @@
                 <p class="vaga-detalhe__meta">
                   {% if empresa_node %}
                     <a href="{{ empresa_url }}" class="vaga-detalhe__empresa-nome">{{ empresa_node.label }}</a>
-                    <i class="fa-solid fa-circle-check vaga-detalhe__verified" aria-hidden="true" title="{{ 'Empresa verificada'|t }}"></i>
+                    <span class="vaga-detalhe__verified" role="img" aria-label="{{ 'Empresa verificada'|t }}" title="{{ 'Empresa verificada'|t }}"></span>
                   {% endif %}
                   {% if empresa_node and local_label %}
                     <span class="vaga-detalhe__meta-sep" aria-hidden="true">•</span>
                   {% endif %}
                   {% if local_label %}
                     <span class="vaga-detalhe__local">
-                      <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                      <span class="vaga-detalhe__local-icon" aria-hidden="true"></span>
                       {{ local_label }}
                     </span>
                   {% endif %}
@@ -96,7 +98,7 @@
             {% if node.field_regime_t is not empty %}
               {% for item in node.field_regime_t %}
                 {% if item.entity %}
-                  <span class="vaga-detalhe__badge">{{ item.entity.label }}</span>
+                  <span class="vaga-detalhe__badge vaga-detalhe__badge--regime">{{ item.entity.label }}</span>
                 {% endif %}
               {% endfor %}
             {% endif %}

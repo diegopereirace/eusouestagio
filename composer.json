@@ -22,7 +22,7 @@
         "drupal/devel": "5.5",
         "drupal/devel_php": "2.0.1",
         "drupal/field_group": "4.0",
-        "drupal/metatag": "2.2.3",
+        "drupal/metatag": "2.2.4",
         "drupal/mimemail": "^2.0",
         "drupal/paragraphs": "^1.21",
         "drupal/pathauto": "1.15",

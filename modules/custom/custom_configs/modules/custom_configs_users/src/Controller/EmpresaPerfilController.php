@@ -26,6 +26,7 @@ class EmpresaPerfilController extends ControllerBase
             // Dados da empresa.
             'razao_social'          => $this->fieldVal($user, 'field_razao_social'),
             'nome_fantasia'         => $this->fieldVal($user, 'field_nome_fantasia'),
+            'logo_url'              => $this->pictureUrl($user),
             // Endereço (campos compartilhados com candidato).
             'cep'                   => $this->fieldVal($user, 'field_cep'),
             'endereco'              => $this->fieldVal($user, 'field_endereco'),
@@ -43,6 +44,9 @@ class EmpresaPerfilController extends ControllerBase
             '#theme' => 'empresa_perfil',
             '#dados' => $dados,
             '#user'  => $user,
+            '#cache' => [
+                'tags' => $user->getCacheTags(),
+            ],
         ];
     }
 
@@ -56,5 +60,17 @@ class EmpresaPerfilController extends ControllerBase
             return '';
         }
         return (string) $field->value;
+    }
+
+    private function pictureUrl(User $user): string
+    {
+        if (!$user->hasField('user_picture') || $user->get('user_picture')->isEmpty()) {
+            return '';
+        }
+        $file = $user->get('user_picture')->entity;
+        if (!$file) {
+            return '';
+        }
+        return \Drupal::service('file_url_generator')->generateString($file->getFileUri());
     }
 }

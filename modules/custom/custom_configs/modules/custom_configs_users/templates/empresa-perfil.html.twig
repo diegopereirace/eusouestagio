@@ -12,12 +12,17 @@
 <div class="empresa-perfil container py-4">
 
   {# ── Cabeçalho ──────────────────────────────────────────── #}
-  <div class="mb-4">
-    <h2 class="mb-0">{{ dados.razao_social ?: user.name.value }}</h2>
-    {% if dados.nome_fantasia %}
-      <p class="text-muted mb-0">{{ dados.nome_fantasia }}</p>
+  <div class="mb-4 d-flex align-items-center gap-3">
+    {% if dados.logo_url %}
+      <img src="{{ dados.logo_url }}" alt="{{ dados.nome_fantasia ?: dados.razao_social }}" width="72" height="72" class="rounded border object-fit-contain bg-white" loading="lazy">
     {% endif %}
-    <small class="text-muted">{{ user.mail.value }}</small>
+    <div>
+      <h2 class="mb-0">{{ dados.razao_social ?: user.name.value }}</h2>
+      {% if dados.nome_fantasia %}
+        <p class="text-muted mb-0">{{ dados.nome_fantasia }}</p>
+      {% endif %}
+      <small class="text-muted">{{ user.mail.value }}</small>
+    </div>
   </div>
 
   {# ── Seção 1 — Dados da Empresa ──────────────────────────── #}

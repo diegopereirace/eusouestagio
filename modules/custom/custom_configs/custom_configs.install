@@ -14568,6 +14568,7 @@ function _custom_configs_seed_empresas_validacao(): string {
     if ($node->hasField('field_estados')) {
       $node->set('field_estados', $row['uf']);
     }
+    $node->setSyncing(TRUE);
     $node->save();
 
     if ($node->hasField('field_imagem')) {
@@ -14582,6 +14583,7 @@ function _custom_configs_seed_empresas_validacao(): string {
           'target_id' => $file->id(),
           'alt' => $row['empresa_title'],
         ]);
+        $node->setSyncing(TRUE);
         $node->save();
       }
     }
@@ -14654,6 +14656,8 @@ function _custom_configs_seed_users_empresa_validacao(): string {
       $user->set('field_termo', 1);
     }
 
+    // Evita e-mails de “nova empresa” durante seed de validação.
+    $user->setSyncing(TRUE);
     $user->save();
 
     if ($user->hasField('user_picture')) {
@@ -14665,6 +14669,7 @@ function _custom_configs_seed_users_empresa_validacao(): string {
       );
       if ($file) {
         $user->set('user_picture', ['target_id' => $file->id()]);
+        $user->setSyncing(TRUE);
         $user->save();
       }
     }
@@ -14814,6 +14819,7 @@ function _custom_configs_seed_vagas_validacao(): string {
     }
 
     // Benefícios: sempre recria padrão para seed de validação.
+    $node->setSyncing(TRUE);
     if ($node->hasField('field_vaga_beneficios')) {
       $old_pids = [];
       foreach ($node->get('field_vaga_beneficios') as $item) {

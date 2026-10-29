@@ -5,8 +5,12 @@
  * Functions to support theming in the SASS Starterkit subtheme.
  */
 
+use Drupal\block\Entity\Block;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Access\AccessResultInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Markup;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\node\NodeInterface;
 use Drupal\user\UserInterface;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
@@ -334,6 +338,57 @@ function default_preprocess_node__vagas__full(array &$variables): void {
 }
 
 /**
+ * Indica se o usuário já possui node candidatura para a vaga.
+ */
+function _default_user_has_candidatura_vaga(int $uid, int $nid): bool
+{
+  if ($uid <= 0 || $nid <= 0) {
+    return FALSE;
+  }
+  $ids = \Drupal::entityTypeManager()->getStorage('node')->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('type', 'candidatura')
+    ->condition('field_candidatura_candidato', $uid)
+    ->condition('field_candidatura_vaga', $nid)
+    ->range(0, 1)
+    ->execute();
+  return !empty($ids);
+}
+
+/**
+ * Implements hook_block_access().
+ *
+ * CTA vagas (default_ctav1vagas): oculto se o candidato já se candidatou à vaga da rota.
+ */
+function default_block_access(Block $block, $operation, AccountInterface $account): AccessResultInterface
+{
+  if ($operation !== 'view' || $block->id() !== 'default_ctav1vagas') {
+    return AccessResult::neutral();
+  }
+
+  $cache = AccessResult::neutral()
+    ->addCacheContexts(['user', 'route'])
+    ->addCacheTags(['node_list:candidatura']);
+
+  $node = \Drupal::routeMatch()->getParameter('node');
+  if (!$node instanceof NodeInterface || $node->bundle() !== 'vagas') {
+    return $cache;
+  }
+
+  if (
+    $account->isAuthenticated()
+    && in_array('candidato', $account->getRoles(), TRUE)
+    && _default_user_has_candidatura_vaga((int) $account->id(), (int) $node->id())
+  ) {
+    return AccessResult::forbidden()
+      ->addCacheContexts(['user', 'route'])
+      ->addCacheTags(['node_list:candidatura']);
+  }
+
+  return $cache;
+}
+
+/**
  * Implements hook_preprocess_node() for vagas nodes.
  *
  * Verifica se a vaga já está salva pelo estudante logado.
@@ -365,16 +420,7 @@ function default_preprocess_node__vagas(&$variables)
       $variables['vaga_salva'] = !empty($exists_salva);
     }
 
-    // Verifica se o usuário já se candidatou a esta vaga.
-    $storage = \Drupal::entityTypeManager()->getStorage('node');
-    $candidacy_query = $storage->getQuery()
-      ->accessCheck(FALSE)
-      ->condition('type', 'candidatura')
-      ->condition('field_candidatura_candidato', $uid)
-      ->condition('field_candidatura_vaga', $nid)
-      ->range(0, 1);
-    $candidacy_nids = $candidacy_query->execute();
-    $variables['vaga_candidatada'] = !empty($candidacy_nids);
+    $variables['vaga_candidatada'] = _default_user_has_candidatura_vaga($uid, $nid);
   }
 }
 

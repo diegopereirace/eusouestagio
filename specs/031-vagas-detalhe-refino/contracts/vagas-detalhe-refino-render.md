@@ -54,11 +54,12 @@
 
 | Regra | Valor |
 |-------|--------|
-| Visível | somente rotas de node `vagas` |
+| Visível | somente rotas de node `vagas`; **oculto** se o usuário logado com role `candidato` já possui node `candidatura` para a vaga da página (`hook_block_access` em `default.theme`) |
 | Posição | região `content_full` após `page.content` |
-| Visual | fundo `#023C62`; library `cta_v1_vagas` |
+| Visual | card `#023C62` com `border-radius` ~24px na largura da coluna principal (`container` → `row` → `col-lg-8`; ref. Figma ~768×334 / botão ~672×72); library `cta_v1_vagas` — **não** faixa full-bleed |
 | Isolamento | não alterar CTAs claros QS/PE nem CTA escuro PE estudantes |
 | Copy seed | “Pronto para o próximo passo?” + corpo + “Candidatar-se Agora” |
+| Cache | contexts `user` + `route`; tag `node_list:candidatura` |
 
 ## Header global
 

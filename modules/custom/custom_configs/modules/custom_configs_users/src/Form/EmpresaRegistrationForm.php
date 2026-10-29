@@ -5,6 +5,7 @@ namespace Drupal\custom_configs_users\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\file\Entity\File;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
@@ -77,6 +78,7 @@ class EmpresaRegistrationForm extends FormBase
         $verify_mail = (bool) \Drupal::config('user.settings')->get('verify_mail');
 
         $form['#attributes']['novalidate'] = 'novalidate';
+        $form['#attributes']['enctype'] = 'multipart/form-data';
 
         $form['messages'] = [
             '#type' => 'status_messages',
@@ -222,6 +224,22 @@ class EmpresaRegistrationForm extends FormBase
             '#title' => $this->t('Sobre a Empresa'),
             '#rows' => 5,
             '#attributes' => ['class' => ['form-control']],
+        ];
+
+        $form['section_empresa']['row']['col_logo'] = [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['col-12', 'col-md-6']],
+        ];
+        $form['section_empresa']['row']['col_logo']['user_picture'] = [
+            '#type' => 'managed_file',
+            '#title' => $this->t('Logo da empresa'),
+            '#description' => $this->t('PNG, JPG, GIF ou WebP. Recomendado quadrado.'),
+            '#upload_location' => 'public://pictures/empresa/',
+            '#upload_validators' => [
+                'FileExtension' => ['extensions' => 'png gif jpg jpeg webp'],
+                'FileSizeLimit' => ['fileLimit' => 2 * 1024 * 1024],
+            ],
+            '#required' => FALSE,
         ];
 
         // ── Seção 3 — Endereço ─────────────────────────────────────
@@ -528,6 +546,19 @@ class EmpresaRegistrationForm extends FormBase
         }
 
         $user->save();
+
+        $picture_fids = $form_state->getValue('user_picture');
+        if ($user->hasField('user_picture') && is_array($picture_fids) && !empty($picture_fids[0])) {
+            $file = File::load((int) $picture_fids[0]);
+            if ($file) {
+                $file->setPermanent();
+                $file->save();
+                \Drupal::service('file.usage')->add($file, 'custom_configs_users', 'user', (int) $user->id());
+                $user->set('user_picture', ['target_id' => $file->id()]);
+                $user->save();
+            }
+        }
+
         $user->password = $account_password;
 
         if (!$user->id()) {

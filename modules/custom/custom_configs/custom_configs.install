@@ -14308,3 +14308,542 @@ function _custom_configs_link_vagas_faq_seed_when_empty(): string {
   ]);
 }
 
+/**
+ * Feature 039 — Wipe vagas + seed 15 empresas/users/vagas para validação.
+ *
+ * DESTRUTIVO: remove todas as vagas e candidaturas; empresas fora do seed.
+ * Destino: cim → updb → cim → cr.
+ */
+function custom_configs_update_11061(): string {
+  $messages = [
+    _custom_configs_purge_vagas_validacao_garbage(),
+    _custom_configs_seed_faq_collection_example(),
+    _custom_configs_seed_empresas_validacao(),
+    _custom_configs_seed_users_empresa_validacao(),
+    _custom_configs_seed_vagas_validacao(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Catálogo canônico dos 15 pares empresa/user/vaga (feature 039).
+ *
+ * @return list<array<string, mixed>>
+ */
+function _custom_configs_vagas_validacao_catalog(): array {
+  $rows = [
+    [1, 'EcoTech Soluções', 'Estágio em Desenvolvimento Web', 'São Paulo', 'SP', TRUE, 'Ciência da Computação', 'Remoto', 'superior', 'manha', 'Centro'],
+    [2, 'Nova Saúde Clínica', 'Estágio em Enfermagem', 'Rio de Janeiro', 'RJ', FALSE, 'Enfermagem', 'Presencial', 'superior', 'tarde', 'Botafogo'],
+    [3, 'Atlas Engenharia', 'Estágio em Engenharia Civil', 'Curitiba', 'PR', FALSE, 'Engenharia Civil', 'Presencial', 'superior', 'manha', 'Batel'],
+    [4, 'Horizonte Educacional', 'Estágio em Pedagogia', 'Belo Horizonte', 'MG', FALSE, 'Pedagogia', 'Híbrido', 'superior', 'tarde', 'Savassi'],
+    [5, 'Finança Clara', 'Estágio em Administração', 'São Paulo', 'SP', TRUE, 'Administração', 'Remoto', 'superior', 'manha', 'Pinheiros'],
+    [6, 'Verde Agro', 'Estágio em Agronomia', 'Goiânia', 'GO', FALSE, 'Agronomia', 'Presencial', 'superior', 'manha', 'Setor Bueno'],
+    [7, 'Pixel Design Studio', 'Estágio em Design Gráfico', 'Florianópolis', 'SC', FALSE, 'Design', 'Híbrido', 'superior', 'tarde', 'Centro'],
+    [8, 'Lex Advogados', 'Estágio em Direito', 'Brasília', 'DF', FALSE, 'Direito', 'Presencial', 'superior', 'manha', 'Asa Sul'],
+    [9, 'NutriVida', 'Estágio em Nutrição', 'Porto Alegre', 'RS', FALSE, 'Nutrição', 'Presencial', 'superior', 'tarde', 'Moinhos'],
+    [10, 'DataFlow Analytics', 'Estágio em Ciência de Dados', 'Campinas', 'SP', TRUE, 'Ciência da Computação', 'Remoto', 'superior', 'manha', 'Cambuí'],
+    [11, 'ConstruMais', 'Estágio em Arquitetura', 'Salvador', 'BA', FALSE, 'Arquitetura', 'Presencial', 'superior', 'tarde', 'Barra'],
+    [12, 'SoftNorth', 'Estágio em QA', 'Fortaleza', 'CE', FALSE, 'Sistemas de Informação', 'Híbrido', 'superior', 'manha', 'Aldeota'],
+    [13, 'Mercado Local', 'Estágio em Marketing', 'Recife', 'PE', FALSE, 'Marketing', 'Remoto', 'superior', 'noite', 'Boa Viagem'],
+    [14, 'BioLab Pesquisa', 'Estágio em Biomedicina', 'Londrina', 'PR', FALSE, 'Biomedicina', 'Presencial', 'superior', 'manha', 'Centro'],
+    [15, 'LogiMove', 'Estágio em Logística', 'Manaus', 'AM', FALSE, 'Logística', 'Presencial', 'tecnico', 'tarde', 'Adrianópolis'],
+  ];
+
+  $catalog = [];
+  foreach ($rows as $row) {
+    [$nn, $empresa, $vaga, $cidade, $uf, $destaque, $curso, $regime, $escolaridade, $horario, $bairro] = $row;
+    $pad = str_pad((string) $nn, 2, '0', STR_PAD_LEFT);
+    $catalog[] = [
+      'nn' => $nn,
+      'pad' => $pad,
+      'empresa_uuid' => sprintf('b039e001-0001-4000-8000-%012d', $nn),
+      'vaga_uuid' => sprintf('b039v001-0001-4000-8000-%012d', $nn),
+      'empresa_title' => $empresa,
+      'vaga_title' => $vaga,
+      'cidade' => $cidade,
+      'uf' => $uf,
+      'destaque' => $destaque,
+      'curso' => $curso,
+      'regime' => $regime,
+      'escolaridade' => $escolaridade,
+      'horario' => $horario,
+      'bairro' => $bairro,
+      'username' => 'empresa-seed-' . $pad,
+      'mail' => 'empresa-seed-' . $pad . '@example.local',
+      'logo_asset' => 'seed-vagas-validacao/logo-' . $pad . '.png',
+      'logo_public_empresa' => 'public://empresa/seed/logo-' . $pad . '.png',
+      'logo_public_user' => 'public://pictures/seed/logo-' . $pad . '.png',
+      'cnpj' => _custom_configs_seed_valid_cnpj($nn),
+      'razao_social' => $empresa . ' Ltda',
+      'nome_fantasia' => $empresa,
+      'inscricao_municipal' => (string) (100000 + $nn),
+      'sobre_empresa' => 'A ' . $empresa . ' conecta talentos a oportunidades de estágio com acompanhamento contínuo.',
+      'resumo_curto' => $empresa . ' — oportunidades de estágio com mentoria e crescimento real.',
+      'sobre_html' => '<p>A ' . $empresa . ' atua com excelência e valoriza o desenvolvimento de estagiários em ' . $curso . '.</p>',
+      'cep' => sprintf('%05d-%03d', 10000 + $nn, 100 + $nn),
+      'endereco' => 'Rua das Oportunidades',
+      'numero' => (string) (100 + $nn),
+      'complemento' => 'Sala ' . $nn,
+      'responsavel_nome' => 'Responsável Seed ' . $pad,
+      'responsavel_telefone' => '(11) 9' . str_pad((string) (1000 + $nn), 4, '0', STR_PAD_LEFT) . '-0000',
+      'responsavel_email' => 'resp-' . $pad . '@example.local',
+      'salario' => 'R$ ' . number_format(1200 + ($nn * 50), 0, ',', '.') . '/mês',
+      'carga' => (($nn % 2) ? '30' : '20') . 'h semanais',
+      'periodo' => (($nn % 3) + 4) . ' meses +',
+      'quantidade' => ($nn % 3) + 1,
+      'auxilio' => 'R$ ' . (150 + $nn * 10) . '/mês',
+      'vaga_sobre' => '<p>Estágio em <strong>' . $vaga . '</strong> na ' . $empresa . '. Você participará de projetos reais, com mentoria e feedback contínuo.</p><p>Local: ' . $cidade . '/' . $uf . ' · Regime: ' . $regime . '.</p>',
+      'vaga_requisitos' => '<ul><li>Cursando ' . $curso . '</li><li>Disponibilidade no período informado</li><li>Boa comunicação e proatividade</li><li>Conhecimentos básicos da área</li></ul>',
+      'etapas' => [
+        'Inscrição online',
+        'Triagem de currículo',
+        'Entrevista com a empresa',
+        'Contratação',
+      ],
+    ];
+  }
+  return $catalog;
+}
+
+/**
+ * Gera CNPJ válido único a partir de um serial (1..N).
+ */
+function _custom_configs_seed_valid_cnpj(int $serial): string {
+  $root = str_pad((string) (10000000 + $serial), 8, '0', STR_PAD_LEFT);
+  $base = $root . '0001';
+  $w1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+  $sum = 0;
+  for ($i = 0; $i < 12; $i++) {
+    $sum += (int) $base[$i] * $w1[$i];
+  }
+  $d1 = ($sum % 11) < 2 ? 0 : 11 - ($sum % 11);
+  $base .= (string) $d1;
+  $w2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+  $sum = 0;
+  for ($i = 0; $i < 13; $i++) {
+    $sum += (int) $base[$i] * $w2[$i];
+  }
+  $d2 = ($sum % 11) < 2 ? 0 : 11 - ($sum % 11);
+  return $base . (string) $d2;
+}
+
+/**
+ * Obtém ou cria termo de taxonomia por vid + nome.
+ */
+function _custom_configs_ensure_taxonomy_term(string $vid, string $name): ?\Drupal\taxonomy\TermInterface {
+  $storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+  $existing = $storage->loadByProperties(['vid' => $vid, 'name' => $name]);
+  if ($existing) {
+    return reset($existing);
+  }
+  $vocab = \Drupal\taxonomy\Entity\Vocabulary::load($vid);
+  if (!$vocab) {
+    return NULL;
+  }
+  /** @var \Drupal\taxonomy\TermInterface $term */
+  $term = $storage->create([
+    'vid' => $vid,
+    'name' => $name,
+  ]);
+  $term->save();
+  return $term;
+}
+
+/**
+ * Purge destrutivo: candidaturas, vagas, empresas fora do seed, órfãos.
+ */
+function _custom_configs_purge_vagas_validacao_garbage(): string {
+  $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+  $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
+
+  $candidaturas = $node_storage->loadByProperties(['type' => 'candidatura']);
+  $deleted_cand = count($candidaturas);
+  if ($candidaturas) {
+    $node_storage->delete($candidaturas);
+  }
+
+  $beneficio_pids = [];
+  $vagas = $node_storage->loadByProperties(['type' => 'vagas']);
+  foreach ($vagas as $vaga) {
+    /** @var \Drupal\node\NodeInterface $vaga */
+    if ($vaga->hasField('field_vaga_beneficios')) {
+      foreach ($vaga->get('field_vaga_beneficios') as $item) {
+        if (!empty($item->target_id)) {
+          $beneficio_pids[] = (int) $item->target_id;
+        }
+      }
+    }
+  }
+  $deleted_vagas = count($vagas);
+  if ($vagas) {
+    $node_storage->delete($vagas);
+  }
+
+  $beneficio_pids = array_values(array_unique(array_filter($beneficio_pids)));
+  if ($beneficio_pids) {
+    $paragraphs = $paragraph_storage->loadMultiple($beneficio_pids);
+    if ($paragraphs) {
+      $paragraph_storage->delete($paragraphs);
+    }
+  }
+
+  $keep_uuids = [];
+  foreach (_custom_configs_vagas_validacao_catalog() as $row) {
+    $keep_uuids[$row['empresa_uuid']] = TRUE;
+  }
+  $empresas = $node_storage->loadByProperties(['type' => 'empresa']);
+  $to_delete = [];
+  foreach ($empresas as $empresa) {
+    /** @var \Drupal\node\NodeInterface $empresa */
+    if (!isset($keep_uuids[$empresa->uuid()])) {
+      $to_delete[] = $empresa;
+    }
+  }
+  $deleted_empresas = count($to_delete);
+  if ($to_delete) {
+    $node_storage->delete($to_delete);
+  }
+
+  // Logo legado EcoConstrutora sem usage.
+  $legacy_uri = 'public://empresa/logo-ecoconstrutora.png';
+  $files = \Drupal::entityTypeManager()->getStorage('file')->loadByProperties(['uri' => $legacy_uri]);
+  $deleted_files = 0;
+  foreach ($files as $file) {
+    $usage = \Drupal::service('file.usage')->listUsage($file);
+    if (empty($usage)) {
+      $file->delete();
+      $deleted_files++;
+    }
+  }
+
+  return (string) t('Purge 039: @c candidatura(s), @v vaga(s), @e empresa(s) fora do seed, @p benefício(s) órfão(s), @f arquivo(s) legado(s).', [
+    '@c' => $deleted_cand,
+    '@v' => $deleted_vagas,
+    '@e' => $deleted_empresas,
+    '@p' => count($beneficio_pids),
+    '@f' => $deleted_files,
+  ]);
+}
+
+/**
+ * Seed 15 nodes empresa com logo e campos completos.
+ */
+function _custom_configs_seed_empresas_validacao(): string {
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('node');
+  if (!isset($bundle_info['empresa'])) {
+    return (string) t('Bundle empresa ausente — cim antes do seed 039.');
+  }
+
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $created = 0;
+  $updated = 0;
+
+  foreach (_custom_configs_vagas_validacao_catalog() as $row) {
+    $by_uuid = $storage->loadByProperties(['uuid' => $row['empresa_uuid']]);
+    /** @var \Drupal\node\NodeInterface|null $node */
+    $node = $by_uuid ? reset($by_uuid) : NULL;
+    $is_new = !$node;
+    if ($is_new) {
+      $node = $storage->create([
+        'type' => 'empresa',
+        'uuid' => $row['empresa_uuid'],
+        'uid' => 1,
+      ]);
+    }
+
+    $node->setTitle($row['empresa_title']);
+    $node->setPublished();
+    if ($node->hasField('field_text_simple')) {
+      $node->set('field_text_simple', $row['resumo_curto']);
+    }
+    if ($node->hasField('field_text_long_formatted')) {
+      $node->set('field_text_long_formatted', [
+        'value' => $row['sobre_html'],
+        'format' => 'basic_html',
+      ]);
+    }
+    if ($node->hasField('field_cidade')) {
+      $node->set('field_cidade', $row['cidade']);
+    }
+    if ($node->hasField('field_estados')) {
+      $node->set('field_estados', $row['uf']);
+    }
+    $node->save();
+
+    if ($node->hasField('field_imagem')) {
+      $file = _custom_configs_seed_file_from_module_asset(
+        $row['logo_asset'],
+        $row['logo_public_empresa'],
+        'node',
+        (int) $node->id()
+      );
+      if ($file) {
+        $node->set('field_imagem', [
+          'target_id' => $file->id(),
+          'alt' => $row['empresa_title'],
+        ]);
+        $node->save();
+      }
+    }
+
+    if ($is_new) {
+      $created++;
+    }
+    else {
+      $updated++;
+    }
+  }
+
+  return (string) t('Empresas seed 039: @c criadas, @u atualizadas.', [
+    '@c' => $created,
+    '@u' => $updated,
+  ]);
+}
+
+/**
+ * Seed 15 users role empresa com cadastro completo + logo.
+ */
+function _custom_configs_seed_users_empresa_validacao(): string {
+  $password = 'SeedEmpresa!2026';
+  $storage = \Drupal::entityTypeManager()->getStorage('user');
+  $created = 0;
+  $updated = 0;
+
+  foreach (_custom_configs_vagas_validacao_catalog() as $row) {
+    $existing = $storage->loadByProperties(['name' => $row['username']]);
+    /** @var \Drupal\user\UserInterface|null $user */
+    $user = $existing ? reset($existing) : NULL;
+    $is_new = !$user;
+    if ($is_new) {
+      $user = $storage->create([
+        'name' => $row['username'],
+      ]);
+    }
+
+    $user->setEmail($row['mail']);
+    $user->set('init', $row['mail']);
+    $user->setPassword($password);
+    $user->activate();
+    if (\Drupal\user\Entity\Role::load('empresa')) {
+      $user->addRole('empresa');
+    }
+
+    $map = [
+      'field_cnpj' => $row['cnpj'],
+      'field_razao_social' => $row['razao_social'],
+      'field_nome_fantasia' => $row['nome_fantasia'],
+      'field_inscricao_municipal' => $row['inscricao_municipal'],
+      'field_sobre_empresa' => $row['sobre_empresa'],
+      'field_cep' => $row['cep'],
+      'field_endereco' => $row['endereco'],
+      'field_numero' => $row['numero'],
+      'field_complemento' => $row['complemento'],
+      'field_bairro' => $row['bairro'],
+      'field_cidade' => $row['cidade'],
+      'field_estado' => $row['uf'],
+      'field_responsavel_nome' => $row['responsavel_nome'],
+      'field_responsavel_telefone' => $row['responsavel_telefone'],
+      'field_responsavel_email' => $row['responsavel_email'],
+    ];
+    foreach ($map as $field => $value) {
+      if ($user->hasField($field)) {
+        $user->set($field, $value);
+      }
+    }
+    if ($user->hasField('field_termo')) {
+      $user->set('field_termo', 1);
+    }
+
+    $user->save();
+
+    if ($user->hasField('user_picture')) {
+      $file = _custom_configs_seed_file_from_module_asset(
+        $row['logo_asset'],
+        $row['logo_public_user'],
+        'user',
+        (int) $user->id()
+      );
+      if ($file) {
+        $user->set('user_picture', ['target_id' => $file->id()]);
+        $user->save();
+      }
+    }
+
+    if ($is_new) {
+      $created++;
+    }
+    else {
+      $updated++;
+    }
+  }
+
+  return (string) t('Users empresa seed 039: @c criados, @u atualizados.', [
+    '@c' => $created,
+    '@u' => $updated,
+  ]);
+}
+
+/**
+ * Seed 15 vagas com todos os campos e vínculos empresa/user.
+ */
+function _custom_configs_seed_vagas_validacao(): string {
+  if (!\Drupal\field\Entity\FieldConfig::loadByName('node', 'vagas', 'field_vaga_empresa')) {
+    return (string) t('field_vaga_empresa ausente — cim/updb estrutural antes do seed 039.');
+  }
+
+  $asset_error = _custom_configs_vaga_beneficios_padrao_assets_ok();
+  if ($asset_error !== NULL) {
+    return $asset_error;
+  }
+
+  $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+  $user_storage = \Drupal::entityTypeManager()->getStorage('user');
+
+  $faq_uuid = 'c3d4e5f6-a7b8-4901-b234-56789abcdef0';
+  $faqs = $node_storage->loadByProperties(['uuid' => $faq_uuid]);
+  $faq_id = $faqs ? (int) reset($faqs)->id() : NULL;
+
+  $created = 0;
+  $updated = 0;
+
+  foreach (_custom_configs_vagas_validacao_catalog() as $row) {
+    $empresa_nodes = $node_storage->loadByProperties(['uuid' => $row['empresa_uuid']]);
+    if (!$empresa_nodes) {
+      continue;
+    }
+    /** @var \Drupal\node\NodeInterface $empresa */
+    $empresa = reset($empresa_nodes);
+
+    $users = $user_storage->loadByProperties(['name' => $row['username']]);
+    $uid_empresa = $users ? (int) reset($users)->id() : NULL;
+
+    $regime = _custom_configs_ensure_taxonomy_term('regime', $row['regime']);
+    $curso = _custom_configs_ensure_taxonomy_term('curso', $row['curso']);
+
+    $by_uuid = $node_storage->loadByProperties(['uuid' => $row['vaga_uuid']]);
+    /** @var \Drupal\node\NodeInterface|null $node */
+    $node = $by_uuid ? reset($by_uuid) : NULL;
+    $is_new = !$node;
+    if ($is_new) {
+      $node = $node_storage->create([
+        'type' => 'vagas',
+        'uuid' => $row['vaga_uuid'],
+        'uid' => 1,
+      ]);
+    }
+
+    $node->setTitle($row['vaga_title']);
+    $node->setPublished();
+
+    if ($node->hasField('field_vaga_empresa')) {
+      $node->set('field_vaga_empresa', $empresa->id());
+    }
+    if ($node->hasField('field_empresa_u') && $uid_empresa) {
+      $node->set('field_empresa_u', $uid_empresa);
+    }
+    if ($node->hasField('field_text_long_formatted')) {
+      $node->set('field_text_long_formatted', [
+        'value' => $row['vaga_sobre'],
+        'format' => 'basic_html',
+      ]);
+    }
+    if ($node->hasField('field_vaga_requisitos')) {
+      $node->set('field_vaga_requisitos', [
+        'value' => $row['vaga_requisitos'],
+        'format' => 'basic_html',
+      ]);
+    }
+    if ($node->hasField('field_vaga_etapas_processo')) {
+      $node->set('field_vaga_etapas_processo', $row['etapas']);
+    }
+    if ($node->hasField('field_text_simple')) {
+      $node->set('field_text_simple', $row['salario']);
+    }
+    if ($node->hasField('field_vaga_carga_horaria')) {
+      $node->set('field_vaga_carga_horaria', $row['carga']);
+    }
+    if ($node->hasField('field_vaga_periodo')) {
+      $node->set('field_vaga_periodo', $row['periodo']);
+    }
+    if ($node->hasField('field_vaga_quantidade')) {
+      $node->set('field_vaga_quantidade', $row['quantidade']);
+    }
+    if ($node->hasField('field_vaga_destaque')) {
+      $node->set('field_vaga_destaque', $row['destaque'] ? 1 : 0);
+    }
+    if ($node->hasField('field_cidade')) {
+      $node->set('field_cidade', $row['cidade']);
+    }
+    if ($node->hasField('field_bairro')) {
+      $node->set('field_bairro', $row['bairro']);
+    }
+    if ($node->hasField('field_estados')) {
+      $node->set('field_estados', $row['uf']);
+    }
+    if ($node->hasField('field_escolaridade')) {
+      $node->set('field_escolaridade', $row['escolaridade']);
+    }
+    if ($node->hasField('field_horarios')) {
+      $node->set('field_horarios', $row['horario']);
+    }
+    if ($node->hasField('field_auxilio_transporte')) {
+      $node->set('field_auxilio_transporte', $row['auxilio']);
+    }
+    if ($node->hasField('field_regime_t') && $regime) {
+      $node->set('field_regime_t', $regime->id());
+    }
+    if ($node->hasField('field_cursos_t') && $curso) {
+      $node->set('field_cursos_t', [$curso->id()]);
+    }
+    if ($node->hasField('field_vaga_faq') && $faq_id) {
+      $node->set('field_vaga_faq', $faq_id);
+    }
+    if ($node->hasField('field_text_simple_multiple')) {
+      $node->set('field_text_simple_multiple', [
+        'Cursando ' . $row['curso'],
+        'Disponibilidade no período',
+        'Proatividade',
+      ]);
+    }
+    if ($node->hasField('field_text_simple_multiple_2')) {
+      $node->set('field_text_simple_multiple_2', [
+        'Vale-transporte',
+        'Horário flexível',
+        'Mentoria',
+      ]);
+    }
+
+    // Benefícios: sempre recria padrão para seed de validação.
+    if ($node->hasField('field_vaga_beneficios')) {
+      $old_pids = [];
+      foreach ($node->get('field_vaga_beneficios') as $item) {
+        if (!empty($item->target_id)) {
+          $old_pids[] = (int) $item->target_id;
+        }
+      }
+      $node->set('field_vaga_beneficios', _custom_configs_build_vaga_beneficios_padrao_paragraphs());
+      $node->save();
+      if ($old_pids) {
+        $old = \Drupal::entityTypeManager()->getStorage('paragraph')->loadMultiple($old_pids);
+        if ($old) {
+          \Drupal::entityTypeManager()->getStorage('paragraph')->delete($old);
+        }
+      }
+    }
+    else {
+      $node->save();
+    }
+
+    if ($is_new) {
+      $created++;
+    }
+    else {
+      $updated++;
+    }
+  }
+
+  return (string) t('Vagas seed 039: @c criadas, @u atualizadas.', [
+    '@c' => $created,
+    '@u' => $updated,
+  ]);
+}

@@ -4,6 +4,7 @@
  * CTA v1 — Detalhe de vagas (placement default_ctav1vagas).
  *
  * Variante escura isolada: NÃO anexar default/cta_v1 (card claro QS/PE).
+ * Card alinhado à coluna principal (container > row > col-lg-8).
  */
 #}
 {{ attach_library('default/cta_v1_vagas') }}
@@ -31,31 +32,35 @@
   {% block content %}
     <div{{ content_attributes.addClass('content') }}>
       {% if has_content %}
-        <section class="cta-v1 cta-v1--dark">
-          <div class="container">
-            {% if title or subtitle %}
-              <div class="cta-v1__copy">
-                {% if title %}
-                  <h2 class="cta-v1__title">{{ title }}</h2>
+        <div class="container">
+          <div class="row">
+            <div class="col-12 col-lg-8">
+              <section class="cta-v1 cta-v1--dark">
+                {% if title or subtitle %}
+                  <div class="cta-v1__copy">
+                    {% if title %}
+                      <h2 class="cta-v1__title">{{ title }}</h2>
+                    {% endif %}
+                    {% if subtitle %}
+                      <p class="cta-v1__subtitle">{{ subtitle }}</p>
+                    {% endif %}
+                  </div>
                 {% endif %}
-                {% if subtitle %}
-                  <p class="cta-v1__subtitle">{{ subtitle }}</p>
-                {% endif %}
-              </div>
-            {% endif %}
 
-            {% if has_actions %}
-              <div class="cta-v1__actions d-grid gap-2 d-md-flex justify-content-md-center gap-md-3">
-                {% if has_primary %}
-                  <a class="cta-v1__btn cta-v1__btn--primary" href="{{ primary_item.getUrl().toString() }}">{{ primary_item.title }}</a>
+                {% if has_actions %}
+                  <div class="cta-v1__actions">
+                    {% if has_primary %}
+                      <a class="cta-v1__btn cta-v1__btn--primary" href="{{ primary_item.getUrl().toString() }}">{{ primary_item.title }}</a>
+                    {% endif %}
+                    {% if has_secondary %}
+                      <a class="cta-v1__btn cta-v1__btn--secondary" href="{{ secondary_item.getUrl().toString() }}">{{ secondary_item.title }}</a>
+                    {% endif %}
+                  </div>
                 {% endif %}
-                {% if has_secondary %}
-                  <a class="cta-v1__btn cta-v1__btn--secondary" href="{{ secondary_item.getUrl().toString() }}">{{ secondary_item.title }}</a>
-                {% endif %}
-              </div>
-            {% endif %}
+              </section>
+            </div>
           </div>
-        </section>
+        </div>
       {% endif %}
     </div>
   {% endblock %}

@@ -1,35 +1,33 @@
 /**
  * CTA v1 — Detalhe de vagas (variante escura).
  * Escopo exclusivo: .block-cta-v1--vagas / #block-default-ctav1vagas.
+ * Card alinhado à col-lg-8 (Figma ~768×334); NÃO full-bleed.
  * NÃO alterar cta-v1.css nem cta-v1-para-estudantes.css.
  */
 .block-cta-v1--vagas,
 #block-default-ctav1vagas {
   overflow-x: hidden;
   width: 100%;
+  padding: 0 0 2.5rem;
+  background: transparent;
 }
 
 .block-cta-v1--vagas .cta-v1--dark,
 #block-default-ctav1vagas .cta-v1--dark {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 316px;
-  margin: 0;
-  padding: 64px 40px;
-  background: #023c62;
-  text-align: center;
-  box-sizing: border-box;
-}
-
-.block-cta-v1--vagas .cta-v1--dark .container,
-#block-default-ctav1vagas .cta-v1--dark .container {
-  display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 24px;
-  max-width: 1280px;
+  width: 100%;
+  height: auto;
+  min-height: 334px;
+  margin: 0;
+  padding: 48px;
+  background: #023c62;
+  border-radius: 24px;
+  text-align: center;
+  box-sizing: border-box;
 }
 
 .block-cta-v1--vagas .cta-v1__copy,
@@ -57,8 +55,11 @@
 
 .block-cta-v1--vagas .cta-v1__actions,
 #block-default-ctav1vagas .cta-v1__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
   width: 100%;
-  justify-content: center;
 }
 
 .block-cta-v1--vagas .cta-v1__btn,
@@ -66,18 +67,22 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 372px;
+  max-width: 100%;
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
   text-decoration: none;
-  padding: 0.875rem 1.75rem;
-  border-radius: 8px;
+  padding: 0 1.5rem;
+  min-height: 96px;
+  border-radius: 12px;
   line-height: 1.25;
+  box-sizing: border-box;
   transition: opacity 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .block-cta-v1--vagas .cta-v1__btn--primary,
 #block-default-ctav1vagas .cta-v1__btn--primary {
-  background-color: #fd7b1a;
+  background-color: #fd761a;
   color: #ffffff;
   border: none;
 }
@@ -86,7 +91,7 @@
 .block-cta-v1--vagas .cta-v1__btn--primary:focus,
 #block-default-ctav1vagas .cta-v1__btn--primary:hover,
 #block-default-ctav1vagas .cta-v1__btn--primary:focus {
-  background-color: #e86e12;
+  background-color: #e86a12;
   color: #ffffff;
   text-decoration: none;
 }
@@ -108,14 +113,20 @@
   text-decoration: none;
 }
 
-@media (max-width: 575.98px) {
-  .block-cta-v1--vagas .cta-v1--dark,
-  #block-default-ctav1vagas .cta-v1--dark {
-    height: auto;
-    min-height: 316px;
-    padding: 64px 40px;
+@media (max-width: 991.98px) {
+  .block-cta-v1--vagas,
+  #block-default-ctav1vagas {
+    padding-bottom: 2rem;
   }
 
+  .block-cta-v1--vagas .cta-v1--dark,
+  #block-default-ctav1vagas .cta-v1--dark {
+    min-height: 0;
+    padding: 40px 24px;
+  }
+}
+
+@media (max-width: 575.98px) {
   .block-cta-v1--vagas .cta-v1__title,
   #block-default-ctav1vagas .cta-v1__title {
     font-size: 1.5rem;
@@ -124,5 +135,11 @@
   .block-cta-v1--vagas .cta-v1__subtitle,
   #block-default-ctav1vagas .cta-v1__subtitle {
     font-size: 1rem;
+  }
+
+  .block-cta-v1--vagas .cta-v1__btn,
+  #block-default-ctav1vagas .cta-v1__btn {
+    width: 100%;
+    min-height: 72px;
   }
 }

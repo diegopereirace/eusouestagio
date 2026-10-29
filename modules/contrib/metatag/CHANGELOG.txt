@@ -1,4 +1,14 @@
-Metatag 2.2.3, 2026-xx-xx
+Metatag 2.2.4, 2026-10-28
+-------------------------
+#3633988 by jimmb, DamienMcKenna: Fixed Shortlink URL meta tag label.
+#3633337 by shubhamgoel, DamienMcKenna, liam morland: Remove PHP limit from info
+  and composer files.
+#3633958 by bserem, DamienMcKenna: Token 8.x-1.17 is required.
+#3633739 by Jonasanne, rahulk, liam morland, DamienMcKenna: Fixed deprecated
+  services.
+
+
+Metatag 2.2.3, 2026-10-27
 -------------------------
 #3633443 by eduardo morales alberti, lmoeni, vensires, mrshowerman, johnatas,
   chemeon, damienmckenna: List of config items wasn't converted to a string in

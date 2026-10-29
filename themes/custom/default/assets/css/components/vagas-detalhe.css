@@ -168,8 +168,17 @@
   margin-bottom: 2rem;
 }
 
-.vaga-detalhe__section-body {
+.vaga-detalhe__section-body,
+.vaga-detalhe__requisitos-body {
   line-height: 1.65;
+  background: #fff;
+  border: 1px solid var(--vd-border);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+}
+
+.vaga-detalhe__section-body p:last-child {
+  margin-bottom: 0;
 }
 
 /* Requisitos — Text long HTML com icon-check.png (sem bullets padrão / FA) */

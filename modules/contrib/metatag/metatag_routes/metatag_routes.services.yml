@@ -5,7 +5,6 @@ services:
   metatag_routes.helper:
     class: Drupal\metatag_routes\Helper\MetatagRoutesHelper
     arguments: ['@current_route_match']
-  # https://www.drupal.org/project/metatag/issues/3632995
   Drupal\metatag_routes\Helper\MetatagRoutesHelperInterface:
     alias: metatag_routes.helper
 

@@ -3346,7 +3346,7 @@ nav[aria-label] .pagination.js-pager__items .page-item.active .page-link {
 }
 
 .block-o-que-fazemos-bt .oqf-card--middle .oqf-card__items {
-	text-align: left;
+	text-align: center;
 }
 
 @media (max-width: 767.98px) {

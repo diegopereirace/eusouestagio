@@ -40,8 +40,8 @@
         <div class="home-hero__media banner-carousel-wrap">
           <div
             id="{{ carousel_id }}"
-            class="banner-carousel home-hero__carousel carousel slide{{ multi ? '' : ' banner-carousel--single' }}"
-            {% if multi %}data-bs-ride="carousel" data-bs-interval="6000" data-bs-touch="true"{% endif %}
+            class="banner-carousel home-hero__carousel carousel slide banner-carousel--cinematic{{ multi ? '' : ' banner-carousel--single' }}"
+            {% if multi %}data-bs-ride="carousel" data-bs-interval="7000" data-bs-touch="true" data-bs-pause="hover"{% endif %}
           >
             <div class="carousel-inner">
               {% for slide in slides %}

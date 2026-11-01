@@ -825,8 +825,9 @@ h6 {
 	padding: 5rem 0;
 }
 
+/* Cabeçalho (título + "Ver todas as vagas") — gap compacto conforme Figma. */
 .css-vagas-home .view-header {
-	margin-bottom: 2rem;
+	margin-bottom: 0;
 }
 
 /* ── Listing page /para-estudantes ───────────────────── */
@@ -1260,6 +1261,39 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 .css-vagas-home #vagas-home-header .text-title {
 	color: #0f172a;
 	font-weight: 700;
+}
+
+/* "Ver todas as vagas ›" — Vagas de Destaque (Home + Para Estudantes). Ref. Figma: #002B5C, Poppins 400/14/20, letter-spacing 0.14px. */
+.css-vagas-home #vagas-home-header .link--primary,
+.css-vagas-home #mais-vagas-mobile .link--primary,
+.css-vagas-page #vagas-pe-header .link--primary,
+.css-vagas-page #mais-vagas-pe-mobile .link--primary {
+	color: #002b5c;
+	font-family: 'Poppins', sans-serif;
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 20px;
+	letter-spacing: 0.14px;
+}
+
+.css-vagas-home #vagas-home-header .link--primary:hover,
+.css-vagas-home #vagas-home-header .link--primary:focus,
+.css-vagas-home #mais-vagas-mobile .link--primary:hover,
+.css-vagas-home #mais-vagas-mobile .link--primary:focus,
+.css-vagas-page #vagas-pe-header .link--primary:hover,
+.css-vagas-page #vagas-pe-header .link--primary:focus,
+.css-vagas-page #mais-vagas-pe-mobile .link--primary:hover,
+.css-vagas-page #mais-vagas-pe-mobile .link--primary:focus {
+	color: #001a3e;
+	text-decoration: none;
+}
+
+.css-vagas-home #vagas-home-header .link--primary .fa-angle-right,
+.css-vagas-home #mais-vagas-mobile .link--primary .fa-angle-right,
+.css-vagas-page #vagas-pe-header .link--primary .fa-angle-right,
+.css-vagas-page #mais-vagas-pe-mobile .link--primary .fa-angle-right {
+	margin-left: 4px;
+	color: inherit;
 }
 
 @media (max-width: 767.98px) {

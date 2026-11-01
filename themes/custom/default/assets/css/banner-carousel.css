@@ -220,3 +220,154 @@
 		transition: none;
 	}
 }
+
+/* ============================================================
+   TRANSIÇÃO CINEMATOGRÁFICA (modificador opt-in)
+   Reproduz o efeito do banner HidroTintas:
+   - slide que sai: scale(1 → 1.08) + brightness(1 → 0.72)
+   - slide que entra: mask-image horizontal (cortina suave)
+   - imagem interna: drift Ken Burns scale(1.16) translateX ±5% → 1 / 0
+   Mantém o motor nativo do Bootstrap Carousel; apenas sobrescreve
+   os `transform` de slide por animações CSS.
+   ============================================================ */
+
+.banner-carousel--cinematic {
+	isolation: isolate;
+}
+
+.banner-carousel--cinematic .carousel-inner {
+	position: relative;
+	overflow: hidden;
+}
+
+/* Dura 1.15s para o Bootstrap aguardar o transitionend via
+   fallback de getTransitionDurationFromElement(). */
+.banner-carousel--cinematic .carousel-item {
+	transition: transform 1.15s cubic-bezier(0.77, 0, 0.18, 1);
+	will-change: transform, filter;
+	backface-visibility: hidden;
+}
+
+/* Neutraliza os translateX padrão do Bootstrap para que o efeito
+   cinematográfico (máscara + ken burns + leave) seja o único visível. */
+.banner-carousel--cinematic .carousel-item,
+.banner-carousel--cinematic .carousel-item.active,
+.banner-carousel--cinematic .carousel-item-next:not(.carousel-item-start),
+.banner-carousel--cinematic .carousel-item-prev:not(.carousel-item-end),
+.banner-carousel--cinematic .active.carousel-item-start,
+.banner-carousel--cinematic .active.carousel-item-end {
+	transform: none;
+}
+
+/* Slide que sai (ativo + classe direcional de start/end): recua levemente
+   e escurece, dando sensação de profundidade. */
+.banner-carousel--cinematic .active.carousel-item-start,
+.banner-carousel--cinematic .active.carousel-item-end {
+	z-index: 1;
+	animation: banner-leave 1.15s cubic-bezier(0.77, 0, 0.18, 1) forwards;
+}
+
+/* Slide que entra: revelado por máscara horizontal com largura 240%
+   (240% permite a borda do gradiente deslizar fora da área visível). */
+.banner-carousel--cinematic .carousel-item-next.carousel-item-start,
+.banner-carousel--cinematic .carousel-item-prev.carousel-item-end {
+	z-index: 2;
+	mask-size: 240% 100%;
+	-webkit-mask-size: 240% 100%;
+	mask-repeat: no-repeat;
+	-webkit-mask-repeat: no-repeat;
+}
+
+.banner-carousel--cinematic .carousel-item-next.carousel-item-start {
+	mask-image: linear-gradient(90deg, #000 0%, #000 46%, transparent 62%);
+	-webkit-mask-image: linear-gradient(90deg, #000 0%, #000 46%, transparent 62%);
+	animation: banner-mask-next 1.15s cubic-bezier(0.77, 0, 0.18, 1) both;
+}
+
+.banner-carousel--cinematic .carousel-item-prev.carousel-item-end {
+	mask-image: linear-gradient(270deg, #000 0%, #000 46%, transparent 62%);
+	-webkit-mask-image: linear-gradient(270deg, #000 0%, #000 46%, transparent 62%);
+	animation: banner-mask-prev 1.15s cubic-bezier(0.77, 0, 0.18, 1) both;
+}
+
+/* Drift da arte dentro do slide que entra (ken burns). */
+.banner-carousel--cinematic .carousel-item-next.carousel-item-start img {
+	animation: banner-drift-next 1.15s cubic-bezier(0.77, 0, 0.18, 1) both;
+}
+
+.banner-carousel--cinematic .carousel-item-prev.carousel-item-end img {
+	animation: banner-drift-prev 1.15s cubic-bezier(0.77, 0, 0.18, 1) both;
+}
+
+@keyframes banner-mask-next {
+	from {
+		mask-position: 100% 0;
+		-webkit-mask-position: 100% 0;
+	}
+
+	to {
+		mask-position: 0 0;
+		-webkit-mask-position: 0 0;
+	}
+}
+
+@keyframes banner-mask-prev {
+	from {
+		mask-position: 0 0;
+		-webkit-mask-position: 0 0;
+	}
+
+	to {
+		mask-position: 100% 0;
+		-webkit-mask-position: 100% 0;
+	}
+}
+
+@keyframes banner-leave {
+	from {
+		transform: scale(1);
+		filter: brightness(1);
+	}
+
+	to {
+		transform: scale(1.08);
+		filter: brightness(0.72);
+	}
+}
+
+@keyframes banner-drift-next {
+	from {
+		transform: scale(1.16) translateX(5%);
+	}
+
+	to {
+		transform: scale(1) translateX(0);
+	}
+}
+
+@keyframes banner-drift-prev {
+	from {
+		transform: scale(1.16) translateX(-5%);
+	}
+
+	to {
+		transform: scale(1) translateX(0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.banner-carousel--cinematic .carousel-item,
+	.banner-carousel--cinematic .active.carousel-item-start,
+	.banner-carousel--cinematic .active.carousel-item-end,
+	.banner-carousel--cinematic .carousel-item-next.carousel-item-start,
+	.banner-carousel--cinematic .carousel-item-prev.carousel-item-end,
+	.banner-carousel--cinematic .carousel-item-next.carousel-item-start img,
+	.banner-carousel--cinematic .carousel-item-prev.carousel-item-end img {
+		animation: none !important;
+		transition: none !important;
+		transform: none !important;
+		filter: none !important;
+		mask-image: none !important;
+		-webkit-mask-image: none !important;
+	}
+}

@@ -8,10 +8,11 @@ use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Url;
+use Drupal\custom_banners\SearchTextNormalizer;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Hero de busca da home — textos fixos no template, form GET para /para-estudantes.
+ * Hero de busca da home — textos fixos no template, form GET para /vagas.
  *
  * @Block(
  *   id = "custom_banners_hero_search",
@@ -27,7 +28,6 @@ class HeroSearchBlock extends BlockBase implements ContainerFactoryPluginInterfa
    * @var array<string, array{vid: string, param: string}>
    */
   private const PILLS = [
-    'Remoto' => ['vid' => 'regime', 'param' => 'regime'],
     'TI' => ['vid' => 'curso', 'param' => 'cursos'],
     'Administração' => ['vid' => 'curso', 'param' => 'cursos'],
     'Design' => ['vid' => 'curso', 'param' => 'cursos'],
@@ -59,7 +59,6 @@ class HeroSearchBlock extends BlockBase implements ContainerFactoryPluginInterfa
     return [
       '#theme' => 'custom_banners_hero_search',
       '#action' => Url::fromRoute('view.vagas.page_1')->toString(),
-      '#regime_options' => $this->loadRegimeOptions(),
       '#pills' => $this->resolvePills(),
       '#attached' => [
         'library' => [
@@ -70,29 +69,9 @@ class HeroSearchBlock extends BlockBase implements ContainerFactoryPluginInterfa
         'contexts' => ['url.path'],
         'tags' => [
           'taxonomy_term_list:curso',
-          'taxonomy_term_list:regime',
         ],
       ],
     ];
-  }
-
-  /**
-   * @return array<int|string, string>
-   */
-  private function loadRegimeOptions(): array {
-    $options = ['' => (string) $this->t('Cidade ou Remoto')];
-    try {
-      $storage = $this->entityTypeManager->getStorage('taxonomy_term');
-      $terms = $storage->loadByProperties(['vid' => 'regime', 'status' => 1]);
-      uasort($terms, static fn ($a, $b) => strnatcasecmp((string) $a->label(), (string) $b->label()));
-      foreach ($terms as $term) {
-        $options[(int) $term->id()] = $term->label();
-      }
-    }
-    catch (\Throwable) {
-      // Vocabulary missing — select stays empty aside from placeholder.
-    }
-    return $options;
   }
 
   /**
@@ -131,14 +110,12 @@ class HeroSearchBlock extends BlockBase implements ContainerFactoryPluginInterfa
         continue;
       }
 
-      $value = $meta['param'] === 'regime'
-        ? (string) $term->id()
-        : (string) $term->label();
-
       $pills[] = [
         'label' => $label,
         'url' => Url::fromRoute('view.vagas.page_1', [], [
-          'query' => [$meta['param'] => $value],
+          'query' => [
+            $meta['param'] => SearchTextNormalizer::normalize((string) $term->label()),
+          ],
         ])->toString(),
       ];
     }

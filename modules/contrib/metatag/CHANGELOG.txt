@@ -1,3 +1,23 @@
+Metatag 2.2.5, 2026-10-31
+-------------------------
+#3633665 by hcksharp, wkr1shna, camhoward, DamienMcKenna: addMessage() fails
+  when site is maintenance mode.
+#3626128 by ptmkenny, csakiistvan, DamienMcKenna: Fixed OOM error in
+  metatag_views.
+#3633340 by shubhamgoel, DamienMcKenna: MetatagDefaultsListBuilder::
+  getOperations() missing argument.
+#3633338 by shubhamgoel, csakiistvan, DamienMcKenna: Missing
+  PreWarmableInterface in MetatagViewsCachePluginManager.
+#3302453 by andrewsuth, damienmckenna, erik_petra, bbu23, introfini, dimas11,
+  undersound3, matdemeue, eugene bocharov, aniketto, bassline, gengo_k,
+  yukihyogo, nironan: Canonical meta tag on config entity pages (e.g. Views) no
+  longer refers to current language.
+#3633331 by shubhamgoel, DamienMcKenna: Resolve "Call to an undefined method"
+  phpstan errors.
+#3489837 by idebr, DamienMcKenna: Remove mpyw/phpunit-patch-serializable
+  -comparison dev dependency.
+
+
 Metatag 2.2.4, 2026-10-28
 -------------------------
 #3633988 by jimmb, DamienMcKenna: Fixed Shortlink URL meta tag label.

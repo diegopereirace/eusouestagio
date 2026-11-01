@@ -5,3 +5,11 @@ custom_banners.cursos_autocomplete:
   requirements:
     _permission: 'access content'
   methods: [GET]
+
+custom_banners.cidades_autocomplete:
+  path: '/api/cidades/autocomplete'
+  defaults:
+    _controller: '\Drupal\custom_banners\Controller\CidadesAutocompleteController::autocomplete'
+  requirements:
+    _permission: 'access content'
+  methods: [GET]

@@ -18,8 +18,7 @@ function custom_banners_theme($existing, $type, $theme, $path): array {
   return [
     'custom_banners_hero_search' => [
       'variables' => [
-        'action' => '/para-estudantes',
-        'regime_options' => [],
+        'action' => '/vagas',
         'pills' => [],
       ],
       'template' => 'block--hero-search',

@@ -11,7 +11,7 @@
     <h2 class="hero-search__title">Encontre seu estágio ideal hoje.</h2>
     <p class="hero-search__subtitle">Conectamos talentos universitários às melhores oportunidades do mercado através de uma plataforma moderna e intuitiva.</p>
 
-    <form class="hero-search__form" method="get" action="{{ action|default('/para-estudantes')|e('html_attr') }}" role="search">
+    <form class="hero-search__form" method="get" action="{{ action|default('/vagas')|e('html_attr') }}" role="search">
       <div class="hero-search__fields">
         <div class="hero-search__field hero-search__field--curso">
           <span class="hero-search__icon" aria-hidden="true">
@@ -23,28 +23,36 @@
           <label class="visually-hidden" for="hero-search-cursos">{{ 'Qual o seu curso?'|t }}</label>
           <input
             id="hero-search-cursos"
-            class="form-autocomplete hero-search__input"
+            class="hero-search__input"
             type="text"
             name="cursos"
             placeholder="{{ 'Qual o seu curso?'|t }}"
             autocomplete="off"
             data-autocomplete-path="/api/cursos/autocomplete"
           >
+          <p class="hero-search__hint" data-hero-hint="cursos" hidden>{{ 'Sem cursos com vagas nesta cidade.'|t }}</p>
         </div>
         <div class="hero-search__divider" aria-hidden="true"></div>
-        <div class="hero-search__field hero-search__field--regime">
+        <div class="hero-search__field hero-search__field--cidade">
           <span class="hero-search__icon" aria-hidden="true">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 21s7-5.2 7-11a7 7 0 10-14 0c0 5.8 7 11 7 11z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
               <circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="2"/>
             </svg>
           </span>
-          <label class="visually-hidden" for="hero-search-regime">{{ 'Cidade ou Remoto'|t }}</label>
-          <select id="hero-search-regime" class="hero-search__select" name="regime" aria-label="{{ 'Cidade ou Remoto'|t }}">
-            {% for value, label_opt in regime_options %}
-              <option value="{{ value|e('html_attr') }}">{{ label_opt }}</option>
-            {% endfor %}
-          </select>
+          <label class="visually-hidden" for="hero-search-cidade">{{ 'Cidade'|t }}</label>
+          <input
+            id="hero-search-cidade"
+            class="hero-search__input"
+            type="text"
+            name="cidade"
+            placeholder="{{ 'Cidade'|t }}"
+            autocomplete="off"
+            data-autocomplete-path="/api/cidades/autocomplete"
+          >
+          {# name só é definido via JS ao escolher cidade — evita estado= vazio (Views list_field). #}
+          <input type="hidden" value="" data-hero-estado>
+          <p class="hero-search__hint" data-hero-hint="cidade" hidden>{{ 'Sem cidades com vagas para este curso.'|t }}</p>
         </div>
         <div class="hero-search__submit-wrap">
           <button type="submit" class="hero-search__submit">

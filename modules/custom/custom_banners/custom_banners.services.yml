@@ -1,0 +1,5 @@
+services:
+  custom_banners.vagas_query_canonical_subscriber:
+    class: Drupal\custom_banners\EventSubscriber\VagasQueryCanonicalSubscriber
+    tags:
+      - { name: event_subscriber }

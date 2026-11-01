@@ -69,3 +69,7 @@ docker/*.local.*
 *.log
 .env
 .env.*
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp

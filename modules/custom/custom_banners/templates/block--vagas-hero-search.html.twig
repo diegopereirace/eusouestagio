@@ -40,13 +40,13 @@
               <circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="2"/>
             </svg>
           </span>
-          <label class="visually-hidden" for="vagas-hero-cidade">{{ 'Cidade ou Remoto'|t }}</label>
+          <label class="visually-hidden" for="vagas-hero-cidade">{{ 'Cidade'|t }}</label>
           <input
             id="vagas-hero-cidade"
             class="vagas-hero-search__input"
             type="text"
             name="cidade"
-            placeholder="{{ 'Cidade ou Remoto'|t }}"
+            placeholder="{{ 'Cidade'|t }}"
             value="{{ values.cidade|default('')|e('html_attr') }}"
             autocomplete="off"
           >

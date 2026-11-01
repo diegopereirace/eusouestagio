@@ -66,7 +66,7 @@ Notas:
 |------|-----------------|---------|
 | `title` | filtro exposto `title` (contains) | `/vagas?title=estagio` |
 | `cidade` | filtro exposto `cidade` | `/vagas?cidade=Fortaleza` |
-| `cursos` | filtro exposto `cursos` (nome do termo) | `/vagas?cursos=Engenharia` |
+| `cursos` | filtro exposto `cursos` (slug normalizado do termo) | `/vagas?cursos=engenharia` |
 
 - `action` canônico: `/vagas` (rota `view.vagas.page_1`).
 - Combinação AND quando múltiplos params presentes.

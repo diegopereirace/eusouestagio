@@ -253,10 +253,30 @@ function custom_panel_form_views_exposed_form_alter(array &$form, FormStateInter
 }
 
 /**
+ * Normaliza texto de busca/URL: minúsculas e sem acento.
+ */
+function custom_panel_normalize_search_text(string $text): string
+{
+    $text = mb_strtolower(trim($text), 'UTF-8');
+    if ($text === '') {
+        return '';
+    }
+    if (class_exists(\Normalizer::class)) {
+        $normalized = \Normalizer::normalize($text, \Normalizer::FORM_D);
+        if (is_string($normalized)) {
+            return preg_replace('/\p{Mn}/u', '', $normalized) ?? $normalized;
+        }
+        return $text;
+    }
+    $converted = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $text);
+    return is_string($converted) && $converted !== '' ? $converted : $text;
+}
+
+/**
  * Implements hook_views_pre_view().
  *
- * Neutraliza a validação rígida do filtro exposto de taxonomia quando o
- * usuário pesquisa por texto livre no campo cursos.
+ * Neutraliza filtros expostos de texto livre para aplicar match normalizado
+ * (slug sem acento/maiúscula) em query_alter.
  */
 function custom_panel_views_pre_view(ViewExecutable $view, $display_id, array &$args): void
 {
@@ -264,28 +284,64 @@ function custom_panel_views_pre_view(ViewExecutable $view, $display_id, array &$
         return;
     }
 
-    $search = trim((string) \Drupal::request()->query->get('cursos', ''));
-    if ($search === '') {
-        return;
+    $request = \Drupal::request();
+    $exposed_input = $view->getExposedInput();
+    $changed = FALSE;
+
+    $cursos = trim((string) $request->query->get('cursos', ''));
+    if ($cursos !== '') {
+        $view->build_info['custom_panel_course_search'] = $cursos;
+        $exposed_input['cursos'] = '';
+        $view->exposed_raw_input['cursos'] = '';
+        if (isset($view->filter['field_cursos_t_target_id'])) {
+            $view->filter['field_cursos_t_target_id']->value = [];
+        }
+        $changed = TRUE;
     }
 
-    $view->build_info['custom_panel_course_search'] = $search;
+    $cidade = trim((string) $request->query->get('cidade', ''));
+    if ($cidade !== '') {
+        $view->build_info['custom_panel_cidade_search'] = $cidade;
+        $exposed_input['cidade'] = '';
+        $view->exposed_raw_input['cidade'] = '';
+        if (isset($view->filter['field_cidade_value'])) {
+            $view->filter['field_cidade_value']->value = '';
+        }
+        $changed = TRUE;
+    }
 
-    $exposed_input = $view->getExposedInput();
-    $exposed_input['cursos'] = '';
-    $view->setExposedInput($exposed_input);
-    $view->exposed_raw_input['cursos'] = '';
+    $title = trim((string) $request->query->get('title', ''));
+    if ($title !== '') {
+        $view->build_info['custom_panel_title_search'] = $title;
+        $exposed_input['title'] = '';
+        $view->exposed_raw_input['title'] = '';
+        if (isset($view->filter['title'])) {
+            $view->filter['title']->value = '';
+        }
+        $changed = TRUE;
+    }
 
-    if (isset($view->filter['field_cursos_t_target_id'])) {
-        $view->filter['field_cursos_t_target_id']->value = [];
+    $estado = trim((string) $request->query->get('estado', ''));
+    if ($estado !== '') {
+        // List field usa UF em maiúsculas (CE, SP); URL pode vir como "ce".
+        $uf = mb_strtoupper(custom_panel_normalize_search_text($estado), 'UTF-8');
+        $exposed_input['estado'] = $uf;
+        $view->exposed_raw_input['estado'] = $uf;
+        if (isset($view->filter['field_estados_value'])) {
+            $view->filter['field_estados_value']->value = [$uf => $uf];
+        }
+        $changed = TRUE;
+    }
+
+    if ($changed) {
+        $view->setExposedInput($exposed_input);
     }
 }
 
 /**
  * Implements hook_views_query_alter().
  *
- * Aplica busca por contains no nome dos termos de taxonomia usados no campo
- * de cursos da vaga.
+ * Aplica busca normalizada (contains sem acento/case) em cursos, cidade e título.
  */
 function custom_panel_views_query_alter(ViewExecutable $view, $query): void
 {
@@ -293,24 +349,143 @@ function custom_panel_views_query_alter(ViewExecutable $view, $query): void
         return;
     }
 
-    $search = trim((string) \Drupal::request()->query->get('cursos', ($view->build_info['custom_panel_course_search'] ?? '')));
-    if ($search === '') {
-        return;
+    $request = \Drupal::request();
+
+    $cursos = trim((string) $request->query->get('cursos', ($view->build_info['custom_panel_course_search'] ?? '')));
+    if ($cursos !== '') {
+        $tids = custom_panel_course_tids_matching($cursos);
+        if ($tids === []) {
+            $query->addWhereExpression(0, '1 = 0');
+        }
+        else {
+            $placeholders = [];
+            $args = [];
+            foreach (array_values($tids) as $i => $tid) {
+                $key = ':custom_panel_course_tid_' . $i;
+                $placeholders[] = $key;
+                $args[$key] = $tid;
+            }
+            $query->addWhereExpression(
+                0,
+                'EXISTS (
+                    SELECT 1
+                    FROM {node__field_cursos_t} nfc
+                    WHERE nfc.entity_id = node_field_data.nid
+                      AND nfc.deleted = 0
+                      AND nfc.field_cursos_t_target_id IN (' . implode(', ', $placeholders) . ')
+                )',
+                $args
+            );
+        }
     }
 
-    $like = '%' . \Drupal::database()->escapeLike($search) . '%';
+    $cidade = trim((string) $request->query->get('cidade', ($view->build_info['custom_panel_cidade_search'] ?? '')));
+    if ($cidade !== '') {
+        $cities = custom_panel_cities_matching($cidade);
+        if ($cities === []) {
+            $query->addWhereExpression(0, '1 = 0');
+        }
+        else {
+            $placeholders = [];
+            $args = [];
+            foreach (array_values($cities) as $i => $city) {
+                $key = ':custom_panel_cidade_' . $i;
+                $placeholders[] = $key;
+                $args[$key] = $city;
+            }
+            $query->addWhereExpression(
+                0,
+                'EXISTS (
+                    SELECT 1
+                    FROM {node__field_cidade} ncid
+                    WHERE ncid.entity_id = node_field_data.nid
+                      AND ncid.deleted = 0
+                      AND ncid.field_cidade_value IN (' . implode(', ', $placeholders) . ')
+                )',
+                $args
+            );
+        }
+    }
 
-    $query->addWhereExpression(
-        0,
-        "EXISTS (
-            SELECT 1
-            FROM {node__field_cursos_t} nfc
-            INNER JOIN {taxonomy_term_field_data} tfd ON tfd.tid = nfc.field_cursos_t_target_id
-            WHERE nfc.entity_id = node_field_data.nid
-              AND LOWER(tfd.name) LIKE LOWER(:custom_panel_course_search)
-        )",
-        [':custom_panel_course_search' => $like]
-    );
+    $title = trim((string) $request->query->get('title', ($view->build_info['custom_panel_title_search'] ?? '')));
+    if ($title !== '') {
+        $norm = custom_panel_normalize_search_text($title);
+        if ($norm !== '') {
+            $like = '%' . \Drupal::database()->escapeLike($norm) . '%';
+            // PostgreSQL: fold de acentos via translate após lower.
+            $query->addWhereExpression(
+                0,
+                "translate(lower(node_field_data.title), 'áàâãäéèêëíìîïóòôõöúùûüçñ', 'aaaaaeeeeiiiiooooouuuucn') LIKE :custom_panel_title_search",
+                [':custom_panel_title_search' => $like]
+            );
+        }
+    }
+}
+
+/**
+ * TIDs de curso cujo nome normalizado contém o termo de busca.
+ *
+ * @return list<int>
+ */
+function custom_panel_course_tids_matching(string $search): array
+{
+    $norm = custom_panel_normalize_search_text($search);
+    if ($norm === '') {
+        return [];
+    }
+    try {
+        $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties([
+            'vid' => 'curso',
+            'status' => 1,
+        ]);
+    }
+    catch (\Throwable) {
+        return [];
+    }
+    $tids = [];
+    foreach ($terms as $term) {
+        $nameNorm = custom_panel_normalize_search_text((string) $term->label());
+        if ($nameNorm !== '' && str_contains($nameNorm, $norm)) {
+            $tids[] = (int) $term->id();
+        }
+    }
+    return $tids;
+}
+
+/**
+ * Cidades canônicas cujo nome normalizado contém o termo de busca.
+ *
+ * @return list<string>
+ */
+function custom_panel_cities_matching(string $search): array
+{
+    $norm = custom_panel_normalize_search_text($search);
+    if ($norm === '') {
+        return [];
+    }
+    try {
+        $cities = \Drupal::database()->select('node__field_cidade', 'c')
+            ->fields('c', ['field_cidade_value'])
+            ->condition('deleted', 0)
+            ->distinct()
+            ->execute()
+            ->fetchCol();
+    }
+    catch (\Throwable) {
+        return [];
+    }
+    $matched = [];
+    foreach ($cities as $city) {
+        $city = trim((string) $city);
+        if ($city === '') {
+            continue;
+        }
+        $cityNorm = custom_panel_normalize_search_text($city);
+        if ($cityNorm !== '' && str_contains($cityNorm, $norm)) {
+            $matched[] = $city;
+        }
+    }
+    return $matched;
 }
 
 function custom_panel_preprocess_page(array &$variables): void

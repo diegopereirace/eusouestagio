@@ -110,7 +110,7 @@ Após Git + `drush cr`, o cruzamento e os avisos estão ativos sem cliques no ad
 ### Functional Requirements
 
 - **FR-001**: A busca da Home MUST aceitar submissão com apenas curso, apenas cidade, ambos ou nenhum (listagem padrão).
-- **FR-002**: Com cidade (e estado, se selecionado) preenchidos, o autocomplete de curso MUST listar somente cursos com pelo menos uma vaga publicada naquela localização.
+- **FR-002**: O autocomplete de curso MUST listar somente cursos com pelo menos uma vaga publicada. Com cidade (e estado, se selecionado) preenchidos, MUST restringir ainda àquela localização.
 - **FR-003**: Com curso preenchido, o autocomplete de cidade MUST listar somente cidades (par cidade+UF) com pelo menos uma vaga publicada daquele curso; `(N)` MUST refletir essa contagem filtrada.
 - **FR-004**: Quando a constraint de um campo resultar em zero opções para o outro, o outro campo MUST ser desabilitado, ter o valor limpo (e UF limpa, se cidade) e exibir aviso traduzível.
 - **FR-005**: Ao esvaziar o campo que gerou a constraint, o campo oposto MUST ser reabilitado e o aviso removido.
@@ -139,7 +139,7 @@ Após Git + `drush cr`, o cruzamento e os avisos estão ativos sem cliques no ad
 
 - “Vaga ativa” = publicada (`status=1`), mesmo critério da 040 / listagem pública.
 - Copy dos hints: curso → “Sem cursos com vagas nesta cidade.”; cidade → “Sem cidades com vagas para este curso.”
-- Sem constraint, cursos continuam listando todos os termos publicados (comportamento atual); cidades continuam só com vagas.
+- Sem constraint de cidade, o autocomplete de curso lista só termos com ≥1 vaga publicada (não todos os termos do vocabulário); cidades continuam só com vagas.
 - Botão Buscar permanece sempre ativo.
 - Parâmetros GET da View (`cursos`, `cidade`, `estado`) inalterados.
 

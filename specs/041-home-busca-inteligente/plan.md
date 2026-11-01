@@ -21,7 +21,7 @@ Estender os autocompletes da Home para cruzar **curso ↔ cidade**: params opcio
 
 1. Params novos: cursos endpoint `cidade`/`estado`; cidades endpoint `curso`.
 2. Índice compartilhado `vaga × cidade × UF × curso` em `cache.data` (1h, tags `node_list:vagas` + `taxonomy_term_list:curso`); filtro `q` + constraints em PHP.
-3. Sem constraint: cursos = todos os termos publicados (atual); cidades = grupos com vagas (atual).
+3. Sem constraint: cursos = só termos com ≥1 vaga publicada; cidades = grupos com vagas.
 4. `q` vazio permitido **só** com constraint (probe / top 10).
 5. JS: delay AC 80ms; probe debounce 300ms; cache key `path|q|constraints`; abort XHR; select → probe imediato.
 6. Hints Twig + CSS disabled; Buscar sempre ativo.

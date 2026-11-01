@@ -11,7 +11,7 @@
 
 **Response**: `[{ "value": "Administração", "label": "Administração" }, …]` máx. 10.
 
-- Sem `cidade`: todos os termos `curso` publicados (comportamento 040).
+- Sem `cidade`: só cursos com ≥1 vaga publicada (`status=1`); termos órfãos (ex.: “Linux Administration” sem vaga) NÃO aparecem.
 - Com `cidade`: só cursos com ≥1 vaga `status=1` na localização (match cidade/estado normalizado).
-- Cache público max-age 60–300s; contexts `url.query_args:q|cidade|estado`; tags `taxonomy_term_list:curso`, `node_list:vagas` (quando constraint).
+- Cache público max-age 60–300s; contexts `url.query_args:q|cidade|estado`; tags `taxonomy_term_list:curso` + `node_list:vagas` (sempre).
 - Erro → `[]` 200.

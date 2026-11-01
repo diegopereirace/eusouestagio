@@ -25,7 +25,8 @@ class CursosAutocompleteController extends ControllerBase {
 
   private const CACHE_MAX_AGE = 300;
 
-  private const CACHE_CID = 'custom_banners:cursos_autocomplete';
+  /** Cache só de cursos com ≥1 vaga publicada (não todos os termos). */
+  private const CACHE_CID = 'custom_banners:cursos_autocomplete_with_vagas';
 
   public function __construct(
     protected Connection $database,
@@ -134,7 +135,7 @@ class CursosAutocompleteController extends ControllerBase {
   }
 
   /**
-   * Lista (cacheada) de cursos publicados com nome normalizado.
+   * Lista (cacheada) de cursos publicados que têm ≥1 vaga publicada.
    *
    * @return list<array{name: string, norm: string}>
    */
@@ -145,17 +146,25 @@ class CursosAutocompleteController extends ControllerBase {
 
     $query = $this->database->select('taxonomy_term_field_data', 't');
     $query->fields('t', ['name']);
+    $query->distinct();
+    $query->join('node__field_cursos_t', 'ct', 'ct.field_cursos_t_target_id = t.tid AND ct.deleted = 0');
+    $query->join('node_field_data', 'n', 'n.nid = ct.entity_id');
     $query->condition('t.vid', self::VID);
     $query->condition('t.status', 1);
     $query->condition('t.default_langcode', 1);
+    $query->condition('n.type', 'vagas');
+    $query->condition('n.status', 1);
+    $query->condition('t.name', '', '<>');
     $query->orderBy('t.name');
 
     $courses = [];
+    $seen = [];
     foreach ($query->execute() as $row) {
       $name = trim((string) $row->name);
-      if ($name === '') {
+      if ($name === '' || isset($seen[$name])) {
         continue;
       }
+      $seen[$name] = TRUE;
       $courses[] = ['name' => $name, 'norm' => $this->normalize($name)];
     }
 
@@ -163,17 +172,25 @@ class CursosAutocompleteController extends ControllerBase {
       self::CACHE_CID,
       $courses,
       time() + self::CACHE_MAX_AGE,
-      ['taxonomy_term_list:' . self::VID, 'taxonomy_term_list'],
+      [
+        'taxonomy_term_list:' . self::VID,
+        'taxonomy_term_list',
+        'node_list:vagas',
+        'node_list',
+      ],
     );
 
     return $courses;
   }
 
   private function buildResponse(array $payload, bool $withLocationConstraint): CacheableJsonResponse {
-    $tags = ['taxonomy_term_list:' . self::VID];
+    // Sempre depende de vagas: autocomplete sem constraint também só lista cursos com vaga.
+    $tags = [
+      'taxonomy_term_list:' . self::VID,
+      'node_list:vagas',
+    ];
     $contexts = ['url.query_args:q'];
     if ($withLocationConstraint) {
-      $tags[] = 'node_list:vagas';
       $contexts[] = 'url.query_args:cidade';
       $contexts[] = 'url.query_args:estado';
     }

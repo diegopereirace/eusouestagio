@@ -1,0 +1,227 @@
+/**
+ * Nossos Diferenciais (Home / Para Empresas) — escopo isolado.
+ * Seletores: .block-nossos-diferenciais / .nd-*
+ * Não alterar .block-diferenciais-quem-somos / .dqs-*.
+ * Mobile First; tokens Figma feature 042.
+ *
+ * Proporções do layout (frame 1280): colagem ~657px (imagem CMS = âncora + 2 fatias)
+ * | lista ~461px; texto do item ~380px; ícone ~72px.
+ */
+
+.block-nossos-diferenciais {
+  font-family: 'Poppins', sans-serif;
+  padding: 2.5rem 0 3rem;
+  overflow-x: clip;
+}
+
+.block-nossos-diferenciais .nd-header {
+  margin: 0 0 2rem;
+}
+
+.block-nossos-diferenciais .nd-header__title {
+  color: #000000;
+  font-weight: 600;
+  font-size: 1.625rem;
+  line-height: 1.3;
+  letter-spacing: -0.3px;
+  margin: 0 0 0.75rem;
+}
+
+.block-nossos-diferenciais .nd-header__subtitle {
+  color: #4a5d73;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  max-width: 663px;
+  margin: 0;
+}
+
+/* Colagem — a imagem do CMS já traz âncora + fatias (1324×718); escala 100% da coluna */
+.block-nossos-diferenciais .nd-media {
+  position: relative;
+  width: 100%;
+  margin: 0 0 2.5rem;
+}
+
+.block-nossos-diferenciais .nd-media__img,
+.block-nossos-diferenciais .nd-media__placeholder {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1324 / 718;
+  object-fit: contain;
+}
+
+.block-nossos-diferenciais .nd-media__placeholder {
+  border-radius: 14px;
+  background: linear-gradient(160deg, #e8eef4 0%, #d5e0ea 100%);
+}
+
+/* Decorações (atrás das fotos, em % do wrapper) */
+.block-nossos-diferenciais .nd-media__deco-circle,
+.block-nossos-diferenciais .nd-media__deco-dot,
+.block-nossos-diferenciais .nd-media__deco-ring {
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Anel verde cortado, canto inferior esquerdo */
+.block-nossos-diferenciais .nd-media__deco-circle {
+  width: 42%;
+  aspect-ratio: 1;
+  left: -9%;
+  bottom: -23%;
+  background: radial-gradient(
+    closest-side,
+    transparent 76%,
+    var(--brand-green) 77%,
+    var(--brand-green) 99%,
+    transparent 100%
+  );
+}
+
+/* Ponto navy, canto superior esquerdo da âncora */
+.block-nossos-diferenciais .nd-media__deco-dot {
+  width: 49px;
+  height: 49px;
+  left: 3%;
+  top: -5%;
+  z-index: 2;
+  background: var(--brand-navy);
+}
+
+/* Anel cinza claro, topo entre as fatias */
+.block-nossos-diferenciais .nd-media__deco-ring {
+  display: none;
+  width: 26%;
+  aspect-ratio: 1;
+  left: 80%;
+  top: -18%;
+  background: radial-gradient(
+    closest-side,
+    transparent 62%,
+    #efefef 63%,
+    #efefef 99%,
+    transparent 100%
+  );
+}
+
+/* Lista */
+.block-nossos-diferenciais .nd-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 0;
+}
+
+.block-nossos-diferenciais .nd-list .field,
+.block-nossos-diferenciais .nd-list .field__items,
+.block-nossos-diferenciais .nd-list .field__item {
+  display: contents;
+}
+
+.block-nossos-diferenciais .nd-item__icon {
+  flex: 0 0 56px;
+  width: 56px;
+  height: 56px;
+}
+
+.block-nossos-diferenciais .nd-item__icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.block-nossos-diferenciais .nd-item__icon--placeholder {
+  border-radius: 12px;
+  background: #e8eef4;
+}
+
+/* Texto: largura limitada (~380px) para quebrar em 2–3 linhas como no layout */
+.block-nossos-diferenciais .nd-item__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 24rem;
+}
+
+.block-nossos-diferenciais .nd-item__title {
+  font-weight: 700;
+  font-size: 1.25rem;
+  margin: 0 0 0.35rem;
+  line-height: 1.3;
+}
+
+.block-nossos-diferenciais .nd-item__desc {
+  margin: 0;
+  color: #4a5d73;
+  font-weight: 400;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+/* Cores cicláveis: 1 verde / 2 navy / 3 laranja */
+.block-nossos-diferenciais .nd-list .nd-item:nth-child(3n + 1) .nd-item__title {
+  color: var(--brand-green);
+}
+
+.block-nossos-diferenciais .nd-list .nd-item:nth-child(3n + 2) .nd-item__title {
+  color: var(--brand-navy);
+}
+
+.block-nossos-diferenciais .nd-list .nd-item:nth-child(3n + 3) .nd-item__title {
+  color: var(--brand-orange);
+}
+
+/* Desktop ≥992px — tipografia Figma + colagem em linha + colunas 7/5 */
+@media (min-width: 992px) {
+  .block-nossos-diferenciais {
+    padding: 3.5rem 0 4rem;
+  }
+
+  .block-nossos-diferenciais .nd-header {
+    margin: 0 0 2.75rem;
+  }
+
+  .block-nossos-diferenciais .nd-header__title {
+    font-size: 30px;
+    line-height: 38px;
+  }
+
+  .block-nossos-diferenciais .nd-grid {
+    --bs-gutter-x: 3rem;
+  }
+
+  .block-nossos-diferenciais .nd-media {
+    margin: 0;
+  }
+
+  .block-nossos-diferenciais .nd-media__deco-ring {
+    display: block;
+  }
+
+  .block-nossos-diferenciais .nd-list {
+    gap: 2.25rem;
+  }
+
+  .block-nossos-diferenciais .nd-item__icon {
+    flex-basis: 72px;
+    width: 72px;
+    height: 72px;
+  }
+
+  .block-nossos-diferenciais .nd-item__title {
+    font-size: 1.375rem;
+  }
+}
+
+/* Viewport estreita — anel cinza oculto */
+@media (max-width: 575.98px) {
+  .block-nossos-diferenciais .nd-media__deco-ring {
+    display: none;
+  }
+}

@@ -13,7 +13,7 @@ Definir a saída pública estável da seção, breakpoints, fallbacks e placemen
 ```html
 <section class="block-o-que-fazemos-bt">
   <div class="container">
-    <header class="oqf-header text-center">
+    <header class="oqf-header">
       <h2 class="oqf-header__title">O que fazemos</h2>
       <p class="oqf-header__subtitle">…</p>
     </header>

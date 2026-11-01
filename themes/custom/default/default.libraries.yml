@@ -106,6 +106,12 @@ nossos_diferenciais:
       assets/css/nossos-diferenciais.css: {}
   dependencies:
     - default/bootstrap
+nossa_metodologia:
+  css:
+    component:
+      assets/css/nossa-metodologia.css: {}
+  dependencies:
+    - default/bootstrap
 beneficios_estudantes:
   css:
     component:

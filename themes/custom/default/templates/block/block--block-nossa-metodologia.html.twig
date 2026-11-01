@@ -24,6 +24,7 @@
 <section{{ attributes.addClass(classes).setAttribute('id', 'nossa-metodologia') }}>
   {{ title_prefix }}{{ title_suffix }}
   {% block content %}
+    {{ attach_library('default/nossa_metodologia') }}
     <div{{ content_attributes.addClass('content') }}>
       <div class="container">
         {% if title or subtitle %}
@@ -38,7 +39,7 @@
         {% endif %}
 
         {% if has_etapas %}
-          <div class="nm-etapas" role="list">
+          <div class="nm-etapas mx-auto" role="list">
             {% for item in etapa_items %}
               {% if item.entity.uri.value is defined %}
                 {% set etapa_uri = item.entity.uri.value %}
@@ -52,7 +53,7 @@
         {% endif %}
 
         {% if has_passos %}
-          <div class="nm-passos">
+          <div class="nm-passos mx-auto">
             {{ content.field_metodologia_passos }}
           </div>
         {% endif %}

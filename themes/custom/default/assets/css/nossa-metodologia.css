@@ -1,0 +1,263 @@
+/**
+ * Nossa Metodologia (Home / Para Empresas) — escopo isolado.
+ * Seletores: .block-nossa-metodologia / .nm-*
+ * Mobile First; tokens Figma feature 043.
+ * Library: default/nossa_metodologia
+ */
+
+.block-nossa-metodologia {
+  font-family: 'Poppins', sans-serif;
+  padding: 2.5rem 0 3rem;
+  overflow-x: clip;
+}
+
+.block-nossa-metodologia .container {
+  max-width: 1280px;
+}
+
+.block-nossa-metodologia .nm-header {
+  max-width: 720px;
+  margin: 0 auto 2rem;
+}
+
+.block-nossa-metodologia .nm-header__title {
+  color: #000000;
+  font-weight: 600;
+  font-size: 1.875rem; /* 30px */
+  line-height: 38px;
+  letter-spacing: -0.3px;
+  margin: 0 0 0.75rem;
+}
+
+.block-nossa-metodologia .nm-header__subtitle {
+  color: #4a5d73;
+  font-weight: 300;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* —— Etapas (chevrons) — base mobile: coluna —— */
+.block-nossa-metodologia .nm-etapas {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  margin: 0 0 2rem;
+}
+
+.block-nossa-metodologia .nm-etapas__item {
+  position: relative;
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: min(100%, 320px);
+  height: clamp(56px, 14vw, 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Conectores entre chevrons — ocultos no empilhamento mobile */
+.block-nossa-metodologia .nm-etapas__item:nth-child(1)::after,
+.block-nossa-metodologia .nm-etapas__item:nth-child(2)::after {
+  content: '';
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  width: 1.75rem;
+  height: 1px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.block-nossa-metodologia .nm-etapas__item:nth-child(1)::after {
+  background-color: #9a7fd8;
+}
+
+.block-nossa-metodologia .nm-etapas__item:nth-child(2)::after {
+  background-color: #54b2d1;
+}
+
+.block-nossa-metodologia .nm-etapas__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+/* —— Passos — base mobile: coluna —— */
+.block-nossa-metodologia .nm-passos {
+  width: 100%;
+}
+
+.block-nossa-metodologia .nm-passos .field__items {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  row-gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.block-nossa-metodologia .nm-passos .field__item {
+  position: relative;
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: 260px;
+  padding: 0;
+}
+
+/* Seta decorativa — mobile: abaixo do item, rotacionada 90° */
+.block-nossa-metodologia .nm-passos .field__item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: auto;
+  right: auto;
+  bottom: -1.15rem;
+  left: 50%;
+  width: 18px;
+  height: 14px;
+  transform: translateX(-50%) rotate(90deg);
+  background: no-repeat center / contain;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 14'%3E%3Cpath d='M1 7h12M9 2l6 5-6 5' fill='none' stroke='%237CB342' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.block-nossa-metodologia .nm-passo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.75rem;
+}
+
+.block-nossa-metodologia .nm-passo__icon {
+  width: 96px;
+  height: 96px;
+  flex-shrink: 0;
+}
+
+.block-nossa-metodologia .nm-passo__icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.block-nossa-metodologia .nm-passo__title {
+  color: #000000;
+  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  line-height: 1.35;
+  text-transform: uppercase;
+  margin: 0;
+  max-width: 11rem;
+}
+
+/* —— Tablet (≥768px): linhas horizontais; setas horizontais omitidas no wrap —— */
+@media (min-width: 768px) {
+  .block-nossa-metodologia {
+    padding: 4.75rem 0;
+  }
+
+  .block-nossa-metodologia .nm-header {
+    margin: 0 0 2.5rem auto;
+  }
+
+  .block-nossa-metodologia .nm-etapas {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem 1.75rem;
+    margin-bottom: 2.75rem;
+  }
+
+  .block-nossa-metodologia .nm-etapas__item {
+    flex: 0 1 auto;
+    width: auto;
+    max-width: 220px;
+    height: clamp(48px, 6.5vw, 72px);
+  }
+
+  .block-nossa-metodologia .nm-etapas__item:nth-child(1)::after,
+  .block-nossa-metodologia .nm-etapas__item:nth-child(2)::after {
+    display: block;
+  }
+
+  .block-nossa-metodologia .nm-passos .field__items {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    row-gap: 1.75rem;
+  }
+
+  .block-nossa-metodologia .nm-passos .field__item {
+    flex: 1 1 40%;
+    max-width: none;
+    padding: 0 0.75rem;
+  }
+
+  /* Wrap de passos &lt;992px: ocultar setas horizontais que quebram o fluxo */
+  .block-nossa-metodologia .nm-passos .field__item:not(:last-child)::after {
+    display: none;
+  }
+}
+
+/* —— Desktop (≥992px): wrappers 770 / 1160; setas no centro dos círculos —— */
+@media (min-width: 992px) {
+  .block-nossa-metodologia .nm-etapas {
+    max-width: 770px;
+    margin-left: auto;
+    margin-right: auto;
+    min-height: 48px;
+  }
+
+  .block-nossa-metodologia .nm-etapas__item {
+    flex: 0 1 auto;
+    max-width: none;
+  }
+
+  .block-nossa-metodologia .nm-passos {
+    max-width: 1160px;
+    margin-left: auto;
+    margin-right: auto;
+    min-height: 154px;
+  }
+
+  .block-nossa-metodologia .nm-passos .field__items {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .block-nossa-metodologia .nm-passos .field__item {
+    flex: 0 1 auto;
+    max-width: none;
+    padding: 0 0.75rem;
+  }
+
+  /*
+   * Seta no eixo vertical do ícone 96px (centro = 48px),
+   * não relativa ao rótulo — translateY(-50%) centra a seta no eixo.
+   */
+  .block-nossa-metodologia .nm-passos .field__item:not(:last-child)::after {
+    display: block;
+    top: 48px;
+    right: -2px;
+    bottom: auto;
+    left: auto;
+    transform: translateY(-50%);
+  }
+}

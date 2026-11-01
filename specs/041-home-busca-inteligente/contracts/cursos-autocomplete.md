@@ -6,8 +6,8 @@
 | Parâmetro | Obrigatório | Regra |
 |-----------|-------------|-------|
 | `q` | condicional | ≥2 chars sem constraint; pode ser vazio **com** `cidade` (probe) |
-| `cidade` | não | Restringe a cursos com vagas publicadas nessa cidade |
-| `estado` | não | Refina com UF quando presente |
+| `cidade` | não | Restringe a cursos com vagas publicadas nessa cidade (match normalizado: igualdade ou prefixo) |
+| `estado` | não | Refina com UF quando presente (igualdade normalizada) |
 
 **Response**: `[{ "value": "Administração", "label": "Administração" }, …]` máx. 10.
 

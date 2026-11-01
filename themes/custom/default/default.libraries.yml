@@ -149,7 +149,7 @@ layout_contato:
   dependencies:
     - default/bootstrap
 hero_search:
-  version: 1.4.3
+  version: 1.4.4
   js:
     assets/js/hero-search.js: {}
   css:

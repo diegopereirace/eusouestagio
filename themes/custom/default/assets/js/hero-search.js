@@ -469,6 +469,7 @@
             row.className = 'hero-search-ac__item';
 
             if (item.estado) {
+              // Contrato 040/041: `{Cidade} - {UF} - ({N})` (N numérico).
               const main = document.createElement('span');
               main.className = 'hero-search-ac__main';
               appendHighlighted(main, item.value, this.term || '');
@@ -476,13 +477,12 @@
 
               const sep = document.createElement('span');
               sep.className = 'hero-search-ac__sep';
-              sep.textContent = ' | ';
+              sep.textContent = ' - ';
               row.appendChild(sep);
 
               const meta = document.createElement('span');
               meta.className = 'hero-search-ac__meta';
-              const vagas = item.count === 1 ? '1 vaga' : `${item.count || 0} vagas`;
-              meta.textContent = `${item.estado} (${vagas})`;
+              meta.textContent = `${item.estado} - (${item.count || 0})`;
               row.appendChild(meta);
             }
             else {

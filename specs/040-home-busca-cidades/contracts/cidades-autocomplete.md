@@ -52,4 +52,4 @@ GET /api/cidades/autocomplete?q={texto}
 
 ## Degradação
 
-Sem JS ou endpoint indisponível, o campo funciona como texto livre (`cidade` na query); a listagem resolve via filtro CONTAINS. O autocomplete é enhancement, não dependência funcional.
+Sem JS ou endpoint indisponível, o campo funciona como texto livre (`cidade` na query); a listagem resolve via match normalizado contra cidades que tenham **≥1 vaga publicada** (mesmo critério FR-008). O autocomplete é enhancement, não dependência funcional.

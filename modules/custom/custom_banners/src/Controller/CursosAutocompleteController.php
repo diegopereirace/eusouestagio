@@ -107,12 +107,13 @@ class CursosAutocompleteController extends ControllerBase {
     $byName = [];
     $index = new VagaLocationCourseIndex($this->database, $this->dataCache);
     foreach ($index->getTriples() as $triple) {
-      if (!str_contains($triple['cidade_norm'], $cidadeNorm)) {
+      if (!$this->matchesNormalizedPrefix($triple['cidade_norm'], $cidadeNorm)) {
         continue;
       }
       if ($estadoNorm !== '' && $this->normalize($triple['estado']) !== $estadoNorm) {
         continue;
       }
+      // q de autocomplete de curso: substring ok; constraint de cidade já é prefixo.
       if ($normalizedQuery !== '' && mb_strpos($triple['curso_norm'], $normalizedQuery) === FALSE) {
         continue;
       }
@@ -161,7 +162,7 @@ class CursosAutocompleteController extends ControllerBase {
     $this->dataCache->set(
       self::CACHE_CID,
       $courses,
-      time() + 3600,
+      time() + self::CACHE_MAX_AGE,
       ['taxonomy_term_list:' . self::VID, 'taxonomy_term_list'],
     );
 

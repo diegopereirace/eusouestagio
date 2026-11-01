@@ -77,11 +77,10 @@ class CidadesAutocompleteController extends ControllerBase {
         foreach (array_slice($matches, 0, self::LIMIT) as $match) {
           $payload[] = [
             'value' => $match['cidade'],
-            'label' => sprintf(
-              '%s | %s (%s)',
+            'label' => $this->citySuggestionLabel(
               $match['cidade'],
               $match['estado'],
-              $match['count'] === 1 ? '1 vaga' : $match['count'] . ' vagas',
+              $match['count'],
             ),
             'estado' => $match['estado'],
             'count' => $match['count'],
@@ -154,7 +153,7 @@ class CidadesAutocompleteController extends ControllerBase {
     $this->dataCache->set(
       self::CACHE_CID,
       $groups,
-      time() + 3600,
+      time() + self::CACHE_MAX_AGE,
       ['node_list:vagas', 'node_list'],
     );
 
@@ -175,7 +174,7 @@ class CidadesAutocompleteController extends ControllerBase {
     $index = new VagaLocationCourseIndex($this->database, $this->dataCache);
     $aggregated = [];
     foreach ($index->getTriples() as $triple) {
-      if (!str_contains($triple['curso_norm'], $cursoNorm)) {
+      if (!$this->matchesNormalizedPrefix($triple['curso_norm'], $cursoNorm)) {
         continue;
       }
       $key = $triple['cidade'] . "\0" . $triple['estado'];

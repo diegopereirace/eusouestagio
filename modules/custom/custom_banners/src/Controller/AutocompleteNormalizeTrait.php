@@ -15,4 +15,18 @@ trait AutocompleteNormalizeTrait {
     return SearchTextNormalizer::normalize($text);
   }
 
+  /**
+   * Constraint de curso/cidade: igualdade ou prefixo (não substring solta).
+   */
+  protected function matchesNormalizedPrefix(string $haystackNorm, string $needleNorm): bool {
+    return SearchTextNormalizer::matchesNormalizedPrefix($haystackNorm, $needleNorm);
+  }
+
+  /**
+   * Label `{Cidade} - {UF} - ({N})` do contrato de autocomplete.
+   */
+  protected function citySuggestionLabel(string $cidade, string $estado, int $count): string {
+    return SearchTextNormalizer::citySuggestionLabel($cidade, $estado, $count);
+  }
+
 }

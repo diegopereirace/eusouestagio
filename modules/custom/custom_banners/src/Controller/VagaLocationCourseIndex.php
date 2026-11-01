@@ -16,7 +16,8 @@ final class VagaLocationCourseIndex {
 
   private const CACHE_CID = 'custom_banners:vaga_location_course_index';
 
-  private const CACHE_TTL = 3600;
+  /** Alinhado ao max-age HTTP dos autocompletes (60–300s). */
+  private const CACHE_TTL = 300;
 
   public function __construct(
     private readonly Connection $database,

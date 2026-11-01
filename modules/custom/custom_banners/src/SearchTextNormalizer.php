@@ -28,4 +28,23 @@ final class SearchTextNormalizer {
     return is_string($converted) && $converted !== '' ? $converted : $text;
   }
 
+  /**
+   * Label do dropdown de cidades — contrato 040/041: `{Cidade} - {UF} - ({N})`.
+   */
+  public static function citySuggestionLabel(string $cidade, string $estado, int $count): string {
+    return sprintf('%s - %s - (%d)', $cidade, $estado, max(0, $count));
+  }
+
+  /**
+   * Match de constraint (curso/cidade): igualdade ou prefixo normalizado.
+   *
+   * Evita false-positive de substring (ex.: "ti" em "notificacao").
+   */
+  public static function matchesNormalizedPrefix(string $haystackNorm, string $needleNorm): bool {
+    if ($needleNorm === '' || $haystackNorm === '') {
+      return FALSE;
+    }
+    return $haystackNorm === $needleNorm || str_starts_with($haystackNorm, $needleNorm);
+  }
+
 }

@@ -27,15 +27,18 @@ Contrato de apresentação estável para aceite side-by-side com o Figma. Não �
         <p class="nd-header__subtitle">…</p>         <!-- omitir se vazio; max-width ~663px -->
       </header>
       <div class="row align-items-center nd-grid">
-        <div class="col-lg-6">
+        <div class="col-lg-7">
           <div class="nd-media">
-            <!-- decos: .nd-media__deco-* ou pseudo; aria-hidden -->
-            <img class="nd-media__img" alt="…" loading="lazy">  <!-- ou .nd-media__placeholder -->
-            <img class="nd-media__slice …" aria-hidden="true" alt="">  <!-- 0..n; ocultas no mobile estreito -->
+            <span class="nd-media__deco-ring" aria-hidden="true"></span>
+            <span class="nd-media__deco-circle" aria-hidden="true"></span>
+            <span class="nd-media__deco-dot" aria-hidden="true"></span>
+            <img class="nd-media__img" alt="…" width="1090" height="591" loading="lazy">
+            <!-- ou .nd-media__placeholder se sem field_image -->
           </div>
         </div>
-        <div class="col-lg-6">
+        <div class="col-lg-5">
           <div class="nd-list">
+            <!-- Drupal field wrappers com display:contents -->
             <div class="nd-item d-flex align-items-start gap-3">
               <div class="nd-item__icon">…</div>
               <div class="nd-item__body">
@@ -51,11 +54,13 @@ Contrato de apresentação estável para aceite side-by-side com o Figma. Não �
 </section>
 ```
 
-## Ajuste pós-implementação (2026-11-01)
+## Decisão de colagem (2026-11-01)
 
-- A imagem do CMS (`field_image`, 1324×718) **já é a colagem completa** (âncora + 2 fatias). Não existem `.nd-media__slice` nem PNGs de fatia no tema; o DOM acima de fatias é **obsoleto**.
-- Decos (`.nd-media__deco-circle` anel verde, `.nd-media__deco-dot` ponto navy, `.nd-media__deco-ring` anel cinza) são `span aria-hidden` atrás/à frente da imagem, posicionados em % do wrapper.
+- A imagem do CMS (`field_image`, proporção ~1324×718) **já é a colagem completa** (âncora + 2 fatias embutidas no asset editorial).
+- **Não** há `.nd-media__slice` nem PNGs de fatia no tema — fatias separadas no markup foram rejeitadas para não duplicar arte já presente no upload.
+- Decos (`.nd-media__deco-circle` anel verde, `.nd-media__deco-dot` ponto navy, `.nd-media__deco-ring` anel cinza) são `span aria-hidden` com `z-index` **atrás** da foto, posicionados em % do wrapper; anel cinza só em ≥992px.
 - Colunas desktop: `col-lg-7` (colagem) + `col-lg-5` (lista); texto do item `max-width: 24rem`; ícone 72px (56px mobile).
+- Âncora servida via `image_style('wide')` (1090w) + `width`/`height` para CLS; `object-fit: contain` + `aspect-ratio: 1324 / 718`.
 
 ## Tokens visuais (aceitação)
 
@@ -63,24 +68,23 @@ Contrato de apresentação estável para aceite side-by-side com o Figma. Não �
 |-------|----------------|
 | Título seção | Poppins 600, 30px, lh 38px, ls −0.3px, `#000000` |
 | Subtítulo | Poppins 400, 14px, lh 20px; max-width ~663px |
-| Âncora | ~391×350 (proporção), `object-fit` contido |
-| Fatias | ~125×358; só desktop / tablet largo |
-| Deco círculo | ~278×278 verde (cortado / anel conforme Figma) |
-| Deco ponto | ~49×49 navy |
-| Item títulos 1/4/7… | `var(--brand-green)` + bold |
-| Item títulos 2/5/8… | `var(--brand-navy)` + bold |
-| Item títulos 3/6/9… | `var(--brand-orange)` + bold |
-| Breakpoint colunas | ≥992px (`col-lg-6`); abaixo = empilhado |
-| Overflow mobile | zero scroll horizontal causado pela seção |
+| Colagem CMS | proporção ~1324×718 (âncora+fatias no asset); style `wide` |
+| Deco círculo | anel verde ~42% do wrapper, atrás da foto |
+| Deco ponto | ~49×49 navy, atrás da foto |
+| Deco ring | anel cinza; só desktop ≥992px; oculto ≤575px |
+| Item títulos 1/4/7… | `var(--brand-green)` + bold via `.field__item:nth-child(3n+1)` |
+| Item títulos 2/5/8… | `var(--brand-navy)` + bold via `.field__item:nth-child(3n+2)` |
+| Item títulos 3/6/9… | `var(--brand-orange)` + bold via `.field__item:nth-child(3n+3)` |
+| Breakpoint colunas | ≥992px (`col-lg-7` / `col-lg-5`); abaixo = empilhado |
+| Overflow | `overflow: hidden` na seção — zero scroll horizontal |
 
 ## Acessibilidade
 
-- Âncora CMS: `alt` do campo; `loading="lazy"`.
-- Fatias e decos: `aria-hidden="true"` (e `alt=""` em `<img>` decorativos).
+- Âncora CMS: `alt` do campo; `loading="lazy"`; `decoding="async"`.
+- Decos: `aria-hidden="true"`.
 - Contraste dos títulos coloridos sobre fundo claro da Home.
 
 ## Não garantido
 
-- Presença dos PNG de fatia em ambientes sem o deploy de código do tema.
-- Edição editorial das fatias (não são CMS).
+- Edição editorial das fatias embutidas no PNG (fazem parte do asset CMS; trocar a imagem troca a colagem inteira).
 - Paridade pixel-perfect em zoom extremo / fontes do SO (SC cobre overflow, não DPI).

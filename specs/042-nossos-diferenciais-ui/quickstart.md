@@ -9,6 +9,7 @@ Drush local: `docker compose exec drupal drush <cmd>`.
 1. Feature **004** ativa (bloco seed + placements Home e `/para-empresas`).
 2. Branch com tema `default` (Twig + library desta feature).
 3. Referência Figma da seção (ou medidas da spec) para checklist visual.
+4. Imagem CMS da colagem completa (âncora + fatias no mesmo asset).
 
 ## A) Cache
 
@@ -25,27 +26,30 @@ docker compose exec drupal drush cr
 
 ## C) Layout desktop + colagem (SC-001 / US1)
 
-1. Viewport ≥992px: colagem (esquerda) e lista (direita) lado a lado, `align-items-center`.
-2. Âncora CMS visível; fatias e decos na posição relativa do Figma (atrás/ao redor).
-3. Checklist visual ≥90% dos pontos do frame.
+1. Viewport ≥992px: colagem (`col-lg-7`) e lista (`col-lg-5`) lado a lado, `align-items-center`.
+2. Imagem CMS (colagem completa) visível; decos (anel verde, ponto navy, ring cinza) atrás/ao redor, sem overflow da página.
+3. `<img.nd-media__img>` usa style `wide`, com `width`/`height` e `loading="lazy"`.
+4. Checklist visual ≥90% dos pontos do frame.
 
 ## D) Lista e cores (US2)
 
 1. Itens com ícone | título+descrição; gap consistente.
-2. Títulos: 1º verde, 2º navy, 3º laranja (e ciclam se N>3).
-3. Descrição longa quebra sem overflow horizontal.
+2. No DevTools, computed `color` dos títulos: 1º verde, 2º navy, 3º laranja (ciclam se N>3).
+3. Confirmar que o seletor efetivo é `.field__item:nth-child(3n+k)` (não `.nd-item:nth-child`).
+4. Descrição longa quebra sem overflow horizontal.
 
 ## E) Mobile (SC-003 / US3)
 
 1. Viewport ≤575px e ~768px: empilhamento cabeçalho → mídia → lista.
-2. Sem scroll horizontal da página causado pela seção.
-3. Fatias secundárias ocultas ou escala segura em viewport estreita.
+2. Sem scroll horizontal da página causado pela seção (`overflow: hidden`).
+3. Ring cinza oculto em ≤575px; colagem escala com o container.
 
 ## F) Editorial (SC-005 / US4)
 
 1. Editar título/subtítulo/itens/imagem no admin; salvar.
 2. `drush cr` se necessário; Home reflete conteúdo.
 3. Sem imagem: placeholder mantém coluna; sem erro Twig.
+4. Troca da imagem CMS substitui a colagem inteira (fatias embutidas no asset).
 
 ## G) Reuso PE (SC-006)
 

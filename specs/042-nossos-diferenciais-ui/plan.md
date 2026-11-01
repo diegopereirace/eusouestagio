@@ -17,7 +17,7 @@ Refatorar **apenas a apresentação** do bloco existente `nossos_diferenciais` (
 **Testing**: validação manual + [quickstart.md](quickstart.md); sem PHPUnit dedicado  
 **Target Platform**: site público (viewports ≤575 / ~768 / ≥992)  
 **Project Type**: refatoração de tema Drupal SSR  
-**Performance Goals**: CSS encapsulado em library dedicada; imagem âncora com `loading="lazy"`; decoração sem JS; fatias estáticas leves  
+**Performance Goals**: CSS encapsulado em library dedicada; colagem via `image_style('wide')` + `loading="lazy"`; decoração sem JS  
 **Constraints**: sem `core/`/`vendor/`; sem expandir CMS; não tocar `diferenciais_quem_somos`; CSS sem aninhamento profundo; utilitários Bootstrap quando equivalerem ao resultado  
 **Scale/Scope**: 2 Twig (bloco + opcional paragraph), 1 CSS dedicado + library, remoção/neutralização do bloco legado em `style.css`, assets estáticos de apresentação no tema (opcional), contrato de render + deploy
 
@@ -57,10 +57,10 @@ Sem `.specify/memory/constitution.md`. Gates = `.cursor/rules/estagio-*.mdc` + P
 3. **Migrar** regras `.block-nossos-diferenciais` / `.nd-*` de `style.css` para o CSS novo; deixar comentário de ponteiro ou remoção limpa no `style.css` para evitar duplicata.
 4. **Título**: `#000000`, Poppins 600, 30px / 38px / letter-spacing −0.3px (FR-007); remover navy do título.
 5. **Subtítulo**: Poppins 400, 14px / 20px, `max-width: ~663px` (FR-008/004); peso 300 legado → 400.
-6. **Colagem**: wrapper relativo `.nd-media` com camadas — âncora CMS (`.nd-media__img`, ~391×350), fatias secundárias (`.nd-media__slice`, assets do tema, `aria-hidden`), formas decorativas (pseudo-elementos ou spans SVG: círculo verde cortado ~278, ponto navy ~49) com `z-index` atrás das fotos.
-7. **Fatias secundárias**: arquivos estáticos em `themes/custom/default/assets/images/nossos-diferenciais/` referenciados via path do tema — **sem** `hook_update_N` / `public://` (R2). Se exports Figma ainda não existirem no repo, implementar geometria + placeholders tipados e documentar drop-in dos PNGs.
-8. **Mobile First**: base empilhada; `@media (min-width: 992px)` para duas colunas e colagem completa; em viewports estreitas ocultar fatias (FR-015) e escalar wrapper com `%`/`max-width` (sem overflow).
-9. **Lista**: manter `nth-child(3n+k)` verde/navy/laranja; reforçar negrito; layout `d-flex` / `gap` já no paragraph.
+6. **Colagem**: wrapper relativo `.nd-media` — imagem CMS completa (`.nd-media__img`, proporção ~1324×718 via style `wide`) + spans decorativos (`.nd-media__deco-*`) com `z-index` atrás da foto.
+7. **Fatias**: embutidas no asset editorial do CMS; **sem** `.nd-media__slice` nem pasta de PNGs no tema (evita duplicar a arte).
+8. **Mobile First**: base empilhada; `@media (min-width: 992px)` para `col-lg-7`/`col-lg-5`; ocultar ring em viewports estreitas; `overflow: hidden` na seção.
+9. **Lista**: cores via `.field__item:nth-child(3n+k)` (não `.nd-item:nth-child`, incompatível com `display: contents`); reforçar negrito; layout `d-flex` / `gap` já no paragraph.
 10. **Deploy**: somente código tema + `drush cr` — ver [contracts/deploy-nossos-diferenciais-ui.md](contracts/deploy-nossos-diferenciais-ui.md).
 11. **Fora**: `diferenciais_quem_somos`, novos fields, `config/sync` obrigatório, SCSS build novo.
 
@@ -89,22 +89,20 @@ themes/custom/default/
 ├── templates/block/block--block-nossos-diferenciais.html.twig
 ├── templates/paragraph/paragraph--diferencial-item-p.html.twig  # só se preciso
 ├── assets/css/nossos-diferenciais.css             # NOVO — estilos do bloco
-├── assets/css/style.css                           # remover bloco legado ND
-└── assets/images/nossos-diferenciais/             # fatias estáticas (opcional drop-in)
-    ├── slice-1.png
-    └── slice-2.png   # nomes finais na implementação
+└── assets/css/style.css                           # remover bloco legado ND
 ```
 
-**Structure Decision**: 100% tema. Sem `custom_configs.install`, sem `config/sync`.
+**Structure Decision**: 100% tema (+ reuso do image style `wide` já no sync). Sem `custom_configs.install`, sem YAML novo.
 
 ## Complexity Tracking
 
 | Trade-off | Justificativa | Alternativa rejeitada |
 |-----------|---------------|------------------------|
-| Fatias no tema (não CMS) | FR-001/014; editor não gerencia arte de fundo | Novos `field_image` na colagem |
+| Colagem completa no CMS (não fatias no tema) | Asset editorial já inclui fatias; evita duplicar markup | `.nd-media__slice` + PNGs no tema |
 | CSS plano + library (não SCSS) | Tema sem pipeline SCSS | Introduzir build Sass só para 1 bloco |
-| Pseudo/SVG para formas | Sem asset binário obrigatório para círculos | PNGs decorativos + hook `public://` |
+| Spans CSS para formas | Sem asset binário obrigatório para círculos | PNGs decorativos + hook `public://` |
 | Extrair de `style.css` | Manutenibilidade / FR-016; padrão 013 | Continuar inchando `style.css` |
+| `image_style('wide')` | Limita payload sem YAML novo | Original via `file_url` / style dedicado |
 
 ## Phases
 

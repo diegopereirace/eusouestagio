@@ -20,11 +20,11 @@
 
 ## R3 — Fonte das fatias secundárias da colagem
 
-**Decision**: Assets estáticos versionados em `themes/custom/default/assets/images/nossos-diferenciais/`, referenciados no Twig via path do tema; `aria-hidden="true"`. Sem campos CMS; sem cópia para `public://`.
+**Decision (revisada pós-implementação)**: A imagem CMS (`field_image`) **já contém** a colagem completa (âncora + fatias). Sem `.nd-media__slice` e sem pasta `assets/images/nossos-diferenciais/`. Servir via `image_style('wide')` + `width`/`height`.
 
-**Rationale**: FR-001/014/018; editor só troca a âncora (`field_image`). Assets de tema sobem no Git e aparecem após `drush cr` (agregação/cache).
+**Rationale**: O asset editorial seedado já embute as fatias; markup separado duplicaria a arte e exigiria PNGs que não existem no repo. FR-001/013/018 atualizados.
 
-**Alternatives considered**: Novos fields de imagem (rejeitado pela spec); `custom_configs/assets` + `hook_update_N` (necessário só quando seed editorial precisa de `File` entity — não é o caso); CSS `background` puro sem PNG (pode não bater o Figma se houver fotos reais nas fatias).
+**Alternatives considered**: PNGs de fatia no tema (rejeitado — duplicata visual); novos fields de imagem (rejeitado pela spec); `hook_update_N` + `public://` (desnecessário).
 
 ## R4 — Formas decorativas (círculo verde / ponto navy)
 
@@ -42,13 +42,21 @@
 
 **Alternatives considered**: Manter navy da marca no H2 (rejeitado pelo aceite visual); `clamp()` frouxo sem tokens Figma (piora checklist SC-001/002).
 
-## R6 — Mobile First e ocultação de fatias
+## R6 — Mobile First e overflow
 
-**Decision**: Estilos base = coluna única + colagem simplificada (âncora + decos mínimas); em `min-width: 992px` ativar grid duas colunas e fatias; abaixo de breakpoint estreito (`max-width: 575.98px` ou similar) `display: none` nas fatias.
+**Decision**: Estilos base = coluna única + colagem CMS + decos; em `min-width: 992px` ativar `col-lg-7`/`col-lg-5` e o ring cinza; em `max-width: 575.98px` ocultar o ring; `overflow: hidden` na seção.
 
-**Rationale**: FR-015/016; User Story 3; evita scroll horizontal.
+**Rationale**: FR-015/016; User Story 3; evita scroll horizontal e sangria dos decos.
 
-**Alternatives considered**: Desktop-first com overrides mobile (contrário ao pedido); `transform: scale()` global na seção (pode desfocar texto).
+**Alternatives considered**: Desktop-first (contrário ao pedido); `overflow-x: clip` só no eixo X (sangria vertical); fatias `display: none` no markup (não aplicável — fatias no asset CMS).
+
+## R8 — Cores cicláveis com `display: contents`
+
+**Decision**: Selecionar `.nd-list .field__item:nth-child(3n+k) .nd-item__title`, não `.nd-item:nth-child`.
+
+**Rationale**: Wrappers do field usam `display: contents` para o flex; no DOM cada `.nd-item` é quase sempre `:first-child` do próprio `.field__item`, o que quebrava o ciclo verde/navy/laranja (FR-009).
+
+**Alternatives considered**: Remover `display: contents` e estilizar gaps nos wrappers (mais frágil com markup Drupal); classes por delta no Twig (acoplamento desnecessário).
 
 ## R7 — Deploy sem `cim`/`updb`
 

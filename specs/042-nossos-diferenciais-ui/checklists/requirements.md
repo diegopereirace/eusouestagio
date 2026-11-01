@@ -32,7 +32,7 @@
 ## Notes
 
 - Validação 2026-11-01 (iteração 1): aprovado.
-- Tokens tipográficos e medidas do Figma (30px, 14px, 391×350, etc.) foram tratados como **critérios de fidelidade visual**, não como vazamento de stack — necessários para aceite de UI.
+- Tokens tipográficos e medidas do Figma (30px, 14px, colagem ~1324×718, colunas 7/5, etc.) foram tratados como **critérios de fidelidade visual**, não como vazamento de stack — necessários para aceite de UI.
 - Menções a Bootstrap/Twig/SCSS ficaram restritas a Escopo “Fora”, Assumptions e FR-016/018 (critérios de manutenibilidade e superfície de mudança do projeto Drupal), sem prescrever arquitetura de pastas no corpo das user stories.
-- Nenhuma marcação `[NEEDS CLARIFICATION]`; fonte das fatias da colagem assumida como assets de apresentação (ver Assumptions).
+- Nenhuma marcação `[NEEDS CLARIFICATION]`; colagem completa no asset CMS + decos CSS (ver Assumptions / contrato).
 - Pronto para `/speckit-clarify` (opcional) ou `/speckit-plan`.

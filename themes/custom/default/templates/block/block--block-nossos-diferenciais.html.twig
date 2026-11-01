@@ -4,7 +4,8 @@
  * Bloco Nossos Diferenciais (bundle nossos_diferenciais).
  *
  * Suggestion Barrio: block__block_nossos_diferenciais.
- * Library dedicada (042): tipografia Figma + colagem composta.
+ * Library dedicada (042): tipografia Figma + colagem CMS + decos.
+ * Colunas desktop: col-lg-7 (mídia) + col-lg-5 (lista).
  */
 #}
 {{ attach_library('default/nossos_diferenciais') }}
@@ -44,7 +45,16 @@
               {% if has_image %}
                 {% set img_uri = content.field_image['#items'][0].entity.uri.value %}
                 {% set img_alt = content.field_image['#items'][0].alt|default('') %}
-                <img class="img-fluid nd-media__img" src="{{ file_url(img_uri) }}" alt="{{ img_alt }}" loading="lazy">
+                {# Style wide (1090w): limita payload; proporção design 1324×718 → 1090×591. #}
+                <img
+                  class="img-fluid nd-media__img"
+                  src="{{ img_uri|image_style('wide')|e('html_attr') }}"
+                  alt="{{ img_alt }}"
+                  width="1090"
+                  height="591"
+                  loading="lazy"
+                  decoding="async"
+                >
               {% else %}
                 <div class="nd-media__placeholder" aria-hidden="true"></div>
               {% endif %}

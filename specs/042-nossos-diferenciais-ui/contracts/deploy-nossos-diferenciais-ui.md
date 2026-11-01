@@ -19,7 +19,7 @@ docker compose exec drupal drush cr   # local
 | Twig bloco (± paragraph) | `themes/custom/default/templates/…` |
 | CSS + library | `assets/css/nossos-diferenciais.css`, `default.libraries.yml` |
 | Limpeza legado | remoção do bloco ND em `style.css` |
-| Fatias (se versionadas) | `assets/images/nossos-diferenciais/*` |
+| Image style | reutiliza `wide` (já em `config/sync`; sem YAML novo) |
 
 ## Gates
 

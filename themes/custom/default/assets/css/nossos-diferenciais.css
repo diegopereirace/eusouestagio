@@ -11,7 +11,8 @@
 .block-nossos-diferenciais {
   font-family: 'Poppins', sans-serif;
   padding: 2.5rem 0 3rem;
-  overflow-x: clip;
+  /* Clip X+Y: evita scroll horizontal e sangria dos decos nas seções vizinhas. */
+  overflow: hidden;
 }
 
 .block-nossos-diferenciais .nd-header {
@@ -41,6 +42,8 @@
   position: relative;
   width: 100%;
   margin: 0 0 2.5rem;
+  /* Reserva espaço para decos sem estourar o overflow da seção. */
+  padding: 6% 2% 10% 6%;
 }
 
 .block-nossos-diferenciais .nd-media__img,
@@ -59,7 +62,7 @@
   background: linear-gradient(160deg, #e8eef4 0%, #d5e0ea 100%);
 }
 
-/* Decorações (atrás das fotos, em % do wrapper) */
+/* Decorações atrás das fotos (FR-014), em % do wrapper */
 .block-nossos-diferenciais .nd-media__deco-circle,
 .block-nossos-diferenciais .nd-media__deco-dot,
 .block-nossos-diferenciais .nd-media__deco-ring {
@@ -73,8 +76,8 @@
 .block-nossos-diferenciais .nd-media__deco-circle {
   width: 42%;
   aspect-ratio: 1;
-  left: -9%;
-  bottom: -23%;
+  left: 0;
+  bottom: 0;
   background: radial-gradient(
     closest-side,
     transparent 76%,
@@ -84,13 +87,12 @@
   );
 }
 
-/* Ponto navy, canto superior esquerdo da âncora */
+/* Ponto navy, canto superior esquerdo da âncora — atrás da foto */
 .block-nossos-diferenciais .nd-media__deco-dot {
   width: 49px;
   height: 49px;
-  left: 3%;
-  top: -5%;
-  z-index: 2;
+  left: 8%;
+  top: 2%;
   background: var(--brand-navy);
 }
 
@@ -99,8 +101,8 @@
   display: none;
   width: 26%;
   aspect-ratio: 1;
-  left: 80%;
-  top: -18%;
+  left: 78%;
+  top: 0;
   background: radial-gradient(
     closest-side,
     transparent 62%,
@@ -164,16 +166,20 @@
   overflow-wrap: anywhere;
 }
 
-/* Cores cicláveis: 1 verde / 2 navy / 3 laranja */
-.block-nossos-diferenciais .nd-list .nd-item:nth-child(3n + 1) .nd-item__title {
+/*
+ * Cores cicláveis: 1 verde / 2 navy / 3 laranja.
+ * nth-child no .field__item (DOM), NÃO no .nd-item — display:contents
+ * nos wrappers faz .nd-item ser sempre :first-child do próprio field__item.
+ */
+.block-nossos-diferenciais .nd-list .field__item:nth-child(3n + 1) .nd-item__title {
   color: var(--brand-green);
 }
 
-.block-nossos-diferenciais .nd-list .nd-item:nth-child(3n + 2) .nd-item__title {
+.block-nossos-diferenciais .nd-list .field__item:nth-child(3n + 2) .nd-item__title {
   color: var(--brand-navy);
 }
 
-.block-nossos-diferenciais .nd-list .nd-item:nth-child(3n + 3) .nd-item__title {
+.block-nossos-diferenciais .nd-list .field__item:nth-child(3n + 3) .nd-item__title {
   color: var(--brand-orange);
 }
 
@@ -223,5 +229,9 @@
 @media (max-width: 575.98px) {
   .block-nossos-diferenciais .nd-media__deco-ring {
     display: none;
+  }
+
+  .block-nossos-diferenciais .nd-media {
+    padding: 4% 2% 8% 4%;
   }
 }

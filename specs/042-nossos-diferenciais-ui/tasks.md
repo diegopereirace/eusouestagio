@@ -25,14 +25,14 @@
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Objetivo**: travar escopo negativo e criar a superfície CSS/library dedicada + pasta de assets de fatias — pré-requisito de todas as user stories. Sem CMS novo.
+**Objetivo**: travar escopo negativo e criar a superfície CSS/library dedicada — pré-requisito de todas as user stories. Sem CMS novo; sem pasta de fatias no tema (pivot R3).
 
 **⚠️ CRITICAL**: Nenhuma user story de código começa antes desta fase.
 
 - [X] T007 Congelar escopo negativo: **não** criar fields/block types/paragraphs; **não** editar `config/sync/` obrigatório; **não** criar `hook_update_N` em `modules/custom/custom_configs/custom_configs.install`; **não** tocar Twig/CSS/library de `diferenciais_quem_somos`; **não** editar `core/` nem `vendor/`; **não** introduzir pipeline SCSS
 - [X] T008 [P] Registrar library `nossos_diferenciais` → `assets/css/nossos-diferenciais.css` com dependência `default/bootstrap` em `themes/custom/default/default.libraries.yml` (padrão R1 / 013)
 - [X] T009 Criar arquivo CSS dedicado vazio/esqueleto Mobile First (comentário de escopo `.block-nossos-diferenciais` / `.nd-*`) em `themes/custom/default/assets/css/nossos-diferenciais.css`
-- [X] T010 [P] Criar pasta de fatias estáticas (README ou placeholders tipados `slice-1.png` / `slice-2.png` se exports Figma ainda ausentes) em `themes/custom/default/assets/images/nossos-diferenciais/`
+- [X] T010 [P] ~~Criar pasta de fatias no tema~~ **Cancelado (pivot)**: colagem completa vive em `field_image` (CMS); sem `assets/images/nossos-diferenciais/` — ver `contracts/block-render-ui.md`
 - [X] T011 Anexar `{{ attach_library('default/nossos_diferenciais') }}` no Twig do bloco em `themes/custom/default/templates/block/block--block-nossos-diferenciais.html.twig`
 - [X] T012 Migrar regras `.block-nossos-diferenciais` / `.nd-*` de `themes/custom/default/assets/css/style.css` (~3243–3398) para `themes/custom/default/assets/css/nossos-diferenciais.css` e remover o bloco legado de `style.css` (deixar comentário-ponteiro de uma linha se útil) — sem duplicata de seletores
 
@@ -42,13 +42,13 @@
 
 ## Phase 3: User Story 1 — Visitante vê a seção alinhada ao Figma (Priority: P1) 🎯 MVP
 
-**Goal**: desktop ≥992px — título preto SemiBold 30/38/−0.3, subtítulo Regular 14/20 max-width ~663px, grade duas colunas com colagem composta (âncora + fatias + decos) à esquerda e lista à direita (FR-002–005/007–008/011–014 / SC-001/002).  
-**Independent Test Criteria**: Home ≥992px side-by-side com Figma; título `#000` / ~600; colagem composta; checklist ≥90% (`quickstart.md` seções B+C / `contracts/block-render-ui.md`).
+**Goal**: desktop ≥992px — título preto SemiBold 30/38/−0.3, subtítulo Regular 14/20 max-width ~663px, grade `col-lg-7`/`col-lg-5` com colagem CMS + decos à esquerda e lista à direita (FR-002–005/007–008/011–014 / SC-001/002).  
+**Independent Test Criteria**: Home ≥992px side-by-side com Figma; título `#000` / ~600; colagem CMS; checklist ≥90% (`quickstart.md` seções B+C / `contracts/block-render-ui.md`).
 
 - [X] T013 [US1] Aplicar tipografia do cabeçalho (título `#000000`, Poppins 600, 30px, lh 38px, ls −0.3px; subtítulo 400, 14px, lh 20px, max-width ~663px; paddings verticais generosos) sob `.nd-header__title` / `.nd-header__subtitle` em `themes/custom/default/assets/css/nossos-diferenciais.css` — **remover** `var(--brand-navy)` e weight 700/300 do título/subtítulo
-- [X] T014 [US1] Expandir markup da colagem no Twig: wrapper `.nd-media` com decos (`.nd-media__deco-*` ou equivalente, `aria-hidden`), âncora `.nd-media__img` / placeholder, fatias `.nd-media__slice` via `directory`/path do tema (`aria-hidden="true"`, `alt=""`) em `themes/custom/default/templates/block/block--block-nossos-diferenciais.html.twig` conforme `specs/042-nossos-diferenciais-ui/contracts/block-render-ui.md`
-- [X] T015 [P] [US1] Estilizar colagem composta (âncora ~391×350 `object-fit`; fatias ~125×358; círculo verde ~278 e ponto navy ~49 com `z-index` atrás das fotos; `pointer-events: none` nos decos; posição relativa ao Figma) em `themes/custom/default/assets/css/nossos-diferenciais.css`
-- [X] T016 [US1] Confirmar grade desktop (`row align-items-center nd-grid` + `col-lg-6`; cabeçalho acima da grade; espaçamento entre colunas) no Twig e CSS em `themes/custom/default/templates/block/block--block-nossos-diferenciais.html.twig` e `themes/custom/default/assets/css/nossos-diferenciais.css`
+- [X] T014 [US1] Markup da colagem no Twig: wrapper `.nd-media` + decos `.nd-media__deco-*` (`aria-hidden`) + `.nd-media__img` via `image_style('wide')` / placeholder; **sem** `.nd-media__slice` — em `themes/custom/default/templates/block/block--block-nossos-diferenciais.html.twig`
+- [X] T015 [P] [US1] Estilizar colagem (CMS ~1324×718 `object-fit`/`aspect-ratio`; decos atrás da foto; `pointer-events: none`; `overflow: hidden` na seção) em `themes/custom/default/assets/css/nossos-diferenciais.css`
+- [X] T016 [US1] Confirmar grade desktop (`row align-items-center nd-grid` + `col-lg-7`/`col-lg-5`; cabeçalho acima da grade; espaçamento entre colunas) no Twig e CSS em `themes/custom/default/templates/block/block--block-nossos-diferenciais.html.twig` e `themes/custom/default/assets/css/nossos-diferenciais.css`
 - [X] T017 [US1] Validar SC-001/SC-002 e cenários US1 (tipografia + layout + colagem) conforme `specs/042-nossos-diferenciais-ui/quickstart.md` seções B e C
 
 **Checkpoint**: visitante desktop reconhece a seção Figma — MVP visual da feature.
@@ -58,10 +58,10 @@
 ## Phase 4: User Story 2 — Lista de diferenciais legível e com hierarquia de cor (Priority: P1)
 
 **Goal**: cada item ícone | título+descrição; títulos bold com cores cicláveis verde → navy → laranja; descrição longa sem overflow (FR-006/009 / SC-004).  
-**Independent Test Criteria**: inspecionar ≥3 itens na ordem editorial; cores `nth-child(3n+k)`; gap consistente (`quickstart.md` seção D).
+**Independent Test Criteria**: inspecionar ≥3 itens na ordem editorial; cores `.field__item:nth-child(3n+k)`; gap consistente (`quickstart.md` seção D).
 
 - [X] T018 [US2] Confirmar markup do item (`.nd-item` + `d-flex align-items-start gap-3`; `.nd-item__icon` / `__body` / `__title` / `__desc`; omit vazios) em `themes/custom/default/templates/paragraph/paragraph--diferencial-item-p.html.twig` — alterar só se classes faltarem ao contrato
-- [X] T019 [P] [US2] Reforçar estilos da lista (gap vertical consistente; títulos `font-weight: 700`; cores `nth-child(3n+1|2|3)` com `var(--brand-green|navy|orange)`; `overflow-wrap` na descrição; `display: contents` nos wrappers de field se necessário) em `themes/custom/default/assets/css/nossos-diferenciais.css`
+- [X] T019 [P] [US2] Reforçar estilos da lista (gap; títulos `font-weight: 700`; cores via `.field__item:nth-child(3n+k)` + `var(--brand-green|navy|orange)`; `overflow-wrap`; `display: contents` nos wrappers) em `themes/custom/default/assets/css/nossos-diferenciais.css`
 - [X] T020 [US2] Validar cenários US2 / quickstart D (ícone|texto; ciclo de cores; descrição longa sem overflow) em `specs/042-nossos-diferenciais-ui/quickstart.md` seção D
 
 **Checkpoint**: lista persuasiva com hierarquia de cor fiel ao Figma.
@@ -70,12 +70,12 @@
 
 ## Phase 5: User Story 3 — Experiência mobile sem quebra (Priority: P1)
 
-**Goal**: &lt;992px empilha cabeçalho → mídia → lista; colagem escala sem overflow; fatias ocultas em viewport estreita (FR-015/016 / SC-003).  
+**Goal**: &lt;992px empilha cabeçalho → mídia → lista; colagem escala sem overflow; ring oculto em viewport estreita (FR-015/016 / SC-003).  
 **Independent Test Criteria**: Home ≤575px e ~768px; zero scroll horizontal da seção (`quickstart.md` seção E).
 
-- [X] T021 [US3] Implementar base Mobile First e breakpoint `min-width: 992px` (coluna única + colagem simplificada na base; duas colunas + fatias só no lg+) em `themes/custom/default/assets/css/nossos-diferenciais.css` (R6)
-- [X] T022 [P] [US3] Ocultar `.nd-media__slice` em viewport estreita (`max-width: 575.98px` ou equivalente); escalar `.nd-media` com `%`/`max-width` (sem dimensões fixas que quebrem); garantir `overflow-x` seguro da seção em `themes/custom/default/assets/css/nossos-diferenciais.css`
-- [X] T023 [US3] Validar SC-003 / cenários US3 (empilhamento; sem overflow; fatias ocultas) conforme `specs/042-nossos-diferenciais-ui/quickstart.md` seção E
+- [X] T021 [US3] Implementar base Mobile First e breakpoint `min-width: 992px` (coluna única na base; `col-lg-7`/`col-lg-5` no lg+) em `themes/custom/default/assets/css/nossos-diferenciais.css` (R6)
+- [X] T022 [P] [US3] Ocultar `.nd-media__deco-ring` em viewport estreita; escalar `.nd-media` com padding seguro; `overflow: hidden` na seção em `themes/custom/default/assets/css/nossos-diferenciais.css`
+- [X] T023 [US3] Validar SC-003 / cenários US3 (empilhamento; sem overflow; ring oculto) conforme `specs/042-nossos-diferenciais-ui/quickstart.md` seção E
 
 **Checkpoint**: mobile legível sem regressão de overflow pela colagem.
 
@@ -83,11 +83,11 @@
 
 ## Phase 6: User Story 4 — Editor continua gerenciando só o conteúdo (Priority: P2)
 
-**Goal**: editor altera título/subtítulo/itens/imagem no CMS; âncora atualiza; fatias/decos intactos; placeholder sem imagem; sem exigir arte de fundo (FR-001/018 / SC-005/006).  
+**Goal**: editor altera título/subtítulo/itens/imagem no CMS; colagem CMS atualiza; decos intactos; placeholder sem imagem; sem exigir arte de fundo (FR-001/018 / SC-005/006).  
 **Independent Test Criteria**: editar no admin + Home; `/para-empresas` mesma apresentação (`quickstart.md` seções F+G).
 
 - [X] T024 [US4] Confirmar que Twig consome só fields existentes (`field_text_simple`, `field_text_simple_long`, `field_image`, `field_diferenciais_lista`) e omite título/subtítulo vazios; placeholder `.nd-media__placeholder` se sem imagem em `themes/custom/default/templates/block/block--block-nossos-diferenciais.html.twig`
-- [X] T025 [P] [US4] Confirmar que fatias/decos **não** dependem de campos CMS (paths de tema / CSS apenas) em `themes/custom/default/templates/block/block--block-nossos-diferenciais.html.twig` e `themes/custom/default/assets/css/nossos-diferenciais.css`
+- [X] T025 [P] [US4] Confirmar que decos **não** dependem de campos CMS (CSS/spans apenas); colagem vem só de `field_image` em `themes/custom/default/templates/block/block--block-nossos-diferenciais.html.twig` e `themes/custom/default/assets/css/nossos-diferenciais.css`
 - [X] T026 [US4] Validar SC-005/SC-006 e cenários US4 (edição editorial; troca de âncora; placeholder; reuso `/para-empresas`) conforme `specs/042-nossos-diferenciais-ui/quickstart.md` seções F e G
 
 **Checkpoint**: fluxo editorial da 004 preservado; apresentação compartilhada Home + PE.
@@ -98,7 +98,7 @@
 
 **Objetivo**: a11y, CSS limpo, deploy `drush cr`, PRD/specify-rules, aceite final SC-001–SC-006 e edges.
 
-- [X] T027 [P] Revisar a11y do contrato (âncora com `alt` + `loading="lazy"`; fatias/decos `aria-hidden`; contraste dos títulos coloridos) em `themes/custom/default/templates/block/block--block-nossos-diferenciais.html.twig` e `themes/custom/default/assets/css/nossos-diferenciais.css` (FR-017)
+- [X] T027 [P] Revisar a11y do contrato (âncora com `alt` + `loading="lazy"` + `width`/`height`; decos `aria-hidden`; contraste dos títulos coloridos) em `themes/custom/default/templates/block/block--block-nossos-diferenciais.html.twig` e `themes/custom/default/assets/css/nossos-diferenciais.css` (FR-017)
 - [X] T028 [P] Auditar CSS (Mobile First; sem aninhamento profundo; sem seletores vazando para `.block-diferenciais-quem-somos`; zero regras ND restantes em `style.css`) em `themes/custom/default/assets/css/nossos-diferenciais.css` e `themes/custom/default/assets/css/style.css` (FR-016)
 - [X] T029 Executar limpeza de cache local e gates de deploy (library `default/nossos_diferenciais` no HTML; Home + `/para-empresas` atualizadas; zero admin) com `docker compose exec -T drupal vendor/bin/drush cr` conforme `specs/042-nossos-diferenciais-ui/contracts/deploy-nossos-diferenciais-ui.md` e `quickstart.md` seções A+H
 - [X] T030 [P] Atualizar `PRD.md` de forma cirúrgica (seção Nossos Diferenciais / Home): apresentação alinhada ao Figma; library dedicada; sem CMS novo

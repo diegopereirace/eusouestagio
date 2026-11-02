@@ -125,7 +125,7 @@ Editor altera textos, ícones, itens e a imagem de destaque no painel; a nova ap
 - **FR-011**: A coluna esquerda DEVE apresentar a colagem visual do Figma (não uma foto única centralizada com disco navy legado).
 - **FR-012**: A imagem do CMS (`field_image`) DEVE ser a **colagem completa** (âncora + fatias embutidas no asset editorial), com proporção aproximada 1324×718; servida via image style adequado (ex.: `wide`) com `width`/`height` para CLS.
 - **FR-013**: Fatias secundárias **não** são markup/assets separados do tema quando já estão no PNG editorial — evita duplicar a arte; a fidelidade das fatias é responsabilidade do asset CMS.
-- **FR-014**: Elementos decorativos (anel verde, ponto navy ~49×49, ring cinza no desktop) DEVEM ser puramente apresentacionais (spans/CSS com `z-index` **atrás** das fotos e `aria-hidden`), sem campos novos no CMS.
+- **FR-014**: Elementos decorativos (anel verde, ponto navy ~49×49, ring cinza no desktop) DEVEM ser puramente apresentacionais (spans/CSS + `aria-hidden`), sem campos novos no CMS. Anel verde e ring cinza ficam **atrás** da foto (`z-index` menor); o ponto navy PODE ficar **na frente** da âncora (`z-index` maior), conforme o Figma.
 - **FR-015**: Em mobile, a colagem DEVE escalar de forma proporcional ao container sem overflow horizontal; o ring cinza PODE ser ocultado em viewports estreitas.
 
 **Qualidade de CSS / manutenibilidade (critérios de aceite de implementação)**
@@ -135,8 +135,8 @@ Editor altera textos, ícones, itens e a imagem de destaque no painel; a nova ap
 
 **Deploy e superfície de mudança**
 
-- **FR-018**: A entrega DEVE limitar-se a tema (templates Twig + CSS + library) e image styles já existentes no sync; sem assets de fatia obrigatórios no tema e sem passos manuais no admin de produção.
-- **FR-019**: Após deploy de código + limpeza de cache, a Home e `/para-empresas` DEVEM exibir a nova apresentação sem reconfiguração de blocos.
+- **FR-018**: A entrega DEVE limitar-se a tema (templates Twig + CSS + library), image styles já existentes no sync e, quando necessário para SC-001 em ambientes só-seed, assets versionados em `custom_configs/assets/nossos-diferenciais/` + `hook_update_N` idempotente; sem fatias obrigatórias no tema e sem passos manuais no admin de produção.
+- **FR-019**: Após deploy de código + `drush updb` (mídia seed se vazia) + limpeza de cache (`drush cr` **obrigatório**), a Home e `/para-empresas` DEVEM exibir a nova apresentação sem reconfiguração de blocos.
 
 ### Key Entities
 

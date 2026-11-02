@@ -188,7 +188,15 @@
   color: var(--brand-orange);
 }
 
-/* Desktop ≥992px — tipografia Figma + colagem em linha + colunas 7/5 */
+/* Tablet ≥768px — tipografia Figma do título (FR-007) também em landscape/iPad */
+@media (min-width: 768px) {
+  .block-nossos-diferenciais .nd-header__title {
+    font-size: 30px;
+    line-height: 38px;
+  }
+}
+
+/* Desktop ≥992px — ritmo, colagem em linha + colunas 7/5 */
 @media (min-width: 992px) {
   .block-nossos-diferenciais {
     padding: 3.5rem 0 4rem;
@@ -196,11 +204,6 @@
 
   .block-nossos-diferenciais .nd-header {
     margin: 0 0 2.75rem;
-  }
-
-  .block-nossos-diferenciais .nd-header__title {
-    font-size: 30px;
-    line-height: 38px;
   }
 
   .block-nossos-diferenciais .nd-grid {

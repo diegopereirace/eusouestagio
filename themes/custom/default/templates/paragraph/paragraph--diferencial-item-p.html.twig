@@ -24,7 +24,15 @@
     {% set icon_uri = content.field_image['#items'][0].entity.uri.value %}
     {% set icon_alt = content.field_image['#items'][0].alt|default(title) %}
     <div class="nd-item__icon">
-      <img src="{{ file_url(icon_uri) }}" alt="{{ icon_alt }}" loading="lazy" width="48" height="48">
+      {# thumbnail (100w): cobre 56/72 CSS sem servir PNG original. #}
+      <img
+        src="{{ icon_uri|image_style('thumbnail')|e('html_attr') }}"
+        alt="{{ icon_alt }}"
+        loading="lazy"
+        decoding="async"
+        width="72"
+        height="72"
+      >
     </div>
   {% else %}
     <div class="nd-item__icon nd-item__icon--placeholder" aria-hidden="true"></div>

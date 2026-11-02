@@ -4,7 +4,6 @@ status: true
 dependencies:
   config:
     - block_content.type.como_funciona_bt
-    - field.field.block_content.como_funciona_bt.field_como_funciona_itens
     - field.field.block_content.como_funciona_bt.field_image
     - field.field.block_content.como_funciona_bt.field_imagem_mobile
     - field.field.block_content.como_funciona_bt.field_text_simple
@@ -12,30 +11,11 @@ dependencies:
     - image.style.thumbnail
   module:
     - image
-    - paragraphs
 id: block_content.como_funciona_bt.default
 targetEntityType: block_content
 bundle: como_funciona_bt
 mode: default
 content:
-  field_como_funciona_itens:
-    type: paragraphs
-    weight: 5
-    region: content
-    settings:
-      title: Etapa
-      title_plural: Etapas
-      edit_mode: open
-      closed_mode: summary
-      autocollapse: none
-      closed_mode_threshold: 0
-      add_mode: dropdown
-      form_display_mode: default
-      default_paragraph_type: como_funciona_item_p
-      features:
-        collapse_edit_all: collapse_edit_all
-        duplicate: duplicate
-    third_party_settings: {  }
   field_image:
     type: image_image
     weight: 3

@@ -855,20 +855,7 @@ function _custom_configs_seed_nossos_diferenciais(): string {
     return (string) t('Bundle nossos_diferenciais ausente — rode drush cim -y antes do updb.');
   }
 
-  $items = [
-    [
-      'title' => 'Encontramos',
-      'desc' => 'Selecionamos candidatos com aderência técnica e comportamental.',
-    ],
-    [
-      'title' => 'Gerenciamos',
-      'desc' => 'Assumimos toda a gestão administrativa e legal do estágio.',
-    ],
-    [
-      'title' => 'Desenvolvemos',
-      'desc' => 'Acompanhamos continuamente a evolução do estudante para garantir desempenho e permanência.',
-    ],
-  ];
+  $items = _custom_configs_nossos_diferenciais_items_seed();
 
   $paragraphs = [];
   $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
@@ -880,6 +867,21 @@ function _custom_configs_seed_nossos_diferenciais(): string {
       'field_text_simple_long' => $item['desc'],
     ]);
     $paragraph->save();
+
+    $file = _custom_configs_seed_file_from_module_asset(
+      'nossos-diferenciais/' . $item['icon'],
+      'public://nossos-diferenciais/' . $item['icon'],
+      'paragraph',
+      (int) $paragraph->id()
+    );
+    if ($file && $paragraph->hasField('field_image')) {
+      $paragraph->set('field_image', [
+        'target_id' => $file->id(),
+        'alt' => $item['title'],
+      ]);
+      $paragraph->save();
+    }
+
     $paragraphs[] = [
       'target_id' => $paragraph->id(),
       'target_revision_id' => $paragraph->getRevisionId(),
@@ -898,10 +900,170 @@ function _custom_configs_seed_nossos_diferenciais(): string {
   ]);
   $block->save();
 
+  $colagem = _custom_configs_seed_file_from_module_asset(
+    'nossos-diferenciais/colagem.png',
+    'public://nossos-diferenciais/colagem.png',
+    'block_content',
+    (int) $block->id()
+  );
+  if ($colagem && $block->hasField('field_image')) {
+    $block->set('field_image', [
+      'target_id' => $colagem->id(),
+      'alt' => 'Nossos Diferenciais',
+    ]);
+    $block->save();
+  }
+
   return (string) t('Bloco Nossos Diferenciais seed criado (@uuid) com @count itens.', [
     '@uuid' => $uuid,
     '@count' => count($paragraphs),
   ]);
+}
+
+/**
+ * Catálogo seed dos 3 itens do bloco Nossos Diferenciais (feature 004/042).
+ *
+ * @return list<array{title: string, desc: string, icon: string}>
+ */
+function _custom_configs_nossos_diferenciais_items_seed(): array {
+  return [
+    [
+      'title' => 'Encontramos',
+      'desc' => 'Selecionamos candidatos com aderência técnica e comportamental.',
+      'icon' => 'icon-01.png',
+    ],
+    [
+      'title' => 'Gerenciamos',
+      'desc' => 'Assumimos toda a gestão administrativa e legal do estágio.',
+      'icon' => 'icon-02.png',
+    ],
+    [
+      'title' => 'Desenvolvemos',
+      'desc' => 'Acompanhamos continuamente a evolução do estudante para garantir desempenho e permanência.',
+      'icon' => 'icon-03.png',
+    ],
+  ];
+}
+
+/**
+ * Feature 042 — Preenche colagem e ícones ausentes do bloco Nossos Diferenciais.
+ *
+ * Idempotente: só anexa quando field_image (bloco ou item) está vazio.
+ * Nunca sobrescreve upload editorial. Assets em
+ * modules/custom/custom_configs/assets/nossos-diferenciais/.
+ */
+function _custom_configs_fill_nossos_diferenciais_media(): string {
+  $uuid = 'b0a1c2d3-e4f5-4678-9abc-def012345678';
+  $existing = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties(['uuid' => $uuid]);
+  if (!$existing) {
+    return (string) t('Bloco Nossos Diferenciais ausente (@uuid) — mídia seed não aplicada.', [
+      '@uuid' => $uuid,
+    ]);
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = reset($existing);
+  $messages = [];
+  $changed = FALSE;
+
+  if ($block->hasField('field_image') && $block->get('field_image')->isEmpty()) {
+    $file = _custom_configs_seed_file_from_module_asset(
+      'nossos-diferenciais/colagem.png',
+      'public://nossos-diferenciais/colagem.png',
+      'block_content',
+      (int) $block->id()
+    );
+    if ($file) {
+      $block->set('field_image', [
+        'target_id' => $file->id(),
+        'alt' => 'Nossos Diferenciais',
+      ]);
+      $changed = TRUE;
+      $messages[] = (string) t('Colagem seed anexada.');
+    }
+    else {
+      $messages[] = (string) t('Asset colagem.png ausente no módulo.');
+    }
+  }
+  else {
+    $messages[] = (string) t('Colagem editorial preservada.');
+  }
+
+  $items_seed = _custom_configs_nossos_diferenciais_items_seed();
+  $icons_filled = 0;
+  if ($block->hasField('field_diferenciais_lista') && !$block->get('field_diferenciais_lista')->isEmpty()) {
+    $new_refs = [];
+    $delta = 0;
+    foreach ($block->get('field_diferenciais_lista') as $item) {
+      /** @var \Drupal\paragraphs\ParagraphInterface|null $paragraph */
+      $paragraph = $item->entity;
+      if (!$paragraph || !$paragraph->hasField('field_image')) {
+        $new_refs[] = [
+          'target_id' => $item->target_id,
+          'target_revision_id' => $item->target_revision_id,
+        ];
+        $delta++;
+        continue;
+      }
+
+      if (!$paragraph->get('field_image')->isEmpty()) {
+        $new_refs[] = [
+          'target_id' => $paragraph->id(),
+          'target_revision_id' => $paragraph->getRevisionId(),
+        ];
+        $delta++;
+        continue;
+      }
+
+      $seed = $items_seed[$delta] ?? NULL;
+      if ($seed === NULL) {
+        $new_refs[] = [
+          'target_id' => $paragraph->id(),
+          'target_revision_id' => $paragraph->getRevisionId(),
+        ];
+        $delta++;
+        continue;
+      }
+
+      $file = _custom_configs_seed_file_from_module_asset(
+        'nossos-diferenciais/' . $seed['icon'],
+        'public://nossos-diferenciais/' . $seed['icon'],
+        'paragraph',
+        (int) $paragraph->id()
+      );
+      if ($file) {
+        $alt = (string) ($paragraph->get('field_text_simple')->value ?? $seed['title']);
+        $paragraph->set('field_image', [
+          'target_id' => $file->id(),
+          'alt' => $alt,
+        ]);
+        $paragraph->save();
+        $icons_filled++;
+      }
+
+      $new_refs[] = [
+        'target_id' => $paragraph->id(),
+        'target_revision_id' => $paragraph->getRevisionId(),
+      ];
+      $delta++;
+    }
+
+    if ($icons_filled > 0) {
+      $block->set('field_diferenciais_lista', $new_refs);
+      $changed = TRUE;
+      $messages[] = (string) t('@count ícone(s) seed anexado(s).', ['@count' => $icons_filled]);
+    }
+    else {
+      $messages[] = (string) t('Ícones editoriais preservados.');
+    }
+  }
+
+  if ($changed) {
+    $block->save();
+    \Drupal\Core\Cache\Cache::invalidateTags($block->getCacheTags());
+  }
+
+  return implode(' ', $messages);
 }
 
 /**
@@ -1007,7 +1169,7 @@ function _custom_configs_seed_o_que_fazemos(): string {
 }
 
 /**
- * Cria block_content como_funciona_bt + 7 etapas de referência (FR-010).
+ * Cria block_content como_funciona_bt (título + subtítulo). Etapas removidas na 045.
  */
 function _custom_configs_seed_como_funciona(): string {
   $uuid = 'c8d4e0f2-3a5b-4c6d-8e9f-0a1b2c3d4e5f';
@@ -1027,56 +1189,18 @@ function _custom_configs_seed_como_funciona(): string {
     return (string) t('Bundle como_funciona_bt ausente — rode drush cim -y antes do updb.');
   }
 
-  $steps = [
-    'Entendimento da empresa',
-    'Mapeamento da vaga',
-    'Seleção estratégica',
-    'Apresentação dos melhores candidatos',
-    'Contratação',
-    'Gestão completa',
-    'Desenvolvimento contínuo',
-  ];
-
-  $paragraphs = [];
-  if (\Drupal::entityTypeManager()->getDefinition('paragraph', FALSE)) {
-    $paragraph_bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('paragraph');
-    if (isset($paragraph_bundles['como_funciona_item_p'])) {
-      $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
-      foreach ($steps as $step_text) {
-        /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
-        $paragraph = $paragraph_storage->create([
-          'type' => 'como_funciona_item_p',
-          'field_text_simple' => $step_text,
-        ]);
-        $paragraph->save();
-        $paragraphs[] = [
-          'target_id' => $paragraph->id(),
-          'target_revision_id' => $paragraph->getRevisionId(),
-        ];
-      }
-    }
-  }
-
-  $values = [
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = $storage->create([
     'type' => 'como_funciona_bt',
     'uuid' => $uuid,
     'info' => 'Como funciona',
     'status' => TRUE,
     'field_text_simple' => 'Como funciona',
     'field_text_simple_long' => 'Da definição da vaga ao desenvolvimento contínuo do estagiário, conduzimos cada etapa com metodologia, agilidade e segurança.',
-  ];
-  if ($paragraphs !== []) {
-    $values['field_como_funciona_itens'] = $paragraphs;
-  }
-
-  /** @var \Drupal\block_content\BlockContentInterface $block */
-  $block = $storage->create($values);
+  ]);
   $block->save();
 
-  return (string) t('Bloco Como funciona seed criado (@uuid) com @count etapas.', [
-    '@uuid' => $uuid,
-    '@count' => count($paragraphs),
-  ]);
+  return (string) t('Bloco Como funciona seed criado (@uuid).', ['@uuid' => $uuid]);
 }
 
 /**
@@ -14937,6 +15061,17 @@ function custom_configs_update_11063(): string {
 }
 
 /**
+ * Feature 042 follow-up — Seed da colagem completa + ícones do Nossos Diferenciais.
+ *
+ * Preenche apenas field_image vazio (bloco e paragraphs). Reexecução = no-op.
+ * Assets: modules/custom/custom_configs/assets/nossos-diferenciais/.
+ * Destino: updb (11064) → cr (não depende de cim estrutural).
+ */
+function custom_configs_update_11064(): string {
+  return _custom_configs_fill_nossos_diferenciais_media();
+}
+
+/**
  * Garante storage/instances de imagem no bundle como_funciona_bt.
  */
 function _custom_configs_ensure_como_funciona_image_fields(): string {
@@ -15108,4 +15243,162 @@ function _custom_configs_seed_como_funciona_images(): string {
   }
 
   return implode(' ', array_filter($parts));
+}
+
+/**
+ * Feature 045 — Remove Etapas/Entradas (field_como_funciona_itens) do Como funciona.
+ *
+ * Limpa referências no bloco, apaga paragraphs como_funciona_item_p, remove
+ * instance/storage exclusivos e o paragraph type. Idempotente.
+ * Destino: updb (11065/11066) → cim → cr (updb antes do cim que remove o type).
+ */
+function custom_configs_update_11065(): string {
+  return _custom_configs_remove_como_funciona_etapas();
+}
+
+/**
+ * Feature 045 follow-up — Garante storage órfão field_como_funciona_itens ausente.
+ *
+ * Idempotente; cobre ambientes onde 11065 removeu a instance mas o storage ficou.
+ */
+function custom_configs_update_11066(): string {
+  return _custom_configs_remove_como_funciona_etapas();
+}
+
+/**
+ * Remove field_como_funciona_itens + paragraph type como_funciona_item_p.
+ */
+function _custom_configs_remove_como_funciona_etapas(): string {
+  $parts = [];
+  $bundle = 'como_funciona_bt';
+  $field_name = 'field_como_funciona_itens';
+  $paragraph_type = 'como_funciona_item_p';
+
+  // 1) Limpa valores do campo nos blocos (libera referências ERR).
+  $block_storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $blocks = $block_storage->loadByProperties(['type' => $bundle]);
+  $cleared = 0;
+  foreach ($blocks as $block) {
+    if (!$block->hasField($field_name) || $block->get($field_name)->isEmpty()) {
+      continue;
+    }
+    $block->set($field_name, []);
+    $block->save();
+    $cleared++;
+  }
+  if ($cleared) {
+    $parts[] = (string) t('Referências de etapas limpas em @n bloco(s).', ['@n' => $cleared]);
+  }
+
+  // 2) Apaga paragraphs órfãos do tipo.
+  if (\Drupal::entityTypeManager()->getDefinition('paragraph', FALSE)) {
+    $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
+    $orphans = $paragraph_storage->loadByProperties(['type' => $paragraph_type]);
+    if ($orphans) {
+      $count = count($orphans);
+      $paragraph_storage->delete($orphans);
+      $parts[] = (string) t('@n paragraph(s) @type removido(s).', [
+        '@n' => $count,
+        '@type' => $paragraph_type,
+      ]);
+    }
+  }
+
+  // 3) Remove componente dos displays do bloco (defensivo).
+  foreach (['entity_form_display', 'entity_view_display'] as $display_type) {
+    $display = \Drupal::entityTypeManager()
+      ->getStorage($display_type)
+      ->load("block_content.$bundle.default");
+    if ($display && ($display->getComponent($field_name) || array_key_exists($field_name, $display->get('hidden') ?? []))) {
+      $display->removeComponent($field_name);
+      $hidden = $display->get('hidden') ?? [];
+      unset($hidden[$field_name]);
+      $display->set('hidden', $hidden);
+      $display->save();
+      $parts[] = (string) t('@type: componente @field removido.', [
+        '@type' => $display_type,
+        '@field' => $field_name,
+      ]);
+    }
+  }
+
+  // 4) Instance + storage exclusivo do ERR no bloco.
+  $field = \Drupal\field\Entity\FieldConfig::loadByName('block_content', $bundle, $field_name);
+  if ($field) {
+    $field->delete();
+    $parts[] = (string) t('Instance block_content.@bundle.@field removida.', [
+      '@bundle' => $bundle,
+      '@field' => $field_name,
+    ]);
+  }
+
+  \Drupal::service('entity_field.manager')->clearCachedFieldDefinitions();
+
+  // Storage exclusivo deste bundle — remove mesmo se getBundles() ainda listar residual.
+  $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('block_content', $field_name);
+  if ($storage) {
+    $storage->delete();
+    $parts[] = (string) t('Storage block_content.@field removido.', ['@field' => $field_name]);
+  }
+
+  // 5) Configs do paragraph type (instance reutiliza storage field_text_simple — não apagar storage).
+  $config_ids = [
+    "core.entity_form_display.paragraph.$paragraph_type.default",
+    "core.entity_view_display.paragraph.$paragraph_type.default",
+    "field.field.paragraph.$paragraph_type.field_text_simple",
+    "paragraphs.paragraphs_type.$paragraph_type",
+  ];
+  $config_factory = \Drupal::configFactory();
+  $removed_configs = [];
+  foreach ($config_ids as $config_id) {
+    // Prefer Entity API when available.
+    if (str_starts_with($config_id, 'field.field.')) {
+      $fc = \Drupal\field\Entity\FieldConfig::loadByName('paragraph', $paragraph_type, 'field_text_simple');
+      if ($fc) {
+        $fc->delete();
+        $removed_configs[] = $config_id;
+      }
+      continue;
+    }
+    if (str_starts_with($config_id, 'paragraphs.paragraphs_type.')) {
+      if (\Drupal::entityTypeManager()->hasDefinition('paragraphs_type')) {
+        $type = \Drupal::entityTypeManager()->getStorage('paragraphs_type')->load($paragraph_type);
+        if ($type) {
+          $type->delete();
+          $removed_configs[] = $config_id;
+        }
+      }
+      continue;
+    }
+    if (str_starts_with($config_id, 'core.entity_')) {
+      $entity_type = str_contains($config_id, 'form_display') ? 'entity_form_display' : 'entity_view_display';
+      $display = \Drupal::entityTypeManager()->getStorage($entity_type)->load("paragraph.$paragraph_type.default");
+      if ($display) {
+        $display->delete();
+        $removed_configs[] = $config_id;
+      }
+      continue;
+    }
+    $config = $config_factory->getEditable($config_id);
+    if (!$config->isNew()) {
+      $config->delete();
+      $removed_configs[] = $config_id;
+    }
+  }
+  if ($removed_configs) {
+    $parts[] = (string) t('Configs do paragraph @type removidas (@n).', [
+      '@type' => $paragraph_type,
+      '@n' => count(array_unique($removed_configs)),
+    ]);
+  }
+
+  \Drupal::service('entity_type.bundle.info')->clearCachedBundles();
+  \Drupal::service('entity_field.manager')->clearCachedFieldDefinitions();
+  \Drupal\Core\Cache\Cache::invalidateTags(['config:block_content.type.' . $bundle]);
+
+  if (!$parts) {
+    return (string) t('Etapas/Entradas do Como funciona já ausentes.');
+  }
+
+  return implode(' ', $parts);
 }

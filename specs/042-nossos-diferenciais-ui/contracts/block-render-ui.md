@@ -61,14 +61,16 @@ Contrato de apresentação estável para aceite side-by-side com o Figma. Não �
 - Decos (`.nd-media__deco-circle` anel verde, `.nd-media__deco-dot` ponto navy, `.nd-media__deco-ring` anel cinza) são `span aria-hidden` posicionados em % do wrapper; anéis com `z-index` atrás da foto; ponto navy na frente; anel cinza só em ≥992px.
 - Colunas desktop: `col-lg-7` (colagem) + `col-lg-5` (lista); texto do item `max-width: 24rem`; ícone 72px (56px mobile).
 - Âncora servida via `image_style('wide')` (1090w) + `width`/`height` para CLS; `object-fit: contain` + `aspect-ratio: 1324 / 718`.
+- Ícones dos itens via `image_style('thumbnail')` (100w) + `width`/`height` 72; tipografia do título da seção atinge 30/38 a partir de ≥768px.
 
 ## Tokens visuais (aceitação)
 
 | Token | Valor / regra |
 |-------|----------------|
-| Título seção | Poppins 600, 30px, lh 38px, ls −0.3px, `#000000` |
+| Título seção | Poppins 600, 30px, lh 38px, ls −0.3px, `#000000` (≥768px; mobile ~1.625rem) |
 | Subtítulo | Poppins 400, 14px, lh 20px; max-width ~663px |
 | Colagem CMS | proporção ~1324×718 (âncora+fatias no asset); style `wide` |
+| Ícones item | style `thumbnail`; box 56px mobile / 72px desktop |
 | Deco círculo | anel verde ~42% do wrapper, atrás da foto |
 | Deco ponto | ~49×49 navy, na frente da foto |
 | Deco ring | anel cinza; só desktop ≥992px; oculto ≤575px |

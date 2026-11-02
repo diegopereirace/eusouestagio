@@ -18,7 +18,7 @@
 
 ### Fora
 
-- Remoção do paragraph type `como_funciona_item_p`.
+- Remoção do paragraph type `como_funciona_item_p` (feita na feature **045**).
 - Image styles Drupal na 1ª entrega.
 - Alterações em `core/` ou `vendor/`.
 

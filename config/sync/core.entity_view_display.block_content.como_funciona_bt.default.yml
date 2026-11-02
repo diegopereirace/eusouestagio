@@ -4,7 +4,6 @@ status: true
 dependencies:
   config:
     - block_content.type.como_funciona_bt
-    - field.field.block_content.como_funciona_bt.field_como_funciona_itens
     - field.field.block_content.como_funciona_bt.field_image
     - field.field.block_content.como_funciona_bt.field_imagem_mobile
     - field.field.block_content.como_funciona_bt.field_text_simple
@@ -54,5 +53,4 @@ content:
     weight: 1
     region: content
 hidden:
-  field_como_funciona_itens: true
   langcode: true

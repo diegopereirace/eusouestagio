@@ -3398,7 +3398,7 @@ nav[aria-label] .pagination.js-pager__items .page-item.active .page-link {
 .block-como-funciona-bt .cf-flow-media__img {
 	display: block;
 	width: 100%;
-	max-width: 1150px;
+	max-width: none;
 	height: auto;
 	margin: 0;
 	image-rendering: auto;

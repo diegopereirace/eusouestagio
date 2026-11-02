@@ -11,11 +11,11 @@ docker compose exec -T drupal vendor/bin/drush cr
 ## Esperado
 
 - Tipo de bloco “Como funciona” (`como_funciona_bt`) disponível
-- Paragraph “Item Como funciona” com texto único
-- Seed com 7 etapas de referência (UUID `c8d4e0f2-3a5b-4c6d-8e9f-0a1b2c3d4e5f`)
+- Seed (UUID `c8d4e0f2-3a5b-4c6d-8e9f-0a1b2c3d4e5f`) — título/subtítulo; imagens na 044
 - Placement `default_comofunciona` em `content_full`, weight `-1`, `<front>`
 - Home: seção abaixo de O que fazemos
 - Visual do fluxo: ver feature `044-como-funciona-imagens` (imagens desktop/mobile via `<picture>`)
+- Etapas textuais removidas: ver feature `045-remover-etapas-como-funciona`
 
 Em ambiente limpo, se o placement falhar no 1º `cim` por UUID inexistente, repetir `cim` após o seed.
 

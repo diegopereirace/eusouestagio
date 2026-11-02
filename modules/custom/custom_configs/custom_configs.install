@@ -15628,3 +15628,292 @@ function _custom_configs_remove_como_funciona_etapas(): string {
 
   return implode(' ', $parts);
 }
+
+/**
+ * Refino Figma Quem Somos: Image Styles, displays, ícones e textos seed.
+ *
+ * Idempotente. Nunca sobrescreve editorial divergente. Destino:
+ * cim → updb → cim → cr.
+ */
+function custom_configs_update_11069(): string {
+  $parts = [
+    _custom_configs_ensure_quem_somos_refino_image_styles(),
+    _custom_configs_ensure_quem_somos_refino_displays(),
+    _custom_configs_sync_diferenciais_quem_somos_provisional_icons(),
+    _custom_configs_fill_quem_somos_empty_texts(),
+  ];
+  return implode(' ', array_filter($parts));
+}
+
+/**
+ * Garante os 3 Image Styles do refino Quem Somos.
+ */
+function _custom_configs_ensure_quem_somos_refino_image_styles(): string {
+  $defs = [
+    'quem_somos_sobre_nos' => [
+      'label' => 'Quem Somos — Sobre nós',
+      'effect' => 'image_scale_and_crop',
+      'data' => [
+        'width' => 864,
+        'height' => 538,
+        'anchor' => 'center-center',
+      ],
+    ],
+    'quem_somos_missao_visao' => [
+      'label' => 'Quem Somos — Missão/Visão',
+      'effect' => 'image_scale',
+      'data' => [
+        'width' => 1920,
+        'height' => NULL,
+        'upscale' => FALSE,
+      ],
+    ],
+    'diferencial_simples_icon' => [
+      'label' => 'Diferencial simples — ícone',
+      'effect' => 'image_scale',
+      'data' => [
+        'width' => 160,
+        'height' => 160,
+        'upscale' => FALSE,
+      ],
+    ],
+  ];
+
+  $created = [];
+  foreach ($defs as $name => $def) {
+    if (\Drupal\image\Entity\ImageStyle::load($name)) {
+      continue;
+    }
+    $style = \Drupal\image\Entity\ImageStyle::create([
+      'name' => $name,
+      'label' => $def['label'],
+    ]);
+    $style->addImageEffect([
+      'id' => $def['effect'],
+      'weight' => 1,
+      'data' => $def['data'],
+    ]);
+    $style->save();
+    $created[] = $name;
+  }
+
+  if ($created) {
+    return (string) t('Image Styles criados: @list.', [
+      '@list' => implode(', ', $created),
+    ]);
+  }
+  return (string) t('Image Styles Quem Somos já presentes.');
+}
+
+/**
+ * Aplica image_style nos displays do node quem_somos e paragraph diferencial_simples_p.
+ */
+function _custom_configs_ensure_quem_somos_refino_displays(): string {
+  $messages = [];
+  $storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+
+  /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null $node_display */
+  $node_display = $storage->load('node.quem_somos.default');
+  if ($node_display) {
+    $changed = FALSE;
+    $map = [
+      'field_imagem' => 'quem_somos_sobre_nos',
+      'field_imagem_desktop' => 'quem_somos_missao_visao',
+    ];
+    foreach ($map as $field_name => $style_name) {
+      $component = $node_display->getComponent($field_name);
+      if (!$component) {
+        continue;
+      }
+      $current = $component['settings']['image_style'] ?? '';
+      if ($current === $style_name) {
+        continue;
+      }
+      $component['type'] = 'image';
+      $component['settings']['image_style'] = $style_name;
+      $component['settings']['image_link'] = $component['settings']['image_link'] ?? '';
+      $component['settings']['image_loading'] = $component['settings']['image_loading'] ?? ['attribute' => 'lazy'];
+      $node_display->setComponent($field_name, $component);
+      $changed = TRUE;
+    }
+    if ($changed) {
+      $node_display->save();
+      $messages[] = (string) t('View display node.quem_somos.default atualizado.');
+    }
+  }
+  else {
+    $messages[] = (string) t('View display node.quem_somos.default ausente — rode drush cim -y.');
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null $p_display */
+  $p_display = $storage->load('paragraph.diferencial_simples_p.default');
+  if ($p_display) {
+    $component = $p_display->getComponent('field_image');
+    if ($component) {
+      $current = $component['settings']['image_style'] ?? '';
+      if ($current !== 'diferencial_simples_icon') {
+        $component['type'] = 'image';
+        $component['settings']['image_style'] = 'diferencial_simples_icon';
+        $component['settings']['image_link'] = $component['settings']['image_link'] ?? '';
+        $component['settings']['image_loading'] = $component['settings']['image_loading'] ?? ['attribute' => 'lazy'];
+        $p_display->setComponent('field_image', $component);
+        $p_display->save();
+        $messages[] = (string) t('View display paragraph.diferencial_simples_p.default atualizado.');
+      }
+    }
+  }
+  else {
+    $messages[] = (string) t('View display paragraph.diferencial_simples_p.default ausente — rode drush cim -y.');
+  }
+
+  if (!$messages) {
+    $messages[] = (string) t('Displays Quem Somos / diferencial_simples_p já com Image Styles.');
+  }
+  return implode(' ', $messages);
+}
+
+/**
+ * Copia assets → public:// e atualiza ícones provisórios/vazios do bloco Quem Somos.
+ */
+function _custom_configs_sync_diferenciais_quem_somos_provisional_icons(): string {
+  $uuid = 'd5e6f7a8-b9c0-4d1e-8f2a-3b4c5d6e7f80';
+  $items_seed = [
+    ['label' => 'Pessoas', 'file' => 'icon-1.png'],
+    ['label' => 'Autoconhecimento', 'file' => 'icon-2.png'],
+    ['label' => 'Conexões', 'file' => 'icon-3.png'],
+    ['label' => 'Respeito', 'file' => 'icon-4.png'],
+    ['label' => 'Compromisso', 'file' => 'icon-5.png'],
+    ['label' => 'Desenvolvimento', 'file' => 'icon-6.png'],
+    ['label' => 'Performance', 'file' => 'icon-7.png'],
+    ['label' => 'Ética', 'file' => 'icon-8.png'],
+  ];
+
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+  if (!$existing) {
+    return (string) t('Bloco Diferenciais Quem Somos (@uuid) ausente — sync de ícones ignorado.', [
+      '@uuid' => $uuid,
+    ]);
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = reset($existing);
+  if (!$block->hasField('field_itens_lista') || $block->get('field_itens_lista')->isEmpty()) {
+    return (string) t('Lista de diferenciais vazia — sync de ícones ignorado.');
+  }
+
+  $updated = 0;
+  $new_refs = [];
+  $delta = 0;
+
+  foreach ($block->get('field_itens_lista') as $item) {
+    /** @var \Drupal\paragraphs\ParagraphInterface|null $paragraph */
+    $paragraph = $item->entity;
+    $seed = $items_seed[$delta] ?? NULL;
+    $delta++;
+
+    if (!$paragraph || !$paragraph->hasField('field_image') || $seed === NULL) {
+      $new_refs[] = [
+        'target_id' => $item->target_id,
+        'target_revision_id' => $item->target_revision_id,
+      ];
+      continue;
+    }
+
+    $needs_sync = $paragraph->get('field_image')->isEmpty();
+    if (!$needs_sync) {
+      $file_entity = $paragraph->get('field_image')->entity;
+      $uri = $file_entity ? (string) $file_entity->getFileUri() : '';
+      $filename = $uri !== '' ? basename($uri) : '';
+      // Provisórios: icon-N.png ou rename Drupal icon-N_0.png (não webp editorial).
+      if ($filename === $seed['file'] || preg_match('/^icon-[1-8](_\d+)?\.png$/i', $filename)) {
+        $needs_sync = TRUE;
+      }
+    }
+
+    if (!$needs_sync) {
+      $new_refs[] = [
+        'target_id' => $paragraph->id(),
+        'target_revision_id' => $paragraph->getRevisionId(),
+      ];
+      continue;
+    }
+
+    $file = _custom_configs_seed_file_from_module_asset(
+      'diferenciais-quem-somos/' . $seed['file'],
+      'public://diferenciais-quem-somos/' . $seed['file'],
+      'paragraph',
+      (int) $paragraph->id()
+    );
+    if ($file) {
+      $alt = (string) ($paragraph->get('field_text_simple')->value ?? $seed['label']);
+      $paragraph->set('field_image', [
+        'target_id' => $file->id(),
+        'alt' => $alt,
+      ]);
+      $paragraph->save();
+      $updated++;
+    }
+
+    $new_refs[] = [
+      'target_id' => $paragraph->id(),
+      'target_revision_id' => $paragraph->getRevisionId(),
+    ];
+  }
+
+  if ($updated > 0) {
+    $block->set('field_itens_lista', $new_refs);
+    $block->save();
+    return (string) t('@count ícone(s) Diferenciais Quem Somos sincronizado(s) de assets.', [
+      '@count' => (string) $updated,
+    ]);
+  }
+
+  return (string) t('Ícones Diferenciais Quem Somos já finais ou preservados.');
+}
+
+/**
+ * Preenche textos vazios do node quem_somos (nunca sobrescreve editorial).
+ */
+function _custom_configs_fill_quem_somos_empty_texts(): string {
+  $parts = [];
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $nids = $storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('type', 'quem_somos')
+    ->execute();
+
+  if (!$nids) {
+    return (string) t('Nenhum node quem_somos — fill de textos ignorado.');
+  }
+
+  $titulo_seed = 'Sobre nós';
+  $filled_titulo = 0;
+
+  foreach ($storage->loadMultiple($nids) as $node) {
+    /** @var \Drupal\node\NodeInterface $node */
+    $changed = FALSE;
+    if ($node->hasField('field_titulo') && $node->get('field_titulo')->isEmpty()) {
+      $node->set('field_titulo', $titulo_seed);
+      $changed = TRUE;
+      $filled_titulo++;
+    }
+    if ($changed) {
+      $node->save();
+    }
+  }
+
+  if ($filled_titulo) {
+    $parts[] = (string) t('Título Sobre nós preenchido em @n node(s).', [
+      '@n' => (string) $filled_titulo,
+    ]);
+  }
+
+  // Missão/Visão (+ fundo se vazio) — helper já idempotente.
+  $parts[] = _custom_configs_seed_quem_somos_missao_visao();
+
+  if (!$parts) {
+    $parts[] = (string) t('Textos quem_somos já preenchidos.');
+  }
+  return implode(' ', $parts);
+}

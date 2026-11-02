@@ -14,8 +14,14 @@
 	overflow-x: clip;
 }
 
+/* Tipografia Figma: Poppins SemiBold 30/38, tracking -0.3px, #000 */
 .node--type-quem-somos .sobre-nos__title {
 	font-family: Poppins, sans-serif;
+	font-size: 30px !important; /* sobrescreve .text-title-sm */
+	font-weight: 600;
+	line-height: 38px;
+	letter-spacing: -0.3px;
+	color: #000000;
 }
 
 .node--type-quem-somos .sobre-nos__media {
@@ -36,7 +42,7 @@
 
 .node--type-quem-somos .sobre-nos__body {
 	font-family: Poppins, sans-serif;
-	color: #334155;
+	color: #373D5B;
 	line-height: 1.6;
 }
 
@@ -54,17 +60,18 @@
 	margin-bottom: 0;
 }
 
-/* Decorativos: anel verde (topo direito) + círculo laranja (canto inferior direito). */
+/* Decorativos: anel verde (topo direito) + círculo laranja (canto inferior direito).
+ * Medidas Figma: anel 185×185; ponto laranja 49×49 ancorado na borda inferior/direita. */
 .node--type-quem-somos .sobre-nos__media::before {
 	content: '';
 	position: absolute;
 	width: 185px;
 	height: 185px;
 	border-radius: 50%;
-	border: 14px solid var(--sobre-nos-green);
+	border: 26px solid var(--sobre-nos-green);
 	background: transparent;
-	top: -48px;
-	right: -56px;
+	top: -56px;
+	right: -48px;
 	pointer-events: none;
 	z-index: 0;
 }
@@ -72,13 +79,13 @@
 .node--type-quem-somos .sobre-nos__media::after {
 	content: '';
 	position: absolute;
-	width: 64px;
-	height: 64px;
+	width: 49px;
+	height: 49px;
 	border-radius: 50%;
 	background: var(--sobre-nos-orange);
-	/* Centro do círculo ~78% da largura (não no canto) e sobre a borda inferior da imagem. */
-	bottom: -20px;
-	right: 15%;
+	/* Centro na borda direita; parte sob a borda inferior (Figma 49×49). */
+	bottom: -18px;
+	right: -20px;
 	pointer-events: none;
 	z-index: 3;
 }
@@ -99,14 +106,14 @@
 		width: 120px;
 		height: 120px;
 		border-width: 10px;
-		top: -28px;
-		right: -24px;
+		top: -32px;
+		right: -28px;
 	}
 
 	.node--type-quem-somos .sobre-nos__media::after {
-		width: 44px;
-		height: 44px;
+		width: 36px;
+		height: 36px;
 		bottom: -14px;
-		right: 15%;
+		right: -14px;
 	}
 }

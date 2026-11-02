@@ -23,12 +23,12 @@
             <a class="banner-quem-somos__btn banner-quem-somos__btn--secondary" href="/cadastro/candidato">{{ 'Cadastre-se'|t }}</a>
           </div>
         </div>
-        <div class="col-12 col-md-7 banner-quem-somos__media">
+        <div class="col-12 col-md-7 banner-quem-somos__media d-none d-md-block">
           <picture>
-            <source media="(max-width: 767.98px)" srcset="{{ media.mobile|e('html_attr') }}">
+            <source media="(min-width: 768px)" srcset="{{ media.desktop|e('html_attr') }}">
             <img
               class="banner-quem-somos__img"
-              src="{{ media.desktop|e('html_attr') }}"
+              src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
               alt="{{ media.alt|e('html_attr') }}"
               loading="eager"
               fetchpriority="high"

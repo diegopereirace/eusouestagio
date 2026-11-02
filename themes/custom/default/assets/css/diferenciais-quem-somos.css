@@ -9,14 +9,14 @@
 .block-diferenciais-quem-somos .dqs-header__title {
   font-family: 'Poppins', sans-serif;
   font-weight: 700;
-  color: #1a2a4a;
+  color: #000000;
   margin-bottom: 1rem;
 }
 
 .block-diferenciais-quem-somos .dqs-header__desc {
   font-family: 'Poppins', sans-serif;
   font-weight: 400;
-  color: #4a5568;
+  color: #4E4E4E;
   margin-bottom: 0;
 }
 
@@ -58,12 +58,25 @@
   max-height: 64px;
   width: auto;
   height: auto;
+  object-fit: contain;
+}
+
+@media (min-width: 768px) {
+  .block-diferenciais-quem-somos .dqs-item__icon {
+    width: 80px;
+    height: 80px;
+  }
+
+  .block-diferenciais-quem-somos .dqs-item__icon img {
+    max-width: 80px;
+    max-height: 80px;
+  }
 }
 
 .block-diferenciais-quem-somos .dqs-item__label {
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
-  color: #1a2a4a;
+  color: #000000;
   margin-bottom: 0;
   font-size: 0.95rem;
   line-height: 1.35;

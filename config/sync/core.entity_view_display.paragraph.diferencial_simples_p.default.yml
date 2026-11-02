@@ -6,6 +6,7 @@ dependencies:
     - field.field.paragraph.diferencial_simples_p.field_image
     - field.field.paragraph.diferencial_simples_p.field_text_simple
     - field.field.paragraph.diferencial_simples_p.field_text_simple_long
+    - image.style.diferencial_simples_icon
     - paragraphs.paragraphs_type.diferencial_simples_p
   module:
     - image
@@ -19,7 +20,7 @@ content:
     label: hidden
     settings:
       image_link: ''
-      image_style: ''
+      image_style: diferencial_simples_icon
       image_loading:
         attribute: lazy
     third_party_settings: {  }

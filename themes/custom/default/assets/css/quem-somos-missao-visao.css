@@ -24,16 +24,15 @@
 }
 
 .quem-somos-missao-visao {
-  --qs-mv-overlay: rgba(15, 23, 42, 0.7);
   position: relative;
   width: 100%;
   min-height: 380px;
   display: flex;
   align-items: center;
-  background-color: #0f172a;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  background-attachment: scroll;
   font-family: "Poppins", sans-serif;
   color: #fff;
 }
@@ -78,6 +77,10 @@
 }
 
 @media (min-width: 768px) {
+  .quem-somos-missao-visao {
+    background-attachment: fixed;
+  }
+
   .quem-somos-missao-visao__col--first {
     border-right: 1px solid rgba(255, 255, 255, 0.28);
   }

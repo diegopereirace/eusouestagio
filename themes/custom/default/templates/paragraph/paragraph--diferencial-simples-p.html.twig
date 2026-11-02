@@ -29,7 +29,7 @@
         {% set icon_uri = content.field_image['#items'][0].entity.uri.value %}
         {% set icon_alt = content.field_image['#items'][0].alt|default(label) %}
         <div class="dqs-item__icon">
-          <img class="img-fluid" src="{{ file_url(icon_uri) }}" alt="{{ icon_alt }}" loading="lazy">
+          <img class="img-fluid" src="{{ icon_uri|image_style('diferencial_simples_icon')|e('html_attr') }}" alt="{{ icon_alt }}" loading="lazy">
         </div>
       {% endif %}
       {% if label %}

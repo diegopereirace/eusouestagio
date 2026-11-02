@@ -74,12 +74,14 @@
 .block-cta-v1 .cta-v1__btn--secondary {
   background-color: #ffffff;
   color: #0f172a;
+  border: 1px solid #0f172a;
 }
 
 .block-cta-v1 .cta-v1__btn--secondary:hover,
 .block-cta-v1 .cta-v1__btn--secondary:focus {
   background-color: #f8fafc;
   color: #0f172a;
+  border-color: #0f172a;
   text-decoration: none;
 }
 

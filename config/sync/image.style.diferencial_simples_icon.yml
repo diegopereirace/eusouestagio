@@ -1,0 +1,15 @@
+uuid: 578f185a-eeba-407a-9050-843ede86f764
+langcode: pt-br
+status: true
+dependencies: {  }
+name: diferencial_simples_icon
+label: 'Diferencial simples — ícone'
+effects:
+  9fdbc134-27bb-4d73-a287-4fc5736f1b14:
+    uuid: 9fdbc134-27bb-4d73-a287-4fc5736f1b14
+    id: image_scale
+    weight: 1
+    data:
+      width: 160
+      height: 160
+      upscale: false

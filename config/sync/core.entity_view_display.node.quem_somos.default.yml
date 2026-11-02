@@ -10,6 +10,8 @@ dependencies:
     - field.field.node.quem_somos.field_text_simple_long
     - field.field.node.quem_somos.field_text_simple_long_2
     - field.field.node.quem_somos.field_titulo
+    - image.style.quem_somos_missao_visao
+    - image.style.quem_somos_sobre_nos
     - node.type.quem_somos
   module:
     - image
@@ -25,7 +27,7 @@ content:
     label: hidden
     settings:
       image_link: ''
-      image_style: ''
+      image_style: quem_somos_sobre_nos
       image_loading:
         attribute: lazy
     third_party_settings: {  }
@@ -36,7 +38,7 @@ content:
     label: hidden
     settings:
       image_link: ''
-      image_style: ''
+      image_style: quem_somos_missao_visao
       image_loading:
         attribute: lazy
     third_party_settings: {  }

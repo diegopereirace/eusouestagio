@@ -1,0 +1,15 @@
+uuid: 826e7d4f-e383-4536-96dc-171eafc2c8be
+langcode: pt-br
+status: true
+dependencies: {  }
+name: quem_somos_sobre_nos
+label: 'Quem Somos — Sobre nós'
+effects:
+  a4ec82f2-b19a-4d1a-9eaa-18c09f0a56da:
+    uuid: a4ec82f2-b19a-4d1a-9eaa-18c09f0a56da
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 864
+      height: 538
+      anchor: center-center

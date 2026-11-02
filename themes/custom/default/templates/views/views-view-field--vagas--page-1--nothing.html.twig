@@ -140,18 +140,17 @@
         </ul>
       {% endif %}
 
-      <div class="vaga-lista__footer">
-        {% if vaga_published_ago %}
-          <p class="vaga-lista__published">{{ 'Vaga aberta há @interval'|t({'@interval': vaga_published_ago}) }}</p>
-        {% endif %}
-        <div class="vaga-lista__actions">
-          {% if is_destaque %}
-            <a href="{{ vaga_url }}" class="vaga-lista__cta vaga-lista__cta--rapida">{{ 'Candidatura Rápida'|t }}</a>
-          {% else %}
-            <a href="{{ vaga_url }}" class="vaga-lista__cta vaga-lista__cta--outline">{{ 'Ver Detalhes'|t }}</a>
-          {% endif %}
-        </div>
-      </div>
+      {% if vaga_published_ago %}
+        <p class="vaga-lista__published">{{ 'Vaga aberta há @interval'|t({'@interval': vaga_published_ago}) }}</p>
+      {% endif %}
+    </div>
+
+    <div class="vaga-lista__actions">
+      {% if is_destaque %}
+        <a href="{{ vaga_url }}" class="vaga-lista__cta vaga-lista__cta--rapida">{{ 'Candidatura Rápida'|t }}</a>
+      {% else %}
+        <a href="{{ vaga_url }}" class="vaga-lista__cta vaga-lista__cta--outline">{{ 'Ver Detalhes'|t }}</a>
+      {% endif %}
     </div>
   </div>
 </article>

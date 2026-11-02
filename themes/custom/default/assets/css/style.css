@@ -1652,7 +1652,7 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 	margin: 0;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767.98px) {
 	.banner-image--interna {
 		min-height: 200px;
 		padding: 40px 24px;

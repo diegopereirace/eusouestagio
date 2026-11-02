@@ -133,12 +133,21 @@ if (Test-Path $envFile) {
   }
 }
 
+$siteUrl = 'https://localhost:' + $port + '/'
+
 Write-Host ''
 Write-Host 'Pronto.' -ForegroundColor Green
-Write-Host ('Site: https://localhost:' + $port)
+Write-Host ('Site: ' + $siteUrl)
 Write-Host 'Certificado: Avancado -> Continuar para localhost'
 Write-Host 'CAPTCHA: desligado neste ambiente local'
 Write-Host ''
 Write-Host 'Parar: duplo clique em dev-down.bat'
 Write-Host 'Guia:  COMECE-AQUI-WINDOWS.txt'
 Write-Host ''
+
+try {
+  Start-Process $siteUrl
+}
+catch {
+  Write-Host ('Abra manualmente: ' + $siteUrl) -ForegroundColor Yellow
+}

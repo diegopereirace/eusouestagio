@@ -9,13 +9,20 @@ docker compose exec -T drupal vendor/bin/drush updb -y
 docker compose exec -T drupal vendor/bin/drush cim -y
 docker compose exec -T drupal vendor/bin/drush cr
 
-# Produção (/var/www/html) — follow-up form display (11067)
+# Produção (/var/www/html) — form display (11067) + UUIDs (11068) antes do cim
 git pull
+php vendor/bin/drush.php updb -y
 php vendor/bin/drush.php cim -y
 php vendor/bin/drush.php updb -y
 php vendor/bin/drush.php cim -y
 php vendor/bin/drush.php cr
 ```
+
+Se o `cim` listar *Delete* de tipos/campos que existem no sync e falhar com
+“existem entidades… precisam ser excluídas”, é UUID divergente (recreate).
+Rode `updb` (hook `11068`) **antes** de insistir no `cim` — nunca apague
+conteúdo editorial para destravar o import.
+
 
 ## Esperado
 

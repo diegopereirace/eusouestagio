@@ -1,4 +1,13 @@
 {
+  // Ambiente local Drupal: porta 8082 é HTTPS (mapeia container :443).
+  // Sem isso, Ports / Simple Browser abrem http://localhost:8082 (400 Bad Request).
+  "remote.portsAttributes": {
+    "8082": {
+      "label": "Drupal local (HTTPS)",
+      "protocol": "https",
+      "onAutoForward": "openBrowser"
+    }
+  },
   // Formata automaticamente ao salvar
   "editor.formatOnSave": true,
   // Respeita o .editorconfig do projeto

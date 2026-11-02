@@ -51,6 +51,7 @@ Enquanto o destino ainda tiver nós do bundle `para_empresas`, o passo 4 (`cim`)
 | 2 Código | conflito de merge | **Abortar merge** (`git merge --abort`); resolver na origem; não forçar |
 | 3 Composer | rede/memória/plataforma | **Parar** — banco intacto; não iniciar `cim`/`updb` |
 | 4–6 `cim`/`updb` | exit ≠ 0, dependência, hook parcial | **Parar**; se irrecuperável → rollback (contrato abaixo); nunca `updb` em loop |
+| 4 `cim` | *Delete* de configs que existem no sync + “entidades precisam ser excluídas” | UUID active ≠ sync (recreate). **Não** apagar conteúdo. Rodar `updb` (`custom_configs_update_11068` / `_custom_configs_align_active_uuids_to_sync`) e repetir `cim` |
 | 7 `cr` | falha de rebuild | Reavaliar; se site quebrado → rollback |
 | 8 Verificação | 500 persistente / seletores ausentes / log com erros novos | Avaliar correção pontual; se irrecuperável → rollback |
 

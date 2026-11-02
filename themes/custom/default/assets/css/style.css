@@ -152,19 +152,21 @@ h6 {
 .site-footer-custom {
 	background-color: #023c62;
 	color: #fff;
-	padding-top: 28px;
-	padding-bottom: 28px;
+	padding-top: 64px;
+	padding-bottom: 64px;
 }
 
-/* Linha principal: 5 colunas, gutter 32px */
+/* Linha principal: 5 colunas iguais, gutter 30px, recuo interno em relação ao divisor */
 .site-footer-custom .footer-main {
-	--bs-gutter-x: 1.75rem;
+	--bs-gutter-x: 1.875rem;
 	--bs-gutter-y: 1.5rem;
+	padding-left: 1.875rem;
+	padding-right: 1.875rem;
 }
 
 .site-footer-custom .footer-logo-img {
 	display: block;
-	width: min(150px, 100%);
+	width: min(160px, 100%);
 	max-width: 100%;
 	height: auto;
 }
@@ -173,7 +175,8 @@ h6 {
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
-	margin-top: 24px;
+	gap: 16px;
+	margin-top: 28px;
 }
 
 .site-footer-custom .footer-social-link {
@@ -214,36 +217,45 @@ h6 {
 }
 
 .site-footer-custom .footer-menu-title {
-	margin: 0 0 16px;
-	font-size: clamp(0.9rem, 0.84rem + 0.22vw, 1rem);
+	margin: 0 0 24px;
+	font-size: 0.875rem;
 	font-weight: 700;
-	line-height: 1.25;
-	letter-spacing: 0.08em;
-	color: #fff;
+	line-height: 1.25rem;
+	letter-spacing: 0.06em;
+	color: #f8f9ff;
 	text-transform: uppercase;
 }
 
 .site-footer-custom .footer-links {
 	display: flex;
 	flex-direction: column;
-	gap: 12px;
+	gap: 16px;
 	margin: 0;
 	padding: 0;
 }
 
-.site-footer-custom .footer-links a {
-	color: #fff;
-	font-size: clamp(0.875rem, 0.84rem + 0.18vw, 0.95rem);
+/*
+ * Os seletores abaixo usam `li a` de propósito: o bootstrap_barrio aplica
+ * `.site-footer__top .content li a` (padding + borda inferior) e precisa ser anulado.
+ */
+.site-footer-custom .footer-links li a,
+.site-footer-custom .footer-contact-item a.footer-contact-link {
+	display: inline-block;
+	padding: 0;
+	border: 0;
+	color: #d3e4fe;
+	font-size: 0.875rem;
 	font-weight: 400;
-	line-height: 1.45;
+	line-height: 1.25rem;
 	text-decoration: none;
+	text-indent: 0;
 	transition: opacity 0.2s ease;
 	overflow-wrap: anywhere;
 }
 
-.site-footer-custom .footer-links a:hover,
-.site-footer-custom .footer-links a:focus {
-	color: #fff;
+.site-footer-custom .footer-links li a:hover,
+.site-footer-custom .footer-links li a:focus {
+	color: #d3e4fe;
 	opacity: 0.75;
 	text-decoration: none;
 }
@@ -282,34 +294,32 @@ h6 {
 .site-footer-custom .footer-contact {
 	display: flex;
 	flex-direction: column;
-	gap: 12px;
+	gap: 16px;
 }
 
 .site-footer-custom .footer-contact-item {
 	display: flex;
 	align-items: flex-start;
 	gap: 0;
-	font-size: clamp(0.875rem, 0.84rem + 0.18vw, 0.95rem);
-	line-height: 1.45;
+	font-size: 0.875rem;
+	line-height: 1.25rem;
 }
 
-.site-footer-custom .footer-contact-link {
-	color: #fff;
-	text-decoration: none;
-	overflow-wrap: anywhere;
+.site-footer-custom .footer-contact-item a.footer-contact-link {
 	word-break: break-word;
 }
 
-.site-footer-custom .footer-contact-link:hover,
-.site-footer-custom .footer-contact-link:focus {
-	color: #fff;
+.site-footer-custom .footer-contact-item a.footer-contact-link:hover,
+.site-footer-custom .footer-contact-item a.footer-contact-link:focus {
+	color: #d3e4fe;
+	opacity: 0.75;
 	text-decoration: none;
 }
 
 .site-footer-custom .footer-divider {
-	margin: 40px 0 24px;
+	margin: 64px 0 24px;
 	border: 0;
-	border-top: 1px solid rgba(255, 255, 255, 0.25);
+	border-top: 1px solid rgba(211, 228, 254, 0.2);
 	opacity: 1;
 }
 
@@ -318,15 +328,16 @@ h6 {
 }
 
 .site-footer-custom .footer-copy {
-	font-size: clamp(0.8125rem, 0.78rem + 0.14vw, 0.875rem);
-	line-height: 1.45;
+	font-size: 0.75rem;
+	line-height: 1.25rem;
+	color: #d3e4fe;
 }
 
 .site-footer-custom .footer-dev {
 	margin-top: 4px;
-	font-size: clamp(0.75rem, 0.72rem + 0.12vw, 0.8125rem);
-	line-height: 1.4;
-	color: rgba(255, 255, 255, 0.5);
+	font-size: 0.75rem;
+	line-height: 1.25rem;
+	color: #d3e4fe;
 }
 
 .site-footer-custom .footer-dev a {
@@ -2896,6 +2907,15 @@ body.path-painel {
 		padding-bottom: 20px;
 	}
 
+	.site-footer-custom .footer-main {
+		padding-left: 0;
+		padding-right: 0;
+	}
+
+	.site-footer-custom .footer-divider {
+		margin: 32px 0 20px;
+	}
+
 	.site-footer-custom .footer-menu-title {
 		margin-bottom: 12px;
 	}
@@ -2932,6 +2952,8 @@ body.path-painel {
 @media (min-width: 992px) and (max-width: 1199.98px) {
 	.site-footer-custom .footer-main {
 		--bs-gutter-x: 1.25rem;
+		padding-left: 1rem;
+		padding-right: 1rem;
 	}
 
 	.site-footer-custom .footer-logo-img {
@@ -2939,6 +2961,7 @@ body.path-painel {
 	}
 
 	.site-footer-custom .footer-social {
+		gap: 10px;
 		margin-top: 20px;
 	}
 
@@ -2949,17 +2972,11 @@ body.path-painel {
 	}
 
 	.site-footer-custom .footer-menu-title {
-		font-size: 0.88rem;
+		font-size: 0.8125rem;
 	}
 
 	.site-footer-custom .footer-links {
-		gap: 10px;
-	}
-
-	.site-footer-custom .footer-links a,
-	.site-footer-custom .footer-contact-item {
-		font-size: 0.88rem;
-		line-height: 1.4;
+		gap: 12px;
 	}
 }
 
@@ -2969,10 +2986,7 @@ body.path-painel {
 		height: 34px;
 	}
 
-	.site-footer-custom .footer-copy {
-		font-size: 0.8rem;
-	}
-
+	.site-footer-custom .footer-copy,
 	.site-footer-custom .footer-dev {
 		font-size: 0.72rem;
 	}

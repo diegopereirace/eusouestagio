@@ -15437,6 +15437,61 @@ function custom_configs_update_11067(): string {
 }
 
 /**
+ * Alinha UUIDs do active ao config/sync sem recrear entidades.
+ *
+ * Quando hooks/API criam config com UUID diferente do YAML, o cim interpreta
+ * como delete+create e exige apagar conteúdo (blocos, paragraphs, nodes).
+ * Este update só regrava o UUID no active — dados editoriais intactos.
+ * Destino: updb (11068) → cim → cr.
+ */
+function custom_configs_update_11068(): string {
+  return _custom_configs_align_active_uuids_to_sync();
+}
+
+/**
+ * Para cada config presente em sync e active com UUID divergente, copia o UUID do sync.
+ */
+function _custom_configs_align_active_uuids_to_sync(): string {
+  /** @var \Drupal\Core\Config\StorageInterface $sync */
+  $sync = \Drupal::service('config.storage.sync');
+  /** @var \Drupal\Core\Config\StorageInterface $active */
+  $active = \Drupal::service('config.storage');
+  $factory = \Drupal::configFactory();
+
+  $fixed = [];
+  foreach ($sync->listAll() as $name) {
+    $source = $sync->read($name);
+    $target = $active->read($name);
+    if (!$source || !$target) {
+      continue;
+    }
+    if (empty($source['uuid']) || empty($target['uuid'])) {
+      continue;
+    }
+    if ($source['uuid'] === $target['uuid']) {
+      continue;
+    }
+    $target['uuid'] = $source['uuid'];
+    $active->write($name, $target);
+    $factory->reset($name);
+    $fixed[] = $name;
+  }
+
+  if (!$fixed) {
+    return (string) t('Nenhum UUID divergente entre active e sync.');
+  }
+
+  \Drupal::service('cache_tags.invalidator')->invalidateTags(['config']);
+  \Drupal::service('entity_type.manager')->clearCachedDefinitions();
+  \Drupal::service('entity_field.manager')->clearCachedFieldDefinitions();
+
+  return (string) t('UUIDs alinhados (@n): @list', [
+    '@n' => count($fixed),
+    '@list' => implode(', ', array_slice($fixed, 0, 40)) . (count($fixed) > 40 ? '…' : ''),
+  ]);
+}
+
+/**
  * Remove field_como_funciona_itens + paragraph type como_funciona_item_p.
  */
 function _custom_configs_remove_como_funciona_etapas(): string {

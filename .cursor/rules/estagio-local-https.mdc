@@ -1,0 +1,6 @@
+# Ambiente local — HTTPS obrigatório
+
+- URL canônica local: `https://localhost:8082/` (porta = `DRUPAL_HTTPS_PORT` no `.env`).
+- **Nunca** abrir, linkar ou navegar com `http://localhost:8082` — a 8082 mapeia o TLS do container (`:443`); HTTP puro responde 400.
+- No browser MCP / Simple Browser / Ports: usar sempre `https://localhost:8082/`.
+- Certificado local é self-signed: em navegadores externos, aceitar o aviso (Avançado → Continuar).

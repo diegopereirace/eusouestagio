@@ -1,7 +1,7 @@
 {#
 /**
  * @file
- * Rodapé customizado (bundle footer) — layout 5 colunas + accordion mobile.
+ * Rodapé customizado (bundle footer) — layout 5 colunas iguais + accordion mobile.
  *
  * Colunas: marca (logo + sociais) | Institucional | Para Estudantes |
  * Para Empresas | Contato. Links das colunas 2–4 hardcoded (rotas canônicas).
@@ -51,7 +51,7 @@
   {% block content %}
     <div{{ content_attributes.addClass('content') }}>
       <div class="row footer-main">
-        <div class="col-lg-3 col-12 footer-brand">
+        <div class="col-lg col-12 footer-brand">
           {% if footer_entity and footer_entity.field_image is not empty %}
             {% set logo_url = file_url(footer_entity.field_image.entity.uri.value) %}
             {% set logo_alt = footer_entity.field_image.alt|default('Eu Sou Estágio') %}
@@ -63,7 +63,7 @@
             <img src="{{ logo_url }}" alt="{{ logo_alt }}" class="footer-logo-img">
           </a>
           {% if footer_entity %}
-            <div class="footer-social d-flex gap-2">
+            <div class="footer-social d-flex">
               {% if footer_entity.field_email.value %}
                 <a href="mailto:{{ footer_entity.field_email.value }}" class="footer-social-link footer-social-link--email" title="{{ 'E-mail'|t }}" aria-label="{{ 'E-mail'|t }}">
                   <i class="fa-solid fa-envelope" aria-hidden="true"></i>
@@ -88,7 +88,7 @@
           {% endif %}
         </div>
 
-        <section class="col-lg-2 col-12 footer-menu-section" data-footer-section="institucional">
+        <section class="col-lg col-12 footer-menu-section" data-footer-section="institucional">
           <div class="d-none d-lg-block">
             <h3 class="footer-menu-title">{{ 'Institucional'|t }}</h3>
             <ul class="footer-links list-unstyled mb-0">
@@ -112,7 +112,7 @@
           </div>
         </section>
 
-        <section class="col-lg-2 col-12 footer-menu-section" data-footer-section="estudantes">
+        <section class="col-lg col-12 footer-menu-section" data-footer-section="estudantes">
           <div class="d-none d-lg-block">
             <h3 class="footer-menu-title">{{ 'Para Estudantes'|t }}</h3>
             <ul class="footer-links list-unstyled mb-0">
@@ -136,7 +136,7 @@
           </div>
         </section>
 
-        <section class="col-lg-2 col-12 footer-menu-section" data-footer-section="empresas">
+        <section class="col-lg col-12 footer-menu-section" data-footer-section="empresas">
           <div class="d-none d-lg-block">
             <h3 class="footer-menu-title">{{ 'Para Empresas'|t }}</h3>
             <ul class="footer-links list-unstyled mb-0">
@@ -160,7 +160,7 @@
           </div>
         </section>
 
-        <div class="col-lg-3 col-12 footer-contact-col">
+        <div class="col-lg col-12 footer-contact-col">
           <h3 class="footer-menu-title">{{ 'Contato'|t }}</h3>
           {% if footer_entity %}
             <ul class="footer-contact list-unstyled mb-0">

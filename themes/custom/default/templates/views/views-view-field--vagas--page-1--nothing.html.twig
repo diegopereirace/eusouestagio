@@ -4,6 +4,7 @@
  * Card vertical branco — listagem /vagas (page_1).
  * Classes .item-vaga--lista (nunca .item-vaga--destaque nesta rota).
  * Feature 028 — isolado de Home (block_1) / PE (block_3) / similares.
+ * Feature 049 — título linkado para detalhe (vaga_url).
  */
 #}
 {% set node = row._entity %}
@@ -109,7 +110,9 @@
     {% endif %}
 
     <div class="vaga-lista__body">
-      <h3 class="vaga-lista__title">{{ title_text }}</h3>
+      <h3 class="vaga-lista__title">
+        <a href="{{ vaga_url }}" class="vaga-lista__title-link">{{ title_text }}</a>
+      </h3>
 
       {% if meta_text %}
         <p class="vaga-lista__meta">{{ meta_text }}</p>

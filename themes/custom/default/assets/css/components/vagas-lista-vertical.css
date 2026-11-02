@@ -265,6 +265,23 @@
   color: #111;
 }
 
+.css-vagas-page .item-vaga--lista .vaga-lista__title-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.css-vagas-page .item-vaga--lista .vaga-lista__title-link:hover {
+  color: #58a83c;
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+}
+
+.css-vagas-page .item-vaga--lista .vaga-lista__title-link:focus-visible {
+  outline: 2px solid #58a83c;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 .css-vagas-page .item-vaga--lista .vaga-lista__meta {
   margin: 0 0 0.5rem;
   font-size: 0.875rem;
@@ -408,27 +425,27 @@
   animation: vagas-lista-spin 0.7s linear infinite;
 }
 
-/* —— Overlay ao ordenar (sort_order) —— */
+/* —— Overlay ao ordenar (sort_order) ——
+ * Anexado ao body (JS): fixed no viewport, sem containing-block de ancestors.
+ */
 .css-vagas-page.is-sort-loading {
-  position: relative;
   pointer-events: none;
 }
 
-.css-vagas-page .vagas-lista-sort-overlay {
-  position: absolute;
+.vagas-lista-sort-overlay {
+  position: fixed;
   inset: 0;
-  z-index: 30;
-  /* Overlay cobre a lista; o card fica fixed no viewport (lista alta ≠ centro da tela). */
-  padding: 0;
-  background: rgba(255, 255, 255, 0.78);
-  backdrop-filter: blur(1px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Centro óptico um pouco acima (header sticky + hero). */
+  padding: 0 1rem 18vh;
+  background: rgba(255, 255, 255, 0.72);
+  pointer-events: auto;
 }
 
-.css-vagas-page .vagas-lista-sort-overlay__inner {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  z-index: 31;
+.vagas-lista-sort-overlay__inner {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
@@ -442,16 +459,15 @@
   border: 1px solid #e8e8ec;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-  transform: translate(-50%, -50%);
 }
 
-.css-vagas-page .vagas-lista-sort-overlay__spinner {
+.vagas-lista-sort-overlay__spinner {
   font-size: 1.25rem;
   color: #58a83c;
   animation: vagas-lista-spin 0.7s linear infinite;
 }
 
-.css-vagas-page .vagas-lista-sort-overlay__text {
+.vagas-lista-sort-overlay__text {
   line-height: 1.3;
   white-space: nowrap;
 }

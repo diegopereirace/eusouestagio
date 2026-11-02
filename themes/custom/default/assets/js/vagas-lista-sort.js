@@ -1,7 +1,7 @@
 /**
  * @file
  * Overlay de loading ao ordenar a lista de vagas (/vagas).
- * O select dispara submit GET; o overlay cobre a área até a navegação.
+ * O select dispara submit GET; o overlay cobre o viewport até a navegação.
  * Segurança: timeout + pageshow (bfcache) evitam loading eterno.
  */
 (function (Drupal, once) {
@@ -27,6 +27,13 @@
     );
   }
 
+  /**
+   * @returns {Element|null}
+   */
+  function getOverlay() {
+    return document.body.querySelector(`:scope > .${OVERLAY_CLASS}`);
+  }
+
   function clearSafetyTimer() {
     if (safetyTimer !== null) {
       window.clearTimeout(safetyTimer);
@@ -40,18 +47,17 @@
   function hideOverlay(host) {
     clearSafetyTimer();
     const el = host || getHost();
-    if (!el) {
-      return;
+    if (el) {
+      el.classList.remove(LOADING_CLASS);
+      el.removeAttribute('aria-busy');
+      const select = el.querySelector('#vagas-sort-order');
+      if (select) {
+        select.disabled = false;
+      }
     }
-    el.classList.remove(LOADING_CLASS);
-    el.removeAttribute('aria-busy');
-    const overlay = el.querySelector(`.${OVERLAY_CLASS}`);
+    const overlay = getOverlay();
     if (overlay) {
       overlay.remove();
-    }
-    const select = el.querySelector('#vagas-sort-order');
-    if (select) {
-      select.disabled = false;
     }
   }
 
@@ -63,7 +69,7 @@
     host.classList.add(LOADING_CLASS);
     host.setAttribute('aria-busy', 'true');
 
-    let overlay = host.querySelector(`.${OVERLAY_CLASS}`);
+    let overlay = getOverlay();
     if (!overlay) {
       overlay = document.createElement('div');
       overlay.className = OVERLAY_CLASS;
@@ -76,7 +82,8 @@
         Drupal.t('Atualizando vagas…') +
         '</span>' +
         '</div>';
-      host.appendChild(overlay);
+      // body: position:fixed real no viewport (sem containing-block de ancestors).
+      document.body.appendChild(overlay);
     }
 
     const select = host.querySelector('#vagas-sort-order');

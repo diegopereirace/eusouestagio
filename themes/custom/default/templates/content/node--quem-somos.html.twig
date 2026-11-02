@@ -112,7 +112,7 @@
           <h3 class="sobre-nos__title text-title-sm pb-3">{{ content.field_titulo }}</h3>
         {% endif %}
         {% if node.field_imagem.entity %}
-          <div class="sobre-nos__media position-relative float-md-end ms-md-4 mb-3">
+          <div class="sobre-nos__media position-relative float-md-end mb-3">
             <img loading="lazy" src="{{ node.field_imagem.entity.uri.value|image_style('quem_somos_sobre_nos') }}" alt="{{ node.field_imagem.alt }}" class="sobre-nos__img img-fluid">
           </div>
         {% endif %}

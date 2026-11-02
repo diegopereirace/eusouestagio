@@ -183,7 +183,7 @@ body.node--type-quem-somos .banner .region-wrapper-banner {
 	}
 }
 
-/* Mobile: empilha copy → mídia; sem crop nem scroll horizontal */
+/* Mobile: só copy/CTAs — coluna de mídia oculta (d-none d-md-block + picture). */
 @media (max-width: 767.98px) {
 	.banner-quem-somos-wrapper {
 		overflow-x: clip;
@@ -193,18 +193,6 @@ body.node--type-quem-somos .banner .region-wrapper-banner {
 	.banner-quem-somos-wrapper .banner-quem-somos {
 		padding: 1.25rem 0;
 		margin-inline: 0;
-	}
-
-	.banner-quem-somos-wrapper .banner-quem-somos__media {
-		margin: 0;
-	}
-
-	.banner-quem-somos-wrapper .banner-quem-somos__img {
-		max-width: 18rem;
-		max-height: 18rem;
-		margin-inline: auto;
-		object-fit: contain;
-		object-position: bottom center;
 	}
 
 	.banner-quem-somos-wrapper .banner-quem-somos__ctas {

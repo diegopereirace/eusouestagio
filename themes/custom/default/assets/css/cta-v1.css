@@ -74,6 +74,10 @@
 .block-cta-v1 .cta-v1__btn--secondary {
   background-color: #ffffff;
   color: #0f172a;
+}
+
+/* Outline só no placement Quem Somos (não vaza para PE no mesmo Twig bundle). */
+#block-default-ctav1quemsomos.block-cta-v1 .cta-v1__btn--secondary {
   border: 1px solid #0f172a;
 }
 
@@ -81,8 +85,12 @@
 .block-cta-v1 .cta-v1__btn--secondary:focus {
   background-color: #f8fafc;
   color: #0f172a;
-  border-color: #0f172a;
   text-decoration: none;
+}
+
+#block-default-ctav1quemsomos.block-cta-v1 .cta-v1__btn--secondary:hover,
+#block-default-ctav1quemsomos.block-cta-v1 .cta-v1__btn--secondary:focus {
+  border-color: #0f172a;
 }
 
 @media (max-width: 575.98px) {

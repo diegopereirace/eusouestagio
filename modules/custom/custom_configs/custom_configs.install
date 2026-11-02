@@ -2624,7 +2624,11 @@ function _custom_configs_seed_file_from_module_asset(
     $file->save();
   }
 
-  \Drupal::service('file.usage')->add($file, 'custom_configs', $usage_type, $usage_id);
+  // Idempotente: não inflar file.usage em reexecuções do mesmo (type, id).
+  $usage = \Drupal::service('file.usage')->listUsage($file);
+  if (empty($usage['custom_configs'][$usage_type][$usage_id])) {
+    \Drupal::service('file.usage')->add($file, 'custom_configs', $usage_type, $usage_id);
+  }
   return $file;
 }
 
@@ -15820,14 +15824,32 @@ function _custom_configs_sync_diferenciais_quem_somos_provisional_icons(): strin
       continue;
     }
 
+    $canonical_uri = 'public://diferenciais-quem-somos/' . $seed['file'];
+    $asset_relative = 'diferenciais-quem-somos/' . $seed['file'];
+    $module_path = \Drupal::service('extension.list.module')->getPath('custom_configs');
+    $asset_source = DRUPAL_ROOT . '/' . $module_path . '/assets/' . $asset_relative;
+
     $needs_sync = $paragraph->get('field_image')->isEmpty();
     if (!$needs_sync) {
       $file_entity = $paragraph->get('field_image')->entity;
       $uri = $file_entity ? (string) $file_entity->getFileUri() : '';
       $filename = $uri !== '' ? basename($uri) : '';
       // Provisórios: icon-N.png ou rename Drupal icon-N_0.png (não webp editorial).
-      if ($filename === $seed['file'] || preg_match('/^icon-[1-8](_\d+)?\.png$/i', $filename)) {
-        $needs_sync = TRUE;
+      $is_provisional = ($filename === $seed['file'] || (bool) preg_match('/^icon-[1-8](_\d+)?\.png$/i', $filename));
+      if ($is_provisional) {
+        // Já no URI canônico + bytes iguais ao asset → no-op (SC-008).
+        // URI provisória em outro path, ou asset atualizado no módulo → sync.
+        $same_path = ($uri === $canonical_uri);
+        $public_realpath = $same_path
+          ? \Drupal::service('file_system')->realpath($uri)
+          : FALSE;
+        $same_bytes = is_string($public_realpath)
+          && is_readable($asset_source)
+          && is_readable($public_realpath)
+          && md5_file($asset_source) === md5_file($public_realpath);
+        if (!$same_bytes) {
+          $needs_sync = TRUE;
+        }
       }
     }
 
@@ -15840,19 +15862,24 @@ function _custom_configs_sync_diferenciais_quem_somos_provisional_icons(): strin
     }
 
     $file = _custom_configs_seed_file_from_module_asset(
-      'diferenciais-quem-somos/' . $seed['file'],
-      'public://diferenciais-quem-somos/' . $seed['file'],
+      $asset_relative,
+      $canonical_uri,
       'paragraph',
       (int) $paragraph->id()
     );
     if ($file) {
-      $alt = (string) ($paragraph->get('field_text_simple')->value ?? $seed['label']);
-      $paragraph->set('field_image', [
-        'target_id' => $file->id(),
-        'alt' => $alt,
-      ]);
-      $paragraph->save();
-      $updated++;
+      $current_target = (int) ($paragraph->get('field_image')->target_id ?? 0);
+      // Bytes em public:// já foram atualizados pelo seed helper quando necessário.
+      // Só regrava o paragraph se o target_id mudou (caminho antigo / vazio).
+      if ($current_target !== (int) $file->id()) {
+        $alt = (string) ($paragraph->get('field_text_simple')->value ?? $seed['label']);
+        $paragraph->set('field_image', [
+          'target_id' => $file->id(),
+          'alt' => $alt,
+        ]);
+        $paragraph->save();
+        $updated++;
+      }
     }
 
     $new_refs[] = [
@@ -15888,7 +15915,10 @@ function _custom_configs_fill_quem_somos_empty_texts(): string {
   }
 
   $titulo_seed = 'Sobre nós';
+  // Copy de validação visual (Figma / editorial atual) — só se o corpo estiver vazio.
+  $corpo_seed = '<p>O mercado ainda contrata errado: processos burocráticos, seleções por currículo e pouca compatibilidade real entre pessoa e vaga. Foi para mudar isso que nasceu a <strong>Eu Sou Estágio</strong>, com o propósito de conectar estudantes à sua essência e direcioná-los para uma jornada profissional com significado.</p><p>Acreditamos que carreira começa com autoconhecimento, não só com oportunidade. Por isso, vamos além da intermediação de estágios: aplicamos nossa metodologia própria, <strong>Identidade &rarr; Pertencimento &rarr; Performance</strong>, para identificar habilidades, competências e potencialidades naturais de cada estudante e conectá-lo ao ambiente certo.</p><p>O resultado é uma jornada mais consistente para os dois lados: estudantes mais engajados e com maior performance; empresas com menos rotatividade, mais segurança jurídica e crescimento sustentável.</p><p><strong>Pessoas certas, no lugar certo</strong>. Esse é o caminho que acreditamos ser mais sólido para transformar carreiras, organizações e futuros.</p>';
   $filled_titulo = 0;
+  $filled_corpo = 0;
 
   foreach ($storage->loadMultiple($nids) as $node) {
     /** @var \Drupal\node\NodeInterface $node */
@@ -15897,6 +15927,14 @@ function _custom_configs_fill_quem_somos_empty_texts(): string {
       $node->set('field_titulo', $titulo_seed);
       $changed = TRUE;
       $filled_titulo++;
+    }
+    if ($node->hasField('field_text_long_formatted') && $node->get('field_text_long_formatted')->isEmpty()) {
+      $node->set('field_text_long_formatted', [
+        'value' => $corpo_seed,
+        'format' => 'basic_html',
+      ]);
+      $changed = TRUE;
+      $filled_corpo++;
     }
     if ($changed) {
       $node->save();
@@ -15908,6 +15946,11 @@ function _custom_configs_fill_quem_somos_empty_texts(): string {
       '@n' => (string) $filled_titulo,
     ]);
   }
+  if ($filled_corpo) {
+    $parts[] = (string) t('Corpo Sobre nós preenchido em @n node(s).', [
+      '@n' => (string) $filled_corpo,
+    ]);
+  }
 
   // Missão/Visão (+ fundo se vazio) — helper já idempotente.
   $parts[] = _custom_configs_seed_quem_somos_missao_visao();
@@ -15916,4 +15959,18 @@ function _custom_configs_fill_quem_somos_empty_texts(): string {
     $parts[] = (string) t('Textos quem_somos já preenchidos.');
   }
   return implode(' ', $parts);
+}
+
+/**
+ * Pós-11069: idempotência de ícones (no-op) + fill do corpo Sobre nós se vazio.
+ *
+ * Ambientes que já rodaram 11069 precisam desta passada para o sync corrigido
+ * e o fill de field_text_long_formatted (FR-020c / SC-008).
+ */
+function custom_configs_update_11070(): string {
+  $parts = [
+    _custom_configs_sync_diferenciais_quem_somos_provisional_icons(),
+    _custom_configs_fill_quem_somos_empty_texts(),
+  ];
+  return implode(' ', array_filter($parts));
 }

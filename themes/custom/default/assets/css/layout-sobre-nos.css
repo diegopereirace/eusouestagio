@@ -25,8 +25,16 @@
 }
 
 .node--type-quem-somos .sobre-nos__media {
+	/* Gap texto↔imagem Figma (~24px); explícito no CSS em vez de só utility Bootstrap. */
+	--sobre-nos-media-gap: 1.5rem;
 	max-width: 432px;
 	z-index: 1;
+}
+
+@media (min-width: 768px) {
+	.node--type-quem-somos .sobre-nos__media {
+		margin-inline-start: var(--sobre-nos-media-gap);
+	}
 }
 
 .node--type-quem-somos .sobre-nos__img {
@@ -53,7 +61,7 @@
 .node--type-quem-somos .sobre-nos__body,
 .node--type-quem-somos .sobre-nos__body * {
 	font-family: Poppins, sans-serif !important;
-	color: #334155 !important;
+	color: #373D5B !important;
 }
 
 .node--type-quem-somos .sobre-nos__body p:last-child {
@@ -92,28 +100,35 @@
 
 @media (max-width: 767.98px) {
 	.node--type-quem-somos .sobre-nos {
-		overflow-x: clip;
+		--sobre-nos-deco-gutter: 1.75rem;
+		padding-top: 2.5rem;
+		padding-right: 0;
+		padding-bottom: 1.75rem;
+		/* visible: o gutter da mídia contém o overhang — clip cortava anel/ponto. */
+		overflow-x: visible;
 	}
 
+	/* Imagem mais estreita à direita → anel verde e ponto laranja cabem inteiros. */
 	.node--type-quem-somos .sobre-nos__media {
 		float: none;
-		max-width: 100%;
-		margin-inline: auto 0;
-		margin-bottom: 1rem;
+		width: calc(100% - var(--sobre-nos-deco-gutter));
+		max-width: calc(100% - var(--sobre-nos-deco-gutter));
+		margin-inline: 0;
+		margin-bottom: 1.25rem;
 	}
 
 	.node--type-quem-somos .sobre-nos__media::before {
 		width: 120px;
 		height: 120px;
 		border-width: 10px;
-		top: -32px;
-		right: -28px;
+		top: -28px;
+		right: -20px;
 	}
 
 	.node--type-quem-somos .sobre-nos__media::after {
 		width: 36px;
 		height: 36px;
 		bottom: -14px;
-		right: -14px;
+		right: -12px;
 	}
 }

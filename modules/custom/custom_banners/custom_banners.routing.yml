@@ -13,3 +13,11 @@ custom_banners.cidades_autocomplete:
   requirements:
     _permission: 'access content'
   methods: [GET]
+
+custom_banners.vagas_autocomplete:
+  path: '/api/vagas/autocomplete'
+  defaults:
+    _controller: '\Drupal\custom_banners\Controller\VagasAutocompleteController::autocomplete'
+  requirements:
+    _permission: 'access content'
+  methods: [GET]

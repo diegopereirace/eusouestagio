@@ -30,6 +30,8 @@
             placeholder="{{ 'Cargo ou palavra-chave'|t }}"
             value="{{ values.title|default('')|e('html_attr') }}"
             autocomplete="off"
+            data-ac-endpoint="{{ endpoints.vagas|default('/api/vagas/autocomplete')|e('html_attr') }}"
+            data-ac-kind="vagas"
           >
         </div>
         <div class="vagas-hero-search__divider" aria-hidden="true"></div>
@@ -40,15 +42,17 @@
               <circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="2"/>
             </svg>
           </span>
-          <label class="visually-hidden" for="vagas-hero-cidade">{{ 'Cidade'|t }}</label>
+          <label class="visually-hidden" for="vagas-hero-cidade">{{ 'Cidade' }}</label>
           <input
             id="vagas-hero-cidade"
             class="vagas-hero-search__input"
             type="text"
             name="cidade"
-            placeholder="{{ 'Cidade'|t }}"
+            placeholder="{{ 'Cidade' }}"
             value="{{ values.cidade|default('')|e('html_attr') }}"
             autocomplete="off"
+            data-ac-endpoint="{{ endpoints.cidades|default('/api/cidades/autocomplete')|e('html_attr') }}"
+            data-ac-kind="cidades"
           >
         </div>
         <div class="vagas-hero-search__divider" aria-hidden="true"></div>
@@ -69,6 +73,8 @@
             placeholder="{{ 'Seu curso'|t }}"
             value="{{ values.cursos|default('')|e('html_attr') }}"
             autocomplete="off"
+            data-ac-endpoint="{{ endpoints.cursos|default('/api/cursos/autocomplete')|e('html_attr') }}"
+            data-ac-kind="cursos"
           >
         </div>
         <div class="vagas-hero-search__submit-wrap">
@@ -86,5 +92,9 @@
         {% endfor %}
       </ul>
     {% endif %}
+
+    <p class="vagas-hero-search__view-all">
+      <a class="vagas-hero-search__view-all-link" href="{{ view_all_url|default(action)|default('/vagas')|e('html_attr') }}">{{ 'Ver todas'|t }}</a>
+    </p>
   </div>
 </section>

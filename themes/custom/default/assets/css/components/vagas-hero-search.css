@@ -1,6 +1,6 @@
 /**
- * Hero search (/vagas) — tokens Figma (wrapper 1280, padding 48/32/40).
- * Escopo exclusivo: .vagas-hero-search (não alterar .hero-search da home).
+ * Hero search (/vagas) — Figma 196-1160 / 196-1186 / 196-1189 + dropdown AC.
+ * Escopo exclusivo: .vagas-hero-search* (não alterar .hero-search da home).
  */
 
 .vagas-hero-search {
@@ -39,38 +39,49 @@
 .vagas-hero-search__form {
   background: #fff;
   border: 1px solid #e2e8f0;
-  border-radius: 999px;
-  padding: 0.5rem 0.5rem 0.5rem 1.25rem;
-  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+  border-radius: 12px;
+  padding: 4px;
+  min-height: 56px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  /* Sem overflow:hidden — cortaria o dropdown absoluto. */
 }
 
 .vagas-hero-search__fields {
   display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   gap: 0;
 }
 
 .vagas-hero-search__field {
+  position: relative;
   display: flex;
   align-items: center;
-  flex: 1 1 0;
+  flex: 1 1 auto;
   min-width: 0;
   gap: 0.625rem;
   padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+}
+
+.vagas-hero-search__field:focus-within {
+  outline: 2px solid #1e3a5f;
+  outline-offset: 0;
 }
 
 .vagas-hero-search__icon {
   display: inline-flex;
   flex-shrink: 0;
+  width: 20px;
+  height: 20px;
   color: #94a3b8;
 }
 
 .vagas-hero-search__divider {
-  flex: 0 0 1px;
-  align-self: stretch;
-  width: 1px;
-  margin: 0.5rem 0;
+  flex: 0 0 auto;
+  width: 100%;
+  height: 1px;
+  margin: 0.25rem 0;
   background: #e2e8f0;
 }
 
@@ -98,17 +109,19 @@
 
 .vagas-hero-search__submit-wrap {
   flex: 0 0 auto;
-  padding-left: 0.5rem;
+  padding: 0.5rem 0 0;
+  display: flex;
 }
 
 .vagas-hero-search__submit {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 56px;
+  width: 100%;
+  min-height: 48px;
   border: 0;
-  border-radius: 999px;
-  padding: 0.85rem 1.75rem;
+  border-radius: 8px;
+  padding: 0.85rem 1.5rem;
   font-size: 0.9375rem;
   font-weight: 600;
   color: #fff;
@@ -123,6 +136,11 @@
   color: #fff;
 }
 
+.vagas-hero-search__submit:focus-visible {
+  outline: 2px solid #1e3a5f;
+  outline-offset: 2px;
+}
+
 .vagas-hero-search__pills {
   display: flex;
   flex-wrap: wrap;
@@ -134,11 +152,13 @@
 }
 
 .vagas-hero-search__pill {
-  display: inline-block;
-  padding: 0.45rem 1rem;
-  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 2px 16px;
+  border-radius: 9999px;
   border: 1px solid #bfdbfe;
-  background: #fff;
+  background: #eff4ff;
   color: #1e3a5f;
   font-size: 0.875rem;
   font-weight: 500;
@@ -149,41 +169,125 @@
 .vagas-hero-search__pill:hover,
 .vagas-hero-search__pill:focus {
   border-color: #93c5fd;
-  background: #f0f7ff;
+  background: #e0ebff;
   color: #0f172a;
 }
 
-/* Mobile: stack ≤575.98px (SC-002) */
+.vagas-hero-search__view-all {
+  margin: 0.75rem 0 0;
+  padding: 0;
+}
+
+.vagas-hero-search__view-all-link {
+  color: var(--brand-orange, #ff8a22);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.vagas-hero-search__view-all-link:hover,
+.vagas-hero-search__view-all-link:focus {
+  text-decoration: underline;
+  color: var(--brand-orange, #ff8a22);
+}
+
+/* Dropdown autocomplete */
+.vagas-hero-search__suggestions {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 1040;
+  min-width: 100%;
+  max-width: min(420px, calc(100vw - 32px));
+  max-height: 280px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.35rem 0;
+  list-style: none;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+
+.vagas-hero-search__suggestion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 44px;
+  padding: 0.5rem 0.85rem;
+  cursor: pointer;
+  color: #111;
+  font-size: 0.9375rem;
+}
+
+.vagas-hero-search__suggestion.is-active,
+.vagas-hero-search__suggestion:hover {
+  background: #eff4ff;
+}
+
+.vagas-hero-search__suggestion-text {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.vagas-hero-search__suggestion-text mark {
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font-weight: 700;
+}
+
+.vagas-hero-search__suggestion-badge {
+  flex: 0 0 auto;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+@media (min-width: 992px) {
+  .vagas-hero-search__fields {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
+  .vagas-hero-search__field {
+    flex: 1 1 0;
+  }
+
+  .vagas-hero-search__divider {
+    flex: 0 0 1px;
+    align-self: stretch;
+    width: 1px;
+    height: auto;
+    margin: 0.5rem 0;
+  }
+
+  .vagas-hero-search__submit-wrap {
+    padding: 0 0 0 0.5rem;
+    align-self: stretch;
+  }
+
+  .vagas-hero-search__submit {
+    width: auto;
+    align-self: stretch;
+    min-height: 100%;
+  }
+}
+
 @media (max-width: 575.98px) {
   .vagas-hero-search {
     padding: 32px 16px 24px;
-  }
-
-  .vagas-hero-search__form {
-    border-radius: 24px;
-    padding: 0.75rem;
-  }
-
-  .vagas-hero-search__fields {
-    flex-direction: column;
-    align-items: stretch;
   }
 
   .vagas-hero-search__field {
     padding: 0.35rem 0.5rem;
   }
 
-  .vagas-hero-search__divider {
-    width: 100%;
-    height: 1px;
-    margin: 0.25rem 0;
-  }
-
-  .vagas-hero-search__submit-wrap {
-    padding: 0.5rem 0 0;
-  }
-
-  .vagas-hero-search__submit {
-    width: 100%;
+  .vagas-hero-search__suggestions {
+    max-width: 100%;
   }
 }

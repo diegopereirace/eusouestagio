@@ -71,9 +71,17 @@ class VagasHeroSearchBlock extends BlockBase implements ContainerFactoryPluginIn
     $cidadeQuery = trim((string) ($query?->get('cidade') ?? ''));
     $titleQuery = trim((string) ($query?->get('title') ?? ''));
 
+    $action = Url::fromRoute('view.vagas.page_1')->toString();
+
     return [
       '#theme' => 'custom_banners_vagas_hero_search',
-      '#action' => Url::fromRoute('view.vagas.page_1')->toString(),
+      '#action' => $action,
+      '#view_all_url' => $action,
+      '#endpoints' => [
+        'vagas' => Url::fromRoute('custom_banners.vagas_autocomplete')->toString(),
+        'cidades' => Url::fromRoute('custom_banners.cidades_autocomplete')->toString(),
+        'cursos' => Url::fromRoute('custom_banners.cursos_autocomplete')->toString(),
+      ],
       '#values' => [
         'title' => $titleQuery,
         'cidade' => $this->resolveCityDisplayLabel($cidadeQuery),

@@ -175,9 +175,10 @@ hero_search:
     # para o behavior do core não inicializar em paralelo.
     - core/drupal.autocomplete
 vagas_hero_search:
-  version: 1.1.0
+  version: 1.2.0
   js:
     assets/js/vagas-hero-search.js: {}
+    assets/js/vagas-hero-autocomplete.js: {}
   css:
     component:
       assets/css/components/vagas-hero-search.css: {}

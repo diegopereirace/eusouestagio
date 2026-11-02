@@ -412,14 +412,34 @@ function custom_panel_views_query_alter(ViewExecutable $view, $query): void
         $norm = custom_panel_normalize_search_text($title);
         if ($norm !== '') {
             $like = '%' . \Drupal::database()->escapeLike($norm) . '%';
-            // PostgreSQL: fold de acentos via translate após lower.
+            $fold = custom_panel_sql_accent_fold_expr('node_field_data.title');
+            $foldEmpresa = custom_panel_sql_accent_fold_expr('emp.title');
+            // Título da vaga OU nome da empresa publicada (field_vaga_empresa).
             $query->addWhereExpression(
                 0,
-                "translate(lower(node_field_data.title), 'áàâãäéèêëíìîïóòôõöúùûüçñ', 'aaaaaeeeeiiiiooooouuuucn') LIKE :custom_panel_title_search",
+                "($fold LIKE :custom_panel_title_search OR EXISTS (
+                    SELECT 1
+                    FROM {node__field_vaga_empresa} r
+                    INNER JOIN {node_field_data} emp
+                      ON emp.nid = r.field_vaga_empresa_target_id
+                    WHERE r.entity_id = node_field_data.nid
+                      AND r.deleted = 0
+                      AND emp.type = 'empresa'
+                      AND emp.status = 1
+                      AND $foldEmpresa LIKE :custom_panel_title_search
+                ))",
                 [':custom_panel_title_search' => $like]
             );
         }
     }
+}
+
+/**
+ * Expressão SQL PostgreSQL: lower + translate de diacríticos do português.
+ */
+function custom_panel_sql_accent_fold_expr(string $column): string
+{
+    return "translate(lower($column), 'áàâãäéèêëíìîïóòôõöúùûüçñ', 'aaaaaeeeeiiiiooooouuuucn')";
 }
 
 /**

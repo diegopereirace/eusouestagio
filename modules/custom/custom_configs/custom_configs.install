@@ -14987,6 +14987,7 @@ function _custom_configs_seed_vagas_validacao(): string {
 function custom_configs_update_11062(): string {
   $messages = [
     _custom_configs_ensure_como_funciona_image_fields(),
+    _custom_configs_ensure_como_funciona_image_displays(),
     _custom_configs_seed_como_funciona_images(),
   ];
   return implode(' ', array_filter($messages));
@@ -15167,10 +15168,164 @@ function _custom_configs_ensure_como_funciona_image_fields(): string {
   \Drupal::service('entity_field.manager')->clearCachedFieldDefinitions();
 
   if (!$parts) {
-    $parts[] = (string) t('Campos de imagem do Como funciona j� presentes.');
+    $parts[] = (string) t('Campos de imagem do Como funciona já presentes.');
   }
 
   return implode(' ', array_filter($parts));
+}
+
+/**
+ * Garante form/view display com Imagem desktop/mobile no bundle como_funciona_bt.
+ *
+ * Necessário quando o updb cria as field instances sem a 2ª passada de cim:
+ * o front lê os campos via Twig, mas o form admin omite componentes ausentes.
+ */
+function _custom_configs_ensure_como_funciona_image_displays(): string {
+  $messages = [];
+  $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+  $view_storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null $form_display */
+  $form_display = $form_storage->load('block_content.como_funciona_bt.default');
+  if (!$form_display) {
+    $form_display = $form_storage->create([
+      'targetEntityType' => 'block_content',
+      'bundle' => 'como_funciona_bt',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+
+  $form_changed = $form_display->isNew();
+  foreach ([
+    'info' => [
+      'type' => 'string_textfield',
+      'weight' => 0,
+      'settings' => ['size' => 60, 'placeholder' => ''],
+    ],
+    'field_text_simple' => [
+      'type' => 'string_textfield',
+      'weight' => 1,
+      'settings' => ['size' => 60, 'placeholder' => ''],
+    ],
+    'field_text_simple_long' => [
+      'type' => 'string_textarea',
+      'weight' => 2,
+      'settings' => ['rows' => 4, 'placeholder' => ''],
+    ],
+    'field_image' => [
+      'type' => 'image_image',
+      'weight' => 3,
+      'settings' => [
+        'progress_indicator' => 'throbber',
+        'preview_image_style' => 'thumbnail',
+      ],
+    ],
+    'field_imagem_mobile' => [
+      'type' => 'image_image',
+      'weight' => 4,
+      'settings' => [
+        'progress_indicator' => 'throbber',
+        'preview_image_style' => 'thumbnail',
+      ],
+    ],
+  ] as $field_name => $defaults) {
+    if ($form_display->getComponent($field_name)) {
+      continue;
+    }
+    // Só adiciona campos de imagem se a instance existir (evita display quebrado).
+    if (in_array($field_name, ['field_image', 'field_imagem_mobile'], TRUE)
+      && !\Drupal\field\Entity\FieldConfig::loadByName('block_content', 'como_funciona_bt', $field_name)) {
+      $messages[] = (string) t('Form display: @f ausente — rode ensure de campos antes.', [
+        '@f' => $field_name,
+      ]);
+      continue;
+    }
+    $form_display->setComponent($field_name, [
+      'type' => $defaults['type'],
+      'weight' => $defaults['weight'],
+      'region' => 'content',
+      'settings' => $defaults['settings'],
+      'third_party_settings' => [],
+    ]);
+    $form_changed = TRUE;
+  }
+  if ($form_changed) {
+    $form_display->removeComponent('langcode');
+    $form_display->save();
+    $messages[] = (string) t('Form display como_funciona_bt atualizado (imagens).');
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null $view_display */
+  $view_display = $view_storage->load('block_content.como_funciona_bt.default');
+  if (!$view_display) {
+    $view_display = $view_storage->create([
+      'targetEntityType' => 'block_content',
+      'bundle' => 'como_funciona_bt',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+
+  $view_changed = $view_display->isNew();
+  foreach ([
+    'field_text_simple' => [
+      'type' => 'string',
+      'weight' => 0,
+      'settings' => ['link_to_entity' => FALSE],
+    ],
+    'field_text_simple_long' => [
+      'type' => 'basic_string',
+      'weight' => 1,
+      'settings' => [],
+    ],
+    'field_image' => [
+      'type' => 'image',
+      'weight' => 2,
+      'settings' => [
+        'image_link' => '',
+        'image_style' => '',
+        'image_loading' => ['attribute' => 'lazy'],
+      ],
+    ],
+    'field_imagem_mobile' => [
+      'type' => 'image',
+      'weight' => 3,
+      'settings' => [
+        'image_link' => '',
+        'image_style' => '',
+        'image_loading' => ['attribute' => 'lazy'],
+      ],
+    ],
+  ] as $field_name => $defaults) {
+    if ($view_display->getComponent($field_name)) {
+      continue;
+    }
+    if (in_array($field_name, ['field_image', 'field_imagem_mobile'], TRUE)
+      && !\Drupal\field\Entity\FieldConfig::loadByName('block_content', 'como_funciona_bt', $field_name)) {
+      continue;
+    }
+    $view_display->setComponent($field_name, [
+      'type' => $defaults['type'],
+      'label' => 'hidden',
+      'weight' => $defaults['weight'],
+      'region' => 'content',
+      'settings' => $defaults['settings'],
+      'third_party_settings' => [],
+    ]);
+    $view_changed = TRUE;
+  }
+  if ($view_changed) {
+    $view_display->removeComponent('langcode');
+    $view_display->save();
+    $messages[] = (string) t('View display como_funciona_bt atualizado (imagens).');
+  }
+
+  if (!$messages) {
+    $messages[] = (string) t('Displays de imagem do Como funciona já presentes.');
+  }
+
+  return implode(' ', array_filter($messages));
 }
 
 /**
@@ -15263,6 +15418,22 @@ function custom_configs_update_11065(): string {
  */
 function custom_configs_update_11066(): string {
   return _custom_configs_remove_como_funciona_etapas();
+}
+
+/**
+ * Feature 044 follow-up — Exibe Imagem desktop/mobile no form do Como funciona.
+ *
+ * Corrige destino onde 11062 criou as instances/seed (front ok) mas o form
+ * display admin ficou sem os componentes (2ª cim ausente ou incompleta).
+ * Destino: updb (11067) → cim → cr.
+ */
+function custom_configs_update_11067(): string {
+  $messages = [
+    _custom_configs_ensure_como_funciona_image_fields(),
+    _custom_configs_ensure_como_funciona_image_displays(),
+    _custom_configs_seed_como_funciona_images(),
+  ];
+  return implode(' ', array_filter($messages));
 }
 
 /**

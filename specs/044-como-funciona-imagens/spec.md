@@ -30,7 +30,7 @@
 - **FR-004**: Em viewport que casa com `default.mobile` o browser solicita só a arte mobile; caso contrário, a desktop.
 - **FR-005**: Imagens com `width`/`height` e `height:auto` / `width:100%` — sem distorção.
 - **FR-006**: Assets seed em WebP; `loading="lazy"` e `decoding="async"`.
-- **FR-007**: Deploy: `cim` → `updb` (`11062`, `11063`) → `cim` → `cr`; seed não sobrescreve editorial.
+- **FR-007**: Deploy: `cim` → `updb` (`11062`, `11063`, `11067`) → `cim` → `cr`; seed não sobrescreve editorial; form/view display das imagens garantidos pelo hook (não só pelo cim).
 - **FR-008**: `.cf-flow-media` sem margens; artes redesenhadas em alta resolução (desktop ≥ 2x da largura exibida, mobile em fluxo vertical adaptado) — hook `11063` migra a arte seed antiga.
 
 ## Success Criteria

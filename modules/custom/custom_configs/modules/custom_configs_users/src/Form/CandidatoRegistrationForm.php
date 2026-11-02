@@ -6,6 +6,7 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Site\Settings;
 use Drupal\Core\Render\Markup;
 use Drupal\Component\Utility\Xss;
 use Drupal\field\Entity\FieldConfig;
@@ -1225,7 +1226,7 @@ class CandidatoRegistrationForm extends FormBase
         $form['#attached']['library'][] = 'custom_configs_users/registration_forms_validation';
 
         // Local Docker: $settings['disable_captcha'] = TRUE em settings.php.
-        if (!\Drupal::settings()->get('disable_captcha')) {
+        if (!Settings::get('disable_captcha', FALSE)) {
             $form['captcha'] = [
                 '#type' => 'captcha',
                 '#captcha_type' => 'recaptcha/reCAPTCHA',

@@ -4,6 +4,7 @@ namespace Drupal\custom_configs_users\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Site\Settings;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\file\Entity\File;
 use Drupal\user\Entity\Role;
@@ -395,7 +396,7 @@ class EmpresaRegistrationForm extends FormBase
         ];
 
         // Local Docker: $settings['disable_captcha'] = TRUE em settings.php.
-        if (!\Drupal::settings()->get('disable_captcha')) {
+        if (!Settings::get('disable_captcha', FALSE)) {
             $form['captcha'] = [
                 '#type' => 'captcha',
                 '#captcha_type' => 'recaptcha/reCAPTCHA',

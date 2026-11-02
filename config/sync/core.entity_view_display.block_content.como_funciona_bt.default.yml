@@ -5,23 +5,38 @@ dependencies:
   config:
     - block_content.type.como_funciona_bt
     - field.field.block_content.como_funciona_bt.field_como_funciona_itens
+    - field.field.block_content.como_funciona_bt.field_image
+    - field.field.block_content.como_funciona_bt.field_imagem_mobile
     - field.field.block_content.como_funciona_bt.field_text_simple
     - field.field.block_content.como_funciona_bt.field_text_simple_long
   module:
-    - entity_reference_revisions
+    - image
 id: block_content.como_funciona_bt.default
 targetEntityType: block_content
 bundle: como_funciona_bt
 mode: default
 content:
-  field_como_funciona_itens:
-    type: entity_reference_revisions_entity_view
+  field_image:
+    type: image
     label: hidden
     settings:
-      view_mode: default
-      link: ''
+      image_link: ''
+      image_style: ''
+      image_loading:
+        attribute: lazy
     third_party_settings: {  }
     weight: 2
+    region: content
+  field_imagem_mobile:
+    type: image
+    label: hidden
+    settings:
+      image_link: ''
+      image_style: ''
+      image_loading:
+        attribute: lazy
+    third_party_settings: {  }
+    weight: 3
     region: content
   field_text_simple:
     type: string
@@ -39,4 +54,5 @@ content:
     weight: 1
     region: content
 hidden:
+  field_como_funciona_itens: true
   langcode: true

@@ -1,0 +1,38 @@
+uuid: 044cf002-1106-4000-8000-000000000002
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.como_funciona_bt
+    - field.storage.block_content.field_image
+  module:
+    - image
+id: block_content.como_funciona_bt.field_image
+field_name: field_image
+entity_type: block_content
+bundle: como_funciona_bt
+label: 'Imagem desktop'
+description: 'Fluxo “Como funciona” para telas grandes (≥768px). Formato WebP recomendado.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: 'block/como-funciona/[date:custom:Y]-[date:custom:m]'
+  file_extensions: 'png gif jpg jpeg webp'
+  max_filesize: ''
+  max_resolution: ''
+  min_resolution: ''
+  alt_field: true
+  alt_field_required: true
+  title_field: false
+  title_field_required: false
+  default_image:
+    uuid: ''
+    alt: ''
+    title: ''
+    width: null
+    height: null
+field_type: image

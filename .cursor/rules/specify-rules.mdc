@@ -5,11 +5,11 @@ alwaysApply: false
 <!-- SPECKIT START -->
 Spec Kit **deste projeto** (Eu Sou Estágio / Drupal 11).
 
-- Feature ativa: `043-nossa-metodologia-ui`
-- Spec: `specs/043-nossa-metodologia-ui/spec.md`
-- Plan: `specs/043-nossa-metodologia-ui/plan.md`
-- Tasks: `specs/043-nossa-metodologia-ui/tasks.md` (gerar com `/speckit-tasks`)
-- Features relacionadas: `042-nossos-diferenciais-ui`, `041-home-busca-inteligente`, `040-home-busca-cidades`, `039-seed-vagas-validacao`, `038-vaga-faq-accordion`, `037-vaga-sobre-empresa`, `036-vagas-beneficios-padrao`, `035-refatorar-login`, `034-empresa-pagina-publica`, `033-vaga-sidebar-acoes`, `032-vaga-header-empresa`, `031-vagas-detalhe-refino`, `030-vagas-detalhe-layout`, `030-atualizar-php-seguro`, `029-vagas-toolbar-perfil`, `028-vagas-lista-vertical`, `027-vagas-hero-search`, `026-cta-final-estudantes`, `025-vagas-cards-estudantes`, `024-perfil-destaque-estudante`, `023-jornada-estudante`, `022-beneficios-estudantes`, `021-banner-para-estudantes`, `020-depoimentos-empresas`, `019-para-empresas-page`, `018-contato-node`, `017-pagina-contato`, `016-deploy-producao-layout`, `015-cta-v1-quem-somos`, `014-numeros-quem-somos`, `013-diferenciais-quem-somos`, `012-quem-somos-missao-visao`, `011-bloco-missao-visao`, `010-layout-sobre-nos`, `009-banner-quem-somos`, `008-rodape-redesign`, `007-como-funciona`, `006-o-que-fazemos`, `005-nossa-metodologia`, `004-nossos-diferenciais`, `003-vagas-destaque-home`, `002-topo-figma-home`, `001-banners-busca-home`
+- Feature ativa: `044-como-funciona-imagens`
+- Spec: `specs/044-como-funciona-imagens/spec.md`
+- Plan: (implementado a partir do plano Cursor; quickstart em `specs/044-como-funciona-imagens/quickstart.md`)
+- Tasks: `specs/044-como-funciona-imagens/tasks.md` (gerar com `/speckit-tasks` se necessário)
+- Features relacionadas: `043-nossa-metodologia-ui`, `042-nossos-diferenciais-ui`, `041-home-busca-inteligente`, `040-home-busca-cidades`, `039-seed-vagas-validacao`, `038-vaga-faq-accordion`, `037-vaga-sobre-empresa`, `036-vagas-beneficios-padrao`, `035-refatorar-login`, `034-empresa-pagina-publica`, `033-vaga-sidebar-acoes`, `032-vaga-header-empresa`, `031-vagas-detalhe-refino`, `030-vagas-detalhe-layout`, `030-atualizar-php-seguro`, `029-vagas-toolbar-perfil`, `028-vagas-lista-vertical`, `027-vagas-hero-search`, `026-cta-final-estudantes`, `025-vagas-cards-estudantes`, `024-perfil-destaque-estudante`, `023-jornada-estudante`, `022-beneficios-estudantes`, `021-banner-para-estudantes`, `020-depoimentos-empresas`, `019-para-empresas-page`, `018-contato-node`, `017-pagina-contato`, `016-deploy-producao-layout`, `015-cta-v1-quem-somos`, `014-numeros-quem-somos`, `013-diferenciais-quem-somos`, `012-quem-somos-missao-visao`, `011-bloco-missao-visao`, `010-layout-sobre-nos`, `009-banner-quem-somos`, `008-rodape-redesign`, `007-como-funciona`, `006-o-que-fazemos`, `005-nossa-metodologia`, `004-nossos-diferenciais`, `003-vagas-destaque-home`, `002-topo-figma-home`, `001-banners-busca-home`
 
 Não assuma stack de outro produto. Não leia `specs/` de outro repositório.
 <!-- SPECKIT END -->

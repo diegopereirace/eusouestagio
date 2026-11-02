@@ -5,9 +5,13 @@ dependencies:
   config:
     - block_content.type.como_funciona_bt
     - field.field.block_content.como_funciona_bt.field_como_funciona_itens
+    - field.field.block_content.como_funciona_bt.field_image
+    - field.field.block_content.como_funciona_bt.field_imagem_mobile
     - field.field.block_content.como_funciona_bt.field_text_simple
     - field.field.block_content.como_funciona_bt.field_text_simple_long
+    - image.style.thumbnail
   module:
+    - image
     - paragraphs
 id: block_content.como_funciona_bt.default
 targetEntityType: block_content
@@ -16,7 +20,7 @@ mode: default
 content:
   field_como_funciona_itens:
     type: paragraphs
-    weight: 3
+    weight: 5
     region: content
     settings:
       title: Etapa
@@ -31,6 +35,22 @@ content:
       features:
         collapse_edit_all: collapse_edit_all
         duplicate: duplicate
+    third_party_settings: {  }
+  field_image:
+    type: image_image
+    weight: 3
+    region: content
+    settings:
+      progress_indicator: throbber
+      preview_image_style: thumbnail
+    third_party_settings: {  }
+  field_imagem_mobile:
+    type: image_image
+    weight: 4
+    region: content
+    settings:
+      progress_indicator: throbber
+      preview_image_style: thumbnail
     third_party_settings: {  }
   field_text_simple:
     type: string_textfield

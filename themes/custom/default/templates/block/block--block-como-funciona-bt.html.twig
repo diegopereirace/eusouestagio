@@ -1,10 +1,16 @@
-{#
+﻿{#
 /**
  * @file
  * Bloco Como funciona (bundle como_funciona_bt).
  *
  * Suggestion Barrio: block__block_como_funciona_bt.
- * Números, chevrons e setas via CSS; só o texto da etapa é editorial.
+ * Fluxo visual via imagens gerenciáveis (desktop + mobile) em <picture>.
+ * Media queries vêm do Breakpoints API (default.breakpoints.yml) via
+ * preprocess — HTML idêntico para todos (compatível com page cache).
+ * Etapas textuais permanecem no CMS, mas não são renderizadas no front.
+ *
+ * Variáveis de preprocess:
+ * - cf_media_mobile / cf_media_desktop
  */
 #}
 {%
@@ -17,8 +23,40 @@
 %}
 {% set title = content.field_text_simple|render|striptags|trim %}
 {% set subtitle = content.field_text_simple_long|render|striptags|trim %}
-{% set step_items = content.field_como_funciona_itens['#items']|default([]) %}
-{% set has_steps = step_items is iterable and step_items|length > 0 %}
+{% set cf_entity = content['#block_content']|default(null) %}
+{% set desktop_uri = '' %}
+{% set mobile_uri = '' %}
+{% set desktop_w = 2331 %}
+{% set desktop_h = 274 %}
+{% set mobile_w = 1020 %}
+{% set mobile_h = 1980 %}
+{% set img_alt = 'Como funciona: etapas do processo de estágio, do entendimento da empresa ao desenvolvimento contínuo' %}
+{% set media_mobile = cf_media_mobile|default('(max-width: 767.98px)') %}
+
+{% if cf_entity and cf_entity.hasField('field_image') and not cf_entity.field_image.isEmpty and cf_entity.field_image.entity %}
+  {% set desktop_uri = cf_entity.field_image.entity.uri.value %}
+  {% set img_alt = cf_entity.field_image.alt|default(img_alt) %}
+  {% if cf_entity.field_image.width %}
+    {% set desktop_w = cf_entity.field_image.width %}
+  {% endif %}
+  {% if cf_entity.field_image.height %}
+    {% set desktop_h = cf_entity.field_image.height %}
+  {% endif %}
+{% endif %}
+
+{% if cf_entity and cf_entity.hasField('field_imagem_mobile') and not cf_entity.field_imagem_mobile.isEmpty and cf_entity.field_imagem_mobile.entity %}
+  {% set mobile_uri = cf_entity.field_imagem_mobile.entity.uri.value %}
+  {% if cf_entity.field_imagem_mobile.width %}
+    {% set mobile_w = cf_entity.field_imagem_mobile.width %}
+  {% endif %}
+  {% if cf_entity.field_imagem_mobile.height %}
+    {% set mobile_h = cf_entity.field_imagem_mobile.height %}
+  {% endif %}
+{% else %}
+  {% set mobile_uri = desktop_uri %}
+  {% set mobile_w = desktop_w %}
+  {% set mobile_h = desktop_h %}
+{% endif %}
 
 <section{{ attributes.addClass(classes) }}>
   {{ title_prefix }}{{ title_suffix }}
@@ -36,22 +74,22 @@
           </header>
         {% endif %}
 
-        {% if has_steps %}
-          <ol class="cf-flow list-unstyled mb-0">
-            {% set step_index = 0 %}
-            {% for key, item in step_items %}
-              {% set paragraph = content.field_como_funciona_itens[key]['#paragraph']|default(item.entity) %}
-              {% set step_label = paragraph.field_text_simple.value|default('')|trim %}
-              {% if step_label %}
-                {% set step_index = step_index + 1 %}
-                <li class="cf-step" data-step="{{ step_index }}">
-                  <span class="cf-step__shape" aria-hidden="true"></span>
-                  <span class="cf-step__num" aria-hidden="true">{{ step_index }}</span>
-                  <span class="cf-step__label">{{ step_label }}</span>
-                </li>
-              {% endif %}
-            {% endfor %}
-          </ol>
+        {% if desktop_uri %}
+          {# Art direction via <picture>: browser escolhe a fonte; cache de página OK. #}
+          <picture class="cf-flow-media">
+            {% if mobile_uri %}
+              <source media="{{ media_mobile|e('html_attr') }}" srcset="{{ file_url(mobile_uri)|e('html_attr') }}" width="{{ mobile_w }}" height="{{ mobile_h }}">
+            {% endif %}
+            <img
+              src="{{ file_url(desktop_uri)|e('html_attr') }}"
+              alt="{{ img_alt|e('html_attr') }}"
+              class="cf-flow-media__img"
+              width="{{ desktop_w }}"
+              height="{{ desktop_h }}"
+              loading="lazy"
+              decoding="async"
+            >
+          </picture>
         {% endif %}
       </div>
     </div>

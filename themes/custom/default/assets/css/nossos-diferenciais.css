@@ -62,14 +62,18 @@
   background: linear-gradient(160deg, #e8eef4 0%, #d5e0ea 100%);
 }
 
-/* Decorações atrás das fotos (FR-014), em % do wrapper */
+/* Decorações (FR-014), em % do wrapper — anéis atrás; ponto navy na frente */
 .block-nossos-diferenciais .nd-media__deco-circle,
 .block-nossos-diferenciais .nd-media__deco-dot,
 .block-nossos-diferenciais .nd-media__deco-ring {
   position: absolute;
-  z-index: 0;
   border-radius: 50%;
   pointer-events: none;
+}
+
+.block-nossos-diferenciais .nd-media__deco-circle,
+.block-nossos-diferenciais .nd-media__deco-ring {
+  z-index: 0;
 }
 
 /* Anel verde cortado, canto inferior esquerdo */
@@ -87,8 +91,9 @@
   );
 }
 
-/* Ponto navy, canto superior esquerdo da âncora — atrás da foto */
+/* Ponto navy, canto superior esquerdo da âncora — na frente da foto (Figma) */
 .block-nossos-diferenciais .nd-media__deco-dot {
+  z-index: 2;
   width: 49px;
   height: 49px;
   left: 8%;

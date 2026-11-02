@@ -14853,3 +14853,259 @@ function _custom_configs_seed_vagas_validacao(): string {
     '@u' => $updated,
   ]);
 }
+
+/**
+ * Feature 044 - Imagens desktop/mobile do bloco Como funciona.
+ *
+ * Garante campos, copia assets versionados e anexa ao seed se vazios.
+ * Destino: cim -> updb -> cim -> cr.
+ */
+function custom_configs_update_11062(): string {
+  $messages = [
+    _custom_configs_ensure_como_funciona_image_fields(),
+    _custom_configs_seed_como_funciona_images(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Feature 044 - Troca as artes seed do Como funciona por versoes HD/adaptadas.
+ *
+ * Desktop: arte vetorial em ~2x (nitida em retina). Mobile: fluxo vertical
+ * adaptado (nao mais um recorte 2 colunas da arte desktop).
+ * So substitui quando o campo ainda aponta para o arquivo seed antigo
+ * (como-funciona-desktop*.webp / como-funciona-mobile*.webp); upload editorial
+ * diferente e preservado. Reexecucao = no-op.
+ * Destino: updb (11063) -> cr (nao depende de cim).
+ */
+function custom_configs_update_11063(): string {
+  $uuid = 'c8d4e0f2-3a5b-4c6d-8e9f-0a1b2c3d4e5f';
+  $existing = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties(['uuid' => $uuid]);
+  if (!$existing) {
+    return (string) t('Bloco Como funciona ausente - nada a migrar.');
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = reset($existing);
+  $map = [
+    'field_image' => [
+      'old' => '#^public://como-funciona/como-funciona-desktop(_\d+)?\.webp$#',
+      'asset' => 'como-funciona/como-funciona-desktop-hd.webp',
+      'uri' => 'public://como-funciona/como-funciona-desktop-hd.webp',
+    ],
+    'field_imagem_mobile' => [
+      'old' => '#^public://como-funciona/como-funciona-mobile(_\d+)?\.webp$#',
+      'asset' => 'como-funciona/como-funciona-mobile-v2.webp',
+      'uri' => 'public://como-funciona/como-funciona-mobile-v2.webp',
+    ],
+  ];
+
+  $parts = [];
+  $changed = FALSE;
+  foreach ($map as $field => $cfg) {
+    if (!$block->hasField($field) || $block->get($field)->isEmpty()) {
+      continue;
+    }
+    $item = $block->get($field)->first();
+    $old_file = $item->entity;
+    if (!$old_file || !preg_match($cfg['old'], (string) $old_file->getFileUri())) {
+      $parts[] = (string) t('@f: arte editorial ou ja migrada preservada.', ['@f' => $field]);
+      continue;
+    }
+
+    $file = _custom_configs_seed_file_from_module_asset($cfg['asset'], $cfg['uri'], 'block_content', (int) $block->id());
+    if (!$file) {
+      $parts[] = (string) t('@f: asset ausente no modulo.', ['@f' => $field]);
+      continue;
+    }
+
+    $block->set($field, [
+      'target_id' => $file->id(),
+      'alt' => $item->get('alt')->getValue(),
+    ]);
+    \Drupal::service('file.usage')->delete($old_file, 'custom_configs', 'block_content', (int) $block->id());
+    $changed = TRUE;
+    $parts[] = (string) t('@f: arte seed substituida.', ['@f' => $field]);
+  }
+
+  if ($changed) {
+    $block->save();
+    \Drupal\Core\Cache\Cache::invalidateTags($block->getCacheTags());
+  }
+
+  return implode(' ', array_filter($parts)) ?: (string) t('Sem alteracoes.');
+}
+
+/**
+ * Garante storage/instances de imagem no bundle como_funciona_bt.
+ */
+function _custom_configs_ensure_como_funciona_image_fields(): string {
+  $parts = [];
+
+  if (!\Drupal\field\Entity\FieldStorageConfig::loadByName('block_content', 'field_imagem_mobile')) {
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => 'field_imagem_mobile',
+      'entity_type' => 'block_content',
+      'type' => 'image',
+      'cardinality' => 1,
+      'translatable' => TRUE,
+      'settings' => [
+        'target_type' => 'file',
+        'display_field' => FALSE,
+        'display_default' => TRUE,
+        'uri_scheme' => 'public',
+        'default_image' => [
+          'uuid' => NULL,
+          'alt' => '',
+          'title' => '',
+          'width' => NULL,
+          'height' => NULL,
+        ],
+      ],
+    ])->save();
+    $parts[] = (string) t('Storage block_content.field_imagem_mobile criado.');
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName('block_content', 'como_funciona_bt', 'field_image')) {
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('block_content', 'field_image');
+    if ($storage) {
+      \Drupal\field\Entity\FieldConfig::create([
+        'field_storage' => $storage,
+        'bundle' => 'como_funciona_bt',
+        'label' => 'Imagem desktop',
+        'description' => 'Fluxo �Como funciona� para telas grandes (=768px). Formato WebP recomendado.',
+        'required' => FALSE,
+        'translatable' => FALSE,
+        'settings' => [
+          'file_directory' => 'block/como-funciona/[date:custom:Y]-[date:custom:m]',
+          'file_extensions' => 'png gif jpg jpeg webp',
+          'max_filesize' => '',
+          'max_resolution' => '',
+          'min_resolution' => '',
+          'alt_field' => TRUE,
+          'alt_field_required' => TRUE,
+          'title_field' => FALSE,
+          'title_field_required' => FALSE,
+          'handler' => 'default:file',
+          'handler_settings' => [],
+        ],
+      ])->save();
+      $parts[] = (string) t('Instance field_image (como_funciona_bt) criada.');
+    }
+    else {
+      $parts[] = (string) t('Storage block_content.field_image ausente � rode drush cim -y.');
+    }
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName('block_content', 'como_funciona_bt', 'field_imagem_mobile')) {
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('block_content', 'field_imagem_mobile');
+    if ($storage) {
+      \Drupal\field\Entity\FieldConfig::create([
+        'field_storage' => $storage,
+        'bundle' => 'como_funciona_bt',
+        'label' => 'Imagem mobile',
+        'description' => 'Fluxo �Como funciona� para telas pequenas (<768px). Formato WebP recomendado.',
+        'required' => FALSE,
+        'translatable' => FALSE,
+        'settings' => [
+          'file_directory' => 'block/como-funciona/[date:custom:Y]-[date:custom:m]',
+          'file_extensions' => 'png gif jpg jpeg webp',
+          'max_filesize' => '',
+          'max_resolution' => '',
+          'min_resolution' => '',
+          'alt_field' => TRUE,
+          'alt_field_required' => FALSE,
+          'title_field' => FALSE,
+          'title_field_required' => FALSE,
+          'handler' => 'default:file',
+          'handler_settings' => [],
+        ],
+      ])->save();
+      $parts[] = (string) t('Instance field_imagem_mobile (como_funciona_bt) criada.');
+    }
+    else {
+      $parts[] = (string) t('Storage field_imagem_mobile ausente � rode drush cim -y.');
+    }
+  }
+
+  // Refresh field definitions so subsequent seed can attach values.
+  \Drupal::service('entity_field.manager')->clearCachedFieldDefinitions();
+
+  if (!$parts) {
+    $parts[] = (string) t('Campos de imagem do Como funciona j� presentes.');
+  }
+
+  return implode(' ', array_filter($parts));
+}
+
+/**
+ * Anexa imagens seed ao bloco Como funciona somente se os campos estiverem vazios.
+ */
+function _custom_configs_seed_como_funciona_images(): string {
+  $uuid = 'c8d4e0f2-3a5b-4c6d-8e9f-0a1b2c3d4e5f';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+  if (!$existing) {
+    return (string) t('Bloco Como funciona (@uuid) ausente � rode o seed 11009 / cim antes.', [
+      '@uuid' => $uuid,
+    ]);
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = reset($existing);
+  $changed = FALSE;
+  $parts = [];
+  $alt = 'Como funciona: etapas do processo de est�gio, do entendimento da empresa ao desenvolvimento cont�nuo';
+
+  if ($block->hasField('field_image') && $block->get('field_image')->isEmpty()) {
+    $file = _custom_configs_seed_file_from_module_asset(
+      'como-funciona/como-funciona-desktop-hd.webp',
+      'public://como-funciona/como-funciona-desktop-hd.webp',
+      'block_content',
+      (int) $block->id(),
+    );
+    if ($file) {
+      $block->set('field_image', [
+        'target_id' => $file->id(),
+        'alt' => $alt,
+      ]);
+      $changed = TRUE;
+      $parts[] = (string) t('Imagem desktop seed anexada.');
+    }
+    else {
+      $parts[] = (string) t('Asset desktop Como funciona ausente no m�dulo.');
+    }
+  }
+  else {
+    $parts[] = (string) t('Imagem desktop j� preenchida � preservada.');
+  }
+
+  if ($block->hasField('field_imagem_mobile') && $block->get('field_imagem_mobile')->isEmpty()) {
+    $file = _custom_configs_seed_file_from_module_asset(
+      'como-funciona/como-funciona-mobile-v2.webp',
+      'public://como-funciona/como-funciona-mobile-v2.webp',
+      'block_content',
+      (int) $block->id(),
+    );
+    if ($file) {
+      $block->set('field_imagem_mobile', [
+        'target_id' => $file->id(),
+        'alt' => $alt,
+      ]);
+      $changed = TRUE;
+      $parts[] = (string) t('Imagem mobile seed anexada.');
+    }
+    else {
+      $parts[] = (string) t('Asset mobile Como funciona ausente no m�dulo.');
+    }
+  }
+  else {
+    $parts[] = (string) t('Imagem mobile j� preenchida � preservada.');
+  }
+
+  if ($changed) {
+    $block->save();
+  }
+
+  return implode(' ', array_filter($parts));
+}

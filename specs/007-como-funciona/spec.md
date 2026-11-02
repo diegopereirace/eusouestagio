@@ -64,9 +64,9 @@ Campos vazios são omitidos sem quebrar o layout.
 - **FR-003**: Reutilizar storages de texto existentes; criar apenas `field_como_funciona_itens` (cardinality 7).
 - **FR-004**: Paragraph `como_funciona_item_p` com título/texto (`field_text_simple`).
 - **FR-005**: Máximo de 7 paragraphs no bloco.
-- **FR-006**: Números 1–7, chevrons e setas gerados por CSS (não CMS).
-- **FR-007**: Cores das bordas via CSS por posição (sequência navy→laranja).
-- **FR-008**: Layout responsivo; tokens Figma: flow ~1150×136, chevron ~178×129, stroke 4px, overlap ~16px.
+- **FR-006**: Números 1–7, chevrons e setas gerados por CSS (não CMS); seta superior longa em cada uma das 7 etapas; números à direita da forma, parcialmente encobertos pelo chevron seguinte.
+- **FR-007**: Contorno com degradê horizontal por posição (cor da etapa → cor da próxima; última etapa sólida); sequência navy→laranja; etapa 1 `#0E3A72`.
+- **FR-008**: Layout responsivo; tokens Figma: flow ~1150×136, chevron ~178×129, stroke uniforme ~4px, overlap ~16px; rótulos com peso 500; setas ocultas nos breakpoints em que o fluxo quebra em linhas.
 - **FR-009**: Placement em `content_full`, weight `-1`, somente `<front>`, UUID fixo compartilhado com seed.
 - **FR-010**: Seed idempotente via `custom_configs_update_11009` com conteúdo de referência da arte.
 - **FR-011**: Permissões create/edit/delete no papel `moderador`.

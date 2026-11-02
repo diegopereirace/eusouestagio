@@ -14,13 +14,14 @@ docker compose exec -T drupal vendor/bin/drush cr
 - Paragraph “Item Como funciona” com texto único
 - Seed com 7 etapas de referência (UUID `c8d4e0f2-3a5b-4c6d-8e9f-0a1b2c3d4e5f`)
 - Placement `default_comofunciona` em `content_full`, weight `-1`, `<front>`
-- Home: seção abaixo de O que fazemos; chevrons/números/setas via CSS
+- Home: seção abaixo de O que fazemos
+- Visual do fluxo: ver feature `044-como-funciona-imagens` (imagens desktop/mobile via `<picture>`)
 
 Em ambiente limpo, se o placement falhar no 1º `cim` por UUID inexistente, repetir `cim` após o seed.
 
 ## Aceite visual
 
 1. Título “Como funciona” (à direita) + subtítulo da arte
-2. 7 chevrons navy→laranja com números 1–7
-3. Mobile: fluxo legível sem quebra
+2. Fluxo em imagem gerenciável (desktop/mobile) — feature 044
+3. Mobile: arte mobile legível sem distorção
 4. Re-executar `updb` → seed no-op

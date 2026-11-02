@@ -58,7 +58,7 @@ Contrato de apresentação estável para aceite side-by-side com o Figma. Não �
 
 - A imagem do CMS (`field_image`, proporção ~1324×718) **já é a colagem completa** (âncora + 2 fatias embutidas no asset editorial).
 - **Não** há `.nd-media__slice` nem PNGs de fatia no tema — fatias separadas no markup foram rejeitadas para não duplicar arte já presente no upload.
-- Decos (`.nd-media__deco-circle` anel verde, `.nd-media__deco-dot` ponto navy, `.nd-media__deco-ring` anel cinza) são `span aria-hidden` com `z-index` **atrás** da foto, posicionados em % do wrapper; anel cinza só em ≥992px.
+- Decos (`.nd-media__deco-circle` anel verde, `.nd-media__deco-dot` ponto navy, `.nd-media__deco-ring` anel cinza) são `span aria-hidden` posicionados em % do wrapper; anéis com `z-index` atrás da foto; ponto navy na frente; anel cinza só em ≥992px.
 - Colunas desktop: `col-lg-7` (colagem) + `col-lg-5` (lista); texto do item `max-width: 24rem`; ícone 72px (56px mobile).
 - Âncora servida via `image_style('wide')` (1090w) + `width`/`height` para CLS; `object-fit: contain` + `aspect-ratio: 1324 / 718`.
 
@@ -70,7 +70,7 @@ Contrato de apresentação estável para aceite side-by-side com o Figma. Não �
 | Subtítulo | Poppins 400, 14px, lh 20px; max-width ~663px |
 | Colagem CMS | proporção ~1324×718 (âncora+fatias no asset); style `wide` |
 | Deco círculo | anel verde ~42% do wrapper, atrás da foto |
-| Deco ponto | ~49×49 navy, atrás da foto |
+| Deco ponto | ~49×49 navy, na frente da foto |
 | Deco ring | anel cinza; só desktop ≥992px; oculto ≤575px |
 | Item títulos 1/4/7… | `var(--brand-green)` + bold via `.field__item:nth-child(3n+1)` |
 | Item títulos 2/5/8… | `var(--brand-navy)` + bold via `.field__item:nth-child(3n+2)` |

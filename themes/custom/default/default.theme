@@ -526,6 +526,58 @@ function default_preprocess_block__default_painelpageheader(&$variables)
 }
 
 /**
+ * Returns media queries keyed by breakpoint plugin ID for the active theme.
+ *
+ * Source of truth: themes/custom/default/default.breakpoints.yml via
+ * breakpoint.manager. Same map for every request — safe with page cache /
+ * Dynamic Page Cache (no User-Agent cache context).
+ *
+ * @return array<string, string>
+ *   e.g. ['default.mobile' => '(max-width: 767.98px)', ...].
+ */
+function _default_theme_breakpoint_media_queries(): array {
+  static $map = NULL;
+  if ($map !== NULL) {
+    return $map;
+  }
+
+  $map = [];
+  if (!\Drupal::hasService('breakpoint.manager')) {
+    return $map;
+  }
+
+  $active_theme = \Drupal::theme()->getActiveTheme()->getName();
+  /** @var \Drupal\breakpoint\BreakpointManagerInterface $manager */
+  $manager = \Drupal::service('breakpoint.manager');
+  foreach ($manager->getBreakpointsByGroup($active_theme) as $id => $breakpoint) {
+    $map[$id] = $breakpoint->getMediaQuery();
+  }
+  return $map;
+}
+
+/**
+ * Implements hook_preprocess_block().
+ *
+ * Para o bundle como_funciona_bt, expõe media queries do Breakpoints API ao
+ * <picture> (art direction). A escolha da fonte é do browser — HTML idêntico
+ * no cache (Page Cache / Dynamic Page Cache sem contexto de User-Agent).
+ */
+function default_preprocess_block(array &$variables): void {
+  $content = $variables['content']['#block_content'] ?? $variables['elements']['content']['#block_content'] ?? NULL;
+  if (!$content instanceof \Drupal\block_content\BlockContentInterface) {
+    return;
+  }
+  if ($content->bundle() !== 'como_funciona_bt') {
+    return;
+  }
+
+  $map = _default_theme_breakpoint_media_queries();
+  // Fallbacks alinhados a default.breakpoints.yml se o grupo não estiver disponível.
+  $variables['cf_media_mobile'] = $map['default.mobile'] ?? '(max-width: 767.98px)';
+  $variables['cf_media_desktop'] = $map['default.desktop'] ?? '(min-width: 768px)';
+}
+
+/**
  * Implements hook_page_attachments_alter().
  *
  * Injects breakpoint media queries from the active theme into drupalSettings
@@ -547,17 +599,7 @@ function default_page_attachments_alter(array &$attachments)
     'robots_noindex',
   ];
 
-  $active_theme = \Drupal::theme()->getActiveTheme()->getName();
-
-  /** @var \Drupal\breakpoint\BreakpointManagerInterface $manager */
-  $manager = \Drupal::service('breakpoint.manager');
-  $breakpoints = $manager->getBreakpointsByGroup($active_theme);
-
-  $map = [];
-  foreach ($breakpoints as $id => $breakpoint) {
-    $map[$id] = $breakpoint->getMediaQuery();
-  }
-
+  $map = _default_theme_breakpoint_media_queries();
   if (!empty($map)) {
     $attachments['#attached']['drupalSettings']['blockBreakpoint']['breakpoints'] = $map;
   }

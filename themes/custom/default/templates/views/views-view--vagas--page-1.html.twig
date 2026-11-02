@@ -49,7 +49,7 @@
             {% endif %}
           {% endfor %}
           <label class="vagas-lista-toolbar__sort-label" for="vagas-sort-order">{{ 'Ordenar por:'|t }}</label>
-          <select id="vagas-sort-order" class="vagas-lista-toolbar__sort-select" name="sort_order" onchange="this.form.submit()">
+          <select id="vagas-sort-order" class="vagas-lista-toolbar__sort-select" name="sort_order">
             <option value="DESC"{% if vagas_sort_order == 'DESC' %} selected{% endif %}>{{ 'Mais recentes'|t }}</option>
             <option value="ASC"{% if vagas_sort_order == 'ASC' %} selected{% endif %}>{{ 'Mais antigas'|t }}</option>
           </select>

@@ -58,7 +58,8 @@ Esperado: JSON `[ {value,label,type} ]`, ≤ 10 itens, `type ∈ {vaga, empresa}
 - Input 3: `adm` → cursos com vaga; escolha.
 - Cidade + curso → URL `/vagas?cidade=<n>&cursos=<n>`; Input 3 **não** é restringido pela cidade.
 - `x` (1 caractere) → **nenhuma** requisição (DevTools → Network).
-- Termo sem resultado (`zzzz`) → sem dropdown vazio; Enter ainda busca por texto livre.
+- Termo sem resultado (`zzzz`) → dropdown com **"Nenhum resultado encontrado"** (não selecionável); Enter ainda busca por texto livre.
+- Input 1 com texto → cidade + curso agrupados num cluster compacto; Input 1 vazio → três campos equilibrados.
 
 ### 5.2 Debounce / cancelamento (SC-001)
 

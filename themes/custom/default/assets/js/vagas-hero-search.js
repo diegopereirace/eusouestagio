@@ -13,9 +13,28 @@
       .toLowerCase();
   }
 
+  function syncKeywordFilled(form) {
+    const title = form.querySelector('#vagas-hero-title');
+    form.classList.toggle(
+      'is-keyword-filled',
+      !!(title && String(title.value || '').trim()),
+    );
+  }
+
   Drupal.behaviors.vagasHeroSearchQuery = {
     attach(context) {
       once('vagas-hero-search-query', 'form.vagas-hero-search__form', context).forEach((form) => {
+        const title = form.querySelector('#vagas-hero-title');
+        if (title) {
+          title.addEventListener('input', () => {
+            syncKeywordFilled(form);
+          });
+          title.addEventListener('change', () => {
+            syncKeywordFilled(form);
+          });
+        }
+        syncKeywordFilled(form);
+
         form.addEventListener('submit', (event) => {
           event.preventDefault();
           const action = form.getAttribute('action') || '/vagas';

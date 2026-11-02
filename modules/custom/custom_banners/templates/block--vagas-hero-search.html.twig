@@ -12,7 +12,7 @@
     <h1 class="vagas-hero-search__title">Encontre a oportunidade ideal para sua carreira.</h1>
     <p class="vagas-hero-search__subtitle">Explore milhares de vagas de estágio em empresas parceiras e dê o próximo passo na sua jornada profissional.</p>
 
-    <form class="vagas-hero-search__form" method="get" action="{{ action|default('/vagas')|e('html_attr') }}" role="search">
+    <form class="vagas-hero-search__form{% if values.title|default('')|trim %} is-keyword-filled{% endif %}" method="get" action="{{ action|default('/vagas')|e('html_attr') }}" role="search">
       <div class="vagas-hero-search__fields">
         <div class="vagas-hero-search__field vagas-hero-search__field--title">
           <span class="vagas-hero-search__icon" aria-hidden="true">
@@ -34,48 +34,50 @@
             data-ac-kind="vagas"
           >
         </div>
-        <div class="vagas-hero-search__divider" aria-hidden="true"></div>
-        <div class="vagas-hero-search__field vagas-hero-search__field--cidade">
-          <span class="vagas-hero-search__icon" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 21s7-5.2 7-11a7 7 0 10-14 0c0 5.8 7 11 7 11z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-              <circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="2"/>
-            </svg>
-          </span>
-          <label class="visually-hidden" for="vagas-hero-cidade">{{ 'Cidade' }}</label>
-          <input
-            id="vagas-hero-cidade"
-            class="vagas-hero-search__input"
-            type="text"
-            name="cidade"
-            placeholder="{{ 'Cidade' }}"
-            value="{{ values.cidade|default('')|e('html_attr') }}"
-            autocomplete="off"
-            data-ac-endpoint="{{ endpoints.cidades|default('/api/cidades/autocomplete')|e('html_attr') }}"
-            data-ac-kind="cidades"
-          >
-        </div>
-        <div class="vagas-hero-search__divider" aria-hidden="true"></div>
-        <div class="vagas-hero-search__field vagas-hero-search__field--curso">
-          <span class="vagas-hero-search__icon" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M3 9.5L12 4l9 5.5-9 5.5L3 9.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-              <path d="M7 12.5v4c0 1.5 2.2 3 5 3s5-1.5 5-3v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M21 10v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </span>
-          <label class="visually-hidden" for="vagas-hero-cursos">{{ 'Seu curso'|t }}</label>
-          <input
-            id="vagas-hero-cursos"
-            class="vagas-hero-search__input"
-            type="text"
-            name="cursos"
-            placeholder="{{ 'Seu curso'|t }}"
-            value="{{ values.cursos|default('')|e('html_attr') }}"
-            autocomplete="off"
-            data-ac-endpoint="{{ endpoints.cursos|default('/api/cursos/autocomplete')|e('html_attr') }}"
-            data-ac-kind="cursos"
-          >
+        <div class="vagas-hero-search__divider vagas-hero-search__divider--lead" aria-hidden="true"></div>
+        <div class="vagas-hero-search__rest">
+          <div class="vagas-hero-search__field vagas-hero-search__field--cidade">
+            <span class="vagas-hero-search__icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 21s7-5.2 7-11a7 7 0 10-14 0c0 5.8 7 11 7 11z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </span>
+            <label class="visually-hidden" for="vagas-hero-cidade">{{ 'Cidade' }}</label>
+            <input
+              id="vagas-hero-cidade"
+              class="vagas-hero-search__input"
+              type="text"
+              name="cidade"
+              placeholder="{{ 'Cidade' }}"
+              value="{{ values.cidade|default('')|e('html_attr') }}"
+              autocomplete="off"
+              data-ac-endpoint="{{ endpoints.cidades|default('/api/cidades/autocomplete')|e('html_attr') }}"
+              data-ac-kind="cidades"
+            >
+          </div>
+          <div class="vagas-hero-search__divider" aria-hidden="true"></div>
+          <div class="vagas-hero-search__field vagas-hero-search__field--curso">
+            <span class="vagas-hero-search__icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 9.5L12 4l9 5.5-9 5.5L3 9.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M7 12.5v4c0 1.5 2.2 3 5 3s5-1.5 5-3v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M21 10v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <label class="visually-hidden" for="vagas-hero-cursos">{{ 'Seu curso'|t }}</label>
+            <input
+              id="vagas-hero-cursos"
+              class="vagas-hero-search__input"
+              type="text"
+              name="cursos"
+              placeholder="{{ 'Seu curso'|t }}"
+              value="{{ values.cursos|default('')|e('html_attr') }}"
+              autocomplete="off"
+              data-ac-endpoint="{{ endpoints.cursos|default('/api/cursos/autocomplete')|e('html_attr') }}"
+              data-ac-kind="cursos"
+            >
+          </div>
         </div>
         <div class="vagas-hero-search__submit-wrap">
           <button type="submit" class="vagas-hero-search__submit">{{ 'Buscar Vagas'|t }}</button>

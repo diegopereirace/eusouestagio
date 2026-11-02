@@ -175,7 +175,7 @@ hero_search:
     # para o behavior do core não inicializar em paralelo.
     - core/drupal.autocomplete
 vagas_hero_search:
-  version: 1.2.0
+  version: 1.2.2
   js:
     assets/js/vagas-hero-search.js: {}
     assets/js/vagas-hero-autocomplete.js: {}
@@ -189,6 +189,7 @@ vagas_hero_search:
 vagas_lista_vertical:
   js:
     assets/js/vagas-lista-load-more.js: {}
+    assets/js/vagas-lista-sort.js: {}
   css:
     component:
       assets/css/components/vagas-lista-vertical.css: {}
@@ -196,6 +197,7 @@ vagas_lista_vertical:
     - default/bootstrap
     - core/drupal
     - core/jquery
+    - core/once
     - views/views.ajax
 vagas_detalhe:
   js:

@@ -3,3 +3,6 @@ services:
     class: Drupal\custom_banners\EventSubscriber\VagasQueryCanonicalSubscriber
     tags:
       - { name: event_subscriber }
+  custom_banners.vagas_city_group_builder:
+    class: Drupal\custom_banners\VagasCityGroupBuilder
+    arguments: ['@database', '@cache.data']

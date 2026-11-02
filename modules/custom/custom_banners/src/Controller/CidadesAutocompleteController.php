@@ -9,6 +9,7 @@ use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Connection;
+use Drupal\custom_banners\VagasCityGroupBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -28,6 +29,7 @@ class CidadesAutocompleteController extends ControllerBase {
   public function __construct(
     protected Connection $database,
     protected CacheBackendInterface $dataCache,
+    protected VagasCityGroupBuilder $cityGroupBuilder,
   ) {}
 
   /**
@@ -37,22 +39,27 @@ class CidadesAutocompleteController extends ControllerBase {
     return new static(
       $container->get('database'),
       $container->get('cache.data'),
+      $container->get('custom_banners.vagas_city_group_builder'),
     );
   }
 
   public function autocomplete(Request $request): CacheableJsonResponse {
     $q = trim((string) $request->query->get('q', ''));
     $curso = trim((string) $request->query->get('curso', ''));
+    $title = trim((string) $request->query->get('title', ''));
     $hasCourseConstraint = $curso !== '';
+    $hasTitleConstraint = $title !== '';
     $payload = [];
 
-    $allowEmptyQ = $hasCourseConstraint;
+    $allowEmptyQ = $hasCourseConstraint || $hasTitleConstraint;
     if (mb_strlen($q) >= 2 || ($allowEmptyQ && $q === '')) {
       try {
         $normalizedQuery = $q !== '' ? $this->normalize($q) : '';
-        $groups = $hasCourseConstraint
-          ? $this->loadCityGroupsForCourse($curso)
-          : $this->loadCityGroups();
+        $groups = $hasTitleConstraint
+          ? $this->cityGroupBuilder->getGroups($title, $curso)
+          : ($hasCourseConstraint
+            ? $this->loadCityGroupsForCourse($curso)
+            : $this->loadCityGroups());
 
         $matches = [];
         foreach ($groups as $group) {
@@ -96,6 +103,9 @@ class CidadesAutocompleteController extends ControllerBase {
     $contexts = ['url.query_args:q'];
     if ($hasCourseConstraint) {
       $contexts[] = 'url.query_args:curso';
+    }
+    if ($hasTitleConstraint) {
+      $contexts[] = 'url.query_args:title';
     }
     $response->addCacheableDependency(
       (new CacheableMetadata())

@@ -46,7 +46,7 @@ O visitante digita parte de um cargo ou do nome de uma empresa no primeiro campo
 2. **Given** o visitante digita rapidamente várias teclas em sequência, **When** cada tecla ocorre antes de 300 ms da anterior, **Then** apenas **uma** requisição é enviada (após a pausa) e requisições anteriores em voo são canceladas.
 3. **Given** o dropdown aberto, **When** o visitante escolhe uma sugestão (clique, ou setas + Enter), **Then** o input recebe o texto e o dropdown fecha.
 4. **Given** uma sugestão de **empresa** escolhida, **When** o visitante busca, **Then** a listagem exibe as vagas dessa empresa (título OU empresa casa o termo).
-5. **Given** um termo sem correspondência, **When** o dropdown consulta, **Then** não é exibido dropdown vazio quebrado (estado vazio discreto ou nenhum dropdown) e o visitante ainda pode buscar pelo texto livre.
+5. **Given** um termo sem correspondência, **When** o dropdown consulta, **Then** o dropdown permanece aberto com a mensagem **"Nenhum resultado encontrado"** (mesmo texto da listagem de `/vagas`; item não selecionável) e o visitante ainda pode buscar pelo texto livre.
 6. **Given** < 2 caracteres, **When** o visitante digita, **Then** nenhuma requisição é feita.
 
 ---
@@ -100,6 +100,8 @@ O hero exibe a barra "pílula" do Figma: container branco com sombra leve, ícon
 3. **Given** qualquer input em foco, **When** o visitante interage, **Then** nenhuma borda/outline nativa do input aparece; o foco é indicado de forma acessível no campo (ex.: contorno suave no container do campo), sem quebrar o visual.
 4. **Given** as pills, **When** renderizadas, **Then** têm fundo `#EFF4FF`, borda fina em azul claro, `border-radius: 9999px`, e cada uma leva a `/vagas?cursos=<norm>`.
 5. **Given** o link "Ver todas" abaixo das pills, **When** clicado, **Then** navega para `/vagas` (sem query) e a listagem volta ao estado sem filtros.
+6. **Given** o Input 1 com texto (digitado ou pré-preenchido pela URL), **When** o hero renderiza em ≥ 992 px, **Then** os inputs restantes (cidade e curso) ficam agrupados num cluster compacto à direita, e o Input 1 ocupa o espaço livre.
+7. **Given** o Input 1 vazio, **When** o hero renderiza, **Then** os três campos voltam ao layout equilibrado (sem cluster).
 
 ---
 
@@ -143,7 +145,7 @@ O dropdown é operável por teclado e anunciado por tecnologias assistivas.
 - **FR-004**: Sugestões repetidas (mesmo endpoint + mesmo termo) na mesma visita SHOULD ser servidas de cache em memória, sem nova requisição.
 - **FR-005**: O dropdown MUST ser renderizado abaixo do campo ativo, com largura mínima da largura do campo, trecho digitado destacado e conteúdo inserido como **texto** (nunca HTML bruto).
 - **FR-006**: O dropdown MUST suportar mouse e teclado (↑/↓, Enter, Esc, Tab) e atributos ARIA de combobox/listbox/option.
-- **FR-007**: O dropdown MUST fechar ao escolher item, pressionar Esc, perder o foco ou clicar fora.
+- **FR-007**: O dropdown MUST fechar ao escolher item, pressionar Esc, perder o foco ou clicar fora. Lista vazia NÃO fecha o dropdown: exibe estado vazio (FR-032).
 - **FR-008**: O JS do hero de `/vagas` MUST ser independente do JS da Home (`hero-search.js`) e MUST NOT depender de jQuery UI; cada behavior inicializa uma única vez por form (sem duplicidade em AJAX/bfcache).
 - **FR-009**: Os inputs MUST manter `autocomplete="off"` nativo do navegador para evitar sobreposição com o histórico do browser.
 
@@ -174,6 +176,8 @@ O dropdown é operável por teclado e anunciado por tecnologias assistivas.
 - **FR-026**: O link **"Ver todas"** MUST aparecer abaixo das pills, apontar para `/vagas` **sem query**, usar a cor de destaque do tema (laranja da marca) e MUST ser acessível por teclado.
 - **FR-027**: O estilo MUST permanecer escopado em `.vagas-hero-search` (nenhuma regra nova em `.hero-search`) e usar os breakpoints Bootstrap 5 do tema (feature 046).
 - **FR-028**: O dropdown de autocomplete MUST ter visual consistente com o hero (fundo branco, raio compatível, sombra, hover/ativo em azul claro) com classes próprias do `/vagas` (prefixo `vagas-hero-search`).
+- **FR-032**: Quando a consulta de autocomplete (≥ 2 caracteres) retornar zero itens, o dropdown MUST permanecer aberto com a mensagem **"Nenhum resultado encontrado"** (não selecionável, sem `role="option"`); Enter nesse estado MUST submeter a busca pelo texto livre. Falha de rede continua fechando o dropdown (edge case existente).
+- **FR-033**: Quando o Input 1 tiver texto não vazio, o formulário MUST agrupar visualmente os inputs restantes (cidade + curso) num cluster compacto; o Input 1 MUST expandir para o espaço livre. Com o Input 1 vazio, o layout MUST voltar aos três campos equilibrados. Em < 992 px o agrupamento MUST empilhar cidade e curso no cluster, sem overflow.
 
 **Deploy**
 

@@ -125,6 +125,8 @@
 - [X] T036 Validar regressão SC-008 (Home `.hero-search` + jQuery UI; curls 040/041; filtros View `estado`/`escolaridade`/`regime`/`nid`; console limpo) em `specs/048-vagas-hero-search-autocomplete/quickstart.md` §6
 - [X] T037 Executar validação final completa (SC-001–SC-009; edges do spec; falhas de rede/XSS literais; checklist requirements) com `specs/048-vagas-hero-search-autocomplete/quickstart.md` e `specs/048-vagas-hero-search-autocomplete/checklists/requirements.md`
 - [X] T038 Limpar cache Drupal após Twig/CSS/JS/rota (`docker compose exec -T drupal vendor/bin/drush cr`) e registrar receita destino sem `cex`/hook em `specs/048-vagas-hero-search-autocomplete/quickstart.md` §7
+- [X] T039 Agrupar cidade + curso em `.vagas-hero-search__rest` quando o Input 1 tiver texto (classe `is-keyword-filled` + CSS cluster) em `modules/custom/custom_banners/templates/block--vagas-hero-search.html.twig`, `themes/custom/default/assets/css/components/vagas-hero-search.css` e `themes/custom/default/assets/js/vagas-hero-search.js`
+- [X] T040 Empty state do autocomplete ("Nenhum resultado encontrado", não selecionável) em `themes/custom/default/assets/js/vagas-hero-autocomplete.js` + CSS; library `vagas_hero_search` v1.2.2
 
 ---
 

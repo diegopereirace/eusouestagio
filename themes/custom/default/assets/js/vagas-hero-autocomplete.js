@@ -18,8 +18,39 @@
       .toLowerCase();
   }
 
-  function cacheKey(endpoint, term) {
-    return `${endpoint}|${normalizeTerm(term)}`;
+  function crossFilterParams(form, activeInput) {
+    const params = {};
+    if (!form) {
+      return params;
+    }
+    form.querySelectorAll('input[data-ac-kind]').forEach((el) => {
+      if (el === activeInput) {
+        return;
+      }
+      const kind = el.getAttribute('data-ac-kind');
+      const value = String(el.value || '').trim();
+      if (value.length < MIN_LENGTH) {
+        return;
+      }
+      if (kind === 'vagas') {
+        params.title = value;
+      }
+      else if (kind === 'cidades') {
+        params.cidade = value;
+      }
+      else if (kind === 'cursos') {
+        params.curso = value;
+      }
+    });
+    return params;
+  }
+
+  function cacheKey(endpoint, term, extra) {
+    const parts = [endpoint, normalizeTerm(term)];
+    Object.keys(extra || {}).sort().forEach((key) => {
+      parts.push(key, normalizeTerm(extra[key]));
+    });
+    return parts.join('|');
   }
 
   function cacheGet(key) {
@@ -126,7 +157,6 @@
     live.setAttribute('role', 'status');
     live.setAttribute('aria-live', 'polite');
 
-    field.style.position = field.style.position || 'relative';
     field.appendChild(list);
     field.appendChild(live);
 
@@ -188,12 +218,28 @@
       }, 0);
     }
 
+    function renderEmpty() {
+      const li = document.createElement('li');
+      li.className = 'vagas-hero-search__suggestion vagas-hero-search__suggestion--empty';
+      li.setAttribute('role', 'presentation');
+      li.textContent = Drupal.t('Nenhum resultado encontrado');
+      li.addEventListener('mousedown', (event) => {
+        event.preventDefault();
+      });
+      list.appendChild(li);
+      list.hidden = false;
+      state.open = true;
+      state.activeIndex = -1;
+      input.setAttribute('aria-expanded', 'true');
+      input.removeAttribute('aria-activedescendant');
+      setLive(Drupal.t('Nenhum resultado encontrado'));
+    }
+
     function render(items, query) {
       state.items = items;
       list.replaceChildren();
       if (!items.length) {
-        close();
-        setLive('Nenhuma sugestão');
+        renderEmpty();
         return;
       }
 
@@ -240,7 +286,8 @@
     }
 
     function fetchSuggestions(term) {
-      const key = cacheKey(endpoint, term);
+      const filters = crossFilterParams(form, input);
+      const key = cacheKey(endpoint, term, filters);
       const cached = cacheGet(key);
       if (cached) {
         render(cached, term);
@@ -254,6 +301,9 @@
 
       const url = new URL(endpoint, window.location.origin);
       url.searchParams.set('q', term);
+      Object.keys(filters).forEach((name) => {
+        url.searchParams.set(name, filters[name]);
+      });
 
       fetch(url.toString(), {
         method: 'GET',
@@ -386,15 +436,26 @@
           }
         });
 
+        function closeOthers(exceptNode) {
+          controllers.forEach((c) => {
+            if (!exceptNode || !c.contains(exceptNode)) {
+              c.close();
+            }
+          });
+        }
+
+        form.addEventListener('focusin', (event) => {
+          if (event.target instanceof Node) {
+            closeOthers(event.target);
+          }
+        });
+
         document.addEventListener('mousedown', (event) => {
           const target = event.target;
           if (!(target instanceof Node)) {
             return;
           }
-          const inside = controllers.some((c) => c.contains(target));
-          if (!inside) {
-            controllers.forEach((c) => c.close());
-          }
+          closeOthers(target);
         });
 
         window.addEventListener('pageshow', (event) => {

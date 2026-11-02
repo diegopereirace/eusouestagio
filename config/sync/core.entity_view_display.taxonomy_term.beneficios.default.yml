@@ -1,0 +1,35 @@
+uuid: 0e3f485f-7172-4c6c-825a-56d68b7b3238
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.taxonomy_term.beneficios.field_image
+    - taxonomy.vocabulary.beneficios
+  module:
+    - image
+    - text
+id: taxonomy_term.beneficios.default
+targetEntityType: taxonomy_term
+bundle: beneficios
+mode: default
+content:
+  description:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_image:
+    type: image
+    label: hidden
+    settings:
+      image_link: ''
+      image_style: ''
+      image_loading:
+        attribute: lazy
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden:
+  langcode: true

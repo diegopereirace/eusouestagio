@@ -18,6 +18,7 @@ dependencies:
     - field.field.node.vagas.field_text_simple_multiple
     - field.field.node.vagas.field_text_simple_multiple_2
     - field.field.node.vagas.field_vaga_beneficios
+    - field.field.node.vagas.field_vaga_beneficios_t
     - field.field.node.vagas.field_vaga_carga_horaria
     - field.field.node.vagas.field_vaga_destaque
     - field.field.node.vagas.field_vaga_empresa
@@ -120,14 +121,6 @@ content:
     third_party_settings: {  }
     weight: 3
     region: content
-  field_text_simple_multiple_2:
-    type: string
-    label: above
-    settings:
-      link_to_entity: false
-    third_party_settings: {  }
-    weight: 4
-    region: content
   links:
     settings: {  }
     third_party_settings: {  }
@@ -136,7 +129,9 @@ content:
 hidden:
   field_candidatos_u: true
   field_empresa_u: true
+  field_text_simple_multiple_2: true
   field_vaga_beneficios: true
+  field_vaga_beneficios_t: true
   field_vaga_carga_horaria: true
   field_vaga_destaque: true
   field_vaga_empresa: true

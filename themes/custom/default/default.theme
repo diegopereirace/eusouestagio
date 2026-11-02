@@ -11,6 +11,7 @@ use Drupal\Core\Access\AccessResultInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
 use Drupal\user\UserInterface;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
@@ -350,7 +351,8 @@ function _default_user_has_candidatura_vaga(int $uid, int $nid): bool
 /**
  * Implements hook_block_access().
  *
- * CTA vagas (default_ctav1vagas): oculto se o candidato já se candidatou à vaga da rota.
+ * CTA vagas (default_ctav1vagas): visibility por role fica na config do bloco.
+ * Estado já candidatada é tratado no Twig (botão disabled) — feature 050.
  */
 function default_block_access(Block $block, $operation, AccountInterface $account): AccessResultInterface
 {
@@ -358,28 +360,38 @@ function default_block_access(Block $block, $operation, AccountInterface $accoun
     return AccessResult::neutral();
   }
 
-  $cache = AccessResult::neutral()
+  return AccessResult::neutral()
     ->addCacheContexts(['user', 'route'])
     ->addCacheTags(['node_list:candidatura']);
+}
+
+/**
+ * Implements hook_preprocess_block() for default_ctav1vagas.
+ *
+ * Injeta nid / URL de candidatura / estado já candidatada (feature 050).
+ */
+function default_preprocess_block__default_ctav1vagas(array &$variables): void
+{
+  $variables['vaga_nid'] = NULL;
+  $variables['vaga_candidatada'] = FALSE;
+  $variables['vaga_apply_url'] = '';
 
   $node = \Drupal::routeMatch()->getParameter('node');
   if (!$node instanceof NodeInterface || $node->bundle() !== 'vagas') {
-    return $cache;
+    return;
   }
 
-  if (
-    $account->isAuthenticated()
-    && in_array('candidato', $account->getRoles(), TRUE)
-    && _default_user_has_candidatura_vaga((int) $account->id(), (int) $node->id())
-  ) {
-    return AccessResult::forbidden()
-      ->addCacheContexts(['user', 'route'])
-      ->addCacheTags(['node_list:candidatura']);
-  }
+  $nid = (int) $node->id();
+  $variables['vaga_nid'] = $nid;
+  $variables['vaga_apply_url'] = Url::fromRoute('custom_panel.vagas_candidatar', [
+    'node' => $nid,
+  ])->toString();
 
-  return $cache;
+  $account = \Drupal::currentUser();
+  if ($account->isAuthenticated() && in_array('candidato', $account->getRoles(), TRUE)) {
+    $variables['vaga_candidatada'] = _default_user_has_candidatura_vaga((int) $account->id(), $nid);
+  }
 }
-
 /**
  * Implements hook_preprocess_node() for vagas nodes.
  *

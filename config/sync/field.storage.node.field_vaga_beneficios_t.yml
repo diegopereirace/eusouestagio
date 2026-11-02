@@ -1,0 +1,20 @@
+uuid: c46e7f87-597c-4235-8075-7913aba59f2c
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - node
+    - taxonomy
+id: node.field_vaga_beneficios_t
+field_name: field_vaga_beneficios_t
+entity_type: node
+type: entity_reference
+settings:
+  target_type: taxonomy_term
+module: core
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

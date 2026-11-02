@@ -15974,3 +15974,695 @@ function custom_configs_update_11070(): string {
   ];
   return implode(' ', array_filter($parts));
 }
+
+
+/**
+ * Feature 050: benefícios taxonomia + CTA candidato na vaga.
+ *
+ * Ordem: vocab/field_image → field_vaga_beneficios_t + displays → seed 7
+ * termos → migrate paragraphs→termos → visibility CTA user_role candidato.
+ */
+function custom_configs_update_11071(): string {
+  $parts = [
+    _custom_configs_ensure_beneficios_vocabulary(),
+    _custom_configs_ensure_taxonomy_term_field_image(),
+    _custom_configs_ensure_field_vaga_beneficios_t(),
+    _custom_configs_ensure_vaga_beneficios_cta_displays(),
+    _custom_configs_seed_beneficios_terms(),
+    _custom_configs_migrate_vaga_beneficios_to_taxonomy(),
+    _custom_configs_ensure_ctav1vagas_candidato_visibility(),
+  ];
+  return implode(' ', array_filter($parts));
+}
+
+/**
+ * Feature 050: um único campo Benefícios (checkboxes); oculta texto livre legado.
+ *
+ * Oculta field_text_simple_multiple_2 no form/view da vaga, posiciona
+ * field_vaga_beneficios_t no lugar editorial e migra textos livres → taxonomia
+ * (fill-if-empty), além dos paragraphs já cobertos em 11071.
+ */
+function custom_configs_update_11072(): string {
+  $parts = [
+    _custom_configs_ensure_vaga_beneficios_cta_displays(),
+    _custom_configs_migrate_vaga_beneficios_to_taxonomy(),
+  ];
+  return implode(' ', array_filter($parts));
+}
+
+/**
+ * Catálogo canônico dos 7 benefícios (UUID fixo + asset WebP).
+ *
+ * Nomes exactos (FR-007 / SC-002): Plano de Carreira, Vale Transporte,
+ * Vale Refeição, Horário Flexível, Assistência Médica,
+ * Auxílio Academia / Gympass, Day Off no Aniversário.
+ *
+ * @return list<array{uuid: string, name: string, file: string}>
+ */
+function _custom_configs_beneficios_catalog_seeds(): array {
+  return [
+    [
+      'uuid' => 'b0500101-a2b3-4c5d-8e9f-000000000001',
+      'name' => 'Plano de Carreira',
+      'file' => 'beneficios-01.webp',
+    ],
+    [
+      'uuid' => 'b0500101-a2b3-4c5d-8e9f-000000000002',
+      'name' => 'Vale Transporte',
+      'file' => 'beneficios-02.webp',
+    ],
+    [
+      'uuid' => 'b0500101-a2b3-4c5d-8e9f-000000000003',
+      'name' => 'Vale Refeição',
+      'file' => 'beneficios-03.webp',
+    ],
+    [
+      'uuid' => 'b0500101-a2b3-4c5d-8e9f-000000000004',
+      'name' => 'Horário Flexível',
+      'file' => 'beneficios-04.webp',
+    ],
+    [
+      'uuid' => 'b0500101-a2b3-4c5d-8e9f-000000000005',
+      'name' => 'Assistência Médica',
+      'file' => 'beneficios-05.webp',
+    ],
+    [
+      'uuid' => 'b0500101-a2b3-4c5d-8e9f-000000000006',
+      'name' => 'Auxílio Academia / Gympass',
+      'file' => 'beneficios-06.webp',
+    ],
+    [
+      'uuid' => 'b0500101-a2b3-4c5d-8e9f-000000000007',
+      'name' => 'Day Off no Aniversário',
+      'file' => 'beneficios-07.webp',
+    ],
+  ];
+}
+
+/**
+ * Normaliza rótulo de benefício para match (trim, lower, colapsa whitespace).
+ */
+function _custom_configs_normalize_beneficio_label(string $label): string {
+  $label = mb_strtolower(trim($label), 'UTF-8');
+  // "Vale-transporte" / "Vale – Transporte" → mesmo canônico que "Vale Transporte".
+  $label = preg_replace('/[\-\x{2010}-\x{2015}\x{2212}_]+/u', ' ', $label) ?? $label;
+  $label = preg_replace('/\s+/u', ' ', $label) ?? $label;
+  return $label;
+}
+
+/**
+ * Garante vocabulário taxonomy.vocabulary.beneficios.
+ */
+function _custom_configs_ensure_beneficios_vocabulary(): string {
+  if (\Drupal\taxonomy\Entity\Vocabulary::load('beneficios')) {
+    return (string) t('Vocabulário beneficios já presente.');
+  }
+  \Drupal\taxonomy\Entity\Vocabulary::create([
+    'vid' => 'beneficios',
+    'name' => 'Benefícios',
+    'description' => 'Catálogo de benefícios selecionáveis nas vagas.',
+    'weight' => 0,
+  ])->save();
+  return (string) t('Vocabulário beneficios criado.');
+}
+
+/**
+ * Garante field.storage.taxonomy_term.field_image + instance no vocab beneficios.
+ */
+function _custom_configs_ensure_taxonomy_term_field_image(): string {
+  $parts = [];
+  $entity_type = 'taxonomy_term';
+  $bundle = 'beneficios';
+  $field_name = 'field_image';
+
+  if (!\Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name)) {
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => $entity_type,
+      'type' => 'image',
+      'cardinality' => 1,
+      'translatable' => TRUE,
+      'settings' => [
+        'target_type' => 'file',
+        'display_field' => FALSE,
+        'display_default' => TRUE,
+        'uri_scheme' => 'public',
+        'default_image' => [
+          'uuid' => NULL,
+          'alt' => '',
+          'title' => '',
+          'width' => NULL,
+          'height' => NULL,
+        ],
+      ],
+    ])->save();
+    $parts[] = (string) t('Storage taxonomy_term.field_image criado.');
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName($entity_type, $bundle, $field_name)) {
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name);
+    if ($storage) {
+      \Drupal\field\Entity\FieldConfig::create([
+        'field_storage' => $storage,
+        'bundle' => $bundle,
+        'label' => 'Ícone',
+        'description' => 'Ícone WebP do benefício.',
+        'required' => FALSE,
+        'translatable' => FALSE,
+        'settings' => [
+          'file_directory' => 'taxonomy/beneficios/[date:custom:Y]-[date:custom:m]',
+          'file_extensions' => 'png gif jpg jpeg webp',
+          'max_filesize' => '',
+          'max_resolution' => '',
+          'min_resolution' => '',
+          'alt_field' => TRUE,
+          'alt_field_required' => FALSE,
+          'title_field' => FALSE,
+          'title_field_required' => FALSE,
+          'handler' => 'default:file',
+          'handler_settings' => [],
+          'default_image' => [
+            'uuid' => NULL,
+            'alt' => '',
+            'title' => '',
+            'width' => NULL,
+            'height' => NULL,
+          ],
+        ],
+      ])->save();
+      $parts[] = (string) t('Instance taxonomy_term.beneficios.field_image criada.');
+    }
+    else {
+      $parts[] = (string) t('Storage taxonomy_term.field_image ausente.');
+    }
+  }
+
+  \Drupal::service('entity_field.manager')->clearCachedFieldDefinitions();
+
+  $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+  $view_storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null $form */
+  $form = $form_storage->load("$entity_type.$bundle.default");
+  if (!$form) {
+    $form = $form_storage->create([
+      'targetEntityType' => $entity_type,
+      'bundle' => $bundle,
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $form_changed = $form->isNew();
+  if ($form->getComponent($field_name) === NULL) {
+    $form->setComponent($field_name, [
+      'type' => 'image_image',
+      'weight' => 1,
+      'region' => 'content',
+      'settings' => [
+        'progress_indicator' => 'throbber',
+        'preview_image_style' => 'thumbnail',
+      ],
+      'third_party_settings' => [],
+    ]);
+    $form_changed = TRUE;
+  }
+  if ($form_changed) {
+    $form->save();
+    $parts[] = (string) t('Form display taxonomy_term.beneficios atualizado.');
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null $view */
+  $view = $view_storage->load("$entity_type.$bundle.default");
+  if (!$view) {
+    $view = $view_storage->create([
+      'targetEntityType' => $entity_type,
+      'bundle' => $bundle,
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $view_changed = $view->isNew();
+  if ($view->getComponent($field_name) === NULL) {
+    $view->setComponent($field_name, [
+      'type' => 'image',
+      'weight' => 0,
+      'region' => 'content',
+      'label' => 'hidden',
+      'settings' => [
+        'image_link' => '',
+        'image_style' => '',
+        'image_loading' => ['attribute' => 'lazy'],
+      ],
+      'third_party_settings' => [],
+    ]);
+    $view_changed = TRUE;
+  }
+  if ($view_changed) {
+    $view->save();
+    $parts[] = (string) t('View display taxonomy_term.beneficios atualizado.');
+  }
+
+  if (!$parts) {
+    return (string) t('field_image em taxonomy_term.beneficios já ok.');
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Garante field_vaga_beneficios_t (ER → beneficios, required) e relaxa required do legado.
+ */
+function _custom_configs_ensure_field_vaga_beneficios_t(): string {
+  $parts = [];
+  $entity_type = 'node';
+  $bundle = 'vagas';
+  $field_name = 'field_vaga_beneficios_t';
+
+  if (!\Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name)) {
+    \Drupal\field\Entity\FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => $entity_type,
+      'type' => 'entity_reference',
+      'settings' => ['target_type' => 'taxonomy_term'],
+      'module' => 'core',
+      'cardinality' => -1,
+      'translatable' => TRUE,
+    ])->save();
+    $parts[] = (string) t('Storage node.field_vaga_beneficios_t criado.');
+  }
+
+  if (!\Drupal\field\Entity\FieldConfig::loadByName($entity_type, $bundle, $field_name)) {
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName($entity_type, $field_name);
+    if ($storage) {
+      \Drupal\field\Entity\FieldConfig::create([
+        'field_storage' => $storage,
+        'bundle' => $bundle,
+        'label' => 'Benefícios',
+        'description' => 'Selecione os benefícios do catálogo (taxonomia beneficios).',
+        'required' => TRUE,
+        'translatable' => FALSE,
+        'settings' => [
+          'handler' => 'default:taxonomy_term',
+          'handler_settings' => [
+            'target_bundles' => ['beneficios' => 'beneficios'],
+            'sort' => ['field' => 'name', 'direction' => 'asc'],
+            'auto_create' => FALSE,
+            'auto_create_bundle' => '',
+          ],
+        ],
+      ])->save();
+      $parts[] = (string) t('Instance node.vagas.field_vaga_beneficios_t criada.');
+    }
+  }
+  else {
+    /** @var \Drupal\field\Entity\FieldConfig $instance */
+    $instance = \Drupal\field\Entity\FieldConfig::loadByName($entity_type, $bundle, $field_name);
+    if ($instance && !$instance->isRequired()) {
+      $instance->setRequired(TRUE)->save();
+      $parts[] = (string) t('Instance field_vaga_beneficios_t marcada required.');
+    }
+  }
+
+  // Campo paragraphs legado oculto na UI: não pode continuar required.
+  $legado = \Drupal\field\Entity\FieldConfig::loadByName($entity_type, $bundle, 'field_vaga_beneficios');
+  if ($legado && $legado->isRequired()) {
+    $legado->setRequired(FALSE)->save();
+    $parts[] = (string) t('field_vaga_beneficios legado: required=false (oculto na UI).');
+  }
+
+  \Drupal::service('entity_field.manager')->clearCachedFieldDefinitions();
+
+  if (!$parts) {
+    return (string) t('field_vaga_beneficios_t já presente.');
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Form/view displays da vaga: checkboxes benefícios, hide empresa_u e paragraphs.
+ */
+function _custom_configs_ensure_vaga_beneficios_cta_displays(): string {
+  $parts = [];
+  $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+  $view_storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null $form */
+  $form = $form_storage->load('node.vagas.default');
+  if (!$form) {
+    return (string) t('Form display node.vagas.default ausente — rode drush cim -y.');
+  }
+
+  $form_changed = FALSE;
+
+  // US1: ocultar field_empresa_u; garantir field_vaga_empresa visível.
+  if ($form->getComponent('field_empresa_u') !== NULL) {
+    $form->removeComponent('field_empresa_u');
+    $form_changed = TRUE;
+  }
+
+  if (
+    \Drupal\field\Entity\FieldConfig::loadByName('node', 'vagas', 'field_vaga_empresa')
+    && $form->getComponent('field_vaga_empresa') === NULL
+  ) {
+    $form->setComponent('field_vaga_empresa', [
+      'type' => 'entity_reference_autocomplete',
+      'weight' => 2,
+      'region' => 'content',
+      'settings' => [
+        'match_operator' => 'CONTAINS',
+        'match_limit' => 10,
+        'size' => 60,
+        'placeholder' => '',
+      ],
+      'third_party_settings' => [],
+    ]);
+    $form_changed = TRUE;
+  }
+
+  // US2: um único Benefícios = checkboxes field_vaga_beneficios_t;
+  // ocultar paragraphs e texto livre legado (field_text_simple_multiple_2).
+  if (\Drupal\field\Entity\FieldConfig::loadByName('node', 'vagas', 'field_vaga_beneficios_t')) {
+    $current = $form->getComponent('field_vaga_beneficios_t');
+    $needs_widget = $current === NULL
+      || ($current['type'] ?? '') !== 'options_buttons'
+      || (int) ($current['weight'] ?? -1) !== 6;
+    if ($needs_widget) {
+      $form->setComponent('field_vaga_beneficios_t', [
+        'type' => 'options_buttons',
+        'weight' => 6,
+        'region' => 'content',
+        'settings' => [],
+        'third_party_settings' => [],
+      ]);
+      $form_changed = TRUE;
+    }
+  }
+
+  foreach (['field_vaga_beneficios', 'field_text_simple_multiple_2'] as $legacy) {
+    if ($form->getComponent($legacy) !== NULL) {
+      $form->removeComponent($legacy);
+      $form_changed = TRUE;
+    }
+  }
+
+  if ($form_changed) {
+    $form->save();
+    $parts[] = (string) t('Form display node.vagas.default: único Benefícios (checkboxes); texto livre e paragraphs ocultos.');
+  }
+
+  /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null $view */
+  $view = $view_storage->load('node.vagas.default');
+  if ($view) {
+    $view_changed = FALSE;
+    // Twig full lê a entity — manter taxonomia/paragraphs/texto livre hidden no view display.
+    foreach (['field_vaga_beneficios', 'field_vaga_beneficios_t', 'field_text_simple_multiple_2'] as $name) {
+      if ($view->getComponent($name) !== NULL) {
+        $view->removeComponent($name);
+        $view_changed = TRUE;
+      }
+    }
+    if ($view_changed) {
+      $view->save();
+      $parts[] = (string) t('View display node.vagas.default: benefícios legados/taxonomia ocultos (Twig full).');
+    }
+  }
+
+  if (!$parts) {
+    return (string) t('Displays node.vagas benefícios/CTA já ok.');
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Seed idempotente dos 7 termos beneficios com ícone WebP.
+ */
+function _custom_configs_seed_beneficios_terms(): string {
+  if (!\Drupal\taxonomy\Entity\Vocabulary::load('beneficios')) {
+    return (string) t('Vocabulário beneficios ausente — seed abortado.');
+  }
+
+  $storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+  $created = 0;
+  $filled_icon = 0;
+  $skipped = 0;
+  $errors = [];
+
+  foreach (_custom_configs_beneficios_catalog_seeds() as $seed) {
+    $asset_rel = 'beneficios/' . $seed['file'];
+    $module_path = \Drupal::service('extension.list.module')->getPath('custom_configs');
+    $source = DRUPAL_ROOT . '/' . $module_path . '/assets/' . $asset_rel;
+    if (!is_readable($source)) {
+      $errors[] = (string) t('Benefício "@name": asset ausente/ilegível (@path) — termo não criado/sem ícone.', [
+        '@name' => $seed['name'],
+        '@path' => $asset_rel,
+      ]);
+      continue;
+    }
+
+    /** @var \Drupal\taxonomy\TermInterface|null $term */
+    $term = NULL;
+    $by_uuid = $storage->loadByProperties(['uuid' => $seed['uuid']]);
+    if ($by_uuid) {
+      $term = reset($by_uuid);
+    }
+    if (!$term) {
+      $norm = _custom_configs_normalize_beneficio_label($seed['name']);
+      $candidates = $storage->loadByProperties(['vid' => 'beneficios']);
+      foreach ($candidates as $candidate) {
+        /** @var \Drupal\taxonomy\TermInterface $candidate */
+        if (_custom_configs_normalize_beneficio_label($candidate->label()) === $norm) {
+          $term = $candidate;
+          break;
+        }
+      }
+    }
+
+    $just_created = FALSE;
+    if (!$term) {
+      /** @var \Drupal\taxonomy\TermInterface $term */
+      $term = $storage->create([
+        'uuid' => $seed['uuid'],
+        'vid' => 'beneficios',
+        'name' => $seed['name'],
+        'status' => 1,
+      ]);
+      $term->save();
+      $created++;
+      $just_created = TRUE;
+    }
+    else {
+      $skipped++;
+    }
+
+    if (!$term->hasField('field_image')) {
+      $errors[] = (string) t('Benefício "@name": field_image ausente no termo.', [
+        '@name' => $seed['name'],
+      ]);
+      if ($just_created) {
+        $term->delete();
+        $created--;
+      }
+      continue;
+    }
+
+    if (!$term->get('field_image')->isEmpty()) {
+      continue;
+    }
+
+    $dest = 'public://beneficios/' . $seed['file'];
+    $file = _custom_configs_seed_file_from_module_asset(
+      $asset_rel,
+      $dest,
+      'taxonomy_term',
+      (int) $term->id()
+    );
+    if (!$file) {
+      $errors[] = (string) t('Benefício "@name": falha ao copiar asset (@path).', [
+        '@name' => $seed['name'],
+        '@path' => $asset_rel,
+      ]);
+      if ($just_created) {
+        $term->delete();
+        $created--;
+      }
+      continue;
+    }
+
+    $term->set('field_image', [
+      'target_id' => $file->id(),
+      'alt' => $seed['name'],
+    ]);
+    $term->save();
+    $filled_icon++;
+  }
+
+  $parts = [
+    (string) t('Seed beneficios: @c criados, @i ícones preenchidos, @s já existentes.', [
+      '@c' => $created,
+      '@i' => $filled_icon,
+      '@s' => $skipped,
+    ]),
+  ];
+  if ($errors) {
+    $parts = array_merge($parts, $errors);
+  }
+  return implode(' ', $parts);
+}
+
+/**
+ * Migra benefícios legados → field_vaga_beneficios_t (fill-if-empty).
+ *
+ * Fontes (nessa ordem, mescladas): paragraphs field_vaga_beneficios
+ * (field_text_simple) e texto livre field_text_simple_multiple_2.
+ * Títulos sem match no catálogo não criam termo.
+ */
+function _custom_configs_migrate_vaga_beneficios_to_taxonomy(): string {
+  if (!\Drupal\field\Entity\FieldConfig::loadByName('node', 'vagas', 'field_vaga_beneficios_t')) {
+    return (string) t('Migrate benefícios: field_vaga_beneficios_t ausente.');
+  }
+
+  $term_storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+  $name_to_tid = [];
+  foreach (_custom_configs_beneficios_catalog_seeds() as $seed) {
+    $norm = _custom_configs_normalize_beneficio_label($seed['name']);
+    $term = NULL;
+    $by_uuid = $term_storage->loadByProperties(['uuid' => $seed['uuid']]);
+    if ($by_uuid) {
+      $term = reset($by_uuid);
+    }
+    if (!$term) {
+      $candidates = $term_storage->loadByProperties([
+        'vid' => 'beneficios',
+        'name' => $seed['name'],
+      ]);
+      if ($candidates) {
+        $term = reset($candidates);
+      }
+    }
+    if ($term) {
+      $name_to_tid[$norm] = (int) $term->id();
+    }
+  }
+
+  if (!$name_to_tid) {
+    return (string) t('Migrate benefícios: nenhum termo do catálogo encontrado.');
+  }
+
+  $nids = \Drupal::entityTypeManager()->getStorage('node')->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('type', 'vagas')
+    ->execute();
+  if (!$nids) {
+    return (string) t('Migrate benefícios: nenhuma vaga.');
+  }
+
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $migrated = 0;
+  $skipped = 0;
+
+  foreach ($storage->loadMultiple($nids) as $node) {
+    /** @var \Drupal\node\NodeInterface $node */
+    if (!$node->hasField('field_vaga_beneficios_t') || !$node->get('field_vaga_beneficios_t')->isEmpty()) {
+      $skipped++;
+      continue;
+    }
+
+    $labels = [];
+
+    if ($node->hasField('field_vaga_beneficios') && !$node->get('field_vaga_beneficios')->isEmpty()) {
+      foreach ($node->get('field_vaga_beneficios') as $item) {
+        if (!$item->entity) {
+          continue;
+        }
+        /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
+        $paragraph = $item->entity;
+        if (!$paragraph->hasField('field_text_simple')) {
+          continue;
+        }
+        $title = (string) ($paragraph->get('field_text_simple')->value ?? '');
+        if ($title !== '') {
+          $labels[] = $title;
+        }
+      }
+    }
+
+    if ($node->hasField('field_text_simple_multiple_2') && !$node->get('field_text_simple_multiple_2')->isEmpty()) {
+      foreach ($node->get('field_text_simple_multiple_2') as $item) {
+        $title = (string) ($item->value ?? '');
+        if ($title !== '') {
+          $labels[] = $title;
+        }
+      }
+    }
+
+    if (!$labels) {
+      $skipped++;
+      continue;
+    }
+
+    $tids = [];
+    foreach ($labels as $title) {
+      $norm = _custom_configs_normalize_beneficio_label($title);
+      if ($norm !== '' && isset($name_to_tid[$norm])) {
+        $tids[$name_to_tid[$norm]] = $name_to_tid[$norm];
+      }
+    }
+
+    if (!$tids) {
+      $skipped++;
+      continue;
+    }
+
+    $node->set('field_vaga_beneficios_t', array_values($tids));
+    $node->save();
+    $migrated++;
+  }
+
+  return (string) t('Migrate benefícios legado→taxonomia: @m vagas, @s ignoradas.', [
+    '@m' => $migrated,
+    '@s' => $skipped,
+  ]);
+}
+
+/**
+ * Garante visibility user_role=candidato no placement default_ctav1vagas.
+ */
+function _custom_configs_ensure_ctav1vagas_candidato_visibility(): string {
+  $config = \Drupal::configFactory()->getEditable('block.block.default_ctav1vagas');
+  if ($config->isNew()) {
+    return (string) t('Bloco default_ctav1vagas ausente — rode drush cim -y antes do updb.');
+  }
+
+  $visibility = $config->get('visibility') ?? [];
+  $roles = $visibility['user_role']['roles'] ?? [];
+  if (isset($roles['candidato']) && ($visibility['user_role']['negate'] ?? TRUE) === FALSE) {
+    return (string) t('Bloco default_ctav1vagas já restrito a role candidato.');
+  }
+
+  $visibility['user_role'] = [
+    'id' => 'user_role',
+    'negate' => FALSE,
+    'context_mapping' => [
+      'user' => '@user.current_user_context:current_user',
+    ],
+    'roles' => [
+      'candidato' => 'candidato',
+    ],
+  ];
+  // Preserva entity_bundle:node = vagas se já existir.
+  if (!isset($visibility['entity_bundle:node'])) {
+    $visibility['entity_bundle:node'] = [
+      'id' => 'entity_bundle:node',
+      'negate' => FALSE,
+      'context_mapping' => [
+        'node' => '@node.node_route_context:node',
+      ],
+      'bundles' => [
+        'vagas' => 'vagas',
+      ],
+    ];
+  }
+
+  $config->set('visibility', $visibility)->save();
+  return (string) t('Bloco default_ctav1vagas: visibility user_role candidato.');
+}
+

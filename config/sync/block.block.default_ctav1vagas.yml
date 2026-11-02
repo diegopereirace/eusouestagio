@@ -29,3 +29,10 @@ visibility:
       node: '@node.node_route_context:node'
     bundles:
       vagas: vagas
+  user_role:
+    id: user_role
+    negate: false
+    context_mapping:
+      user: '@user.current_user_context:current_user'
+    roles:
+      candidato: candidato

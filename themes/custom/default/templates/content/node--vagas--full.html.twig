@@ -132,27 +132,29 @@
           </section>
         {% endif %}
 
-        {% set has_beneficios = node.hasField('field_vaga_beneficios') and node.field_vaga_beneficios is not empty %}
+        {% set has_beneficios = node.hasField('field_vaga_beneficios_t') and node.field_vaga_beneficios_t is not empty %}
         {% if has_beneficios %}
           <section class="vaga-detalhe__beneficios">
             <h2 class="vaga-detalhe__section-title">{{ 'Benefícios'|t }}</h2>
             <div class="vaga-detalhe__beneficios-grid row g-3">
-              {% for item in node.field_vaga_beneficios %}
+              {% for item in node.field_vaga_beneficios_t %}
                 {% if item.entity %}
-                  {% set ben = item.entity %}
-                  {% set ben_title = ben.field_text_simple.value ?? '' %}
+                  {% set term = item.entity %}
+                  {% set ben_title = term.label %}
                   {% set ben_icon = '' %}
-                  {% if ben.hasField('field_image') and not ben.field_image.isEmpty and ben.field_image.entity %}
-                    {% set ben_icon = ben.field_image.entity.uri.value %}
+                  {% set ben_alt = ben_title %}
+                  {% if term.hasField('field_image') and not term.field_image.isEmpty and term.field_image.entity %}
+                    {% set ben_icon = term.field_image.entity.uri.value %}
+                    {% set ben_alt = term.field_image.alt|default(ben_title) %}
                   {% endif %}
                   {% if ben_title or ben_icon %}
                     <div class="col-6 col-lg-3">
                       <div class="vaga-detalhe__beneficio-card">
                         <div class="vaga-detalhe__beneficio-icon">
                           {% if ben_icon %}
-                            <img src="{{ file_url(ben_icon) }}" alt="" width="48" height="48" loading="lazy">
-                          {% else %}
-                            <img src="{{ vaga_beneficio_icon_fallbacks[loop.index0 % 4] }}" alt="" width="48" height="48" loading="lazy">
+                            <img src="{{ file_url(ben_icon) }}" alt="{{ ben_alt }}" width="48" height="48" loading="lazy">
+                          {% elseif vaga_beneficio_icon_fallbacks is defined %}
+                            <img src="{{ vaga_beneficio_icon_fallbacks[loop.index0 % 4] }}" alt="{{ ben_alt }}" width="48" height="48" loading="lazy">
                           {% endif %}
                         </div>
                         {% if ben_title %}

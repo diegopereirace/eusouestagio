@@ -5,9 +5,11 @@
  *
  * Variante escura isolada: NÃO anexar default/cta_v1 (card claro QS/PE).
  * Card alinhado à coluna principal (container > row > col-lg-8).
+ * Feature 050: botão primário = candidatura (js-candidatar-vaga), não cadastro.
  */
 #}
 {{ attach_library('default/cta_v1_vagas') }}
+{{ attach_library('default/script-painel') }}
 {%
   set classes = [
     'block',
@@ -18,12 +20,10 @@
 %}
 {% set title = content.field_text_simple|render|striptags|trim %}
 {% set subtitle = content.field_text_simple_long|render|striptags|trim %}
-{% set primary_item = content.field_link['#items'][0]|default(null) %}
 {% set secondary_item = content.field_link_2['#items'][0]|default(null) %}
-{% set primary_uri = primary_item ? primary_item.uri|default('') : '' %}
 {% set secondary_uri = secondary_item ? secondary_item.uri|default('') : '' %}
-{% set has_primary = primary_uri is not empty %}
 {% set has_secondary = secondary_uri is not empty %}
+{% set has_primary = vaga_nid is defined and vaga_nid %}
 {% set has_actions = has_primary or has_secondary %}
 {% set has_content = title or subtitle or has_actions %}
 
@@ -50,7 +50,17 @@
                 {% if has_actions %}
                   <div class="cta-v1__actions">
                     {% if has_primary %}
-                      <a class="cta-v1__btn cta-v1__btn--primary" href="{{ primary_item.getUrl().toString() }}">{{ primary_item.title }}</a>
+                      {% if vaga_candidatada %}
+                        <button type="button" class="cta-v1__btn cta-v1__btn--primary" disabled aria-disabled="true">
+                          {{ 'Candidatura Enviada'|t }}
+                        </button>
+                      {% else %}
+                        <a href="{{ vaga_apply_url }}"
+                           class="cta-v1__btn cta-v1__btn--primary js-candidatar-vaga"
+                           data-node-id="{{ vaga_nid }}"
+                           data-apply-url="{{ vaga_apply_url }}"
+                           data-method="POST">{{ 'Candidatar-se Agora'|t }}</a>
+                      {% endif %}
                     {% endif %}
                     {% if has_secondary %}
                       <a class="cta-v1__btn cta-v1__btn--secondary" href="{{ secondary_item.getUrl().toString() }}">{{ secondary_item.title }}</a>

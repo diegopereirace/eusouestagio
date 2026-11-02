@@ -96,6 +96,17 @@
   text-decoration: none;
 }
 
+.block-cta-v1--vagas .cta-v1__btn--primary:disabled,
+.block-cta-v1--vagas .cta-v1__btn--primary[aria-disabled="true"],
+#block-default-ctav1vagas .cta-v1__btn--primary:disabled,
+#block-default-ctav1vagas .cta-v1__btn--primary[aria-disabled="true"] {
+  background-color: #8ea0ae;
+  color: #ffffff;
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 1;
+}
+
 .block-cta-v1--vagas .cta-v1__btn--secondary,
 #block-default-ctav1vagas .cta-v1__btn--secondary {
   background-color: transparent;

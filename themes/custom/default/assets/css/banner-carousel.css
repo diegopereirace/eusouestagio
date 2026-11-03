@@ -91,7 +91,19 @@
 	width: 1.75rem;
 	height: 1.75rem;
 	filter: none;
+	background-repeat: no-repeat;
+	background-position: center;
 	background-size: 100% 100%;
+}
+
+.home-hero__carousel .carousel-control-prev-icon,
+.banner-carousel .carousel-control-prev-icon {
+	background-image: url('../images/icon-arrow-left.png');
+}
+
+.home-hero__carousel .carousel-control-next-icon,
+.banner-carousel .carousel-control-next-icon {
+	background-image: url('../images/icon-arrow-right.png');
 }
 
 .home-hero__carousel .carousel-control-prev:hover,

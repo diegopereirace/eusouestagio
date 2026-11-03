@@ -168,11 +168,21 @@ body.path-para-estudantes .banner .region-wrapper-banner {
 .banner-para-estudantes-wrapper .carousel-control-next-icon {
 	width: 2.75rem;
 	height: 2.75rem;
+	background-repeat: no-repeat;
+	background-position: center;
 	background-size: 1.35rem 1.35rem;
 	background-color: var(--bpes-orange);
 	border-radius: 50%;
 	filter: none;
 	box-shadow: 0 2px 8px rgba(15, 23, 42, 0.25);
+}
+
+.banner-para-estudantes-wrapper .carousel-control-prev-icon {
+	background-image: url('../images/icon-arrow-left.png');
+}
+
+.banner-para-estudantes-wrapper .carousel-control-next-icon {
+	background-image: url('../images/icon-arrow-right.png');
 }
 
 .banner-para-estudantes-wrapper .carousel-control-prev:hover,

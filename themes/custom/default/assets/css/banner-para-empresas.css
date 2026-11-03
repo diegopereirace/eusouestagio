@@ -170,11 +170,21 @@ body.node--type-para-empresas .banner .region-wrapper-banner {
 .banner-para-empresas-wrapper .carousel-control-next-icon {
 	width: 2.75rem;
 	height: 2.75rem;
+	background-repeat: no-repeat;
+	background-position: center;
 	background-size: 1.35rem 1.35rem;
 	background-color: var(--bpe-orange);
 	border-radius: 50%;
 	filter: none;
 	box-shadow: 0 2px 8px rgba(15, 23, 42, 0.25);
+}
+
+.banner-para-empresas-wrapper .carousel-control-prev-icon {
+	background-image: url('../images/icon-arrow-left.png');
+}
+
+.banner-para-empresas-wrapper .carousel-control-next-icon {
+	background-image: url('../images/icon-arrow-right.png');
 }
 
 .banner-para-empresas-wrapper .carousel-control-prev:hover,

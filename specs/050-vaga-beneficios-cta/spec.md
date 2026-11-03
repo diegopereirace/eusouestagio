@@ -3,7 +3,7 @@
 **Feature Directory**: `specs/050-vaga-beneficios-cta`  
 **Feature Branch**: `050-vaga-beneficios-cta`  
 **Created**: 2026-11-02  
-**Status**: Planned  
+**Status**: Implemented  
 **Predecessor**: `030-vagas-detalhe-layout` / `031-vagas-detalhe-refino` / `036-vagas-beneficios-padrao` (benefícios via paragraphs); `032-vaga-header-empresa` / `037-vaga-sobre-empresa` (empresa pública); `033-vaga-sidebar-acoes` (candidatura)  
 **Input do usuário**: Refatorar edição e exibição da página interna da Vaga — ocultar campo empresa legado duplicado; migrar benefícios de paragraphs para taxonomia selecionável com ícones; restringir o CTA “Pronto para o próximo passo?” a candidatos e alinhar a ação do botão à candidatura da vaga; deploy 100% automatizado.
 

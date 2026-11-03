@@ -4,7 +4,8 @@
 **Date**: 2026-11-02  
 **Spec**: [spec.md](spec.md) | **Checklist**: [checklists/requirements.md](checklists/requirements.md)  
 **Predecessor**: `030` / `031` / `036` (benefícios); `032` / `034` / `037` (empresa pública); `033` (candidatura); `031` (CTA vagas)  
-**Hook**: `custom_configs_update_11071`  
+**Hook**: `custom_configs_update_11071` (+ `11072` texto livre; `11075` re-report migrate)  
+**Review fixes (2026-11-03)**: auto-fill `field_empresa_u` com form hidden; sync JS CTA↔sidebar; cache CTA em `hook_block_build_alter`; verify script  
 **Setup**: scaffolding Spec Kit (`.specify/scripts`) ausente neste repo — feature ativa via `.specify/feature.json` → `specs/050-vaga-beneficios-cta`
 
 ## Summary

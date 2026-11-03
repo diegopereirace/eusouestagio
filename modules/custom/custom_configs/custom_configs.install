@@ -16032,6 +16032,15 @@ function custom_configs_update_11074(): string {
 }
 
 /**
+ * Feature 050 follow-up: re-reporta vagas sem benefícios taxonomia (idempotente).
+ *
+ * Reexecuta migrate fill-if-empty e registra nids ainda vazios para correção editorial.
+ */
+function custom_configs_update_11075(): string {
+  return _custom_configs_migrate_vaga_beneficios_to_taxonomy();
+}
+
+/**
  * Oculta field_vaga_faq no form display node.vagas.default (idempotente).
  *
  * Storage/instance permanecem; valores legados no banco não são apagados.
@@ -16138,6 +16147,13 @@ function _custom_configs_normalize_beneficio_label(string $label): string {
 }
 
 /**
+ * UUID canônico do vocabulário beneficios (config/sync).
+ */
+function _custom_configs_beneficios_vocabulary_uuid(): string {
+  return 'f6cf31cb-88d4-4ed2-8515-3b1ec76aaa39';
+}
+
+/**
  * Garante vocabulário taxonomy.vocabulary.beneficios.
  */
 function _custom_configs_ensure_beneficios_vocabulary(): string {
@@ -16145,6 +16161,7 @@ function _custom_configs_ensure_beneficios_vocabulary(): string {
     return (string) t('Vocabulário beneficios já presente.');
   }
   \Drupal\taxonomy\Entity\Vocabulary::create([
+    'uuid' => _custom_configs_beneficios_vocabulary_uuid(),
     'vid' => 'beneficios',
     'name' => 'Benefícios',
     'description' => 'Catálogo de benefícios selecionáveis nas vagas.',
@@ -16625,10 +16642,15 @@ function _custom_configs_migrate_vaga_beneficios_to_taxonomy(): string {
   $storage = \Drupal::entityTypeManager()->getStorage('node');
   $migrated = 0;
   $skipped = 0;
+  $empty_after = [];
 
   foreach ($storage->loadMultiple($nids) as $node) {
     /** @var \Drupal\node\NodeInterface $node */
-    if (!$node->hasField('field_vaga_beneficios_t') || !$node->get('field_vaga_beneficios_t')->isEmpty()) {
+    if (!$node->hasField('field_vaga_beneficios_t')) {
+      $skipped++;
+      continue;
+    }
+    if (!$node->get('field_vaga_beneficios_t')->isEmpty()) {
       $skipped++;
       continue;
     }
@@ -16662,6 +16684,7 @@ function _custom_configs_migrate_vaga_beneficios_to_taxonomy(): string {
     }
 
     if (!$labels) {
+      $empty_after[] = (int) $node->id();
       $skipped++;
       continue;
     }
@@ -16675,6 +16698,7 @@ function _custom_configs_migrate_vaga_beneficios_to_taxonomy(): string {
     }
 
     if (!$tids) {
+      $empty_after[] = (int) $node->id();
       $skipped++;
       continue;
     }
@@ -16684,10 +16708,25 @@ function _custom_configs_migrate_vaga_beneficios_to_taxonomy(): string {
     $migrated++;
   }
 
-  return (string) t('Migrate benefícios legado→taxonomia: @m vagas, @s ignoradas.', [
-    '@m' => $migrated,
-    '@s' => $skipped,
-  ]);
+  $parts = [
+    (string) t('Migrate benefícios legado→taxonomia: @m vagas, @s ignoradas.', [
+      '@m' => $migrated,
+      '@s' => $skipped,
+    ]),
+  ];
+  if ($empty_after) {
+    $sample = array_slice($empty_after, 0, 30);
+    $parts[] = (string) t('Atenção editorial: @n vaga(s) sem field_vaga_beneficios_t após migrate (nids: @ids@more). Selecionar benefícios no form.', [
+      '@n' => count($empty_after),
+      '@ids' => implode(', ', $sample),
+      '@more' => count($empty_after) > 30 ? '…' : '',
+    ]);
+    \Drupal::logger('custom_configs')->warning('050 migrate: @n vagas sem benefícios taxonomia. nids=@ids', [
+      '@n' => count($empty_after),
+      '@ids' => implode(',', $empty_after),
+    ]);
+  }
+  return implode(' ', $parts);
 }
 
 /**

@@ -189,7 +189,8 @@
         });
       });
 
-      // ── Botão "Candidatar-se" ──────────────────────────────────────────
+      // ── Botão "Candidatar-se" (sidebar + CTA) ─────────────────────────
+      // Sucesso sincroniza TODOS os .js-candidatar-vaga da mesma vaga (FR-011 / 050).
       once('candidatar-vaga', '.js-candidatar-vaga', context).forEach(function (btn) {
         btn.addEventListener('click', function (event) {
           var button = this;
@@ -204,6 +205,20 @@
           var applyUrl = button.getAttribute('data-apply-url') || button.getAttribute('href') || Drupal.url('vaga/apply/' + nodeId);
           var applyMethod = button.getAttribute('data-method') || 'POST';
           var originalHtml = button.innerHTML;
+          var sentLabel = Drupal.t('Candidatura Enviada');
+
+          var markAllSent = function () {
+            document.querySelectorAll('.js-candidatar-vaga[data-node-id="' + nodeId + '"]').forEach(function (el) {
+              el.setAttribute('aria-disabled', 'true');
+              if (el.tagName === 'BUTTON') {
+                el.disabled = true;
+              }
+              else {
+                el.removeAttribute('href');
+              }
+              el.textContent = sentLabel;
+            });
+          };
 
           button.setAttribute('aria-disabled', 'true');
           if (button.tagName === 'BUTTON') {
@@ -241,14 +256,7 @@
             })
             .then(function (data) {
               if (data.success || data.status === 'candidatado' || data.status === 'already') {
-                button.setAttribute('aria-disabled', 'true');
-                if (button.tagName === 'BUTTON') {
-                  button.disabled = true;
-                }
-                else {
-                  button.removeAttribute('href');
-                }
-                button.textContent = Drupal.t('Candidatura Enviada');
+                markAllSent();
                 showActionModal(data.message || Drupal.t('Sua candidatura foi registrada.'));
               } else {
                 button.removeAttribute('aria-disabled');

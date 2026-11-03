@@ -404,6 +404,21 @@ function default_block_access(Block $block, $operation, AccountInterface $accoun
 }
 
 /**
+ * Implements hook_block_build_alter() for default_ctav1vagas.
+ *
+ * Garante contexts/tags no render array (chave de cache), não só no AccessResult.
+ */
+function default_block_build_alter(array &$build, Block $block): void
+{
+  if ($block->id() !== 'default_ctav1vagas') {
+    return;
+  }
+  $build['#cache']['contexts'][] = 'user';
+  $build['#cache']['contexts'][] = 'route';
+  $build['#cache']['tags'][] = 'node_list:candidatura';
+}
+
+/**
  * Implements hook_preprocess_block() for default_ctav1vagas.
  *
  * Injeta nid / URL de candidatura / estado já candidatada (feature 050).
@@ -424,6 +439,13 @@ function default_preprocess_block__default_ctav1vagas(array &$variables): void
   $variables['vaga_apply_url'] = Url::fromRoute('custom_panel.vagas_candidatar', [
     'node' => $nid,
   ])->toString();
+
+  if (isset($variables['elements']) && is_array($variables['elements'])) {
+    $variables['elements']['#cache']['contexts'][] = 'user';
+    $variables['elements']['#cache']['contexts'][] = 'route';
+    $variables['elements']['#cache']['tags'][] = 'node_list:candidatura';
+    $variables['elements']['#cache']['tags'][] = 'node:' . $nid;
+  }
 
   $account = \Drupal::currentUser();
   if ($account->isAuthenticated() && in_array('candidato', $account->getRoles(), TRUE)) {

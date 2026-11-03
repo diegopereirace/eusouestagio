@@ -133,7 +133,10 @@ Pré-requisitos bloqueantes. Nenhuma user story de implementação começa antes
 - [X] T051 Executar validação completa do [quickstart.md](quickstart.md) (cenários US1–US5 + regressões) e registrar resultado
 - [X] T052 Verificar idempotência ponta a ponta: `drush updb -y` já atualizado → no-op; `drush cex -y` → sem diff inesperado
 - [X] T053 [P] Atualizar `.cursor/rules/specify-rules.mdc` (bloco SPECKIT): Tasks de `050-vaga-beneficios-cta` aponta para `specs/050-vaga-beneficios-cta/tasks.md`
-- [ ] T054 Commitar em pt-BR com Conventional Commits **somente quando o usuário pedir**, sugerido: `feat: refatora benefícios da vaga para taxonomia e CTA de candidatura`
+- [X] T054 Commitar em pt-BR com Conventional Commits **somente quando o usuário pedir**, sugerido: `feat: refatora benefícios da vaga para taxonomia e CTA de candidatura`
+- [X] T055 Fix review: `field_empresa_u` auto-fill role empresa com form hidden (entity builder + presave + submit)
+- [X] T056 Fix review: sync JS CTA↔sidebar em `.js-candidatar-vaga`; cache CTA via `hook_block_build_alter`
+- [X] T057 Fix review: migrate reporta nids vazios + `11075`; `verify_050_beneficios_cta.php`; vocab UUID fixo; markup `div`; FR-014 no quickstart
 
 ---
 

@@ -3,8 +3,8 @@
 ## Origem (após implementação)
 
 1. Versionar `modules/custom/custom_configs/assets/beneficios/beneficios-0{1..7}.webp`.
-2. Garantir `custom_configs_update_11071` (+ helpers) em `custom_configs.install`.
-3. `drush updb -y` — cria/garante vocab, fields, displays, seed 7 termos, migração paragraphs→termos, ajustes de CTA/access conforme hook.
+2. Garantir `custom_configs_update_11071` (+ `11072` / `11075` + helpers) em `custom_configs.install`.
+3. `drush updb -y` — cria/garante vocab, fields, displays, seed 7 termos, migração paragraphs→termos (com relatório de nids vazios), ajustes de CTA/access conforme hook.
 4. `drush cex -y` — exporta vocab, storages, instances, displays, `block.block.default_ctav1vagas` (com `user_role: candidato`), form/view da vaga.
 5. `drush cr`.
 6. Commit: código + assets + `config/sync` + PRD cirúrgico + specs.
@@ -53,3 +53,4 @@ Invocação no servidor: `php vendor/bin/drush.php <cmd>` a partir de `/var/www/
 3. Detalhe público: grid Benefícios a partir dos termos selecionados.
 4. CTA: visível só para `candidato`; clique = mesma candidatura da sidebar.
 5. Reexecutar `updb` → zero duplicação de termos.
+6. Opcional: `drush php:script modules/custom/custom_configs/scripts/verify_050_beneficios_cta.php` — sem `FAIL`/`MISSING`.

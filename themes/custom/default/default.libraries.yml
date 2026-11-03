@@ -40,12 +40,17 @@ banner_carousel_js:
     - core/drupal
     - core/once
     - default/bootstrap
+banner_carousel_cinematic:
+  css:
+    component:
+      assets/css/banner-carousel-cinematic.css: {}
 banner_carousel:
   css:
     component:
       assets/css/banner-carousel.css: {}
   dependencies:
     - default/banner_carousel_js
+    - default/banner_carousel_cinematic
 banner_quem_somos:
   css:
     component:
@@ -59,6 +64,7 @@ banner_para_empresas:
   dependencies:
     - default/bootstrap
     - default/banner_carousel_js
+    - default/banner_carousel_cinematic
 banner_para_estudantes:
   css:
     component:

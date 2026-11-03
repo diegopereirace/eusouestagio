@@ -16,8 +16,8 @@ Contrato de apresentação estável para visitante em `/para-empresas`. Não é 
 
 ```html
 <div id="banner-carousel-para-empresas"
-     class="carousel slide banner-carousel banner-para-empresas__carousel …"
-     data-bs-ride="carousel" data-bs-interval="6000"
+     class="carousel slide banner-carousel banner-carousel--cinematic banner-para-empresas__carousel …"
+     data-bs-ride="carousel" data-bs-interval="7000"
      data-bs-touch="true" data-bs-pause="hover">
   … slides <picture> + img …
   … controls + indicators se multi …
@@ -30,9 +30,11 @@ Contrato de apresentação estável para visitante em `/para-empresas`. Não é 
 
 | Regra | Valor |
 |-------|--------|
-| Library | `default/banner_para_empresas` **depende** de `default/banner_carousel` (JS init) |
+| Library | `default/banner_para_empresas` **depende** de `banner_carousel_js` + `banner_carousel_cinematic` (sem CSS layout da home) |
 | Classe `banner-carousel` | Presente no `.carousel` multi-slide para o behavior |
-| Transição / setas / indicators | Bootstrap Carousel — paridade perceptível com home |
+| Classe `banner-carousel--cinematic` | Mesma transição da home (máscara + ken burns) |
+| Setas | Ícones PNG sem disco/fundo laranja (paridade home) |
+| Transição / setas / indicators | Paridade perceptível com home |
 | `<768px` CTAs | Larguras iguais (±2px); lado a lado com gap ou empilhados com gap uniforme |
 | `≥768px` CTAs | Overlay/posição desktop preservados |
 | Imagens | URI do conteúdo; **proibido** placeholder `500×600` |

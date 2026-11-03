@@ -79,7 +79,11 @@
         },
         "file-mapping": {
             "[web-root]/autoload.php": false,
-            "[web-root]/robots.txt": false
+            "[web-root]/robots.txt": false,
+            "[web-root]/.htaccess": {
+                "append": "scaffold/htaccess-security-append.txt",
+                "force-append": true
+            }
         }
         }
     }

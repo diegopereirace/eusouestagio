@@ -14,7 +14,7 @@ field_name: field_vaga_requisitos
 entity_type: node
 bundle: vagas
 label: Requisitos
-description: 'Requisitos em texto formatado (lista com checks no detalhe).'
+description: 'Use a ferramenta de lista com marcadores do editor (ícone de bullets) para cadastrar cada requisito em um item. No detalhe da vaga a lista aparece com checks.'
 required: false
 translatable: false
 default_value: {  }

@@ -163,16 +163,6 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
-  field_vaga_faq:
-    type: entity_reference_autocomplete
-    weight: 23
-    region: content
-    settings:
-      match_operator: CONTAINS
-      match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
   field_vaga_periodo:
     type: string_textfield
     weight: 18
@@ -232,6 +222,7 @@ hidden:
   field_empresa_u: true
   field_text_simple_multiple_2: true
   field_vaga_beneficios: true
+  field_vaga_faq: true
   langcode: true
   promote: true
   sticky: true

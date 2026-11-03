@@ -174,22 +174,7 @@
           {% include '@default/content/includes/vaga-sobre-empresa.html.twig' %}
         {% endif %}
 
-        {% set faq_paras = [] %}
-        {% if node.hasField('field_vaga_faq') and node.field_vaga_faq is not empty and node.field_vaga_faq.entity %}
-          {% set faq_colecao = node.field_vaga_faq.entity %}
-          {% if faq_colecao.isPublished() and faq_colecao.hasField('field_faq_itens') and faq_colecao.field_faq_itens is not empty %}
-            {% for item in faq_colecao.field_faq_itens %}
-              {% if item.entity %}
-                {% set faq_item = item.entity %}
-                {% set pergunta = (faq_item.field_pergunta.value ?? '')|trim %}
-                {% set resposta = (faq_item.field_resposta.value ?? '')|trim %}
-                {% if pergunta and resposta %}
-                  {% set faq_paras = faq_paras|merge([faq_item]) %}
-                {% endif %}
-              {% endif %}
-            {% endfor %}
-          {% endif %}
-        {% endif %}
+        {# faq_paras: preprocess 051 — FAQ padrão único; não lê field_vaga_faq. #}
         {% if faq_paras %}
           {% include '@default/content/includes/vaga-faq-accordion.html.twig' with {
             node: node,

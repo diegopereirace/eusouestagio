@@ -10488,16 +10488,13 @@ function _custom_configs_ensure_faq_structure(): string {
     ]);
   }
   $form_changed = $form_display->isNew();
+  // field_resposta no node é legado (038+): itens via field_faq_itens / faq_item_p.
+  // Não reexibir no form — getComponent() é NULL tanto se ausente quanto se hidden.
   foreach ([
     'title' => [
       'type' => 'string_textfield',
       'weight' => 0,
       'settings' => ['size' => 60, 'placeholder' => ''],
-    ],
-    'field_resposta' => [
-      'type' => 'text_textarea',
-      'weight' => 1,
-      'settings' => ['rows' => 5, 'placeholder' => ''],
     ],
     'status' => [
       'type' => 'boolean_checkbox',
@@ -10513,11 +10510,12 @@ function _custom_configs_ensure_faq_structure(): string {
       $form_changed = TRUE;
     }
   }
-  $form_display->removeComponent('uid');
-  $form_display->removeComponent('created');
-  $form_display->removeComponent('promote');
-  $form_display->removeComponent('sticky');
-  $form_display->removeComponent('path');
+  foreach (['field_resposta', 'uid', 'created', 'promote', 'sticky', 'path'] as $hide) {
+    if ($form_display->getComponent($hide) !== NULL) {
+      $form_display->removeComponent($hide);
+      $form_changed = TRUE;
+    }
+  }
   if ($form_changed) {
     $form_display->save();
     $parts[] = (string) t('Form display node.faq.default garantido.');
@@ -16008,6 +16006,75 @@ function custom_configs_update_11072(): string {
     _custom_configs_migrate_vaga_beneficios_to_taxonomy(),
   ];
   return implode(' ', array_filter($parts));
+}
+
+/**
+ * Orienta cadastro de Requisitos a usar lista com marcadores no editor.
+ */
+function custom_configs_update_11073(): string {
+  return _custom_configs_ensure_field_vaga_requisitos_list_description();
+}
+
+/**
+ * Feature 051: FAQ padrão único nas vagas + form sem seletor.
+ *
+ * Ordem: ensure structure FAQ → ensure paragraph → seed coleção canônica
+ * → ocultar field_vaga_faq no form. Não limpa valores legados nas vagas.
+ */
+function custom_configs_update_11074(): string {
+  $parts = [
+    _custom_configs_ensure_faq_structure(),
+    _custom_configs_ensure_faq_item_p(),
+    _custom_configs_seed_faq_collection_example(),
+    _custom_configs_ensure_vaga_faq_form_hidden(),
+  ];
+  return implode(' ', array_filter($parts));
+}
+
+/**
+ * Oculta field_vaga_faq no form display node.vagas.default (idempotente).
+ *
+ * Storage/instance permanecem; valores legados no banco não são apagados.
+ * Feature 051 — FAQ padrão único via UUID canônico no preprocess.
+ */
+function _custom_configs_ensure_vaga_faq_form_hidden(): string {
+  if (!\Drupal\field\Entity\FieldConfig::loadByName('node', 'vagas', 'field_vaga_faq')) {
+    return (string) t('field_vaga_faq ausente — hide no form ignorado.');
+  }
+
+  $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null $form */
+  $form = $form_storage->load('node.vagas.default');
+  if (!$form) {
+    return (string) t('Form display node.vagas.default ausente — rode drush cim -y.');
+  }
+
+  if ($form->getComponent('field_vaga_faq') === NULL) {
+    return (string) t('field_vaga_faq já oculto no form node.vagas.default.');
+  }
+
+  $form->removeComponent('field_vaga_faq');
+  $form->save();
+  return (string) t('field_vaga_faq movido para hidden no form node.vagas.default.');
+}
+
+/**
+ * Atualiza a description de field_vaga_requisitos (idempotente).
+ */
+function _custom_configs_ensure_field_vaga_requisitos_list_description(): string {
+  $field = \Drupal\field\Entity\FieldConfig::loadByName('node', 'vagas', 'field_vaga_requisitos');
+  if (!$field) {
+    return (string) t('field_vaga_requisitos ausente; description não atualizada.');
+  }
+
+  $description = 'Use a ferramenta de lista com marcadores do editor (ícone de bullets) para cadastrar cada requisito em um item. No detalhe da vaga a lista aparece com checks.';
+  if ($field->getDescription() === $description) {
+    return (string) t('Description de field_vaga_requisitos já ok.');
+  }
+
+  $field->setDescription($description);
+  $field->save();
+  return (string) t('Description de field_vaga_requisitos atualizada para orientar uso de lista.');
 }
 
 /**

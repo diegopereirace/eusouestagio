@@ -310,6 +310,8 @@ function default_preprocess_node__vagas__full(array &$variables): void {
   default_preprocess_node__vagas($variables);
 
   $variables['show_empresa_card'] = FALSE;
+  $variables['faq_paras'] = [];
+  $variables['faq_padrao'] = NULL;
   $theme_path = \Drupal::service('extension.list.theme')->getPath('default');
   $icon_base = rtrim(\Drupal::request()->getBasePath(), '/') . '/' . $theme_path . '/assets/images/beneficios/';
   $variables['vaga_beneficio_icon_fallbacks'] = [
@@ -326,6 +328,42 @@ function default_preprocess_node__vagas__full(array &$variables): void {
       && $empresa->isPublished()
       && $empresa->access('view')) {
       $variables['show_empresa_card'] = TRUE;
+    }
+  }
+
+  // Feature 051: FAQ padrão único (UUID canônico); ignora field_vaga_faq.
+  if (function_exists('custom_configs_load_faq_padrao')) {
+    $faq = custom_configs_load_faq_padrao();
+    if ($faq instanceof \Drupal\node\NodeInterface
+      && $faq->isPublished()
+      && $faq->access('view')) {
+      $variables['faq_padrao'] = $faq;
+      $faq_paras = [];
+      if ($faq->hasField('field_faq_itens') && !$faq->get('field_faq_itens')->isEmpty()) {
+        foreach ($faq->get('field_faq_itens') as $item) {
+          $para = $item->entity;
+          if (!$para) {
+            continue;
+          }
+          $pergunta = '';
+          $resposta = '';
+          if ($para->hasField('field_pergunta') && !$para->get('field_pergunta')->isEmpty()) {
+            $pergunta = trim((string) $para->get('field_pergunta')->value);
+          }
+          if ($para->hasField('field_resposta') && !$para->get('field_resposta')->isEmpty()) {
+            $resposta = trim((string) $para->get('field_resposta')->value);
+          }
+          if ($pergunta !== '' && $resposta !== '') {
+            $faq_paras[] = $para;
+          }
+        }
+      }
+      $variables['faq_paras'] = $faq_paras;
+      $tags = $variables['elements']['#cache']['tags'] ?? [];
+      $variables['elements']['#cache']['tags'] = array_values(array_unique(array_merge(
+        $tags,
+        $faq->getCacheTags()
+      )));
     }
   }
 }

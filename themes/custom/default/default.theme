@@ -267,14 +267,28 @@ function default_preprocess_views_view__banners__block_para_estudantes(array &$v
       }
     }
 
+    // ?v=mtime: files públicos saem com cache de 1 ano. Sem isto o navegador
+    // continua no placeholder 1200×433 mesmo com o hero.png já restaurado.
     $slides[] = [
-      'desktop' => $file_url_generator->generateString($desktop_uri),
-      'mobile' => $file_url_generator->generateString($mobile_uri),
+      'desktop' => _default_banner_file_url($file_url_generator, $desktop_uri),
+      'mobile' => _default_banner_file_url($file_url_generator, $mobile_uri),
       'alt' => (string) ($desktop_item->alt ?? $node->label()),
     ];
   }
 
   $variables['banner_slides'] = $slides;
+}
+
+/**
+ * URL pública do arquivo de banner com versão pela data de modificação.
+ */
+function _default_banner_file_url($file_url_generator, string $uri): string {
+  $url = $file_url_generator->generateString($uri);
+  $real = \Drupal::service('file_system')->realpath($uri);
+  if ($real && is_file($real)) {
+    $url .= (str_contains($url, '?') ? '&' : '?') . 'v=' . filemtime($real);
+  }
+  return $url;
 }
 
 /**

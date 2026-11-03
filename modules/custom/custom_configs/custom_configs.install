@@ -16633,6 +16633,134 @@ function custom_configs_update_11085(): string {
 }
 
 /**
+ * Oportunidades Estudantes: sincroniza ícones Figma (laptop/target/stairs/doc).
+ *
+ * Corrige seed 11085 que copiou ícones navy errados (valores). Idempotente.
+ * Destino: git pull → drush cim -y → drush updb -y → drush cr.
+ */
+function custom_configs_update_11086(): string {
+  return _custom_configs_sync_oportunidades_estudantes_icons();
+}
+
+/**
+ * Copia ícones Figma → public:// e atualiza cards canônicos do bloco Oportunidades.
+ *
+ * Só toca itens com títulos canônicos da grade. Sync quando vazio, filename
+ * icon-N.png / rename, ou bytes em public:// diferem do asset versionado.
+ */
+function _custom_configs_sync_oportunidades_estudantes_icons(): string {
+  $uuid = 'c1d2e3f4-a5b6-4789-c012-3456789abcde';
+  $items_seed = _custom_configs_oportunidades_estudantes_canonical_items();
+  $canonical_titles = array_column($items_seed, 'label');
+
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+  if (!$existing) {
+    return (string) t('Bloco Oportunidades Estudantes (@uuid) ausente — sync de ícones ignorado.', [
+      '@uuid' => $uuid,
+    ]);
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = reset($existing);
+  if (!$block->hasField('field_itens_lista') || $block->get('field_itens_lista')->isEmpty()) {
+    return (string) t('Lista de oportunidades estudantes vazia — sync de ícones ignorado.');
+  }
+
+  $updated = 0;
+  $new_refs = [];
+  $delta = 0;
+  $module_path = \Drupal::service('extension.list.module')->getPath('custom_configs');
+  $file_system = \Drupal::service('file_system');
+
+  foreach ($block->get('field_itens_lista') as $item) {
+    /** @var \Drupal\paragraphs\ParagraphInterface|null $paragraph */
+    $paragraph = $item->entity;
+    $seed = $items_seed[$delta] ?? NULL;
+    $delta++;
+
+    if (!$paragraph || !$paragraph->hasField('field_image') || $seed === NULL) {
+      $new_refs[] = [
+        'target_id' => $item->target_id,
+        'target_revision_id' => $item->target_revision_id,
+      ];
+      continue;
+    }
+
+    $title = trim((string) ($paragraph->get('field_text_simple')->value ?? ''));
+    if ($title === '' || !in_array($title, $canonical_titles, TRUE)) {
+      $new_refs[] = [
+        'target_id' => $paragraph->id(),
+        'target_revision_id' => $paragraph->getRevisionId(),
+      ];
+      continue;
+    }
+
+    $canonical_uri = 'public://oportunidades-estudantes/' . $seed['file'];
+    $asset_relative = 'oportunidades-estudantes/' . $seed['file'];
+    $asset_source = DRUPAL_ROOT . '/' . $module_path . '/assets/' . $asset_relative;
+
+    $needs_sync = $paragraph->get('field_image')->isEmpty();
+    if (!$needs_sync) {
+      $file_entity = $paragraph->get('field_image')->entity;
+      $uri = $file_entity ? (string) $file_entity->getFileUri() : '';
+      $filename = $uri !== '' ? basename($uri) : '';
+      // Seed errado (navy valores), canônico icon-N, ou rename Drupal.
+      $is_seed_like = (bool) preg_match('/^icon-[1-4](_\d+)?\.png$/i', $filename);
+      if ($is_seed_like && is_readable($asset_source)) {
+        $same_path = ($uri === $canonical_uri);
+        $public_realpath = $same_path ? $file_system->realpath($uri) : FALSE;
+        $same_bytes = is_string($public_realpath)
+          && is_readable($public_realpath)
+          && md5_file($asset_source) === md5_file($public_realpath);
+        if (!$same_bytes || !$same_path) {
+          $needs_sync = TRUE;
+        }
+      }
+      elseif ($uri === '' || !$is_seed_like) {
+        // Editorial com outro filename: preservar.
+        $needs_sync = FALSE;
+      }
+    }
+
+    if ($needs_sync && is_readable($asset_source)) {
+      $file = _custom_configs_seed_file_from_module_asset(
+        $asset_relative,
+        $canonical_uri,
+        'paragraph',
+        (int) $paragraph->id()
+      );
+      if ($file) {
+        $paragraph->set('field_image', [
+          'target_id' => $file->id(),
+          'alt' => $title !== '' ? $title : $seed['label'],
+        ]);
+        $paragraph->save();
+        $updated++;
+        $new_refs[] = [
+          'target_id' => $paragraph->id(),
+          'target_revision_id' => $paragraph->getRevisionId(),
+        ];
+        continue;
+      }
+    }
+
+    $new_refs[] = [
+      'target_id' => $paragraph->id(),
+      'target_revision_id' => $paragraph->getRevisionId(),
+    ];
+  }
+
+  if ($updated > 0) {
+    $block->set('field_itens_lista', $new_refs);
+    $block->save();
+    return (string) t('@count ícone(s) Figma Oportunidades sincronizado(s).', ['@count' => $updated]);
+  }
+
+  return (string) t('Ícones Oportunidades Estudantes já canônicos — sync no-op.');
+}
+
+/**
  * Ensure block type oportunidades_estudantes + fields/displays (reusa storages).
  */
 function _custom_configs_ensure_oportunidades_estudantes_structure(): string {

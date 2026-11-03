@@ -6949,21 +6949,40 @@ function _custom_configs_seed_banner_para_estudantes(): string {
   if ($by_uuid) {
     /** @var \Drupal\node\NodeInterface $node */
     $node = reset($by_uuid);
-    if ($node->hasField('field_imagem_desktop') && $node->get('field_imagem_desktop')->isEmpty()) {
+    $desktop_empty = $node->hasField('field_imagem_desktop') && $node->get('field_imagem_desktop')->isEmpty();
+    $needs_canonical_image = $desktop_empty;
+    if (!$desktop_empty && $node->hasField('field_imagem_desktop')) {
+      $current = $node->get('field_imagem_desktop')->entity;
+      $filename = $current ? (string) $current->getFilename() : '';
+      // Placeholder PE colado no seed PE por engano — faixa sólida, não a arte do hero.
+      if ($filename !== '' && str_contains($filename, 'para-empresas-placeholder')) {
+        $needs_canonical_image = TRUE;
+      }
+    }
+    if ($needs_canonical_image) {
       $file = _custom_configs_seed_file_from_module_asset($asset, $dest, 'node', (int) $node->id());
       if ($file) {
         $node->set('field_imagem_desktop', [
           'target_id' => $file->id(),
           'alt' => $alt,
         ]);
-        if ($node->hasField('field_imagem_mobile') && $node->get('field_imagem_mobile')->isEmpty()) {
-          $node->set('field_imagem_mobile', [
-            'target_id' => $file->id(),
-            'alt' => $alt,
-          ]);
+        if ($node->hasField('field_imagem_mobile')) {
+          $mobile_empty = $node->get('field_imagem_mobile')->isEmpty();
+          $mobile_is_placeholder = FALSE;
+          if (!$mobile_empty) {
+            $mobile_file = $node->get('field_imagem_mobile')->entity;
+            $mobile_name = $mobile_file ? (string) $mobile_file->getFilename() : '';
+            $mobile_is_placeholder = $mobile_name !== '' && str_contains($mobile_name, 'para-empresas-placeholder');
+          }
+          if ($mobile_empty || $mobile_is_placeholder) {
+            $node->set('field_imagem_mobile', [
+              'target_id' => $file->id(),
+              'alt' => $alt,
+            ]);
+          }
         }
         $node->save();
-        return (string) t('Imagem seed anexada ao banner Para Estudantes (@uuid).', ['@uuid' => $uuid]);
+        return (string) t('Imagem canônica anexada ao banner Para Estudantes (@uuid).', ['@uuid' => $uuid]);
       }
       return (string) t('Banner Para Estudantes (@uuid) existe sem imagem — asset ausente.', ['@uuid' => $uuid]);
     }
@@ -7664,12 +7683,16 @@ function _custom_configs_seed_beneficios_estudantes(): string {
   $existing = $storage->loadByProperties(['uuid' => $uuid]);
 
   $items_seed = _custom_configs_beneficios_estudantes_canonical_items();
-  $badge_seed = 'BENEFÍCIOS PARA ESTUDANTES';
+  $badge_seed = 'Benefícios para Estudantes';
+  $badge_canonical_equivalents = [
+    'Benefícios para Estudantes',
+    'BENEFÍCIOS PARA ESTUDANTES',
+  ];
   $title_seed = 'Muito mais do que encontrar um estágio.';
   $subtitle_seed = 'Na Eu Sou Estágio você se desenvolve, recebe apoio e constrói uma carreira com mais segurança e propósito.';
   $cta_title_seed = 'Cadastre-se gratuitamente';
   $cta_uri_seed = 'internal:/cadastro/candidato';
-  // Título/subtítulo das 4 cards (022/053) — migrar para copy Figma 054.
+  // Título/subtítulo das 4 cards (022/053) — migrar para copy Figma 055.
   $legacy_titles = [
     'Encontre oportunidades que combinam com você.',
   ];
@@ -7706,7 +7729,10 @@ function _custom_configs_seed_beneficios_estudantes(): string {
       if ($current_badge === '') {
         $block->set('field_text_simple_2', $badge_seed);
         $changed = TRUE;
-        $messages[] = (string) t('Badge canônico 054 aplicado.');
+        $messages[] = (string) t('Badge canônico 055 aplicado.');
+      }
+      elseif (!in_array($current_badge, $badge_canonical_equivalents, TRUE)) {
+        // Editorial divergente: preservar.
       }
     }
 
@@ -7716,7 +7742,7 @@ function _custom_configs_seed_beneficios_estudantes(): string {
         if ($current_title !== $title_seed) {
           $block->set('field_text_simple', $title_seed);
           $changed = TRUE;
-          $messages[] = (string) t('Título canônico 054 aplicado.');
+          $messages[] = (string) t('Título canônico 055 aplicado.');
         }
       }
     }
@@ -7727,7 +7753,7 @@ function _custom_configs_seed_beneficios_estudantes(): string {
         if ($current_sub !== $subtitle_seed) {
           $block->set('field_text_simple_long', $subtitle_seed);
           $changed = TRUE;
-          $messages[] = (string) t('Subtítulo canônico 054 aplicado.');
+          $messages[] = (string) t('Subtítulo canônico 055 aplicado.');
         }
       }
     }
@@ -7738,7 +7764,7 @@ function _custom_configs_seed_beneficios_estudantes(): string {
         'title' => $cta_title_seed,
       ]);
       $changed = TRUE;
-      $messages[] = (string) t('CTA canônico 054 aplicado.');
+      $messages[] = (string) t('CTA canônico 055 aplicado.');
     }
 
     if ($block->hasField('field_itens_lista')) {
@@ -7775,7 +7801,7 @@ function _custom_configs_seed_beneficios_estudantes(): string {
         if ($paragraphs !== []) {
           $block->set('field_itens_lista', $paragraphs);
           $changed = TRUE;
-          $messages[] = (string) t('@count itens canônicos 054 anexados.', ['@count' => count($paragraphs)]);
+          $messages[] = (string) t('@count itens canônicos 055 anexados.', ['@count' => count($paragraphs)]);
         }
       }
       else {
@@ -7792,19 +7818,14 @@ function _custom_configs_seed_beneficios_estudantes(): string {
         $block->save();
         $changed = FALSE;
       }
-      $collage = _custom_configs_seed_file_from_module_asset(
-        'beneficios-estudantes/collage.png',
-        'public://beneficios-estudantes/collage.png',
-        'block_content',
-        (int) $block->id()
-      );
+      $collage = _custom_configs_seed_beneficios_estudantes_center_image((int) $block->id());
       if ($collage) {
         $block->set('field_image', [
           'target_id' => $collage->id(),
           'alt' => $badge_seed,
         ]);
         $changed = TRUE;
-        $messages[] = (string) t('Colagem canônica 054 aplicada.');
+        $messages[] = (string) t('Foto central da órbita 055 aplicada.');
       }
     }
 
@@ -7813,7 +7834,7 @@ function _custom_configs_seed_beneficios_estudantes(): string {
     }
 
     if (!$messages) {
-      $messages[] = (string) t('Bloco Benefícios Estudantes (@uuid) já canônico 054 — seed no-op.', ['@uuid' => $uuid]);
+      $messages[] = (string) t('Bloco Benefícios Estudantes (@uuid) já canônico 055 — seed no-op.', ['@uuid' => $uuid]);
     }
     return implode(' ', $messages);
   }
@@ -7837,12 +7858,7 @@ function _custom_configs_seed_beneficios_estudantes(): string {
   ]);
   $block->save();
 
-  $collage = _custom_configs_seed_file_from_module_asset(
-    'beneficios-estudantes/collage.png',
-    'public://beneficios-estudantes/collage.png',
-    'block_content',
-    (int) $block->id()
-  );
+  $collage = _custom_configs_seed_beneficios_estudantes_center_image((int) $block->id());
   if ($collage && $block->hasField('field_image')) {
     $block->set('field_image', [
       'target_id' => $collage->id(),
@@ -7851,14 +7867,99 @@ function _custom_configs_seed_beneficios_estudantes(): string {
     $block->save();
   }
 
-  return (string) t('Bloco Benefícios Estudantes seed criado (@uuid) com @count itens 054.', [
+  return (string) t('Bloco Benefícios Estudantes seed criado (@uuid) com @count itens 055.', [
     '@uuid' => $uuid,
     '@count' => count($paragraphs),
   ]);
 }
 
 /**
- * Itens canônicos (6) para Benefícios Estudantes — Figma feature 054.
+ * Seed da imagem principal da seção (collage.png composta; fallback centro).
+ */
+function _custom_configs_seed_beneficios_estudantes_center_image(int $block_id): ?\Drupal\file\FileInterface {
+  $candidates = [
+    [
+      'asset' => 'beneficios-estudantes/collage.png',
+      'uri' => 'public://beneficios-estudantes/collage.png',
+    ],
+    [
+      'asset' => 'beneficios-estudantes/collage-center.png',
+      'uri' => 'public://beneficios-estudantes/collage-center.png',
+    ],
+  ];
+  foreach ($candidates as $candidate) {
+    $file = _custom_configs_seed_file_from_module_asset(
+      $candidate['asset'],
+      $candidate['uri'],
+      'block_content',
+      $block_id
+    );
+    if ($file) {
+      return $file;
+    }
+  }
+  return NULL;
+}
+
+/**
+ * Copia faces da órbita Benefícios Estudantes para public:// (idempotente).
+ *
+ * Não cria fields CMS — satélites são arte de seed consumida pelo Twig.
+ */
+function _custom_configs_sync_beneficios_estudantes_orbit_assets(): string {
+  $filenames = [
+    'collage-center.png',
+    'collage-sat-1.png',
+    'collage-sat-2.png',
+    'collage-sat-3.png',
+    'collage-sat-4.png',
+    'collage-sat-5.png',
+    'collage.png',
+  ];
+
+  $module_path = \Drupal::service('extension.list.module')->getPath('custom_configs');
+  /** @var \Drupal\Core\File\FileSystemInterface $fs */
+  $fs = \Drupal::service('file_system');
+  $directory = 'public://beneficios-estudantes';
+  $fs->prepareDirectory($directory, \Drupal\Core\File\FileSystemInterface::CREATE_DIRECTORY | \Drupal\Core\File\FileSystemInterface::MODIFY_PERMISSIONS);
+
+  $copied = 0;
+  $missing = 0;
+  foreach ($filenames as $filename) {
+    $source = DRUPAL_ROOT . '/' . $module_path . '/assets/beneficios-estudantes/' . $filename;
+    if (!is_readable($source)) {
+      $missing++;
+      continue;
+    }
+    $destination = $directory . '/' . $filename;
+    $dest_realpath = $fs->realpath($destination);
+    $needs_copy = TRUE;
+    if ($dest_realpath && is_readable($dest_realpath)) {
+      $src_hash = md5_file($source);
+      $dst_hash = md5_file($dest_realpath);
+      if ($src_hash !== FALSE && $src_hash === $dst_hash) {
+        $needs_copy = FALSE;
+      }
+    }
+    if ($needs_copy) {
+      $fs->copy($source, $destination, \Drupal\Core\File\FileExists::Replace);
+      $copied++;
+    }
+  }
+
+  if ($copied === 0 && $missing === 0) {
+    return (string) t('Assets da órbita Benefícios Estudantes já sincronizados.');
+  }
+  if ($copied > 0) {
+    return (string) t('@count asset(s) da órbita Benefícios Estudantes sincronizado(s).', [
+      '@count' => $copied,
+    ]);
+  }
+  return (string) t('Nenhum asset da órbita Benefícios Estudantes disponível no módulo.');
+}
+
+/**
+ * Itens canônicos (6) para Benefícios Estudantes — Figma feature 055 / 054.
  *
  * @return array<int, array{label: string, text: string, file: string}>
  */
@@ -16458,6 +16559,7 @@ function custom_configs_update_11080(): string {
  * Reaplica seed/migração 4→6 após rollback 11079/11080; ensure fields/displays;
  * fill-if-empty badge/CTA/colagem; placement ativo. Idempotente.
  * Destino: git pull → drush cim -y → drush updb -y → drush cim -y → drush cr.
+ * Forward path 055 (órbita estruturada + fundo/cards): custom_configs_update_11082.
  */
 function custom_configs_update_11081(): string {
   $messages = [
@@ -16466,6 +16568,130 @@ function custom_configs_update_11081(): string {
     _custom_configs_ensure_beneficios_estudantes_placement(),
   ];
   return implode(' ', array_filter($messages));
+}
+
+/**
+ * Feature 055: restaura Benefícios Estudantes — órbita Figma + seed/placement.
+ *
+ * Ensure structure → seed/migração 4→6 / recreate UUID → sync faces da órbita
+ * → ensure placement ativo. Idempotente; não sobrescreve editorial divergente.
+ * Destino: git pull → drush cim -y → drush updb -y → drush cim -y → drush cr.
+ */
+function custom_configs_update_11082(): string {
+  $messages = [
+    _custom_configs_ensure_beneficios_estudantes_structure(),
+    _custom_configs_seed_beneficios_estudantes(),
+    _custom_configs_sync_beneficios_estudantes_orbit_assets(),
+    _custom_configs_sync_beneficios_estudantes_collage(),
+    _custom_configs_ensure_beneficios_estudantes_placement(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Corrige banner Para Estudantes com placeholder PE no lugar do hero canônico.
+ *
+ * Idempotente: só troca imagem quando vazia ou filename contém
+ * para-empresas-placeholder. Não sobrescreve arte editorial divergente.
+ * Destino: git pull → drush cim -y → drush updb -y → drush cr.
+ */
+function custom_configs_update_11083(): string {
+  return _custom_configs_seed_banner_para_estudantes();
+}
+
+/**
+ * Benefícios Estudantes: força field_image na colagem composta Figma (collage.png).
+ *
+ * Idempotente; migra seed collage-center.png → collage.png. Destino:
+ * git pull → drush cim -y → drush updb -y → drush cr.
+ */
+function custom_configs_update_11084(): string {
+  return _custom_configs_sync_beneficios_estudantes_collage();
+}
+
+/**
+ * Copia a colagem composta canônica → public:// e anexa em field_image.
+ *
+ * A arte Figma anexada (collage.png) é a imagem principal da seção. Só toca
+ * campo vazio ou arquivo seed (collage.png / collage-center.png / rename).
+ * Upload editorial com outro filename permanece intocado.
+ */
+function _custom_configs_sync_beneficios_estudantes_collage(): string {
+  $uuid = 'a8b9c0d1-e2f3-4456-a789-0bcdef123456';
+  $canonical_uri = 'public://beneficios-estudantes/collage.png';
+  $asset_relative = 'beneficios-estudantes/collage.png';
+  $alt_seed = 'BENEFÍCIOS PARA ESTUDANTES';
+
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+  if (!$existing) {
+    return (string) t('Bloco Benefícios Estudantes (@uuid) ausente — sync de colagem ignorado.', [
+      '@uuid' => $uuid,
+    ]);
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = reset($existing);
+  if (!$block->hasField('field_image')) {
+    return (string) t('Campo field_image ausente no bloco Benefícios Estudantes — rode drush cim -y.');
+  }
+
+  $module_path = \Drupal::service('extension.list.module')->getPath('custom_configs');
+  $asset_source = DRUPAL_ROOT . '/' . $module_path . '/assets/' . $asset_relative;
+  if (!is_readable($asset_source)) {
+    return (string) t('Asset @path ausente — sync de colagem ignorado.', [
+      '@path' => $asset_relative,
+    ]);
+  }
+
+  $needs_sync = $block->get('field_image')->isEmpty();
+  if (!$needs_sync) {
+    $file_entity = $block->get('field_image')->entity;
+    $uri = $file_entity ? (string) $file_entity->getFileUri() : '';
+    $filename = $uri !== '' ? basename($uri) : '';
+    // Seed: composta, centro legado da órbita, ou rename Drupal.
+    $is_seed = (bool) preg_match('/^collage(-center)?(_\d+)?\.png$/i', $filename);
+    if (!$is_seed) {
+      return (string) t('Colagem editorial divergente — sync de colagem no-op.');
+    }
+
+    $same_path = ($uri === $canonical_uri);
+    $public_realpath = $same_path
+      ? \Drupal::service('file_system')->realpath($uri)
+      : FALSE;
+    $same_bytes = is_string($public_realpath)
+      && is_readable($public_realpath)
+      && md5_file($asset_source) === md5_file($public_realpath);
+    if (!$same_bytes || !$same_path) {
+      $needs_sync = TRUE;
+    }
+  }
+
+  if (!$needs_sync) {
+    return (string) t('Colagem Benefícios Estudantes já canônica — sync no-op.');
+  }
+
+  $file = _custom_configs_seed_file_from_module_asset(
+    $asset_relative,
+    $canonical_uri,
+    'block_content',
+    (int) $block->id()
+  );
+  if (!$file) {
+    return (string) t('Falha ao copiar colagem canônica para public://.');
+  }
+
+  $current_target = (int) ($block->get('field_image')->target_id ?? 0);
+  $current_alt = trim((string) ($block->get('field_image')->alt ?? ''));
+  if ($current_target !== (int) $file->id() || $current_alt === '') {
+    $block->set('field_image', [
+      'target_id' => $file->id(),
+      'alt' => $current_alt !== '' ? $current_alt : $alt_seed,
+    ]);
+    $block->save();
+  }
+
+  return (string) t('Colagem composta canônica Benefícios Estudantes sincronizada.');
 }
 
 /**

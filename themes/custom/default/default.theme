@@ -658,6 +658,12 @@ function default_preprocess_block(array &$variables): void {
   if (!$content instanceof \Drupal\block_content\BlockContentInterface) {
     return;
   }
+
+  if ($content->bundle() === 'beneficios_estudantes') {
+    _default_theme_preprocess_beneficios_estudantes_orbit($variables);
+    return;
+  }
+
   if ($content->bundle() !== 'como_funciona_bt') {
     return;
   }
@@ -666,6 +672,45 @@ function default_preprocess_block(array &$variables): void {
   // Fallbacks alinhados a default.breakpoints.yml se o grupo não estiver disponível.
   $variables['cf_media_mobile'] = $map['default.mobile'] ?? '(max-width: 767.98px)';
   $variables['cf_media_desktop'] = $map['default.desktop'] ?? '(min-width: 768px)';
+}
+
+/**
+ * Expõe URLs públicas da órbita Benefícios Estudantes (feature 055).
+ *
+ * Preferência: arte composta versionada `collage.png` (Figma — anel, rostos,
+ * thumbs-up). Twig usa `<img class="be-collage__img">` via field_image.
+ * Órbita CSS (centro + satélites) só se a composta estiver ausente.
+ */
+function _default_theme_preprocess_beneficios_estudantes_orbit(array &$variables): void {
+  $variables['be_orbit_ready'] = FALSE;
+  $variables['be_orbit_center'] = '';
+  $variables['be_orbit_sats'] = [];
+
+  // Arte composta canônica (anexo Figma) — entrega visual fiel; não montar órbita.
+  $composite_uri = 'public://beneficios-estudantes/collage.png';
+  $composite_path = \Drupal::service('file_system')->realpath($composite_uri);
+  if ($composite_path && is_readable($composite_path) && filesize($composite_path) > 1024) {
+    return;
+  }
+
+  $sats = [];
+  for ($i = 1; $i <= 5; $i++) {
+    $uri = 'public://beneficios-estudantes/collage-sat-' . $i . '.png';
+    $path = \Drupal::service('file_system')->realpath($uri);
+    if (!$path || !is_readable($path)) {
+      return;
+    }
+    $sats[$i] = \Drupal::service('file_url_generator')->generateString($uri);
+  }
+
+  $center_uri = 'public://beneficios-estudantes/collage-center.png';
+  $center_path = \Drupal::service('file_system')->realpath($center_uri);
+  if ($center_path && is_readable($center_path)) {
+    $variables['be_orbit_center'] = \Drupal::service('file_url_generator')->generateString($center_uri);
+  }
+
+  $variables['be_orbit_sats'] = $sats;
+  $variables['be_orbit_ready'] = TRUE;
 }
 
 /**

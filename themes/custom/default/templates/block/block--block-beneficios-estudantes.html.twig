@@ -4,7 +4,7 @@
  * Bloco Benefícios Estudantes (bundle beneficios_estudantes).
  *
  * Suggestion Barrio: block__block_beneficios_estudantes.
- * Layout Figma 054: split (conteúdo + colagem), badge, 6 itens, CTA.
+ * Layout Figma 055: fundo #eef5ff, título bicolor, 6 cards, CTA + órbita.
  */
 #}
 {{ attach_library('default/beneficios_estudantes') }}
@@ -19,12 +19,17 @@
 {% set badge = content.field_text_simple_2|render|striptags|trim %}
 {% set title = content.field_text_simple|render|striptags|trim %}
 {% set subtitle = content.field_text_simple_long|render|striptags|trim %}
+{% set title_canonical = 'Muito mais do que encontrar um estágio.' %}
+{% set title_is_canonical = title == title_canonical %}
 {% set item_items = content.field_itens_lista['#items']|default([]) %}
 {% set has_items = item_items is iterable and item_items|length > 0 %}
 {% set cta_item = content.field_link['#items'][0]|default(null) %}
 {% set cta_uri = cta_item ? cta_item.uri|default('') : '' %}
 {% set has_cta = cta_uri is not empty %}
 {% set has_collage = content.field_image['#items'] is defined and content.field_image['#items'][0] is defined and content.field_image['#items'][0].entity.uri.value is defined %}
+{% set be_orbit_ready = be_orbit_ready|default(false) %}
+{% set be_orbit_sats = be_orbit_sats|default([]) %}
+{% set has_visual = be_orbit_ready or has_collage %}
 
 <section{{ attributes.addClass(classes).setAttribute('id', 'beneficios-estudantes') }}>
   {{ title_prefix }}{{ title_suffix }}
@@ -32,14 +37,20 @@
     <div{{ content_attributes.addClass('content') }}>
       <div class="container py-5">
         <div class="be-split row align-items-center g-4 g-lg-5">
-          <div class="be-split__content col-12 col-lg-6">
+          <div class="be-split__content col-12{% if has_visual %} col-lg-6{% endif %}">
             {% if badge or title or subtitle %}
               <header class="be-header text-start">
                 {% if badge %}
                   <p class="be-header__badge">{{ badge }}</p>
                 {% endif %}
                 {% if title %}
-                  <h2 class="be-header__title">{{ title }}</h2>
+                  {% if title_is_canonical %}
+                    <h2 class="be-header__title">
+                      <span class="be-header__title-part be-header__title-part--dark">Muito mais do que</span><span class="be-header__title-part be-header__title-part--blue"> encontrar um estágio.</span>
+                    </h2>
+                  {% else %}
+                    <h2 class="be-header__title">{{ title }}</h2>
+                  {% endif %}
                 {% endif %}
                 {% if subtitle %}
                   <p class="be-header__subtitle">{{ subtitle }}</p>
@@ -48,7 +59,7 @@
             {% endif %}
 
             {% if has_items %}
-              <div class="row be-grid">
+              <div class="row be-grid g-3">
                 {% for key, item in item_items %}
                   {{ content.field_itens_lista[key] }}
                 {% endfor %}
@@ -57,18 +68,47 @@
 
             {% if has_cta %}
               <div class="be-cta">
-                <a class="be-cta__btn" href="{{ cta_item.getUrl().toString() }}">{{ cta_item.title }}</a>
+                <a class="be-cta__btn" href="{{ cta_item.getUrl().toString() }}">
+                  <span class="be-cta__label">{{ cta_item.title }}</span>
+                  <span class="be-cta__arrow" aria-hidden="true"></span>
+                </a>
               </div>
             {% endif %}
           </div>
 
-          {% if has_collage %}
-            {% set collage_uri = content.field_image['#items'][0].entity.uri.value %}
-            {% set collage_alt = content.field_image['#items'][0].alt|default(title)|default('Benefícios para estudantes'|t) %}
+          {% if has_visual %}
             <div class="be-split__visual col-12 col-lg-6">
-              <div class="be-collage">
-                <img class="be-collage__img img-fluid" src="{{ file_url(collage_uri) }}" alt="{{ collage_alt }}" loading="lazy">
-              </div>
+              {% if be_orbit_ready %}
+                {% set collage_alt = title|default('Benefícios para estudantes'|t) %}
+                {% if has_collage %}
+                  {% set collage_uri = content.field_image['#items'][0].entity.uri.value %}
+                  {% set collage_alt = content.field_image['#items'][0].alt|default(collage_alt) %}
+                  {% set center_src = file_url(collage_uri) %}
+                {% else %}
+                  {% set center_src = be_orbit_center|default('') %}
+                {% endif %}
+                <div class="be-collage" role="img" aria-label="{{ collage_alt }}">
+                  <div class="be-collage__ring" aria-hidden="true"></div>
+                  {% if center_src %}
+                    <div class="be-collage__center">
+                      <img src="{{ center_src }}" alt="" loading="lazy" width="200" height="200">
+                    </div>
+                  {% endif %}
+                  {% for i in 1..5 %}
+                    {% if be_orbit_sats[i] is defined and be_orbit_sats[i] %}
+                      <div class="be-collage__sat be-collage__sat--{{ i }}" aria-hidden="true">
+                        <img src="{{ be_orbit_sats[i] }}" alt="" loading="lazy" width="96" height="96">
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              {% elseif has_collage %}
+                {% set collage_uri = content.field_image['#items'][0].entity.uri.value %}
+                {% set collage_alt = content.field_image['#items'][0].alt|default(title)|default('Benefícios para estudantes'|t) %}
+                <div class="be-collage">
+                  <img class="be-collage__img img-fluid" src="{{ file_url(collage_uri) }}" alt="{{ collage_alt }}" loading="lazy">
+                </div>
+              {% endif %}
             </div>
           {% endif %}
         </div>

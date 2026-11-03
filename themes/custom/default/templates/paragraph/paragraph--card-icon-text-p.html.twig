@@ -3,7 +3,7 @@
  * @file
  * Paragraph Card Ícone e Texto (card_icon_text_p).
  *
- * Usado pelo bloco beneficios_estudantes — lista 1/2 colunas (feature 054).
+ * Usado pelo bloco beneficios_estudantes — cards brancos 1/2 colunas (feature 055).
  */
 #}
 {%
@@ -13,7 +13,7 @@
     view_mode ? 'paragraph--view-mode--' ~ view_mode|clean_class,
     'col-12',
     'col-md-6',
-    'mb-4',
+    'mb-0',
   ]
 %}
 {% set card_title = content.field_text_simple|render|striptags|trim %}
@@ -22,7 +22,7 @@
 
 {% if has_icon or card_title or card_text %}
   <div{{ attributes.addClass(classes) }}>
-    <div class="be-item d-flex align-items-start gap-3 text-start h-100">
+    <div class="be-item be-item--card d-flex align-items-start gap-3 text-start h-100">
       {% if has_icon %}
         {% set icon_uri = content.field_image['#items'][0].entity.uri.value %}
         {% set icon_alt = content.field_image['#items'][0].alt|default(card_title) %}

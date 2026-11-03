@@ -180,7 +180,24 @@
       }
     }
 
-    goTo(0, true);
+    /**
+     * Desktop (≥992px, ~3 cards): inicia no 2º item para o centro ser a
+     * bullet 2 com 1º e 3º reais nas laterais (sem clone à esquerda).
+     * Mobile (1 card): inicia no 1º. Sempre permite ir ao 1º e ao último.
+     *
+     * @returns {number}
+     */
+    function initialIndex() {
+      if (n < 3) {
+        return 0;
+      }
+      if (window.matchMedia('(min-width: 992px)').matches) {
+        return 1;
+      }
+      return 0;
+    }
+
+    goTo(initialIndex(), true);
 
     dots.forEach(function (dot) {
       dot.addEventListener('click', function () {
@@ -188,14 +205,8 @@
           return;
         }
         var idx = parseInt(dot.getAttribute('data-index') || '0', 10);
-        if (loop && active === n - 1 && idx === 0) {
-          wrap('next');
-          return;
-        }
-        if (loop && active === 0 && idx === n - 1) {
-          wrap('prev');
-          return;
-        }
+        // Clique direto em bullet: ir ao índice (sem wrap) para 1º/último
+        // funcionarem de imediato no desktop center-mode.
         goTo(idx, false);
       });
     });
@@ -208,6 +219,10 @@
       'pointerdown',
       function (e) {
         if (e.pointerType === 'mouse' && e.button !== 0) {
+          return;
+        }
+        // Não capturar ponteiro nos dots — evita engolir o click no desktop.
+        if (e.target && e.target.closest && e.target.closest('[data-carousel-dot]')) {
           return;
         }
         tracking = true;

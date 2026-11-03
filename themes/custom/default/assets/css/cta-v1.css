@@ -115,4 +115,10 @@
   .block-cta-v1 .cta-v1__btn {
     width: 100%;
   }
+
+  /* Feature 052: respiro lateral só no CTA PE (não altera Quem Somos). */
+  .block-cta-v1--para-empresas .cta-v1,
+  #block-default-ctav1paraempresas.block-cta-v1 .cta-v1 {
+    margin-inline: 1.5rem;
+  }
 }

@@ -11,10 +11,11 @@
   </IfModule>
 </FilesMatch>
 
-# Nega vendor/ (bins sem extensão como vendor/bin/drush) e reforça bloqueio de *.sh.
+# Nega Composer vendor/ (ex.: vendor/bin/drush); permite core/assets/vendor (JS público do Drupal).
+# Reforça bloqueio de *.sh.
 <IfModule mod_rewrite.c>
   RewriteEngine on
-  RewriteRule (?i)^(?:.+/)?vendor(?:/|$) - [F]
+  RewriteRule (?i)^(?!core/assets/)(?:.+/)?vendor(?:/|$) - [F]
   RewriteRule (?i)\.sh$ - [F]
 </IfModule>
 # END eusouestagio-security

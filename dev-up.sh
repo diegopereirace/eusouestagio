@@ -89,13 +89,12 @@ if ! docker compose exec -T drupal bash /var/www/html/vendor/bin/drush --root=/v
   echo "Aviso: drush cr falhou (site pode ainda estar inicializando)."
 fi
 
-PORT="$(grep -E '^\s*DRUPAL_HTTPS_PORT\s*=' .env 2>/dev/null | tail -n1 | cut -d= -f2 | tr -d '[:space:]')"
+PORT="$(grep -E '^\s*DRUPAL_HTTP_PORT\s*=' .env 2>/dev/null | tail -n1 | cut -d= -f2 | tr -d '[:space:]')"
 PORT="${PORT:-8082}"
-SITE_URL="https://localhost:${PORT}/"
+SITE_URL="http://localhost:${PORT}/"
 
 printf '\nPronto.\n'
 printf 'Site: %s\n' "$SITE_URL"
-echo "Certificado: Avancado -> Continuar para localhost"
 echo "CAPTCHA: desligado neste ambiente local"
 echo
 echo "Parar: ./dev-down.sh"

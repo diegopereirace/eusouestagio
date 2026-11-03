@@ -12,10 +12,8 @@ SUBIR O SITE (primeira vez e dias seguintes)
   2. De duplo clique em:  dev-up.bat
   3. Espere a mensagem "Pronto."
   4. Abra no Chrome/Edge:
-     https://localhost:8082
-  5. Se o navegador avisar de certificado inseguro:
-     Avancado -> Continuar / Prosseguir para localhost
-     (e normal no ambiente local)
+     http://localhost:8082
+     (ou use "Open with browser" no container Drupal do Docker Desktop)
 
 PARAR O SITE
   Duplo clique em:  dev-down.bat

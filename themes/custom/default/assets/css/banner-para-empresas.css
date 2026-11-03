@@ -1,17 +1,18 @@
 /**
  * Banner Para Empresas — carrossel full-bleed + CTAs em overlay.
  * Tokens locais sob .banner-para-empresas-wrapper (não muta --brand-orange).
+ * Feature 052: path-para-empresas (pós-11028); CTAs mobile @ 767.98px.
  */
 
 /* Barrio region--full-width: outer full-width + inner .container. */
-body.node--type-para-empresas .region-wrapper-banner.full-width > .container {
+body.path-para-empresas .region-wrapper-banner.full-width > .container {
 	max-width: none;
 	width: 100%;
 	padding-inline: 0;
 }
 
-body.node--type-para-empresas .banner > .region-banner,
-body.node--type-para-empresas .banner .region-wrapper-banner {
+body.path-para-empresas .banner > .region-banner,
+body.path-para-empresas .banner .region-wrapper-banner {
 	width: 100%;
 	max-width: none;
 }
@@ -201,17 +202,10 @@ body.node--type-para-empresas .banner .region-wrapper-banner {
 	background-color: #e66e12;
 }
 
+/* Tablet intermediário: aspect do slide; CTAs ainda em overlay (≥768px). */
 @media (max-width: 991.98px) {
 	.banner-para-empresas-wrapper .banner-para-empresas__img {
 		aspect-ratio: 16 / 10;
-	}
-
-	.banner-para-empresas-wrapper .banner-para-empresas__ctas {
-		position: static;
-		margin-top: 1rem;
-		padding-inline: 1rem;
-		max-width: 100%;
-		pointer-events: auto;
 	}
 
 	.banner-para-empresas-wrapper .carousel-control-prev,
@@ -229,5 +223,37 @@ body.node--type-para-empresas .banner .region-wrapper-banner {
 	.banner-para-empresas-wrapper .carousel-indicators {
 		right: 0.75rem;
 		bottom: 0.75rem;
+	}
+}
+
+/* Mobile / Figma: CTAs fora do overlay com larguras iguais. */
+@media (max-width: 767.98px) {
+	.banner-para-empresas-wrapper .banner-para-empresas__ctas {
+		position: static;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		width: 100%;
+		margin-top: 1rem;
+		padding-inline: 1rem;
+		max-width: 100%;
+		pointer-events: auto;
+	}
+
+	.banner-para-empresas-wrapper .banner-para-empresas__ctas > a {
+		flex: 1 1 0;
+		min-width: 0;
+		text-align: center;
+	}
+
+	/* Viewports muito estreitos: empilha com largura plena igual. */
+	.banner-para-empresas-wrapper .banner-para-empresas__ctas > a {
+		flex-basis: calc(50% - 0.375rem);
+	}
+
+	@media (max-width: 379.98px) {
+		.banner-para-empresas-wrapper .banner-para-empresas__ctas > a {
+			flex: 1 1 100%;
+		}
 	}
 }

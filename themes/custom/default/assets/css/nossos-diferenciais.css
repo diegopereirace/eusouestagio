@@ -29,7 +29,7 @@
 }
 
 .block-nossos-diferenciais .nd-header__subtitle {
-  color: #4a5d73;
+  color: #4E4E4E;
   font-weight: 400;
   font-size: 14px;
   line-height: 20px;
@@ -164,7 +164,7 @@
 
 .block-nossos-diferenciais .nd-item__desc {
   margin: 0;
-  color: #4a5d73;
+  color: #4E4E4E;
   font-weight: 400;
   font-size: 0.95rem;
   line-height: 1.55;
@@ -208,6 +208,8 @@
 
   .block-nossos-diferenciais .nd-grid {
     --bs-gutter-x: 3rem;
+    /* Topo imagem ↔ lista (±4px Figma); sobrescreve align-items-center do Twig. */
+    align-items: flex-start;
   }
 
   .block-nossos-diferenciais .nd-media {
@@ -233,13 +235,23 @@
   }
 }
 
-/* Viewport estreita — anel cinza oculto */
-@media (max-width: 575.98px) {
+/* Mobile <768px — sem decos absolutas; fluxo imagem → textos sem overflow-x. */
+@media (max-width: 767.98px) {
+  .block-nossos-diferenciais .nd-media__deco-circle,
+  .block-nossos-diferenciais .nd-media__deco-dot,
   .block-nossos-diferenciais .nd-media__deco-ring {
     display: none;
   }
 
   .block-nossos-diferenciais .nd-media {
-    padding: 4% 2% 8% 4%;
+    padding: 0;
+    margin: 0 0 1.5rem;
+  }
+}
+
+/* Viewport estreita — anel cinza oculto (legado ≤575; redundante com 767.98) */
+@media (max-width: 575.98px) {
+  .block-nossos-diferenciais .nd-media__deco-ring {
+    display: none;
   }
 }

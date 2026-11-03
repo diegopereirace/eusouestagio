@@ -32,16 +32,20 @@ block_breakpoint:
     - core/drupal
     - core/drupalSettings
     - core/once
-banner_carousel:
+# JS init only — reused by PE without home CSS (feature 052).
+banner_carousel_js:
   js:
     assets/js/banner-carousel.js: {}
-  css:
-    component:
-      assets/css/banner-carousel.css: {}
   dependencies:
     - core/drupal
     - core/once
     - default/bootstrap
+banner_carousel:
+  css:
+    component:
+      assets/css/banner-carousel.css: {}
+  dependencies:
+    - default/banner_carousel_js
 banner_quem_somos:
   css:
     component:
@@ -54,6 +58,7 @@ banner_para_empresas:
       assets/css/banner-para-empresas.css: {}
   dependencies:
     - default/bootstrap
+    - default/banner_carousel_js
 banner_para_estudantes:
   css:
     component:

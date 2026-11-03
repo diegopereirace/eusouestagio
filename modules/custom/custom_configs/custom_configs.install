@@ -16041,6 +16041,89 @@ function custom_configs_update_11075(): string {
 }
 
 /**
+ * Feature 052: corrige legado do CTA PE "Falar com Especialista" → "Abrir Vaga".
+ *
+ * Idempotente. Não sobrescreve título editorial divergente do legado conhecido.
+ */
+function custom_configs_update_11076(): string {
+  return _custom_configs_fix_cta_para_empresas_link2_legacy();
+}
+
+/**
+ * Corrige field_link_2 legado do CTA PE (UUID a7b8…0123).
+ *
+ * Só altera quando o título é "Falar com Especialista" (ou vazio com URI
+ * distinta da canônica). Preserva qualquer outro copy editorial.
+ */
+function _custom_configs_fix_cta_para_empresas_link2_legacy(): string {
+  $uuid = 'a7b8c9d0-e1f2-4345-a678-90abcdef0123';
+  $canonical_uri = 'internal:/painel/empresa/vagas/nova';
+  $canonical_title = 'Abrir Vaga';
+  $legacy_titles = ['Falar com Especialista'];
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
+  if (!isset($bundle_info['cta_v1'])) {
+    return (string) t('Bundle cta_v1 ausente — rode drush cim -y antes do updb (feature 052).');
+  }
+
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+  if (!$existing) {
+    return (string) t('Bloco CTA PE (@uuid) ausente — seed 11024/019 necessário antes do 11076.', [
+      '@uuid' => $uuid,
+    ]);
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = reset($existing);
+  if (!$block->hasField('field_link_2')) {
+    return (string) t('field_link_2 ausente no CTA PE (@uuid).', ['@uuid' => $uuid]);
+  }
+
+  if ($block->get('field_link_2')->isEmpty()) {
+    $block->set('field_link_2', [
+      'uri' => $canonical_uri,
+      'title' => $canonical_title,
+    ]);
+    $block->save();
+    return (string) t('CTA PE field_link_2 vazio preenchido com Abrir Vaga (@uuid).', [
+      '@uuid' => $uuid,
+    ]);
+  }
+
+  $item = $block->get('field_link_2')->first();
+  $current_title = trim((string) ($item->title ?? ''));
+  $current_uri = (string) ($item->uri ?? '');
+
+  $is_legacy_title = in_array($current_title, $legacy_titles, TRUE);
+  $is_empty_title_noncanonical = ($current_title === '' && $current_uri !== '' && $current_uri !== $canonical_uri);
+  $already_ok = ($current_title === $canonical_title && $current_uri === $canonical_uri);
+
+  if ($already_ok) {
+    return (string) t('CTA PE field_link_2 já canônico (Abrir Vaga) — no-op (@uuid).', [
+      '@uuid' => $uuid,
+    ]);
+  }
+
+  if (!$is_legacy_title && !$is_empty_title_noncanonical) {
+    return (string) t('CTA PE field_link_2 editorial divergente preservado ("@title") — no-op (@uuid).', [
+      '@title' => $current_title,
+      '@uuid' => $uuid,
+    ]);
+  }
+
+  $block->set('field_link_2', [
+    'uri' => $canonical_uri,
+    'title' => $canonical_title,
+  ]);
+  $block->save();
+
+  return (string) t('CTA PE field_link_2 legado corrigido para Abrir Vaga (@uuid).', [
+    '@uuid' => $uuid,
+  ]);
+}
+
+/**
  * Oculta field_vaga_faq no form display node.vagas.default (idempotente).
  *
  * Storage/instance permanecem; valores legados no banco não são apagados.

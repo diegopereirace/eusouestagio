@@ -63,7 +63,8 @@ function default_preprocess(&$variables, $hook)
  * Implements hook_preprocess_html().
  *
  * Classe legada do carrossel da home (CSS de layout da região highlighted).
- * Mantém body.path-para-estudantes quando a landing vira Node + alias.
+ * Mantém body.path-para-estudantes / path-para-empresas quando a landing
+ * vira Node + alias (pós-11028 / feature 052).
  */
 function default_preprocess_html(array &$variables): void
 {
@@ -74,6 +75,9 @@ function default_preprocess_html(array &$variables): void
   $path_alias = rtrim((string) $path_alias, '/') ?: '/';
   if ($path_alias === '/para-estudantes' || $current_path === '/para-estudantes') {
     $variables['attributes']['class'][] = 'path-para-estudantes';
+  }
+  if ($path_alias === '/para-empresas' || $current_path === '/para-empresas') {
+    $variables['attributes']['class'][] = 'path-para-empresas';
   }
 }
 
@@ -450,6 +454,21 @@ function default_preprocess_block__default_ctav1vagas(array &$variables): void
   $account = \Drupal::currentUser();
   if ($account->isAuthenticated() && in_array('candidato', $account->getRoles(), TRUE)) {
     $variables['vaga_candidatada'] = _default_user_has_candidatura_vaga((int) $account->id(), $nid);
+  }
+}
+
+/**
+ * Implements hook_preprocess_block() for default_ctav1paraempresas.
+ *
+ * Expõe is_empresa (mesmo critério do topo) para CTAs condicionais (feature 052).
+ */
+function default_preprocess_block__default_ctav1paraempresas(array &$variables): void
+{
+  $user = \Drupal::currentUser();
+  $variables['is_empresa'] = $user->isAuthenticated() && in_array('empresa', $user->getRoles(), TRUE);
+
+  if (isset($variables['elements']) && is_array($variables['elements'])) {
+    $variables['elements']['#cache']['contexts'][] = 'user.roles';
   }
 }
 /**

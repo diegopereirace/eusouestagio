@@ -149,7 +149,7 @@
 }
 
 .depoimentos-empresas__dot.is-active {
-  background: var(--brand-navy, #003060);
+  background: var(--brand-orange, #fd7b1a);
   transform: scale(1.15);
 }
 

@@ -1,6 +1,7 @@
-# Ambiente local — HTTPS obrigatório
+# Ambiente local — HTTP (produção = HTTPS)
 
-- URL canônica local: `https://localhost:8082/` (porta = `DRUPAL_HTTPS_PORT` no `.env`).
-- **Nunca** abrir, linkar ou navegar com `http://localhost:8082` — a 8082 mapeia o TLS do container (`:443`); HTTP puro responde 400.
-- No browser MCP / Simple Browser / Ports: usar sempre `https://localhost:8082/`.
-- Certificado local é self-signed: em navegadores externos, aceitar o aviso (Avançado → Continuar).
+- URL canônica local: `http://localhost:8082/` (porta = `DRUPAL_HTTP_PORT` no `.env`).
+- O mapeamento Docker é `8082:80`. O botão "Open with browser" do Docker Desktop deve abrir HTTP e carregar o site.
+- **Não** use `https://localhost:8082` no local — TLS local não é a porta publicada.
+- Produção (VPS): Apache + Let's Encrypt em HTTPS; não altera este compose.
+- Se o browser ainda forçar HTTPS em localhost (HSTS antigo): em Chrome, `chrome://net-internals/#hsts` → Delete domain security policies → `localhost`.

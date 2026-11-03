@@ -93,6 +93,17 @@
   border-color: #0f172a;
 }
 
+/* Feature 052: estado desabilitado só no CTA PE (não altera QS / vagas / estudantes). */
+#block-default-ctav1paraempresas.block-cta-v1 .cta-v1__btn--disabled,
+#block-default-ctav1paraempresas.block-cta-v1 .cta-v1__btn--primary:disabled {
+  background-color: #c9956e;
+  color: #f5efe9;
+  opacity: 0.85;
+  cursor: not-allowed;
+  pointer-events: none;
+  box-shadow: none;
+}
+
 @media (max-width: 575.98px) {
   .block-cta-v1 .cta-v1 {
     margin-top: 40px;

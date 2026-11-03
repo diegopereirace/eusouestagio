@@ -77,6 +77,21 @@
     font-size: 0.9375rem;
   }
 
+  .block-beneficios-estudantes .be-grid {
+    --bs-gutter-x: 0.75rem;
+    --bs-gutter-y: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .block-beneficios-estudantes .be-grid > [class*='col-'] {
+    margin-bottom: 0.75rem;
+  }
+
+  .block-beneficios-estudantes .be-card {
+    min-height: 0;
+    padding: 20px 20px 24px;
+  }
+
   .block-beneficios-estudantes .be-card__text {
     font-size: 0.875rem;
   }

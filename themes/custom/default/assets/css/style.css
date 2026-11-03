@@ -834,8 +834,11 @@ h6 {
 	line-height: 1.4;
 }
 
+/* Só top/bottom: padding lateral vem do .container (gutters BS).
+ * padding: 5rem 0 zerava os gutters → cards colados + overflow do .row. */
 .css-vagas-home {
-	padding: 5rem 0;
+	padding-top: 5rem;
+	padding-bottom: 5rem;
 }
 
 /* Cabeçalho (título + "Ver todas as vagas") — gap compacto conforme Figma. */

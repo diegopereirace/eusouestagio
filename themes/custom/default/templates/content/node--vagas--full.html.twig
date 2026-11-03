@@ -136,7 +136,8 @@
         {% if has_beneficios %}
           <section class="vaga-detalhe__beneficios">
             <h2 class="vaga-detalhe__section-title">{{ 'Benefícios'|t }}</h2>
-            <div class="vaga-detalhe__beneficios-grid row g-3">
+            {# justify-content-center: overflow da última linha centralizado (>4 desktop / ímpar mobile); 4 ou 8 itens preenchem a linha e ficam alinhados. #}
+            <div class="vaga-detalhe__beneficios-grid row g-3 justify-content-center">
               {% for item in node.field_vaga_beneficios_t %}
                 {% if item.entity %}
                   {% set term = item.entity %}

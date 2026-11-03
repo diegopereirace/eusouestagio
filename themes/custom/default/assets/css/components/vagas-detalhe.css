@@ -212,6 +212,8 @@
   background: url('../../images/icon-check.png') no-repeat center / contain;
 }
 
+/* Grade Benefícios: row com justify-content-center no Twig —
+ * desktop 4/linha (sobra centralizada; 4/8 alinhados); mobile 2/linha. */
 .vaga-detalhe__beneficio-card {
   background: #fff;
   border: 1px solid var(--vd-border);

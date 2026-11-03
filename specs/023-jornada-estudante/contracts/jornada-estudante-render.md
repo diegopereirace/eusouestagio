@@ -49,7 +49,7 @@ Notas:
 |-------------|--------|
 | Escopo | somente seletores sob `.block-jornada-estudante` |
 | Library | `default/jornada_estudante` → `assets/css/jornada-estudante.css` |
-| Seção | fundo full-bleed `#EFF4FF`; `width: 100%`; `margin: 0` |
+| Seção | fundo full-bleed `#F0F0F0`; `width: 100%`; `margin: 0` |
 | Container | `max-width: 1280px`; paddings ~`64px` / `40px` (Top/Bottom / Left/Right) |
 | Tipografia | Poppins; título seção `#000000` ou `#0F172A` (~38px visual); descrição `#45464D` ~14px |
 | Card | fundo `#FFFFFF`; `border-radius: 16px`; padding ~`24px`; sombra sutil; `min-height` ~`202px` |

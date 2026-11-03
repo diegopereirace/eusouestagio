@@ -143,7 +143,7 @@ Homologação/produção recebem tipos, fields, displays, instância seed, place
 **Apresentação**
 
 - **FR-009**: Todo o markup do bloco DEVE estar encapsulado sob classe dedicada (ex.: `block-jornada-estudante`); estilos novos/alterados DEVEM aplicar-se **somente** sob esse escopo.
-- **FR-010**: O wrapper principal do conteúdo DEVE respeitar largura máxima de `1280px` e paddings aproximados Top/Bottom `64px`, Left/Right `40px` (tokens Figma da seção). A seção DEVE ter fundo full-bleed `#EFF4FF` e `margin: 0` no bloco raiz.
+- **FR-010**: O wrapper principal do conteúdo DEVE respeitar largura máxima de `1280px` e paddings aproximados Top/Bottom `64px`, Left/Right `40px` (tokens Figma da seção). A seção DEVE ter fundo full-bleed `#F0F0F0` e `margin: 0` no bloco raiz.
 - **FR-011**: O título DEVE ser um `h2` centralizado (equivalente a `.text-center`), família tipográfica Poppins, negrito, cor `#000000` ou `#0F172A`, altura visual aproximada de `38px`.
 - **FR-012**: Os passos DEVEM ser renderizados em grid com espaçamento e centralização (equivalente a `.row.justify-content-center.g-4.mt-4`).
 - **FR-013**: Cada passo (paragraph) DEVE ocupar colunas equivalentes a `.col-12.col-md-6.col-lg-3` (1 / 2 / 4 por linha conforme breakpoint).

@@ -34,6 +34,7 @@ Ao alterar estrutura (fields, block types, paragraphs, views, displays, placemen
 - Gere (ou atualize) um `hook_update_N` **idempotente** em `custom_configs.install` usando a Entity API do Drupal (`\Drupal::entityTypeManager()`, `BlockContent::create()`, etc.).
 - Antes de criar/alterar: verificar existência (UUID fixo, machine name, path/placement). Reexecução = no-op seguro.
 - Nunca sobrescrever conteúdo editorial já divergente do seed; preencher apenas ausente/vazio.
+- **Arquivos gerenciáveis e assets em `public://` (feature 057):** após a 1ª materialização, deploys **não** reescrevem bytes nem reapontam fields de imagem. Imagens **podem** diferir entre ambientes. Helper `_custom_configs_seed_file_from_module_asset(..., $replace = FALSE)` reutiliza URI/disco existente; `$replace = TRUE` só em `hook_update_N` escrito sob **ordem explícita** do produto. Proibido sync por MD5 / ratio / filename “seed-like” sem essa ordem.
 - Ao final do desenvolvimento no ambiente de origem: instruir e executar `drush cex` para sincronizar block types, paragraph types, fields, displays e placements gerados/alterados.
 
 ## Checklist mínimo por feature estrutural

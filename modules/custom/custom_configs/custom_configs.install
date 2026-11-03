@@ -2581,30 +2581,70 @@ function _custom_configs_disable_missao_visao_placement(): string {
 /**
  * Copia um asset do módulo para public:// e cria File permanente.
  *
+ * Política (057): após a 1ª materialização, bytes e managed file são imutáveis
+ * por padrão. Ambientes podem divergir. Só sobrescreve com $replace = TRUE
+ * (ordem explícita em hook_update_N dedicado).
+ *
+ * @param bool $replace
+ *   FALSE (padrão): se a URI já tem managed file ou arquivo legível no disco,
+ *   reutiliza sem copy(Replace). TRUE: overwrite intencional.
+ *
  * @return \Drupal\file\FileInterface|null
- *   Arquivo criado/reutilizado, ou NULL se o asset não existir.
+ *   Arquivo criado/reutilizado, ou NULL se o asset não existir (e destino
+ *   também não puder ser reutilizado).
  */
 function _custom_configs_seed_file_from_module_asset(
   string $relative_asset,
   string $destination_uri,
   string $usage_type,
   int $usage_id,
+  bool $replace = FALSE,
 ): ?\Drupal\file\FileInterface {
   $module_path = \Drupal::service('extension.list.module')->getPath('custom_configs');
   $source = DRUPAL_ROOT . '/' . $module_path . '/assets/' . ltrim($relative_asset, '/');
-  if (!is_readable($source)) {
-    return NULL;
-  }
 
   /** @var \Drupal\Core\File\FileSystemInterface $fs */
   $fs = \Drupal::service('file_system');
   $directory = dirname($destination_uri);
   $fs->prepareDirectory($directory, \Drupal\Core\File\FileSystemInterface::CREATE_DIRECTORY | \Drupal\Core\File\FileSystemInterface::MODIFY_PERMISSIONS);
 
-  // Reuse existing managed file at the same URI when present.
   $existing = \Drupal::entityTypeManager()->getStorage('file')->loadByProperties([
     'uri' => $destination_uri,
   ]);
+  $realpath = $fs->realpath($destination_uri);
+  $disk_exists = is_string($realpath) && is_readable($realpath);
+
+  // Imutável: managed file ou bytes já presentes — não Replace sem ordem explícita.
+  if (!$replace && ($existing || $disk_exists)) {
+    if ($existing) {
+      /** @var \Drupal\file\FileInterface $file */
+      $file = reset($existing);
+      $file->setPermanent();
+      $file->save();
+    }
+    else {
+      // Arquivo órfão no disco (sem entidade): registra managed file sem overwrite.
+      /** @var \Drupal\file\FileInterface $file */
+      $file = \Drupal\file\Entity\File::create([
+        'uri' => $destination_uri,
+        'uid' => 1,
+        'status' => \Drupal\file\FileInterface::STATUS_PERMANENT,
+        'filename' => basename($destination_uri),
+      ]);
+      $file->save();
+    }
+
+    $usage = \Drupal::service('file.usage')->listUsage($file);
+    if (empty($usage['custom_configs'][$usage_type][$usage_id])) {
+      \Drupal::service('file.usage')->add($file, 'custom_configs', $usage_type, $usage_id);
+    }
+    return $file;
+  }
+
+  if (!is_readable($source)) {
+    return NULL;
+  }
+
   if ($existing) {
     /** @var \Drupal\file\FileInterface $file */
     $file = reset($existing);
@@ -6930,8 +6970,8 @@ function _custom_configs_ensure_banners_block_para_estudantes_display(): string 
  * Seed de 1 node banners (local=para_estudantes) com asset versionado.
  *
  * UUID fixo c3d4e5f6-a7b8-4901-c234-567890abcdef.
- * Não sobrescreve editorial divergente; anexa/troca só se campo vazio,
- * placeholder PE ou retrato legado (ratio &lt; 2) — hero canônico é 1200×433.
+ * Política 057: só anexa se campo vazio — nunca troca por placeholder/ratio
+ * sem ordem explícita ($replace em hook dedicado).
  */
 function _custom_configs_seed_banner_para_estudantes(): string {
   $uuid = 'c3d4e5f6-a7b8-4901-c234-567890abcdef';
@@ -6951,60 +6991,30 @@ function _custom_configs_seed_banner_para_estudantes(): string {
     /** @var \Drupal\node\NodeInterface $node */
     $node = reset($by_uuid);
     $desktop_empty = $node->hasField('field_imagem_desktop') && $node->get('field_imagem_desktop')->isEmpty();
-    $needs_canonical_image = $desktop_empty;
-    $force_mobile_too = FALSE;
-    if (!$desktop_empty && $node->hasField('field_imagem_desktop')) {
-      $current = $node->get('field_imagem_desktop')->entity;
-      $filename = $current ? (string) $current->getFilename() : '';
-      // Placeholder PE colado no seed PE por engano — faixa sólida, não a arte do hero.
-      if ($filename !== '' && str_contains($filename, 'para-empresas-placeholder')) {
-        $needs_canonical_image = TRUE;
-        $force_mobile_too = TRUE;
-      }
-      // Retrato legado (ex.: 465×566) na faixa 1200×433 corta o rosto.
-      elseif ($current) {
-        $real = \Drupal::service('file_system')->realpath($current->getFileUri());
-        if ($real && is_readable($real)) {
-          $size = @getimagesize($real);
-          if (is_array($size) && $size[0] > 0 && $size[1] > 0) {
-            $ratio = $size[0] / $size[1];
-            // Canônico ≈ 1200/433 ≈ 2.77; retrato ou quase-quadrado = legado.
-            if ($ratio < 2.0) {
-              $needs_canonical_image = TRUE;
-              $force_mobile_too = TRUE;
-            }
-          }
-        }
-      }
+    $mobile_empty = $node->hasField('field_imagem_mobile') && $node->get('field_imagem_mobile')->isEmpty();
+    if (!$desktop_empty && !$mobile_empty) {
+      return (string) t('Banner Para Estudantes (@uuid) já existe — seed ignorado.', ['@uuid' => $uuid]);
     }
-    if ($needs_canonical_image) {
+    if ($desktop_empty || $mobile_empty) {
       $file = _custom_configs_seed_file_from_module_asset($asset, $dest, 'node', (int) $node->id());
       if ($file) {
-        $node->set('field_imagem_desktop', [
-          'target_id' => $file->id(),
-          'alt' => $alt,
-        ]);
-        if ($node->hasField('field_imagem_mobile')) {
-          $mobile_empty = $node->get('field_imagem_mobile')->isEmpty();
-          $mobile_is_placeholder = FALSE;
-          if (!$mobile_empty) {
-            $mobile_file = $node->get('field_imagem_mobile')->entity;
-            $mobile_name = $mobile_file ? (string) $mobile_file->getFilename() : '';
-            $mobile_is_placeholder = $mobile_name !== '' && str_contains($mobile_name, 'para-empresas-placeholder');
-          }
-          if ($mobile_empty || $mobile_is_placeholder || $force_mobile_too) {
-            $node->set('field_imagem_mobile', [
-              'target_id' => $file->id(),
-              'alt' => $alt,
-            ]);
-          }
+        if ($desktop_empty) {
+          $node->set('field_imagem_desktop', [
+            'target_id' => $file->id(),
+            'alt' => $alt,
+          ]);
+        }
+        if ($mobile_empty) {
+          $node->set('field_imagem_mobile', [
+            'target_id' => $file->id(),
+            'alt' => $alt,
+          ]);
         }
         $node->save();
-        return (string) t('Imagem canônica anexada ao banner Para Estudantes (@uuid).', ['@uuid' => $uuid]);
+        return (string) t('Imagem anexada ao banner Para Estudantes (@uuid) (fill-if-empty).', ['@uuid' => $uuid]);
       }
       return (string) t('Banner Para Estudantes (@uuid) existe sem imagem — asset ausente.', ['@uuid' => $uuid]);
     }
-    return (string) t('Banner Para Estudantes (@uuid) já existe — seed ignorado.', ['@uuid' => $uuid]);
   }
 
   $existing_local = $storage->getQuery()
@@ -7922,6 +7932,7 @@ function _custom_configs_seed_beneficios_estudantes_center_image(int $block_id):
 /**
  * Copia faces da órbita Benefícios Estudantes para public:// (idempotente).
  *
+ * Política 057: copy-if-missing apenas — nunca Replace por divergência de MD5.
  * Não cria fields CMS — satélites são arte de seed consumida pelo Twig.
  */
 function _custom_configs_sync_beneficios_estudantes_orbit_assets(): string {
@@ -7943,33 +7954,30 @@ function _custom_configs_sync_beneficios_estudantes_orbit_assets(): string {
 
   $copied = 0;
   $missing = 0;
+  $skipped = 0;
   foreach ($filenames as $filename) {
     $source = DRUPAL_ROOT . '/' . $module_path . '/assets/beneficios-estudantes/' . $filename;
+    $destination = $directory . '/' . $filename;
+    $dest_realpath = $fs->realpath($destination);
+    if ($dest_realpath && is_readable($dest_realpath)) {
+      $skipped++;
+      continue;
+    }
     if (!is_readable($source)) {
       $missing++;
       continue;
     }
-    $destination = $directory . '/' . $filename;
-    $dest_realpath = $fs->realpath($destination);
-    $needs_copy = TRUE;
-    if ($dest_realpath && is_readable($dest_realpath)) {
-      $src_hash = md5_file($source);
-      $dst_hash = md5_file($dest_realpath);
-      if ($src_hash !== FALSE && $src_hash === $dst_hash) {
-        $needs_copy = FALSE;
-      }
-    }
-    if ($needs_copy) {
-      $fs->copy($source, $destination, \Drupal\Core\File\FileExists::Replace);
-      $copied++;
-    }
+    $fs->copy($source, $destination, \Drupal\Core\File\FileExists::Replace);
+    $copied++;
   }
 
   if ($copied === 0 && $missing === 0) {
-    return (string) t('Assets da órbita Benefícios Estudantes já sincronizados.');
+    return (string) t('Assets da órbita Benefícios Estudantes já presentes (@count) — copy-if-missing no-op.', [
+      '@count' => $skipped,
+    ]);
   }
   if ($copied > 0) {
-    return (string) t('@count asset(s) da órbita Benefícios Estudantes sincronizado(s).', [
+    return (string) t('@count asset(s) da órbita Benefícios Estudantes copiado(s) (ausentes).', [
       '@count' => $copied,
     ]);
   }
@@ -16160,7 +16168,9 @@ function _custom_configs_ensure_quem_somos_refino_displays(): string {
 }
 
 /**
- * Copia assets → public:// e atualiza ícones provisórios/vazios do bloco Quem Somos.
+ * Preenche ícones vazios do bloco Diferenciais Quem Somos.
+ *
+ * Política 057: fill-if-empty apenas — não Replace por MD5/filename.
  */
 function _custom_configs_sync_diferenciais_quem_somos_provisional_icons(): string {
   $uuid = 'd5e6f7a8-b9c0-4d1e-8f2a-3b4c5d6e7f80';
@@ -16207,42 +16217,17 @@ function _custom_configs_sync_diferenciais_quem_somos_provisional_icons(): strin
       continue;
     }
 
-    $canonical_uri = 'public://diferenciais-quem-somos/' . $seed['file'];
-    $asset_relative = 'diferenciais-quem-somos/' . $seed['file'];
-    $module_path = \Drupal::service('extension.list.module')->getPath('custom_configs');
-    $asset_source = DRUPAL_ROOT . '/' . $module_path . '/assets/' . $asset_relative;
-
-    $needs_sync = $paragraph->get('field_image')->isEmpty();
-    if (!$needs_sync) {
-      $file_entity = $paragraph->get('field_image')->entity;
-      $uri = $file_entity ? (string) $file_entity->getFileUri() : '';
-      $filename = $uri !== '' ? basename($uri) : '';
-      // Provisórios: icon-N.png ou rename Drupal icon-N_0.png (não webp editorial).
-      $is_provisional = ($filename === $seed['file'] || (bool) preg_match('/^icon-[1-8](_\d+)?\.png$/i', $filename));
-      if ($is_provisional) {
-        // Já no URI canônico + bytes iguais ao asset → no-op (SC-008).
-        // URI provisória em outro path, ou asset atualizado no módulo → sync.
-        $same_path = ($uri === $canonical_uri);
-        $public_realpath = $same_path
-          ? \Drupal::service('file_system')->realpath($uri)
-          : FALSE;
-        $same_bytes = is_string($public_realpath)
-          && is_readable($asset_source)
-          && is_readable($public_realpath)
-          && md5_file($asset_source) === md5_file($public_realpath);
-        if (!$same_bytes) {
-          $needs_sync = TRUE;
-        }
-      }
-    }
-
-    if (!$needs_sync) {
+    // Política 057: fill-if-empty apenas — não re-sync por MD5/filename.
+    if (!$paragraph->get('field_image')->isEmpty()) {
       $new_refs[] = [
         'target_id' => $paragraph->id(),
         'target_revision_id' => $paragraph->getRevisionId(),
       ];
       continue;
     }
+
+    $canonical_uri = 'public://diferenciais-quem-somos/' . $seed['file'];
+    $asset_relative = 'diferenciais-quem-somos/' . $seed['file'];
 
     $file = _custom_configs_seed_file_from_module_asset(
       $asset_relative,
@@ -16251,18 +16236,13 @@ function _custom_configs_sync_diferenciais_quem_somos_provisional_icons(): strin
       (int) $paragraph->id()
     );
     if ($file) {
-      $current_target = (int) ($paragraph->get('field_image')->target_id ?? 0);
-      // Bytes em public:// já foram atualizados pelo seed helper quando necessário.
-      // Só regrava o paragraph se o target_id mudou (caminho antigo / vazio).
-      if ($current_target !== (int) $file->id()) {
-        $alt = (string) ($paragraph->get('field_text_simple')->value ?? $seed['label']);
-        $paragraph->set('field_image', [
-          'target_id' => $file->id(),
-          'alt' => $alt,
-        ]);
-        $paragraph->save();
-        $updated++;
-      }
+      $alt = (string) ($paragraph->get('field_text_simple')->value ?? $seed['label']);
+      $paragraph->set('field_image', [
+        'target_id' => $file->id(),
+        'alt' => $alt,
+      ]);
+      $paragraph->save();
+      $updated++;
     }
 
     $new_refs[] = [
@@ -16274,12 +16254,12 @@ function _custom_configs_sync_diferenciais_quem_somos_provisional_icons(): strin
   if ($updated > 0) {
     $block->set('field_itens_lista', $new_refs);
     $block->save();
-    return (string) t('@count ícone(s) Diferenciais Quem Somos sincronizado(s) de assets.', [
+    return (string) t('@count ícone(s) Diferenciais Quem Somos preenchido(s) (fill-if-empty).', [
       '@count' => (string) $updated,
     ]);
   }
 
-  return (string) t('Ícones Diferenciais Quem Somos já finais ou preservados.');
+  return (string) t('Ícones Diferenciais Quem Somos já preenchidos — sync no-op.');
 }
 
 /**
@@ -16609,10 +16589,9 @@ function custom_configs_update_11082(): string {
 }
 
 /**
- * Corrige banner Para Estudantes com placeholder PE no lugar do hero canônico.
+ * Banner Para Estudantes: fill-if-empty via seed helper (histórico 11083).
  *
- * Idempotente: só troca imagem quando vazia ou filename contém
- * para-empresas-placeholder. Não sobrescreve arte editorial divergente.
+ * Pós-057: só anexa se campo vazio; não troca placeholder/ratio sem $replace.
  * Destino: git pull → drush cim -y → drush updb -y → drush cr.
  */
 function custom_configs_update_11083(): string {
@@ -16661,10 +16640,9 @@ function custom_configs_update_11086(): string {
 }
 
 /**
- * Banner Para Estudantes: troca retrato legado pelo hero landscape 1200×433.
+ * Banner Para Estudantes: fill-if-empty via seed helper (histórico 11087).
  *
- * O PNG seed antigo (465×566) com object-fit:cover na faixa cinematográfica
- * cortava o rosto. Asset canônico agora é landscape com a estudante à direita.
+ * Pós-057: só anexa se campo vazio; não troca retrato/ratio sem $replace.
  * Destino: git pull → drush cim -y → drush updb -y → drush cr.
  */
 function custom_configs_update_11087(): string {
@@ -16690,10 +16668,9 @@ function custom_configs_update_11088(): string {
 }
 
 /**
- * Copia ícones Figma → public:// e atualiza cards canônicos do bloco Oportunidades.
+ * Preenche ícones vazios dos cards canônicos do bloco Oportunidades.
  *
- * Só toca itens com títulos canônicos da grade. Sync quando vazio, filename
- * icon-N.png / rename, ou bytes em public:// diferem do asset versionado.
+ * Política 057: fill-if-empty apenas — não Replace por MD5/filename.
  */
 function _custom_configs_sync_oportunidades_estudantes_icons(): string {
   $uuid = 'c1d2e3f4-a5b6-4789-c012-3456789abcde';
@@ -16717,8 +16694,6 @@ function _custom_configs_sync_oportunidades_estudantes_icons(): string {
   $updated = 0;
   $new_refs = [];
   $delta = 0;
-  $module_path = \Drupal::service('extension.list.module')->getPath('custom_configs');
-  $file_system = \Drupal::service('file_system');
 
   foreach ($block->get('field_itens_lista') as $item) {
     /** @var \Drupal\paragraphs\ParagraphInterface|null $paragraph */
@@ -16743,53 +16718,30 @@ function _custom_configs_sync_oportunidades_estudantes_icons(): string {
       continue;
     }
 
-    $canonical_uri = 'public://oportunidades-estudantes/' . $seed['file'];
-    $asset_relative = 'oportunidades-estudantes/' . $seed['file'];
-    $asset_source = DRUPAL_ROOT . '/' . $module_path . '/assets/' . $asset_relative;
-
-    $needs_sync = $paragraph->get('field_image')->isEmpty();
-    if (!$needs_sync) {
-      $file_entity = $paragraph->get('field_image')->entity;
-      $uri = $file_entity ? (string) $file_entity->getFileUri() : '';
-      $filename = $uri !== '' ? basename($uri) : '';
-      // Seed errado (navy valores), canônico icon-N, ou rename Drupal.
-      $is_seed_like = (bool) preg_match('/^icon-[1-4](_\d+)?\.png$/i', $filename);
-      if ($is_seed_like && is_readable($asset_source)) {
-        $same_path = ($uri === $canonical_uri);
-        $public_realpath = $same_path ? $file_system->realpath($uri) : FALSE;
-        $same_bytes = is_string($public_realpath)
-          && is_readable($public_realpath)
-          && md5_file($asset_source) === md5_file($public_realpath);
-        if (!$same_bytes || !$same_path) {
-          $needs_sync = TRUE;
-        }
-      }
-      elseif ($uri === '' || !$is_seed_like) {
-        // Editorial com outro filename: preservar.
-        $needs_sync = FALSE;
-      }
+    // Política 057: fill-if-empty apenas — não re-sync por MD5/filename.
+    if (!$paragraph->get('field_image')->isEmpty()) {
+      $new_refs[] = [
+        'target_id' => $paragraph->id(),
+        'target_revision_id' => $paragraph->getRevisionId(),
+      ];
+      continue;
     }
 
-    if ($needs_sync && is_readable($asset_source)) {
-      $file = _custom_configs_seed_file_from_module_asset(
-        $asset_relative,
-        $canonical_uri,
-        'paragraph',
-        (int) $paragraph->id()
-      );
-      if ($file) {
-        $paragraph->set('field_image', [
-          'target_id' => $file->id(),
-          'alt' => $title !== '' ? $title : $seed['label'],
-        ]);
-        $paragraph->save();
-        $updated++;
-        $new_refs[] = [
-          'target_id' => $paragraph->id(),
-          'target_revision_id' => $paragraph->getRevisionId(),
-        ];
-        continue;
-      }
+    $canonical_uri = 'public://oportunidades-estudantes/' . $seed['file'];
+    $asset_relative = 'oportunidades-estudantes/' . $seed['file'];
+    $file = _custom_configs_seed_file_from_module_asset(
+      $asset_relative,
+      $canonical_uri,
+      'paragraph',
+      (int) $paragraph->id()
+    );
+    if ($file) {
+      $paragraph->set('field_image', [
+        'target_id' => $file->id(),
+        'alt' => $title !== '' ? $title : $seed['label'],
+      ]);
+      $paragraph->save();
+      $updated++;
     }
 
     $new_refs[] = [
@@ -16801,10 +16753,10 @@ function _custom_configs_sync_oportunidades_estudantes_icons(): string {
   if ($updated > 0) {
     $block->set('field_itens_lista', $new_refs);
     $block->save();
-    return (string) t('@count ícone(s) Figma Oportunidades sincronizado(s).', ['@count' => $updated]);
+    return (string) t('@count ícone(s) Oportunidades preenchido(s) (fill-if-empty).', ['@count' => $updated]);
   }
 
-  return (string) t('Ícones Oportunidades Estudantes já canônicos — sync no-op.');
+  return (string) t('Ícones Oportunidades Estudantes já preenchidos — sync no-op.');
 }
 
 /**
@@ -17254,11 +17206,9 @@ function _custom_configs_ensure_oportunidades_estudantes_placement(): string {
 }
 
 /**
- * Copia a colagem composta canônica → public:// e anexa em field_image.
+ * Anexa a colagem composta canônica em field_image se o campo estiver vazio.
  *
- * A arte Figma anexada (collage.png) é a imagem principal da seção. Só toca
- * campo vazio ou arquivo seed (collage.png / collage-center.png / rename).
- * Upload editorial com outro filename permanece intocado.
+ * Política 057: fill-if-empty apenas — não Replace por MD5/filename.
  */
 function _custom_configs_sync_beneficios_estudantes_collage(): string {
   $uuid = 'a8b9c0d1-e2f3-4456-a789-0bcdef123456';
@@ -17280,39 +17230,9 @@ function _custom_configs_sync_beneficios_estudantes_collage(): string {
     return (string) t('Campo field_image ausente no bloco Benefícios Estudantes — rode drush cim -y.');
   }
 
-  $module_path = \Drupal::service('extension.list.module')->getPath('custom_configs');
-  $asset_source = DRUPAL_ROOT . '/' . $module_path . '/assets/' . $asset_relative;
-  if (!is_readable($asset_source)) {
-    return (string) t('Asset @path ausente — sync de colagem ignorado.', [
-      '@path' => $asset_relative,
-    ]);
-  }
-
-  $needs_sync = $block->get('field_image')->isEmpty();
-  if (!$needs_sync) {
-    $file_entity = $block->get('field_image')->entity;
-    $uri = $file_entity ? (string) $file_entity->getFileUri() : '';
-    $filename = $uri !== '' ? basename($uri) : '';
-    // Seed: composta, centro legado da órbita, ou rename Drupal.
-    $is_seed = (bool) preg_match('/^collage(-center)?(_\d+)?\.png$/i', $filename);
-    if (!$is_seed) {
-      return (string) t('Colagem editorial divergente — sync de colagem no-op.');
-    }
-
-    $same_path = ($uri === $canonical_uri);
-    $public_realpath = $same_path
-      ? \Drupal::service('file_system')->realpath($uri)
-      : FALSE;
-    $same_bytes = is_string($public_realpath)
-      && is_readable($public_realpath)
-      && md5_file($asset_source) === md5_file($public_realpath);
-    if (!$same_bytes || !$same_path) {
-      $needs_sync = TRUE;
-    }
-  }
-
-  if (!$needs_sync) {
-    return (string) t('Colagem Benefícios Estudantes já canônica — sync no-op.');
+  // Política 057: fill-if-empty apenas — não re-sync por MD5/filename.
+  if (!$block->get('field_image')->isEmpty()) {
+    return (string) t('Colagem Benefícios Estudantes já preenchida — sync no-op.');
   }
 
   $file = _custom_configs_seed_file_from_module_asset(
@@ -17322,28 +17242,23 @@ function _custom_configs_sync_beneficios_estudantes_collage(): string {
     (int) $block->id()
   );
   if (!$file) {
-    return (string) t('Falha ao copiar colagem canônica para public://.');
+    return (string) t('Falha ao copiar colagem canônica para public:// (campo vazio).');
   }
 
-  $current_target = (int) ($block->get('field_image')->target_id ?? 0);
-  $current_alt = trim((string) ($block->get('field_image')->alt ?? ''));
-  if ($current_target !== (int) $file->id() || $current_alt === '') {
-    $block->set('field_image', [
-      'target_id' => $file->id(),
-      'alt' => $current_alt !== '' ? $current_alt : $alt_seed,
-    ]);
-    $block->save();
-  }
+  $block->set('field_image', [
+    'target_id' => $file->id(),
+    'alt' => $alt_seed,
+  ]);
+  $block->save();
 
-  return (string) t('Colagem composta canônica Benefícios Estudantes sincronizada.');
+  return (string) t('Colagem Benefícios Estudantes anexada (fill-if-empty).');
 }
 
 /**
- * Copia assets → public:// e atualiza ícones provisórios/vazios do bloco Benefícios Estudantes.
+ * Preenche ícones vazios do bloco Benefícios Estudantes (títulos canônicos).
  *
- * Só toca itens com títulos canônicos Figma 054. Editorial com título
- * divergente permanece intocado. Sync quando vazio, filename provisório icon-N.png
- * ou bytes em public:// diferem do asset versionado no módulo.
+ * Política 057: fill-if-empty apenas. Editorial com título divergente permanece
+ * intocado. Não re-sync por MD5 nem filename “provisório”.
  */
 function _custom_configs_sync_beneficios_estudantes_provisional_icons(): string {
   $uuid = 'a8b9c0d1-e2f3-4456-a789-0bcdef123456';
@@ -17391,36 +17306,8 @@ function _custom_configs_sync_beneficios_estudantes_provisional_icons(): string 
       continue;
     }
 
-    $canonical_uri = 'public://beneficios-estudantes/' . $seed['file'];
-    $asset_relative = 'beneficios-estudantes/' . $seed['file'];
-    $module_path = \Drupal::service('extension.list.module')->getPath('custom_configs');
-    $asset_source = DRUPAL_ROOT . '/' . $module_path . '/assets/' . $asset_relative;
-
-    $needs_sync = $paragraph->get('field_image')->isEmpty();
-    if (!$needs_sync) {
-      $file_entity = $paragraph->get('field_image')->entity;
-      $uri = $file_entity ? (string) $file_entity->getFileUri() : '';
-      $filename = $uri !== '' ? basename($uri) : '';
-      // Provisórios: icon-N.png (seed errado navy), icon-oportunidades-00N, ou rename Drupal.
-      $is_provisional = ($filename === $seed['file']
-        || (bool) preg_match('/^icon-[1-4](_\d+)?\.png$/i', $filename)
-        || (bool) preg_match('/^icon-oportunidades-00[1-4](_\d+)?\.png$/i', $filename));
-      if ($is_provisional) {
-        $same_path = ($uri === $canonical_uri);
-        $public_realpath = $same_path
-          ? \Drupal::service('file_system')->realpath($uri)
-          : FALSE;
-        $same_bytes = is_string($public_realpath)
-          && is_readable($asset_source)
-          && is_readable($public_realpath)
-          && md5_file($asset_source) === md5_file($public_realpath);
-        if (!$same_bytes) {
-          $needs_sync = TRUE;
-        }
-      }
-    }
-
-    if (!$needs_sync) {
+    // Política 057: fill-if-empty apenas — não re-sync por MD5/filename.
+    if (!$paragraph->get('field_image')->isEmpty()) {
       $new_refs[] = [
         'target_id' => $paragraph->id(),
         'target_revision_id' => $paragraph->getRevisionId(),
@@ -17428,6 +17315,8 @@ function _custom_configs_sync_beneficios_estudantes_provisional_icons(): string 
       continue;
     }
 
+    $canonical_uri = 'public://beneficios-estudantes/' . $seed['file'];
+    $asset_relative = 'beneficios-estudantes/' . $seed['file'];
     $file = _custom_configs_seed_file_from_module_asset(
       $asset_relative,
       $canonical_uri,
@@ -17435,21 +17324,13 @@ function _custom_configs_sync_beneficios_estudantes_provisional_icons(): string 
       (int) $paragraph->id()
     );
     if ($file) {
-      $current_target = (int) ($paragraph->get('field_image')->target_id ?? 0);
-      if ($current_target !== (int) $file->id()) {
-        $alt = (string) ($paragraph->get('field_text_simple')->value ?? $seed['label']);
-        $paragraph->set('field_image', [
-          'target_id' => $file->id(),
-          'alt' => $alt,
-        ]);
-        $paragraph->save();
-      }
+      $alt = (string) ($paragraph->get('field_text_simple')->value ?? $seed['label']);
+      $paragraph->set('field_image', [
+        'target_id' => $file->id(),
+        'alt' => $alt,
+      ]);
+      $paragraph->save();
       $updated++;
-      $new_refs[] = [
-        'target_id' => $paragraph->id(),
-        'target_revision_id' => $paragraph->getRevisionId(),
-      ];
-      continue;
     }
 
     $new_refs[] = [
@@ -17461,12 +17342,12 @@ function _custom_configs_sync_beneficios_estudantes_provisional_icons(): string 
   if ($updated > 0) {
     $block->set('field_itens_lista', $new_refs);
     $block->save();
-    return (string) t('Benefícios Estudantes: @count ícone(s) canônico(s) sincronizado(s).', [
+    return (string) t('Benefícios Estudantes: @count ícone(s) preenchido(s) (fill-if-empty).', [
       '@count' => $updated,
     ]);
   }
 
-  return (string) t('Benefícios Estudantes: ícones já canônicos — sync no-op.');
+  return (string) t('Benefícios Estudantes: ícones já preenchidos — sync no-op.');
 }
 
 /**

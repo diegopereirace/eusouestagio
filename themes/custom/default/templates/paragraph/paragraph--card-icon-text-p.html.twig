@@ -1,7 +1,9 @@
 {#
 /**
  * @file
- * Paragraph Card Ícone e Texto (card_icon_text_p) — item de lista horizontal.
+ * Paragraph Card Ícone e Texto (card_icon_text_p).
+ *
+ * Usado pelo bloco beneficios_estudantes — grade 1/2/4 colunas.
  */
 #}
 {%
@@ -11,6 +13,7 @@
     view_mode ? 'paragraph--view-mode--' ~ view_mode|clean_class,
     'col-12',
     'col-md-6',
+    'col-lg-3',
     'mb-4',
   ]
 %}
@@ -20,22 +23,20 @@
 
 {% if has_icon or card_title or card_text %}
   <div{{ attributes.addClass(classes) }}>
-    <div class="be-item d-flex align-items-start gap-3 text-start h-100">
+    <div class="be-card text-start d-flex flex-column align-items-start h-100">
       {% if has_icon %}
         {% set icon_uri = content.field_image['#items'][0].entity.uri.value %}
         {% set icon_alt = content.field_image['#items'][0].alt|default(card_title) %}
-        <div class="be-item__icon flex-shrink-0">
-          <img class="img-fluid" src="{{ file_url(icon_uri) }}" alt="{{ icon_alt }}" loading="lazy" width="48" height="48">
+        <div class="be-card__icon">
+          <img class="img-fluid" src="{{ file_url(icon_uri) }}" alt="{{ icon_alt }}" loading="lazy">
         </div>
       {% endif %}
-      <div class="be-item__body">
-        {% if card_title %}
-          <h3 class="be-item__title">{{ card_title }}</h3>
-        {% endif %}
-        {% if card_text %}
-          <p class="be-item__text">{{ card_text }}</p>
-        {% endif %}
-      </div>
+      {% if card_title %}
+        <h3 class="be-card__title">{{ card_title }}</h3>
+      {% endif %}
+      {% if card_text %}
+        <p class="be-card__text">{{ card_text }}</p>
+      {% endif %}
     </div>
   </div>
 {% endif %}

@@ -1,9 +1,10 @@
 {#
 /**
  * @file
- * Bloco Benefícios Estudantes (bundle beneficios_estudantes) — layout Figma split.
+ * Bloco Benefícios Estudantes (bundle beneficios_estudantes).
  *
  * Suggestion Barrio: block__block_beneficios_estudantes.
+ * Layout: cabeçalho centrado + grade de cards (feature 022/053).
  */
 #}
 {{ attach_library('default/beneficios_estudantes') }}
@@ -15,62 +16,38 @@
     'block-beneficios-estudantes',
   ]
 %}
-{% set badge = content.field_text_simple_2|render|striptags|trim %}
 {% set title = content.field_text_simple|render|striptags|trim %}
 {% set subtitle = content.field_text_simple_long|render|striptags|trim %}
 {% set item_items = content.field_itens_lista['#items']|default([]) %}
 {% set has_items = item_items is iterable and item_items|length > 0 %}
-{% set cta_item = content.field_link['#items'][0]|default(null) %}
-{% set cta_uri = cta_item ? cta_item.uri|default('') : '' %}
-{% set has_cta = cta_uri is not empty %}
-{% set has_collage = content.field_image['#items'] is defined and content.field_image['#items'][0] is defined and content.field_image['#items'][0].entity.uri.value is defined %}
 
 <section{{ attributes.addClass(classes).setAttribute('id', 'beneficios-estudantes') }}>
   {{ title_prefix }}{{ title_suffix }}
   {% block content %}
     <div{{ content_attributes.addClass('content') }}>
-      <div class="container py-5">
-        <div class="be-split row align-items-center g-4 g-lg-5">
-          <div class="be-split__content col-12 col-lg-7">
-            {% if badge or title or subtitle %}
-              <header class="be-header text-start">
-                {% if badge %}
-                  <p class="be-header__badge">{{ badge }}</p>
-                {% endif %}
-                {% if title %}
-                  <h2 class="be-header__title">{{ title }}</h2>
-                {% endif %}
-                {% if subtitle %}
-                  <p class="be-header__subtitle">{{ subtitle }}</p>
-                {% endif %}
-              </header>
+      <div class="container py-5 py-lg-5">
+        {% if title or subtitle %}
+          <header class="be-header text-center">
+            {% if title %}
+              <h2 class="be-header__title mx-auto">{{ title }}</h2>
             {% endif %}
-
-            {% if has_items %}
-              <div class="row be-grid">
-                {% for key, item in item_items %}
-                  {{ content.field_itens_lista[key] }}
-                {% endfor %}
+            {% if subtitle %}
+              <div class="row justify-content-center">
+                <div class="col-lg-10">
+                  <p class="be-header__subtitle mx-auto">{{ subtitle }}</p>
+                </div>
               </div>
             {% endif %}
+          </header>
+        {% endif %}
 
-            {% if has_cta %}
-              <div class="be-cta">
-                <a class="be-cta__btn" href="{{ cta_item.getUrl().toString() }}">{{ cta_item.title|default('Cadastre-se gratuitamente'|t) }}</a>
-              </div>
-            {% endif %}
+        {% if has_items %}
+          <div class="row mt-5 justify-content-center be-grid">
+            {% for key, item in item_items %}
+              {{ content.field_itens_lista[key] }}
+            {% endfor %}
           </div>
-
-          {% if has_collage %}
-            {% set collage_uri = content.field_image['#items'][0].entity.uri.value %}
-            {% set collage_alt = content.field_image['#items'][0].alt|default(title|default('Benefícios para estudantes'|t)) %}
-            <div class="be-split__visual col-12 col-lg-5">
-              <div class="be-collage">
-                <img class="be-collage__img img-fluid" src="{{ file_url(collage_uri) }}" alt="{{ collage_alt }}" loading="lazy" width="520" height="520">
-              </div>
-            </div>
-          {% endif %}
-        </div>
+        {% endif %}
       </div>
     </div>
   {% endblock %}

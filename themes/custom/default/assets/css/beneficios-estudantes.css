@@ -51,10 +51,11 @@
 
 .block-beneficios-estudantes .be-card__title {
   font-family: 'Poppins', sans-serif;
-  font-weight: 700;
-  font-size: 1.0625rem;
-  line-height: 1.35;
-  color: #0f172a;
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: 0;
+  color: #000000;
   margin-bottom: 0;
 }
 
@@ -74,10 +75,6 @@
 
   .block-beneficios-estudantes .be-header__subtitle {
     font-size: 0.9375rem;
-  }
-
-  .block-beneficios-estudantes .be-card__title {
-    font-size: 1rem;
   }
 
   .block-beneficios-estudantes .be-card__text {

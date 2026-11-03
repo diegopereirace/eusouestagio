@@ -29,12 +29,16 @@
   margin: 0 0 0.75rem;
 }
 
+/* Figma: Poppins Light 16/24 / ls −0.3px / #4E4E4E; caixa 663×48 (2 linhas). */
 .block-nossa-metodologia .nm-header__subtitle {
-  color: #4a5d73;
+  color: #4E4E4E;
   font-weight: 300;
-  font-size: 1.05rem;
-  line-height: 1.65;
-  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: -0.3px;
+  margin: 0 0 0 auto;
+  max-width: 663px;
+  text-align: right;
   overflow-wrap: anywhere;
 }
 

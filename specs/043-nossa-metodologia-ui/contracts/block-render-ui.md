@@ -22,7 +22,7 @@ Contrato de apresentação estável para aceite side-by-side com o Figma. Não �
 <section class="block-nossa-metodologia" id="nossa-metodologia" …>
   <div class="content">
     <div class="container">
-      <header class="nm-header text-center text-md-end">
+      <header class="nm-header text-end">
         <h2 class="nm-header__title">…</h2>       <!-- omitir se vazio -->
         <p class="nm-header__subtitle">…</p>      <!-- omitir se vazio -->
       </header>

@@ -7664,25 +7664,20 @@ function _custom_configs_seed_beneficios_estudantes(): string {
   $existing = $storage->loadByProperties(['uuid' => $uuid]);
 
   $items_seed = _custom_configs_beneficios_estudantes_canonical_items();
-  $title_seed = 'Encontre oportunidades que combinam com você.';
-  $subtitle_seed = 'Nossa plataforma utiliza inteligência de dados para conectar seu perfil às melhores vagas do mercado.';
-  // Título/subtítulo introduzidos pela 054 (split 6 itens) — reverter para grade 4 cards.
+  $badge_seed = 'BENEFÍCIOS PARA ESTUDANTES';
+  $title_seed = 'Muito mais do que encontrar um estágio.';
+  $subtitle_seed = 'Na Eu Sou Estágio você se desenvolve, recebe apoio e constrói uma carreira com mais segurança e propósito.';
+  $cta_title_seed = 'Cadastre-se gratuitamente';
+  $cta_uri_seed = 'internal:/cadastro/candidato';
+  // Título/subtítulo das 4 cards (022/053) — migrar para copy Figma 054.
   $legacy_titles = [
-    'Muito mais do que encontrar um estágio.',
+    'Encontre oportunidades que combinam com você.',
   ];
   $legacy_subtitles = [
     'Nossa plataforma utiliza inteligência para conectar você às vagas e empresas que fazem sentido para o seu perfil e momento.',
-    'Na Eu Sou Estágio você se desenvolve, recebe apoio e constrói uma carreira com mais segurança e propósito.',
+    'Nossa plataforma utiliza inteligência de dados para conectar seu perfil às melhores vagas do mercado.',
   ];
-  $legacy_item_titles_054 = [
-    'Encontrar propósito',
-    'Desenvolver competências',
-    'Receber acompanhamento',
-    'Aprender mais',
-    'Construir carreira',
-    'Ter uma experiência de estágio de verdade',
-  ];
-  $canonical_item_titles = [
+  $legacy_4card_titles = [
     'Vagas alinhadas',
     'Modelos de trabalho',
     'Vários segmentos',
@@ -7706,13 +7701,22 @@ function _custom_configs_seed_beneficios_estudantes(): string {
     $messages = [];
     $changed = FALSE;
 
+    if ($block->hasField('field_text_simple_2')) {
+      $current_badge = trim((string) ($block->get('field_text_simple_2')->value ?? ''));
+      if ($current_badge === '') {
+        $block->set('field_text_simple_2', $badge_seed);
+        $changed = TRUE;
+        $messages[] = (string) t('Badge canônico 054 aplicado.');
+      }
+    }
+
     if ($block->hasField('field_text_simple')) {
       $current_title = trim((string) ($block->get('field_text_simple')->value ?? ''));
       if ($current_title === '' || in_array($current_title, $legacy_titles, TRUE)) {
         if ($current_title !== $title_seed) {
           $block->set('field_text_simple', $title_seed);
           $changed = TRUE;
-          $messages[] = (string) t('Título canônico 4 cards aplicado.');
+          $messages[] = (string) t('Título canônico 054 aplicado.');
         }
       }
     }
@@ -7723,9 +7727,18 @@ function _custom_configs_seed_beneficios_estudantes(): string {
         if ($current_sub !== $subtitle_seed) {
           $block->set('field_text_simple_long', $subtitle_seed);
           $changed = TRUE;
-          $messages[] = (string) t('Subtítulo canônico 4 cards aplicado.');
+          $messages[] = (string) t('Subtítulo canônico 054 aplicado.');
         }
       }
+    }
+
+    if ($block->hasField('field_link') && $block->get('field_link')->isEmpty()) {
+      $block->set('field_link', [
+        'uri' => $cta_uri_seed,
+        'title' => $cta_title_seed,
+      ]);
+      $changed = TRUE;
+      $messages[] = (string) t('CTA canônico 054 aplicado.');
     }
 
     if ($block->hasField('field_itens_lista')) {
@@ -7735,47 +7748,24 @@ function _custom_configs_seed_beneficios_estudantes(): string {
       }
       else {
         $titles = [];
-        $bodies = [];
         foreach ($block->get('field_itens_lista') as $item) {
           /** @var \Drupal\paragraphs\ParagraphInterface|null $paragraph */
           $paragraph = $item->entity;
           if ($paragraph && $paragraph->hasField('field_text_simple')) {
             $titles[] = trim((string) ($paragraph->get('field_text_simple')->value ?? ''));
-            $bodies[] = trim((string) ($paragraph->get('field_text_simple_long')->value ?? ''));
           }
         }
-        $count = count($titles);
-        if ($count === 6) {
-          $all_054 = TRUE;
-          foreach ($titles as $t) {
-            if (!in_array($t, $legacy_item_titles_054, TRUE)) {
-              $all_054 = FALSE;
-              break;
-            }
-          }
-          if ($all_054) {
-            $replace_items = TRUE;
-          }
-        }
-        elseif ($count === 4) {
+        // Legado conhecido das 4 cards 022/053 → 6 canônicos Figma.
+        if (count($titles) === 4) {
           $all_known = TRUE;
           foreach ($titles as $t) {
-            if (!in_array($t, $canonical_item_titles, TRUE)) {
+            if (!in_array($t, $legacy_4card_titles, TRUE)) {
               $all_known = FALSE;
               break;
             }
           }
           if ($all_known) {
-            // Corpos curtos do seed 022 → copy do anexo Figma.
-            $legacy_bodies = [
-              'Oportunidades filtradas pelo seu curso, interesses e objetivos profissionais.',
-              'Presencial, híbrido ou remoto — escolha o formato que encaixa na sua rotina.',
-              'Empresas de diferentes áreas e portes, ampliando suas possibilidades de carreira.',
-              'Refine a busca por localização, escolaridade, regime e outros critérios relevantes.',
-            ];
-            if ($bodies === $legacy_bodies) {
-              $replace_items = TRUE;
-            }
+            $replace_items = TRUE;
           }
         }
       }
@@ -7785,7 +7775,7 @@ function _custom_configs_seed_beneficios_estudantes(): string {
         if ($paragraphs !== []) {
           $block->set('field_itens_lista', $paragraphs);
           $changed = TRUE;
-          $messages[] = (string) t('@count cards canônicos anexados.', ['@count' => count($paragraphs)]);
+          $messages[] = (string) t('@count itens canônicos 054 anexados.', ['@count' => count($paragraphs)]);
         }
       }
       else {
@@ -7797,12 +7787,33 @@ function _custom_configs_seed_beneficios_estudantes(): string {
       }
     }
 
+    if ($block->hasField('field_image') && $block->get('field_image')->isEmpty()) {
+      if ($changed) {
+        $block->save();
+        $changed = FALSE;
+      }
+      $collage = _custom_configs_seed_file_from_module_asset(
+        'beneficios-estudantes/collage.png',
+        'public://beneficios-estudantes/collage.png',
+        'block_content',
+        (int) $block->id()
+      );
+      if ($collage) {
+        $block->set('field_image', [
+          'target_id' => $collage->id(),
+          'alt' => $badge_seed,
+        ]);
+        $changed = TRUE;
+        $messages[] = (string) t('Colagem canônica 054 aplicada.');
+      }
+    }
+
     if ($changed) {
       $block->save();
     }
 
     if (!$messages) {
-      $messages[] = (string) t('Bloco Benefícios Estudantes (@uuid) já canônico — seed no-op.', ['@uuid' => $uuid]);
+      $messages[] = (string) t('Bloco Benefícios Estudantes (@uuid) já canônico 054 — seed no-op.', ['@uuid' => $uuid]);
     }
     return implode(' ', $messages);
   }
@@ -7815,44 +7826,73 @@ function _custom_configs_seed_beneficios_estudantes(): string {
     'uuid' => $uuid,
     'info' => 'Benefícios Estudantes',
     'status' => TRUE,
+    'field_text_simple_2' => $badge_seed,
     'field_text_simple' => $title_seed,
     'field_text_simple_long' => $subtitle_seed,
+    'field_link' => [
+      'uri' => $cta_uri_seed,
+      'title' => $cta_title_seed,
+    ],
     'field_itens_lista' => $paragraphs,
   ]);
   $block->save();
 
-  return (string) t('Bloco Benefícios Estudantes seed criado (@uuid) com @count cards.', [
+  $collage = _custom_configs_seed_file_from_module_asset(
+    'beneficios-estudantes/collage.png',
+    'public://beneficios-estudantes/collage.png',
+    'block_content',
+    (int) $block->id()
+  );
+  if ($collage && $block->hasField('field_image')) {
+    $block->set('field_image', [
+      'target_id' => $collage->id(),
+      'alt' => $badge_seed,
+    ]);
+    $block->save();
+  }
+
+  return (string) t('Bloco Benefícios Estudantes seed criado (@uuid) com @count itens 054.', [
     '@uuid' => $uuid,
     '@count' => count($paragraphs),
   ]);
 }
 
 /**
- * Itens canônicos (4 cards) para Benefícios Estudantes — anexo Figma / features 022+053.
+ * Itens canônicos (6) para Benefícios Estudantes — Figma feature 054.
  *
  * @return array<int, array{label: string, text: string, file: string}>
  */
 function _custom_configs_beneficios_estudantes_canonical_items(): array {
   return [
     [
-      'label' => 'Vagas alinhadas',
-      'text' => 'Receba recomendações baseadas no seu curso, semestre e interesses profissionais.',
+      'label' => 'Encontrar propósito',
+      'text' => 'Descubra oportunidades que fazem sentido para você.',
       'file' => 'icon-1.png',
     ],
     [
-      'label' => 'Modelos de trabalho',
-      'text' => 'Filtre por vagas presenciais, remotas ou híbridas, adaptando-se à sua rotina.',
+      'label' => 'Desenvolver competências',
+      'text' => 'Acesse conteúdos e recursos para a sua evolução.',
       'file' => 'icon-2.png',
     ],
     [
-      'label' => 'Vários segmentos',
-      'text' => 'Explore oportunidades em tecnologia, finanças, engenharia, marketing e muito mais.',
+      'label' => 'Receber acompanhamento',
+      'text' => 'Conte com orientação durante toda a sua jornada.',
       'file' => 'icon-3.png',
     ],
     [
-      'label' => 'Filtros Inteligentes',
-      'text' => 'Encontre exatamente o que procura com filtros avançados de bolsa-auxílio e benefícios.',
+      'label' => 'Aprender mais',
+      'text' => 'Tenha acesso a dicas, cursos e materiais exclusivos.',
       'file' => 'icon-4.png',
+    ],
+    [
+      'label' => 'Construir carreira',
+      'text' => 'Dê os primeiros passos para um futuro promissor.',
+      'file' => 'icon-5.png',
+    ],
+    [
+      'label' => 'Ter uma experiência de estágio de verdade',
+      'text' => 'Conecte-se com empresas que valorizam seu potencial.',
+      'file' => 'icon-6.png',
     ],
   ];
 }
@@ -16374,10 +16414,10 @@ function custom_configs_update_11077(): string {
 }
 
 /**
- * Feature 054: Benefícios Estudantes — layout Figma (badge, 6 itens, CTA, colagem).
+ * Feature 054 (histórico): ensure estrutural Benefícios Estudantes.
  *
- * Ensure instances field_text_simple_2 / field_link / field_image + displays;
- * migra legado 4 cards → 6 canônicos; seed CTA/colagem; placement ativo.
+ * Em destinos que já rodaram este update com seed revertido (4 cards), o seed
+ * canônico Figma é aplicado por custom_configs_update_11081.
  * Destino: git pull → drush cim -y → drush updb -y → drush cim -y → drush cr.
  */
 function custom_configs_update_11078(): string {
@@ -16390,11 +16430,9 @@ function custom_configs_update_11078(): string {
 }
 
 /**
- * Restaura Benefícios Estudantes para grade de 4 cards (anexo Figma / 022+053).
+ * Histórico: tentou restaurar grade 4 cards; helpers atuais apontam para seed 054.
  *
- * Reverte copy/itens da 054 (split 6 itens) quando legado conhecido;
- * garante placement ativo em /para-estudantes.
- * Destino: git pull → drush cim -y → drush updb -y → drush cim -y → drush cr.
+ * Não reexecuta em destinos já atualizados. Forward path efetivo: 11081.
  */
 function custom_configs_update_11079(): string {
   $messages = [
@@ -16406,32 +16444,41 @@ function custom_configs_update_11079(): string {
 }
 
 /**
- * Restaura ícones canônicos das 4 cards Benefícios Estudantes (arte oportunidades).
+ * Histórico: sync de ícones do seed Benefícios Estudantes.
  *
- * Corrige seed provisório que reutilizava ícones navy de diferenciais-quem-somos
- * em vez das ilustrações icon-oportunidades (laptop/JOB, alvo, escada, lupa).
+ * Alinha bytes/filename dos ícones canônicos (agora 6 itens Figma 054).
  */
 function custom_configs_update_11080(): string {
   return _custom_configs_sync_beneficios_estudantes_provisional_icons();
 }
 
 /**
+ * Feature 054: Benefícios Estudantes — layout Figma (badge, 6 itens, CTA, colagem).
+ *
+ * Reaplica seed/migração 4→6 após rollback 11079/11080; ensure fields/displays;
+ * fill-if-empty badge/CTA/colagem; placement ativo. Idempotente.
+ * Destino: git pull → drush cim -y → drush updb -y → drush cim -y → drush cr.
+ */
+function custom_configs_update_11081(): string {
+  $messages = [
+    _custom_configs_ensure_beneficios_estudantes_structure(),
+    _custom_configs_seed_beneficios_estudantes(),
+    _custom_configs_ensure_beneficios_estudantes_placement(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
  * Copia assets → public:// e atualiza ícones provisórios/vazios do bloco Benefícios Estudantes.
  *
- * Só toca cards com títulos canônicos (4 cards 022/053). Editorial com título
+ * Só toca itens com títulos canônicos Figma 054. Editorial com título
  * divergente permanece intocado. Sync quando vazio, filename provisório icon-N.png
  * ou bytes em public:// diferem do asset versionado no módulo.
  */
 function _custom_configs_sync_beneficios_estudantes_provisional_icons(): string {
   $uuid = 'a8b9c0d1-e2f3-4456-a789-0bcdef123456';
   $items_seed = _custom_configs_beneficios_estudantes_canonical_items();
-  $canonical_titles = [
-    'Vagas alinhadas',
-    'Modelos de trabalho',
-    'Vários segmentos',
-    'Filtros Inteligentes',
-    'Filtros inteligentes',
-  ];
+  $canonical_titles = array_column($items_seed, 'label');
 
   $storage = \Drupal::entityTypeManager()->getStorage('block_content');
   $existing = $storage->loadByProperties(['uuid' => $uuid]);

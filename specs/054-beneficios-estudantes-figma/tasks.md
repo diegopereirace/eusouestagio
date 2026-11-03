@@ -4,7 +4,7 @@
 **Pré-requisitos**: `plan.md` (obrigatório), `spec.md` (obrigatório), `research.md`, `data-model.md`, `contracts/beneficios-estudantes-figma-render.md`, `contracts/deploy-beneficios-estudantes-figma.md`, `quickstart.md`  
 **Branch sugerida**: `main` (workflow do projeto)  
 **Predecessors**: `022-beneficios-estudantes`, `053-refino-figma-para-estudantes` (mesmo bloco/placement; esta feature **substitui** layout/copy de 4 cards)  
-**Hook**: `custom_configs_update_11078`  
+**Hook**: `custom_configs_update_11081` (`11078`–`11080` históricos)  
 **Testes automatizados**: não solicitados — validação manual via `quickstart.md` (sem PHPUnit)  
 **Nota de setup**: `.specify/scripts` e `.specify/templates` ausentes neste repo; `FEATURE_DIR` = `specs/054-beneficios-estudantes-figma` (via `.specify/feature.json`); template alinhado a `specs/053-refino-figma-para-estudantes/tasks.md`  
 **Config estrutural**: instances `field_text_simple_2` / `field_link` / `field_image` + displays via ensure no hook + `drush cex`; destino `cim` → `updb` → `cim` → `cr`

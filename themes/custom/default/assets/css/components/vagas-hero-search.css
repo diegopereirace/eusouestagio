@@ -378,7 +378,224 @@
   }
 }
 
-/* /para-estudantes: fundo da barra conforme Figma (#f8f6fa). /vagas permanece #fff. */
+/*
+ * /para-estudantes — Figma 320-726 (quadro 1440px).
+ * Escopo exclusivo: body.path-para-estudantes. /vagas permanece inalterado.
+ * Tipografia Inter (importada em style.css); demais blocos seguem Poppins.
+ */
+
+/* Fundo full-bleed (#F8F9FF + brilho rosado suave) e container sem limite Bootstrap. */
+body.path-para-estudantes .highlighted {
+  background-color: #f8f9ff;
+  background-image: radial-gradient(
+    ellipse 42% 85% at 42% 55%,
+    rgba(250, 238, 240, 0.55) 0%,
+    rgba(250, 238, 240, 0) 100%
+  );
+}
+
+body.path-para-estudantes .highlighted > aside.container {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+}
+
+body.path-para-estudantes .vagas-hero-search {
+  padding: 64px 40px 64px;
+  background: transparent;
+  font-family: Inter, "Segoe UI", sans-serif;
+}
+
+body.path-para-estudantes .vagas-hero-search__inner {
+  max-width: 1184px;
+}
+
+body.path-para-estudantes .vagas-hero-search__title {
+  max-width: none;
+  margin: 0 0 28px;
+  font-family: Inter, "Segoe UI", sans-serif;
+  font-size: clamp(1.75rem, 1.1rem + 2.2vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  color: #000;
+}
+
+body.path-para-estudantes .vagas-hero-search__subtitle {
+  max-width: 800px;
+  margin: 0 0 24px;
+  font-family: Inter, "Segoe UI", sans-serif;
+  font-size: clamp(1rem, 0.85rem + 0.5vw, 1.25rem);
+  font-weight: 400;
+  line-height: 1.6;
+  color: #45464d;
+}
+
+/* Barra de busca: branca, sem borda, sombra suave, 80px de altura. */
 body.path-para-estudantes .vagas-hero-search__form {
-  background: #f8f6fa;
+  max-width: 1152px;
+  min-height: 80px;
+  padding: 8px;
+  background: #fff;
+  border: 0;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+}
+
+body.path-para-estudantes .vagas-hero-search__field {
+  min-height: 64px;
+  gap: 20px;
+  padding: 0 12px;
+}
+
+body.path-para-estudantes .vagas-hero-search__icon {
+  width: 20px;
+  height: 20px;
+  color: #666669;
+}
+
+body.path-para-estudantes .vagas-hero-search__input {
+  font-family: Inter, "Segoe UI", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: #111;
+}
+
+body.path-para-estudantes .vagas-hero-search__input::placeholder {
+  color: #bdbdc2;
+  opacity: 1;
+}
+
+body.path-para-estudantes .vagas-hero-search__divider {
+  background: #f4f4f4;
+}
+
+body.path-para-estudantes .vagas-hero-search__submit {
+  min-height: 56px;
+  border-radius: 8px;
+  padding: 0 32px;
+  font-family: Inter, "Segoe UI", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: #58a83c;
+}
+
+body.path-para-estudantes .vagas-hero-search__submit:hover,
+body.path-para-estudantes .vagas-hero-search__submit:focus {
+  background: #4d9434;
+}
+
+/* Pills: sem borda, fundo #F0F4FF, espaçamento de 20px. */
+body.path-para-estudantes .vagas-hero-search__pills {
+  gap: 12px 20px;
+  margin: 40px 0 0;
+}
+
+body.path-para-estudantes .vagas-hero-search__pill {
+  min-height: 36px;
+  padding: 0 20px;
+  border: 0;
+  background: #f0f4ff;
+  color: #3d414c;
+  font-family: Inter, "Segoe UI", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+body.path-para-estudantes .vagas-hero-search__pill:hover,
+body.path-para-estudantes .vagas-hero-search__pill:focus {
+  background: #e3ebff;
+  color: #1f2330;
+}
+
+/* "Ver todas": Figma — sob as pills, à esquerda; Inter 400/16/24, #9D4300. */
+body.path-para-estudantes .vagas-hero-search__view-all {
+  margin: 16px 0 0;
+  text-align: left;
+}
+
+body.path-para-estudantes .vagas-hero-search__view-all-link {
+  font-family: Inter, "Segoe UI", sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #9D4300;
+  text-decoration: none;
+}
+
+body.path-para-estudantes .vagas-hero-search__view-all-link:hover,
+body.path-para-estudantes .vagas-hero-search__view-all-link:focus {
+  color: #9D4300;
+  text-decoration: underline;
+}
+
+@media (min-width: 992px) {
+  /* Larguras proporcionais ao Figma (≈ 288 / 248 / 374 px). */
+  body.path-para-estudantes .vagas-hero-search__field--title {
+    flex: 1.2 1 0;
+  }
+
+  body.path-para-estudantes .vagas-hero-search__field--cidade {
+    flex: 1 1 0;
+  }
+
+  body.path-para-estudantes .vagas-hero-search__field--curso {
+    flex: 1.5 1 0;
+  }
+
+  /* Divisor com altura total da barra e respiro de 12px de cada lado. */
+  body.path-para-estudantes .vagas-hero-search__divider {
+    margin: 0 12px;
+  }
+
+  body.path-para-estudantes .vagas-hero-search__submit {
+    min-width: 224px;
+  }
+}
+
+/* Desktop estreito: compacta gap/botão para não truncar o placeholder. */
+@media (min-width: 992px) and (max-width: 1279.98px) {
+  body.path-para-estudantes .vagas-hero-search__field {
+    gap: 12px;
+    padding: 0 8px;
+  }
+
+  body.path-para-estudantes .vagas-hero-search__divider {
+    margin: 0 4px;
+  }
+
+  body.path-para-estudantes .vagas-hero-search__input,
+  body.path-para-estudantes .vagas-hero-search__submit {
+    font-size: 1rem;
+  }
+
+  body.path-para-estudantes .vagas-hero-search__submit {
+    min-width: 160px;
+    padding: 0 20px;
+  }
+}
+
+@media (max-width: 991.98px) {
+  body.path-para-estudantes .vagas-hero-search__field {
+    min-height: 56px;
+    gap: 12px;
+  }
+
+  body.path-para-estudantes .vagas-hero-search__pills {
+    margin-top: 24px;
+  }
+
+  body.path-para-estudantes .vagas-hero-search__view-all {
+    margin-top: 12px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  body.path-para-estudantes .vagas-hero-search {
+    padding: 40px 16px 32px;
+  }
+
+  body.path-para-estudantes .vagas-hero-search__pill {
+    padding: 0 16px;
+  }
 }

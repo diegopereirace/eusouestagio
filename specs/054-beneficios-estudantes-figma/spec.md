@@ -37,7 +37,7 @@
 - Colagem visual à direita (desktop): arte versionada para deploy (foto central + satélites + acento), alinhada ao Figma; comportamento responsivo definido nas Assumptions (empilhar ou ocultar em viewport estreita sem quebrar a leitura).
 - Atualização de Twig/CSS da seção (escopo isolado sob o bloco de benefícios existentes) para layout split, tipografia, badge, lista de 6 itens e botão.
 - Seed / fill-if-empty idempotente: garantir os 6 itens, copy canônica quando vazio ou legado conhecido das 4 cards antigas, ícones versionados, CTA e assets da colagem; **nunca** sobrescrever copy editorial intencional divergente.
-- `hook_update_N` idempotente em `custom_configs` (próximo livre após `11077` → `11078`) + `drush cex` na origem para config estrutural se fields/displays/placements mudarem.
+- `hook_update_N` idempotente em `custom_configs` (`custom_configs_update_11081`; `11078`–`11080` históricos) + `drush cex` na origem para config estrutural se fields/displays/placements mudarem.
 - Atualização cirúrgica do `PRD.md` §3.6 descrevendo o novo layout/copy da seção Benefícios (não a composição inteira da página, salvo menção ao visual).
 
 ### Fora
@@ -178,7 +178,7 @@ Após a receita de destino, a seção Benefícios exibe o layout e o seed canôn
 - Legado conhecido das 4 cards (`Vagas alinhadas` etc.) pode ser substituído pelo seed dos 6 itens **somente** quando o conteúdo ainda for o seed antigo ou estiver vazio; copy claramente reescrita pelo editorial permanece.
 - Ícones dos 6 itens serão versionados em `modules/custom/custom_configs/assets/` (caminho exato no plan) e copiados para `public://` pelo hook.
 - Breakpoints de tema (`046`) e tokens de marca (laranja CTA, azul título) seguem o design system já usado em `/para-estudantes`.
-- Próximo `hook_update_N` livre: `11078`.
+- Hook de entrega efetiva: `custom_configs_update_11081` (após `11078`–`11080` históricos / rollback parcial).
 - Receita de destino padrão: `cim` → `updb` → `cim` → `cr`.
 - Feature `053` permanece válida para banner/Hero/perfil oculto/vão CTA; esta feature **só** reabre o capítulo Benefícios com o Figma novo.
 - Esta especificação **não** entrega código.

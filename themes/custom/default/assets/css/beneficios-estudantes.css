@@ -1,5 +1,6 @@
 /**
- * Benefícios Estudantes — escopo isolado.
+ * Benefícios Estudantes — layout Figma split (feature 054).
+ * Escopo isolado sob .block-beneficios-estudantes.
  * Não alterar .block-diferenciais-quem-somos / .dqs-* /
  * .block-nossos-diferenciais / .nd-* / .hero-estudantes-wrapper.
  */
@@ -8,67 +9,155 @@
   color: #0f172a;
 }
 
+.block-beneficios-estudantes .be-header {
+  margin-bottom: 1.75rem;
+}
+
+.block-beneficios-estudantes .be-header__badge {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 0.75rem;
+  line-height: 1.25;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--brand-orange, #ff8a22);
+  margin: 0 0 0.75rem;
+}
+
 .block-beneficios-estudantes .be-header__title {
   font-family: 'Poppins', sans-serif;
   font-weight: 700;
+  font-size: clamp(1.5rem, 2.2vw, 2rem);
+  line-height: 1.25;
   color: #0f172a;
-  max-width: 560px;
-  margin-bottom: 1rem;
+  max-width: 28rem;
+  margin: 0 0 0.75rem;
 }
 
 .block-beneficios-estudantes .be-header__subtitle {
   font-family: 'Poppins', sans-serif;
   font-weight: 400;
-  color: #0f172a;
-  max-width: 680px;
-  margin-bottom: 0;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: #45464d;
+  max-width: 32rem;
+  margin: 0;
 }
 
-.block-beneficios-estudantes .be-card {
-  min-height: 310px;
-  padding: 32px 32px 64px;
-  gap: 12px;
-  border: 1px solid rgba(198, 198, 205, 0.3);
-  border-radius: 12px;
-  background-color: #F8F9FF;
+.block-beneficios-estudantes .be-grid {
+  --bs-gutter-x: 1.25rem;
+  --bs-gutter-y: 0.25rem;
+  margin-bottom: 0.5rem;
 }
 
-.block-beneficios-estudantes .be-card__icon {
+/* Lista horizontal (ícone + texto); sem chrome de card. */
+.block-beneficios-estudantes .be-item {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  border-radius: 0;
+}
+
+.block-beneficios-estudantes .be-item__icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 64px;
-  height: 64px;
-  margin-bottom: 0;
+  width: 48px;
+  height: 48px;
 }
 
-.block-beneficios-estudantes .be-card__icon img {
-  max-width: 64px;
-  max-height: 64px;
+.block-beneficios-estudantes .be-item__icon img {
+  max-width: 48px;
+  max-height: 48px;
   width: auto;
   height: auto;
 }
 
-.block-beneficios-estudantes .be-card__title {
+.block-beneficios-estudantes .be-item__title {
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
-  font-size: 24px;
-  line-height: 32px;
-  letter-spacing: 0;
-  color: #000000;
-  margin-bottom: 0;
+  font-size: 1.0625rem;
+  line-height: 1.35;
+  color: #0f172a;
+  margin: 0 0 0.35rem;
 }
 
-.block-beneficios-estudantes .be-card__text {
+.block-beneficios-estudantes .be-item__text {
   font-family: 'Poppins', sans-serif;
   font-weight: 400;
   font-size: 0.9375rem;
   line-height: 1.5;
-  color: #45464D;
-  margin-bottom: 0;
+  color: #45464d;
+  margin: 0;
 }
 
-@media (max-width: 575.98px) {
+.block-beneficios-estudantes .be-cta {
+  margin-top: 0.75rem;
+}
+
+.block-beneficios-estudantes .be-cta__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.625rem 1.5rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  line-height: 1.25;
+  color: #ffffff;
+  background-color: var(--brand-orange, #ff8a22);
+  border: none;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: opacity 0.15s ease, filter 0.15s ease;
+}
+
+.block-beneficios-estudantes .be-cta__btn:hover,
+.block-beneficios-estudantes .be-cta__btn:focus {
+  color: #ffffff;
+  text-decoration: none;
+  opacity: 0.92;
+  filter: brightness(0.97);
+}
+
+.block-beneficios-estudantes .be-collage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.block-beneficios-estudantes .be-collage__img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Desktop ≥992: split; colagem à direita. */
+@media (min-width: 992px) {
+  .block-beneficios-estudantes .be-split__visual {
+    display: block;
+  }
+}
+
+/* <992: ocultar colagem; conteúdo largura plena. */
+@media (max-width: 991.98px) {
+  .block-beneficios-estudantes .be-split__visual,
+  .block-beneficios-estudantes .be-collage {
+    display: none !important;
+  }
+
+  .block-beneficios-estudantes .be-split__content {
+    max-width: 100%;
+  }
+
+  .block-beneficios-estudantes .be-header__title,
+  .block-beneficios-estudantes .be-header__subtitle {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 767.98px) {
   .block-beneficios-estudantes .be-header__title {
     font-size: 1.375rem;
   }
@@ -79,20 +168,14 @@
 
   .block-beneficios-estudantes .be-grid {
     --bs-gutter-x: 0.75rem;
-    --bs-gutter-y: 0.75rem;
-    margin-top: 1.5rem;
+    --bs-gutter-y: 0.25rem;
   }
 
-  .block-beneficios-estudantes .be-grid > [class*='col-'] {
-    margin-bottom: 0.75rem;
-  }
-
-  .block-beneficios-estudantes .be-card {
-    min-height: 0;
-    padding: 20px 20px 24px;
-  }
-
-  .block-beneficios-estudantes .be-card__text {
+  .block-beneficios-estudantes .be-item__text {
     font-size: 0.875rem;
+  }
+
+  .block-beneficios-estudantes .be-cta__btn {
+    width: 100%;
   }
 }

@@ -4,7 +4,7 @@
 **Date**: 2026-11-03  
 **Spec**: [spec.md](spec.md) | **Checklist**: [checklists/requirements.md](checklists/requirements.md)  
 **Predecessors**: `022-beneficios-estudantes`, `053-refino-figma-para-estudantes` (mesmo bloco/placement; esta feature **substitui** o layout/copy de 4 cards)  
-**Hook**: `custom_configs_update_11078`  
+**Hook**: `custom_configs_update_11081` (`11078`–`11080` históricos)  
 **Input**: Especificação em `specs/054-beneficios-estudantes-figma/spec.md` (checklist OK; zero `[NEEDS CLARIFICATION]`)
 
 ## Summary
@@ -26,7 +26,7 @@ Redesenhar **in-place** a seção Benefícios em `/para-estudantes` (mesmo `bene
 
 **Estado atual verificado (2026-11-03):**
 
-- Último hook: **`custom_configs_update_11077`** → próximo livre **`11078`**.
+- Hook de entrega 054: **`custom_configs_update_11081`** (após `11078`–`11080` históricos).
 - Bundle `beneficios_estudantes` com instances: `field_text_simple`, `field_text_simple_long`, `field_itens_lista` → `card_icon_text_p`. **Sem** badge, CTA nem imagem de colagem.
 - Storages reutilizáveis **existem**: `field_text_simple_2`, `field_link`, `field_image` em `block_content`.
 - Twig: cabeçalho **centrado**; grid `col-12` / `col-md-6` / `col-lg-3` (1/2/4); paragraph com `.be-card` (borda, fundo `#F8F9FF`, min-height 310px), ícone no topo.
@@ -43,7 +43,7 @@ Não há `.specify/memory/constitution.md`. Gates: `.cursor/rules/estagio-*.mdc`
 | SDD — spec antes do código | PASS | `spec.md` + checklist; zero `[NEEDS CLARIFICATION]` |
 | Sem `core/` / `vendor/` | PASS | só tema `default`, `custom_configs`, `config/sync` via cex, `PRD.md` |
 | Reuso / sem storage paralelo | PASS | instances de storages canônicos; BT/PT existentes |
-| Deploy `cim` → `updb` → `cim` → `cr` + hook idempotente | PASS | `11078` + cex das instances/displays |
+| Deploy `cim` → `updb` → `cim` → `cr` + hook idempotente | PASS | `11081` + cex das instances/displays |
 | Seeds Entity API / não sobrescrever editorial | PASS | fill-if-empty + só legado conhecido das 4 cards |
 | Clean URLs | PASS | `/para-estudantes`; CTA seed `/cadastro/candidato` |
 | Performance / CSS isolado | PASS | library existente; seletores sob `.block-beneficios-estudantes` |
@@ -68,7 +68,7 @@ Não há `.specify/memory/constitution.md`. Gates: `.cursor/rules/estagio-*.mdc`
 │   │    ├─ field_link             CTA
 │   │    └─ field_image            colagem composta
 │   ├─ jornada / block_3 / cta_v1  — FORA
-hook 11078 — ensure fields/displays + migrate legado 4→6 + seed CTA/colagem/ícones
+hook 11081 — ensure fields/displays + migrate legado 4→6 + seed CTA/colagem/ícones
 ```
 
 ## Design Decisions
@@ -79,9 +79,9 @@ hook 11078 — ensure fields/displays + migrate legado 4→6 + seed CTA/colagem/
 4. **Layout split**: desktop ≥992 — coluna texto/itens/CTA à esquerda + colagem à direita; &lt;992 — colagem ocultada (conteúdo empilhado legível) (R4).
 5. **Migração copy**: substituir título/subtítulo/itens **somente** se vazio ou legado conhecido das 4 cards; editorial divergente preservado (R5).
 6. **Assets**: `modules/custom/custom_configs/assets/beneficios-estudantes/icon-1.png`…`icon-6.png` + `collage.png` (ou nome equivalente); hook copia → `public://` se ausente (R6).
-7. **Hook `11078`**: ensure instances/displays; seed/migrate; ensure placement ativo; idempotente (R7).
+7. **Hook `11081`**: ensure instances/displays; seed/migrate; ensure placement ativo; idempotente (R7). `11078`–`11080` permanecem históricos.
 8. **Origem**: `drush updb -y` → `drush cex -y` → `drush cr`. **Destino**: `cim` → `updb` → `cim` → `cr`.
-9. **PRD** §3.6 cirúrgico (badge, 6 itens, CTA, colagem, hook `11078`).
+9. **PRD** §3.6 cirúrgico (badge, 6 itens, CTA, colagem, hook `11081`).
 10. **Fora**: SCSS; novo BT/PT; edição foto-a-foto da órbita; remover CTA final `026`; regressão outras seções/rotas.
 
 ## Project Structure
@@ -118,7 +118,7 @@ themes/custom/default/
   # default.libraries.yml — library beneficios_estudantes já existe
 
 modules/custom/custom_configs/
-  custom_configs.install          # custom_configs_update_11078 + helpers
+  custom_configs.install          # custom_configs_update_11081 + helpers
   assets/beneficios-estudantes/   # icon-1…6 + collage
 
 PRD.md                            # §3.6 cirúrgico
@@ -128,7 +128,7 @@ PRD.md                            # §3.6 cirúrgico
 
 1. Spec/plan/research/data-model/contracts/quickstart (esta entrega)
 2. `/speckit-tasks` → tasks ordenadas
-3. Implementação: field instances/displays → Twig/CSS split → assets → hook `11078` → `updb` → `cex` → PRD → `cr`
+3. Implementação: field instances/displays → Twig/CSS split → assets → hook `11081` → `updb` → `cex` → PRD → `cr`
 4. Validação [quickstart.md](quickstart.md)
 
 ## Complexity Tracking

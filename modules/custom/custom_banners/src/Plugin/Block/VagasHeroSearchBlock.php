@@ -40,6 +40,30 @@ class VagasHeroSearchBlock extends BlockBase implements ContainerFactoryPluginIn
     'Direito',
   ];
 
+  /**
+   * Sinônimos/fallbacks quando o rótulo canônico não existe no vocabulário.
+   *
+   * Ordem = prioridade. Match: nome exato, depois prefixo case-insensitive.
+   *
+   * @var array<string, list<string>>
+   */
+  private const PILL_ALIASES = [
+    'Tecnologia' => [
+      'Tecnologia',
+      'TI',
+      'Ciência da Computação',
+      'Sistemas de Informação',
+      'Engenharia de Software',
+    ],
+    'Saúde' => [
+      'Saúde',
+      'Enfermagem',
+      'Nutrição',
+      'Biomedicina',
+      'Medicina',
+    ],
+  ];
+
   public function __construct(
     array $configuration,
     $plugin_id,
@@ -112,31 +136,21 @@ class VagasHeroSearchBlock extends BlockBase implements ContainerFactoryPluginIn
     $pills = [];
     try {
       $storage = $this->entityTypeManager->getStorage('taxonomy_term');
+      $candidates = $storage->loadByProperties([
+        'vid' => 'curso',
+        'status' => 1,
+      ]);
     }
     catch (\Throwable) {
       return [];
     }
 
     foreach (self::PILL_LABELS as $label) {
-      $terms = $storage->loadByProperties([
-        'vid' => 'curso',
-        'name' => $label,
-        'status' => 1,
-      ]);
-      $term = reset($terms) ?: NULL;
-      if (!$term) {
-        $candidates = $storage->loadByProperties([
-          'vid' => 'curso',
-          'status' => 1,
-        ]);
-        foreach ($candidates as $candidate) {
-          $name = (string) $candidate->label();
-          if (strcasecmp($name, $label) === 0 || stripos($name, $label) === 0) {
-            $term = $candidate;
-            break;
-          }
-        }
-      }
+      $lookups = array_values(array_unique(array_merge(
+        [$label],
+        self::PILL_ALIASES[$label] ?? [],
+      )));
+      $term = $this->matchCourseTerm($candidates, $lookups);
       if (!$term) {
         continue;
       }
@@ -152,6 +166,30 @@ class VagasHeroSearchBlock extends BlockBase implements ContainerFactoryPluginIn
     }
 
     return $pills;
+  }
+
+  /**
+   * Resolve termo de curso: exato → prefixo, na ordem dos rótulos candidatos.
+   *
+   * @param array<\Drupal\taxonomy\TermInterface> $candidates
+   * @param list<string> $lookups
+   */
+  private function matchCourseTerm(array $candidates, array $lookups): ?object {
+    foreach ($lookups as $needle) {
+      foreach ($candidates as $candidate) {
+        $name = (string) $candidate->label();
+        if (strcasecmp($name, $needle) === 0) {
+          return $candidate;
+        }
+      }
+      foreach ($candidates as $candidate) {
+        $name = (string) $candidate->label();
+        if (stripos($name, $needle) === 0) {
+          return $candidate;
+        }
+      }
+    }
+    return NULL;
   }
 
   /**

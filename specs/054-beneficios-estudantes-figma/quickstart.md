@@ -9,7 +9,7 @@ Modelo: [data-model.md](data-model.md). Contratos: [contracts/beneficios-estudan
 ## Pré-requisitos
 
 1. Stack local no ar; `$settings['config_sync_directory'] = 'config/sync'`.
-2. Branch com tema + `custom_configs_update_11078` + assets + `config/sync` das instances commitados.
+2. Branch com tema + `custom_configs_update_11081` + assets + `config/sync` das instances commitados.
 3. `/para-estudantes` responde 200 antes da validação visual final.
 
 ---

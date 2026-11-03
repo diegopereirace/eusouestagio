@@ -111,9 +111,10 @@ CSS do estado desabilitado sob o override PE (não alterar `.block-cta-v1` de Qu
 **Decision**: Hook único idempotente que:
 
 1. Carrega bloco UUID `a7b8c9d0-e1f2-4345-a678-90abcdef0123` (`default_ctav1paraempresas`).
-2. Se `field_link_2.title` ∈ {`Falar com Especialista`, vazio com URI legada conhecida} **ou** URI ≠ `internal:/painel/empresa/vagas/nova` **somente** quando o título ainda é o legado conhecido → seta `title: Abrir Vaga`, `uri: internal:/painel/empresa/vagas/nova`.
-3. Não sobrescreve título/URI se o editorial já divergiu de forma intencional (qualquer título ≠ legado e ≠ vazio).
+2. Se `field_link_2` vazio → fill-if-empty canônico; se `title` ∈ {`Falar com Especialista`} **ou** (título vazio **e** URI ∈ lista legada conhecida: `/contato`, `/fale-conosco`) → seta `title: Abrir Vaga`, `uri: internal:/painel/empresa/vagas/nova`.
+3. Não sobrescreve título/URI se o editorial já divergiu (título ≠ legado; ou título vazio com URI custom fora da lista legada).
 4. Opcional: ensure fill-if-empty de assets mobile do banner **se** arquivos versionados existirem.
+5. CTA Twig: `user.roles` também em `hook_block_build_alter` (não só preprocess) para chave de Dynamic Page Cache.
 
 Último hook no repo: **`11075`** → próximo **`11076`**.
 

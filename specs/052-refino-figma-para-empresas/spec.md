@@ -2,7 +2,7 @@
 
 **Feature Directory**: `specs/052-refino-figma-para-empresas`  
 **Created**: 2026-11-03  
-**Status**: Draft  
+**Status**: Implemented  
 **Input do usuário**: Refatorar o frontend de `/para-empresas` alinhando banner (paridade com home), Nossos Diferenciais (camadas geométricas + tipografia `#4E4E4E`), carrossel de Depoimentos (navegação por bullets), e CTA final com lógica de roles (`empresa`) + lazy load; automação via `hook_update_N` / `drush cex` quando o conteúdo do bloco for alterado; aproveitar skills `mattpocock/skills` se disponíveis.
 
 ## Nota de levantamento (estado atual vs. pedido)

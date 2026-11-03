@@ -16052,14 +16052,24 @@ function custom_configs_update_11076(): string {
 /**
  * Corrige field_link_2 legado do CTA PE (UUID a7b8…0123).
  *
- * Só altera quando o título é "Falar com Especialista" (ou vazio com URI
- * distinta da canônica). Preserva qualquer outro copy editorial.
+ * Altera somente quando:
+ * - field_link_2 está vazio (fill-if-empty do seed PE); ou
+ * - título é "Falar com Especialista"; ou
+ * - título vazio com URI na lista de legados conhecidos.
+ * Preserva qualquer outro copy editorial (incl. título vazio + URI custom).
  */
 function _custom_configs_fix_cta_para_empresas_link2_legacy(): string {
   $uuid = 'a7b8c9d0-e1f2-4345-a678-90abcdef0123';
   $canonical_uri = 'internal:/painel/empresa/vagas/nova';
   $canonical_title = 'Abrir Vaga';
   $legacy_titles = ['Falar com Especialista'];
+  // URIs históricas associadas ao CTA secundário legado (R8 / FR-018).
+  $legacy_uris = [
+    'internal:/contato',
+    'internal:/fale-conosco',
+    '/contato',
+    '/fale-conosco',
+  ];
 
   $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
   if (!isset($bundle_info['cta_v1'])) {
@@ -16096,7 +16106,7 @@ function _custom_configs_fix_cta_para_empresas_link2_legacy(): string {
   $current_uri = (string) ($item->uri ?? '');
 
   $is_legacy_title = in_array($current_title, $legacy_titles, TRUE);
-  $is_empty_title_noncanonical = ($current_title === '' && $current_uri !== '' && $current_uri !== $canonical_uri);
+  $is_empty_title_legacy_uri = ($current_title === '' && $current_uri !== '' && in_array($current_uri, $legacy_uris, TRUE));
   $already_ok = ($current_title === $canonical_title && $current_uri === $canonical_uri);
 
   if ($already_ok) {
@@ -16105,9 +16115,9 @@ function _custom_configs_fix_cta_para_empresas_link2_legacy(): string {
     ]);
   }
 
-  if (!$is_legacy_title && !$is_empty_title_noncanonical) {
+  if (!$is_legacy_title && !$is_empty_title_legacy_uri) {
     return (string) t('CTA PE field_link_2 editorial divergente preservado ("@title") — no-op (@uuid).', [
-      '@title' => $current_title,
+      '@title' => $current_title !== '' ? $current_title : $current_uri,
       '@uuid' => $uuid,
     ]);
   }

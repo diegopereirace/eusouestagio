@@ -408,18 +408,24 @@ function default_block_access(Block $block, $operation, AccountInterface $accoun
 }
 
 /**
- * Implements hook_block_build_alter() for default_ctav1vagas.
+ * Implements hook_block_build_alter().
  *
- * Garante contexts/tags no render array (chave de cache), não só no AccessResult.
+ * Garante contexts/tags no render array (chave de cache), não só no preprocess.
+ * - default_ctav1vagas: user/route + candidatura (feature 050).
+ * - default_ctav1paraempresas: user.roles — markup varia por role empresa (052).
  */
 function default_block_build_alter(array &$build, Block $block): void
 {
-  if ($block->id() !== 'default_ctav1vagas') {
+  $id = $block->id();
+  if ($id === 'default_ctav1vagas') {
+    $build['#cache']['contexts'][] = 'user';
+    $build['#cache']['contexts'][] = 'route';
+    $build['#cache']['tags'][] = 'node_list:candidatura';
     return;
   }
-  $build['#cache']['contexts'][] = 'user';
-  $build['#cache']['contexts'][] = 'route';
-  $build['#cache']['tags'][] = 'node_list:candidatura';
+  if ($id === 'default_ctav1paraempresas') {
+    $build['#cache']['contexts'][] = 'user.roles';
+  }
 }
 
 /**
@@ -461,12 +467,14 @@ function default_preprocess_block__default_ctav1vagas(array &$variables): void
  * Implements hook_preprocess_block() for default_ctav1paraempresas.
  *
  * Expõe is_empresa (mesmo critério do topo) para CTAs condicionais (feature 052).
+ * Cache context também em hook_block_build_alter (chave de render cache).
  */
 function default_preprocess_block__default_ctav1paraempresas(array &$variables): void
 {
   $user = \Drupal::currentUser();
   $variables['is_empresa'] = $user->isAuthenticated() && in_array('empresa', $user->getRoles(), TRUE);
 
+  $variables['#cache']['contexts'][] = 'user.roles';
   if (isset($variables['elements']) && is_array($variables['elements'])) {
     $variables['elements']['#cache']['contexts'][] = 'user.roles';
   }

@@ -73,7 +73,8 @@ Contrato de apresentação estável para visitante em `/para-empresas`. Não é 
 ## 4. CTA v1 PE (`default_ctav1paraempresas`)
 
 Template: `block--default-ctav1paraempresas.html.twig`  
-Preprocess: `is_empresa` boolean.
+Preprocess: `is_empresa` boolean.  
+Cache: `user.roles` no `hook_block_build_alter` (+ preprocess) — chave de render cache por perfil.
 
 | Perfil | Botão 1 (esq.) | Botão 2 (dir.) |
 |--------|----------------|----------------|

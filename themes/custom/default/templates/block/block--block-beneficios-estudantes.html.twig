@@ -29,7 +29,9 @@
 {% set has_collage = content.field_image['#items'] is defined and content.field_image['#items'][0] is defined and content.field_image['#items'][0].entity.uri.value is defined %}
 {% set be_orbit_ready = be_orbit_ready|default(false) %}
 {% set be_orbit_sats = be_orbit_sats|default([]) %}
-{% set has_visual = be_orbit_ready or has_collage %}
+{% set be_collage_composite = be_collage_composite|default('') %}
+{% set has_composite_fallback = be_collage_composite is not empty %}
+{% set has_visual = be_orbit_ready or has_collage or has_composite_fallback %}
 
 <section{{ attributes.addClass(classes).setAttribute('id', 'beneficios-estudantes') }}>
   {{ title_prefix }}{{ title_suffix }}
@@ -107,6 +109,11 @@
                 {% set collage_alt = content.field_image['#items'][0].alt|default(title)|default('Benefícios para estudantes'|t) %}
                 <div class="be-collage">
                   <img class="be-collage__img img-fluid" src="{{ file_url(collage_uri) }}" alt="{{ collage_alt }}" loading="lazy">
+                </div>
+              {% elseif has_composite_fallback %}
+                {% set collage_alt = title|default('Benefícios para estudantes'|t) %}
+                <div class="be-collage">
+                  <img class="be-collage__img img-fluid" src="{{ be_collage_composite }}" alt="{{ collage_alt }}" loading="lazy">
                 </div>
               {% endif %}
             </div>

@@ -16672,6 +16672,24 @@ function custom_configs_update_11087(): string {
 }
 
 /**
+ * Produção: reaplica colagem/CTA/badge do Benefícios Estudantes se vazios.
+ *
+ * Causa: collage.png já em public:// (sync de órbita) mas field_image vazio —
+ * o tema preferia a composta e não montava a órbita CSS, sumindo a coluna visual.
+ * Também preenche badge/CTA canônicos ausentes e reforça o hero do banner PE.
+ * Destino: git pull → drush cim -y → drush updb -y → drush cr.
+ */
+function custom_configs_update_11088(): string {
+  $messages = [
+    _custom_configs_seed_beneficios_estudantes(),
+    _custom_configs_sync_beneficios_estudantes_orbit_assets(),
+    _custom_configs_sync_beneficios_estudantes_collage(),
+    _custom_configs_seed_banner_para_estudantes(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
  * Copia ícones Figma → public:// e atualiza cards canônicos do bloco Oportunidades.
  *
  * Só toca itens com títulos canônicos da grade. Sync quando vazio, filename

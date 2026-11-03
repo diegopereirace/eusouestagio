@@ -126,3 +126,25 @@
     font-size: 1rem;
   }
 }
+
+/**
+ * Feature 053: colapsa o shell do node (#main-wrapper) entre content_full e o
+ * footer em /para-estudantes — vão CTA→footer = 0px. Não altera cta-v1.css.
+ */
+body.path-para-estudantes #main-wrapper,
+body.path-para-estudantes #main,
+body.path-para-estudantes #main .section {
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+body.path-para-estudantes #block-default-ctav1paraestudantes,
+body.path-para-estudantes .content-full--after-banner > *:last-child {
+  margin-bottom: 0;
+}
+
+body.path-para-estudantes .site-footer-custom {
+  margin-top: 0;
+}

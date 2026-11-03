@@ -16134,6 +16134,237 @@ function _custom_configs_fix_cta_para_empresas_link2_legacy(): string {
 }
 
 /**
+ * Feature 053: refino visual /para-estudantes — perfil off + Hero + benefícios.
+ *
+ * Destino: git pull → drush cim -y → drush updb -y → drush cim -y → drush cr.
+ */
+function custom_configs_update_11077(): string {
+  $messages = [
+    _custom_configs_disable_perfil_destaque_estudante_placement(),
+    _custom_configs_ensure_vagas_hero_search_estudantes_placement(),
+    _custom_configs_seed_beneficios_estudantes(),
+    _custom_configs_fix_beneficios_estudantes_legacy_copy(),
+    _custom_configs_ensure_beneficios_estudantes_placement(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Desabilita placement default_perfildestaqueestudante (entidade permanece).
+ */
+function _custom_configs_disable_perfil_destaque_estudante_placement(): string {
+  $block_id = 'default_perfildestaqueestudante';
+  $storage = \Drupal::entityTypeManager()->getStorage('block');
+
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = $storage->load($block_id);
+  if (!$block) {
+    return (string) t('Placement default_perfildestaqueestudante ausente — não recria o bloco de conteúdo.');
+  }
+
+  if (!$block->status()) {
+    return (string) t('Placement default_perfildestaqueestudante já desabilitado — no-op.');
+  }
+
+  $block->setStatus(FALSE);
+  $block->save();
+  return (string) t('Placement default_perfildestaqueestudante desabilitado (status: false).');
+}
+
+/**
+ * Garante placement Hero Search em highlighted /para-estudantes (mesmo plugin de /vagas).
+ */
+function _custom_configs_ensure_vagas_hero_search_estudantes_placement(): string {
+  $plugin = 'custom_banners_vagas_hero_search';
+  $block_id = 'default_custom_banners_vagas_hero_search_estudantes';
+  $placement_uuid = 'e7f8a9b0-c1d2-4345-b678-0530abcdef01';
+  $label = 'Hero: busca de vagas (/para-estudantes)';
+  $storage = \Drupal::entityTypeManager()->getStorage('block');
+
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = $storage->load($block_id);
+  if (!$block) {
+    $block = $storage->create([
+      'id' => $block_id,
+      'uuid' => $placement_uuid,
+      'theme' => 'default',
+      'region' => 'highlighted',
+      'weight' => -50,
+      'provider' => NULL,
+      'plugin' => $plugin,
+      'settings' => [
+        'id' => $plugin,
+        'label' => $label,
+        'label_display' => '0',
+        'provider' => 'custom_banners',
+      ],
+      'visibility' => [
+        'request_path' => [
+          'id' => 'request_path',
+          'negate' => FALSE,
+          'pages' => '/para-estudantes',
+        ],
+      ],
+    ]);
+    $block->setStatus(TRUE);
+    $block->save();
+    return (string) t('Placement default_custom_banners_vagas_hero_search_estudantes criado.');
+  }
+
+  if ($block->getPluginId() !== $plugin) {
+    $block->delete();
+    $block = $storage->create([
+      'id' => $block_id,
+      'uuid' => $placement_uuid,
+      'theme' => 'default',
+      'region' => 'highlighted',
+      'weight' => -50,
+      'provider' => NULL,
+      'plugin' => $plugin,
+      'settings' => [
+        'id' => $plugin,
+        'label' => $label,
+        'label_display' => '0',
+        'provider' => 'custom_banners',
+      ],
+      'visibility' => [
+        'request_path' => [
+          'id' => 'request_path',
+          'negate' => FALSE,
+          'pages' => '/para-estudantes',
+        ],
+      ],
+    ]);
+    $block->setStatus(TRUE);
+    $block->save();
+    return (string) t('Placement default_custom_banners_vagas_hero_search_estudantes reapontado para plugin @plugin.', [
+      '@plugin' => $plugin,
+    ]);
+  }
+
+  $changed = FALSE;
+  if ($block->getRegion() !== 'highlighted') {
+    $block->setRegion('highlighted');
+    $changed = TRUE;
+  }
+  if ((int) $block->getWeight() !== -50) {
+    $block->setWeight(-50);
+    $changed = TRUE;
+  }
+  $settings = $block->get('settings') ?: [];
+  if (($settings['label_display'] ?? NULL) !== '0') {
+    $settings['label_display'] = '0';
+    $block->set('settings', $settings);
+    $changed = TRUE;
+  }
+  if (($settings['label'] ?? '') !== $label) {
+    $settings['label'] = $label;
+    $block->set('settings', $settings);
+    $changed = TRUE;
+  }
+  if (!$block->status()) {
+    $block->setStatus(TRUE);
+    $changed = TRUE;
+  }
+  $visibility = $block->getVisibility();
+  $pages = (string) ($visibility['request_path']['pages'] ?? '');
+  if (trim($pages) !== '/para-estudantes') {
+    $block->setVisibilityConfig('request_path', [
+      'id' => 'request_path',
+      'negate' => FALSE,
+      'pages' => '/para-estudantes',
+    ]);
+    $changed = TRUE;
+  }
+
+  if ($changed) {
+    $block->save();
+    return (string) t('Placement default_custom_banners_vagas_hero_search_estudantes atualizado.');
+  }
+
+  return (string) t('Placement default_custom_banners_vagas_hero_search_estudantes já ok.');
+}
+
+/**
+ * Corrige só copy legado conhecido dos benefícios (UUID a8b9…) — fill-if-empty já no seed.
+ *
+ * - Subtítulo seed 11035 → frase Figma.
+ * - Título exato "Filtros Inteligentes" → "Filtros inteligentes".
+ * Qualquer outra copy editorial é preservada.
+ */
+function _custom_configs_fix_beneficios_estudantes_legacy_copy(): string {
+  $uuid = 'a8b9c0d1-e2f3-4456-a789-0bcdef123456';
+  $legacy_subtitle = 'Nossa plataforma utiliza inteligência para conectar você às vagas e empresas que fazem sentido para o seu perfil e momento.';
+  $figma_subtitle = 'Nossa plataforma utiliza inteligência de dados para conectar seu perfil às melhores vagas do mercado.';
+  $legacy_card_title = 'Filtros Inteligentes';
+  $figma_card_title = 'Filtros inteligentes';
+
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+  if (!$existing) {
+    return (string) t('Bloco Benefícios Estudantes (@uuid) ausente — seed necessário.', [
+      '@uuid' => $uuid,
+    ]);
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = reset($existing);
+  $messages = [];
+  $changed = FALSE;
+
+  if ($block->hasField('field_text_simple_long') && !$block->get('field_text_simple_long')->isEmpty()) {
+    $current = trim((string) $block->get('field_text_simple_long')->value);
+    if ($current === $legacy_subtitle) {
+      $block->set('field_text_simple_long', $figma_subtitle);
+      $changed = TRUE;
+      $messages[] = (string) t('Subtítulo legado 11035 → frase Figma.');
+    }
+  }
+
+  if ($block->hasField('field_itens_lista') && !$block->get('field_itens_lista')->isEmpty()) {
+    $new_refs = [];
+    foreach ($block->get('field_itens_lista') as $item) {
+      /** @var \Drupal\paragraphs\ParagraphInterface|null $paragraph */
+      $paragraph = $item->entity;
+      if ($paragraph && $paragraph->hasField('field_text_simple') && !$paragraph->get('field_text_simple')->isEmpty()) {
+        $title = trim((string) $paragraph->get('field_text_simple')->value);
+        if ($title === $legacy_card_title) {
+          $paragraph->set('field_text_simple', $figma_card_title);
+          $paragraph->save();
+          $changed = TRUE;
+          $messages[] = (string) t('Card "Filtros Inteligentes" → "Filtros inteligentes".');
+        }
+        $new_refs[] = [
+          'target_id' => $paragraph->id(),
+          'target_revision_id' => $paragraph->getRevisionId(),
+        ];
+      }
+      else {
+        $new_refs[] = [
+          'target_id' => $item->target_id,
+          'target_revision_id' => $item->target_revision_id,
+        ];
+      }
+    }
+    if ($changed && $new_refs !== []) {
+      $block->set('field_itens_lista', $new_refs);
+    }
+  }
+
+  if ($changed) {
+    $block->save();
+  }
+
+  if (!$messages) {
+    return (string) t('Copy benefícios estudantes sem legado conhecido — no-op (@uuid).', [
+      '@uuid' => $uuid,
+    ]);
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
  * Oculta field_vaga_faq no form display node.vagas.default (idempotente).
  *
  * Storage/instance permanecem; valores legados no banco não são apagados.

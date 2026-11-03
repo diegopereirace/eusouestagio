@@ -1,0 +1,25 @@
+uuid: e7f8a9b0-c1d2-4345-b678-0530abcdef01
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - custom_banners
+    - system
+  theme:
+    - default
+id: default_custom_banners_vagas_hero_search_estudantes
+theme: default
+region: highlighted
+weight: -50
+provider: null
+plugin: custom_banners_vagas_hero_search
+settings:
+  id: custom_banners_vagas_hero_search
+  label: 'Hero: busca de vagas (/para-estudantes)'
+  label_display: '0'
+  provider: custom_banners
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /para-estudantes

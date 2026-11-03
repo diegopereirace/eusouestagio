@@ -199,17 +199,10 @@ body.path-para-estudantes .banner .region-wrapper-banner {
 	background-color: #e66e12;
 }
 
+/* Tablet intermediário: aspect do slide; CTAs ainda em overlay (≥768px). */
 @media (max-width: 991.98px) {
 	.banner-para-estudantes-wrapper .banner-para-estudantes__img {
 		aspect-ratio: 16 / 10;
-	}
-
-	.banner-para-estudantes-wrapper .banner-para-estudantes__ctas {
-		position: static;
-		margin-top: 1rem;
-		padding-inline: 1rem;
-		max-width: 100%;
-		pointer-events: auto;
 	}
 
 	.banner-para-estudantes-wrapper .carousel-control-prev,
@@ -227,5 +220,34 @@ body.path-para-estudantes .banner .region-wrapper-banner {
 	.banner-para-estudantes-wrapper .carousel-indicators {
 		right: 0.75rem;
 		bottom: 0.75rem;
+	}
+}
+
+/* Mobile / Figma: CTAs fora do overlay com larguras iguais (paridade PE). */
+@media (max-width: 767.98px) {
+	.banner-para-estudantes-wrapper .banner-para-estudantes__ctas {
+		position: static;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		width: 100%;
+		margin-top: 1rem;
+		padding-inline: 1rem;
+		max-width: 100%;
+		pointer-events: auto;
+	}
+
+	.banner-para-estudantes-wrapper .banner-para-estudantes__ctas > a {
+		flex: 1 1 0;
+		min-width: 0;
+		text-align: center;
+		flex-basis: calc(50% - 0.375rem);
+	}
+
+	/* Viewports muito estreitos: empilha com largura plena igual. */
+	@media (max-width: 379.98px) {
+		.banner-para-estudantes-wrapper .banner-para-estudantes__ctas > a {
+			flex: 1 1 100%;
+		}
 	}
 }

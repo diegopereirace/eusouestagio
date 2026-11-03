@@ -71,6 +71,8 @@ banner_para_estudantes:
       assets/css/banner-para-estudantes.css: {}
   dependencies:
     - default/bootstrap
+    - default/banner_carousel_js
+    - default/banner_carousel_cinematic
 depoimentos_carousel:
   js:
     assets/js/carousel-center.js: {}

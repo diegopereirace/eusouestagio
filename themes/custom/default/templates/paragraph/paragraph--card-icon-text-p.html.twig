@@ -21,7 +21,7 @@
 
 {% if has_icon or card_title or card_text %}
   <div{{ attributes.addClass(classes) }}>
-    <div class="be-card text-center d-flex flex-column align-items-center h-100">
+    <div class="be-card text-start d-flex flex-column align-items-start h-100">
       {% if has_icon %}
         {% set icon_uri = content.field_image['#items'][0].entity.uri.value %}
         {% set icon_alt = content.field_image['#items'][0].alt|default(card_title) %}

@@ -1,6 +1,6 @@
 uuid: e5f6a7b8-c9d0-4123-e456-d4e567890123
 langcode: pt-br
-status: true
+status: false
 dependencies:
   content:
     - 'block_content:perfil_destaque_estudante:c0d1e2f3-a4b5-4678-c901-2def01234567'

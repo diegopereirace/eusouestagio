@@ -97,13 +97,21 @@
         {{ page.banner }}
       </div>
     {% endif %}
-    {# /para-estudantes: content_full (benefícios → jornada → perfil → vagas destaque) após o hero. #}
-    {% if content_full_after_banner|default(false) and page.content_full %}
-      <div class="content-full content-full--after-banner">
-        {{ page.content_full }}
-      </div>
-    {% endif %}
-    {% if page.highlighted %}
+    {# /para-estudantes: Hero (highlighted) entre banner e content_full; demais rotas mantêm highlighted abaixo. #}
+    {% if content_full_after_banner|default(false) %}
+      {% if page.highlighted %}
+        <div class="highlighted">
+          <aside class="{{ container }} section clearfix" role="complementary">
+            {{ page.highlighted }}
+          </aside>
+        </div>
+      {% endif %}
+      {% if page.content_full %}
+        <div class="content-full content-full--after-banner">
+          {{ page.content_full }}
+        </div>
+      {% endif %}
+    {% elseif page.highlighted %}
       <div class="highlighted">
         <aside class="{{ container }} section clearfix" role="complementary">
           {{ page.highlighted }}

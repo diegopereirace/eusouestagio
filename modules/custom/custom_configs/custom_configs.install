@@ -16406,6 +16406,153 @@ function custom_configs_update_11079(): string {
 }
 
 /**
+ * Restaura ícones canônicos das 4 cards Benefícios Estudantes (arte oportunidades).
+ *
+ * Corrige seed provisório que reutilizava ícones navy de diferenciais-quem-somos
+ * em vez das ilustrações icon-oportunidades (laptop/JOB, alvo, escada, lupa).
+ */
+function custom_configs_update_11080(): string {
+  return _custom_configs_sync_beneficios_estudantes_provisional_icons();
+}
+
+/**
+ * Copia assets → public:// e atualiza ícones provisórios/vazios do bloco Benefícios Estudantes.
+ *
+ * Só toca cards com títulos canônicos (4 cards 022/053). Editorial com título
+ * divergente permanece intocado. Sync quando vazio, filename provisório icon-N.png
+ * ou bytes em public:// diferem do asset versionado no módulo.
+ */
+function _custom_configs_sync_beneficios_estudantes_provisional_icons(): string {
+  $uuid = 'a8b9c0d1-e2f3-4456-a789-0bcdef123456';
+  $items_seed = _custom_configs_beneficios_estudantes_canonical_items();
+  $canonical_titles = [
+    'Vagas alinhadas',
+    'Modelos de trabalho',
+    'Vários segmentos',
+    'Filtros Inteligentes',
+    'Filtros inteligentes',
+  ];
+
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+  if (!$existing) {
+    return (string) t('Bloco Benefícios Estudantes (@uuid) ausente — sync de ícones ignorado.', [
+      '@uuid' => $uuid,
+    ]);
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = reset($existing);
+  if (!$block->hasField('field_itens_lista') || $block->get('field_itens_lista')->isEmpty()) {
+    return (string) t('Lista de benefícios estudantes vazia — sync de ícones ignorado.');
+  }
+
+  $updated = 0;
+  $new_refs = [];
+  $delta = 0;
+
+  foreach ($block->get('field_itens_lista') as $item) {
+    /** @var \Drupal\paragraphs\ParagraphInterface|null $paragraph */
+    $paragraph = $item->entity;
+    $seed = $items_seed[$delta] ?? NULL;
+    $delta++;
+
+    if (!$paragraph || !$paragraph->hasField('field_image') || $seed === NULL) {
+      $new_refs[] = [
+        'target_id' => $item->target_id,
+        'target_revision_id' => $item->target_revision_id,
+      ];
+      continue;
+    }
+
+    $title = trim((string) ($paragraph->get('field_text_simple')->value ?? ''));
+    if ($title === '' || !in_array($title, $canonical_titles, TRUE)) {
+      $new_refs[] = [
+        'target_id' => $paragraph->id(),
+        'target_revision_id' => $paragraph->getRevisionId(),
+      ];
+      continue;
+    }
+
+    $canonical_uri = 'public://beneficios-estudantes/' . $seed['file'];
+    $asset_relative = 'beneficios-estudantes/' . $seed['file'];
+    $module_path = \Drupal::service('extension.list.module')->getPath('custom_configs');
+    $asset_source = DRUPAL_ROOT . '/' . $module_path . '/assets/' . $asset_relative;
+
+    $needs_sync = $paragraph->get('field_image')->isEmpty();
+    if (!$needs_sync) {
+      $file_entity = $paragraph->get('field_image')->entity;
+      $uri = $file_entity ? (string) $file_entity->getFileUri() : '';
+      $filename = $uri !== '' ? basename($uri) : '';
+      // Provisórios: icon-N.png (seed errado navy), icon-oportunidades-00N, ou rename Drupal.
+      $is_provisional = ($filename === $seed['file']
+        || (bool) preg_match('/^icon-[1-4](_\d+)?\.png$/i', $filename)
+        || (bool) preg_match('/^icon-oportunidades-00[1-4](_\d+)?\.png$/i', $filename));
+      if ($is_provisional) {
+        $same_path = ($uri === $canonical_uri);
+        $public_realpath = $same_path
+          ? \Drupal::service('file_system')->realpath($uri)
+          : FALSE;
+        $same_bytes = is_string($public_realpath)
+          && is_readable($asset_source)
+          && is_readable($public_realpath)
+          && md5_file($asset_source) === md5_file($public_realpath);
+        if (!$same_bytes) {
+          $needs_sync = TRUE;
+        }
+      }
+    }
+
+    if (!$needs_sync) {
+      $new_refs[] = [
+        'target_id' => $paragraph->id(),
+        'target_revision_id' => $paragraph->getRevisionId(),
+      ];
+      continue;
+    }
+
+    $file = _custom_configs_seed_file_from_module_asset(
+      $asset_relative,
+      $canonical_uri,
+      'paragraph',
+      (int) $paragraph->id()
+    );
+    if ($file) {
+      $current_target = (int) ($paragraph->get('field_image')->target_id ?? 0);
+      if ($current_target !== (int) $file->id()) {
+        $alt = (string) ($paragraph->get('field_text_simple')->value ?? $seed['label']);
+        $paragraph->set('field_image', [
+          'target_id' => $file->id(),
+          'alt' => $alt,
+        ]);
+        $paragraph->save();
+      }
+      $updated++;
+      $new_refs[] = [
+        'target_id' => $paragraph->id(),
+        'target_revision_id' => $paragraph->getRevisionId(),
+      ];
+      continue;
+    }
+
+    $new_refs[] = [
+      'target_id' => $paragraph->id(),
+      'target_revision_id' => $paragraph->getRevisionId(),
+    ];
+  }
+
+  if ($updated > 0) {
+    $block->set('field_itens_lista', $new_refs);
+    $block->save();
+    return (string) t('Benefícios Estudantes: @count ícone(s) canônico(s) sincronizado(s).', [
+      '@count' => $updated,
+    ]);
+  }
+
+  return (string) t('Benefícios Estudantes: ícones já canônicos — sync no-op.');
+}
+
+/**
  * Desabilita placement default_perfildestaqueestudante (entidade permanece).
  */
 function _custom_configs_disable_perfil_destaque_estudante_placement(): string {

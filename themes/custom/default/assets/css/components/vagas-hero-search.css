@@ -377,3 +377,8 @@
     max-width: 100%;
   }
 }
+
+/* /para-estudantes: fundo da barra conforme Figma (#f8f6fa). /vagas permanece #fff. */
+body.path-para-estudantes .vagas-hero-search__form {
+  background: #f8f6fa;
+}

@@ -15,7 +15,9 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 316px;
+  /* min-height (não height fixo): preserva padding-bottom 64px do layout */
+  height: auto;
+  min-height: 316px;
   margin: 0;
   padding: 64px 40px;
   background: linear-gradient(180deg, #023c62 0%, #011a2b 100%);
@@ -111,8 +113,6 @@
 @media (max-width: 575.98px) {
   .block-cta-v1--para-estudantes .cta-v1--dark,
   #block-default-ctav1paraestudantes .cta-v1--dark {
-    height: auto;
-    min-height: 316px;
     padding: 64px 40px;
   }
 
@@ -129,15 +129,37 @@
 
 /**
  * Feature 053: colapsa o shell do node (#main-wrapper) entre content_full e o
- * footer em /para-estudantes — vão CTA→footer = 0px. Não altera cta-v1.css.
+ * footer em /para-estudantes — vão estrutural = 0px. A linha branca de 1px entre
+ * CTA e footer vem de .site-footer-custom { border-top } em style.css (global).
+ * Não altera cta-v1.css.
+ *
+ * Só zerar padding/margin NÃO basta: .row.clearfix::after (Bootstrap) ainda
+ * gera ~10px de faixa clara (vão estrutural) entre o gradiente e o footer.
  */
+body.path-para-estudantes #main-wrapper {
+  height: 0;
+  max-height: 0;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
 body.path-para-estudantes #main-wrapper,
 body.path-para-estudantes #main,
+body.path-para-estudantes #main .row,
 body.path-para-estudantes #main .section {
   padding-top: 0;
   padding-bottom: 0;
   margin-top: 0;
   margin-bottom: 0;
+}
+
+body.path-para-estudantes #main-wrapper .row.clearfix::before,
+body.path-para-estudantes #main-wrapper .row.clearfix::after {
+  content: none;
+  display: none;
+  height: 0;
 }
 
 body.path-para-estudantes #block-default-ctav1paraestudantes,

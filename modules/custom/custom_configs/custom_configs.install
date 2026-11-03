@@ -7237,19 +7237,28 @@ function _custom_configs_ensure_beneficios_estudantes_structure(): string {
   }
 
   $block_fields = [
+    'field_text_simple_2' => [
+      'label' => 'Badge',
+      'required' => FALSE,
+      'settings' => [],
+      'description' => 'Rótulo curto acima do título (ex.: BENEFÍCIOS PARA ESTUDANTES).',
+    ],
     'field_text_simple' => [
       'label' => 'Título da seção',
       'required' => FALSE,
       'settings' => [],
+      'description' => '',
     ],
     'field_text_simple_long' => [
       'label' => 'Subtítulo',
       'required' => FALSE,
       'settings' => [],
+      'description' => '',
     ],
     'field_itens_lista' => [
-      'label' => 'Cards',
+      'label' => 'Itens',
       'required' => FALSE,
+      'description' => 'Lista de benefícios (ícone + título + texto).',
       'settings' => [
         'handler' => 'default:paragraph',
         'handler_settings' => [
@@ -7261,6 +7270,40 @@ function _custom_configs_ensure_beneficios_estudantes_structure(): string {
               'enabled' => TRUE,
             ],
           ],
+        ],
+      ],
+    ],
+    'field_link' => [
+      'label' => 'CTA',
+      'required' => FALSE,
+      'description' => 'Botão de chamada para ação (ex.: Cadastre-se gratuitamente).',
+      'settings' => [
+        'title' => 2,
+        'link_type' => 17,
+      ],
+    ],
+    'field_image' => [
+      'label' => 'Colagem',
+      'required' => FALSE,
+      'description' => 'Arte composta circular da seção (única; não itemizada).',
+      'settings' => [
+        'handler' => 'default:file',
+        'handler_settings' => [],
+        'file_directory' => 'block/beneficios-estudantes/[date:custom:Y]-[date:custom:m]',
+        'file_extensions' => 'png gif jpg jpeg webp svg',
+        'max_filesize' => '',
+        'max_resolution' => '',
+        'min_resolution' => '',
+        'alt_field' => TRUE,
+        'alt_field_required' => FALSE,
+        'title_field' => TRUE,
+        'title_field_required' => FALSE,
+        'default_image' => [
+          'uuid' => '',
+          'alt' => '',
+          'title' => '',
+          'width' => NULL,
+          'height' => NULL,
         ],
       ],
     ],
@@ -7280,6 +7323,7 @@ function _custom_configs_ensure_beneficios_estudantes_structure(): string {
       'label' => $definition['label'],
       'required' => $definition['required'],
       'settings' => $definition['settings'],
+      'description' => $definition['description'] ?? '',
       'translatable' => FALSE,
     ])->save();
     $parts[] = (string) t('Instance block_content.beneficios_estudantes.@field criada.', ['@field' => $field_name]);
@@ -7420,27 +7464,34 @@ function _custom_configs_ensure_beneficios_estudantes_displays(): string {
       'settings' => ['size' => 60, 'placeholder' => ''],
       'third_party_settings' => [],
     ],
-    'field_text_simple' => [
+    'field_text_simple_2' => [
       'type' => 'string_textfield',
       'weight' => 1,
       'region' => 'content',
       'settings' => ['size' => 60, 'placeholder' => ''],
       'third_party_settings' => [],
     ],
+    'field_text_simple' => [
+      'type' => 'string_textfield',
+      'weight' => 2,
+      'region' => 'content',
+      'settings' => ['size' => 60, 'placeholder' => ''],
+      'third_party_settings' => [],
+    ],
     'field_text_simple_long' => [
       'type' => 'string_textarea',
-      'weight' => 2,
+      'weight' => 3,
       'region' => 'content',
       'settings' => ['rows' => 3, 'placeholder' => ''],
       'third_party_settings' => [],
     ],
     'field_itens_lista' => [
       'type' => 'paragraphs',
-      'weight' => 3,
+      'weight' => 4,
       'region' => 'content',
       'settings' => [
-        'title' => 'Card',
-        'title_plural' => 'Cards',
+        'title' => 'Item',
+        'title_plural' => 'Itens',
         'edit_mode' => 'open',
         'closed_mode' => 'summary',
         'autocollapse' => 'none',
@@ -7455,10 +7506,44 @@ function _custom_configs_ensure_beneficios_estudantes_displays(): string {
       ],
       'third_party_settings' => [],
     ],
+    'field_link' => [
+      'type' => 'link_default',
+      'weight' => 5,
+      'region' => 'content',
+      'settings' => [
+        'placeholder_url' => '',
+        'placeholder_title' => '',
+      ],
+      'third_party_settings' => [],
+    ],
+    'field_image' => [
+      'type' => 'image_image',
+      'weight' => 6,
+      'region' => 'content',
+      'settings' => [
+        'progress_indicator' => 'throbber',
+        'preview_image_style' => 'thumbnail',
+      ],
+      'third_party_settings' => [],
+    ],
   ];
   foreach ($b_form_fields as $name => $component) {
-    if ($b_form->getComponent($name) === NULL) {
+    $current = $b_form->getComponent($name);
+    if ($current === NULL) {
       $b_form->setComponent($name, $component);
+      $b_form_changed = TRUE;
+    }
+    elseif (in_array($name, ['field_text_simple_2', 'field_link', 'field_image'], TRUE)) {
+      // Fields novos desta feature: garantir presença (já coberto por NULL).
+    }
+    elseif (isset($component['weight']) && (int) ($current['weight'] ?? -999) !== (int) $component['weight']) {
+      // Reordena displays legados (badge acima do título).
+      $merged = $current + $component;
+      $merged['weight'] = $component['weight'];
+      if (isset($component['settings'])) {
+        $merged['settings'] = $component['settings'] + ($current['settings'] ?? []);
+      }
+      $b_form->setComponent($name, $merged);
       $b_form_changed = TRUE;
     }
   }
@@ -7479,7 +7564,7 @@ function _custom_configs_ensure_beneficios_estudantes_displays(): string {
   }
   $b_view_changed = FALSE;
   $b_view_fields = [
-    'field_text_simple' => [
+    'field_text_simple_2' => [
       'type' => 'string',
       'label' => 'hidden',
       'settings' => ['link_to_entity' => FALSE],
@@ -7487,12 +7572,20 @@ function _custom_configs_ensure_beneficios_estudantes_displays(): string {
       'weight' => 0,
       'region' => 'content',
     ],
+    'field_text_simple' => [
+      'type' => 'string',
+      'label' => 'hidden',
+      'settings' => ['link_to_entity' => FALSE],
+      'third_party_settings' => [],
+      'weight' => 1,
+      'region' => 'content',
+    ],
     'field_text_simple_long' => [
       'type' => 'basic_string',
       'label' => 'hidden',
       'settings' => [],
       'third_party_settings' => [],
-      'weight' => 1,
+      'weight' => 2,
       'region' => 'content',
     ],
     'field_itens_lista' => [
@@ -7503,13 +7596,46 @@ function _custom_configs_ensure_beneficios_estudantes_displays(): string {
         'link' => '',
       ],
       'third_party_settings' => [],
-      'weight' => 2,
+      'weight' => 3,
+      'region' => 'content',
+    ],
+    'field_link' => [
+      'type' => 'link',
+      'label' => 'hidden',
+      'settings' => [
+        'trim_length' => 80,
+        'url_only' => FALSE,
+        'url_plain' => FALSE,
+        'rel' => '',
+        'target' => '',
+      ],
+      'third_party_settings' => [],
+      'weight' => 4,
+      'region' => 'content',
+    ],
+    'field_image' => [
+      'type' => 'image',
+      'label' => 'hidden',
+      'settings' => [
+        'image_link' => '',
+        'image_style' => '',
+        'image_loading' => ['attribute' => 'lazy'],
+      ],
+      'third_party_settings' => [],
+      'weight' => 5,
       'region' => 'content',
     ],
   ];
   foreach ($b_view_fields as $name => $component) {
-    if ($b_view->getComponent($name) === NULL) {
+    $current = $b_view->getComponent($name);
+    if ($current === NULL) {
       $b_view->setComponent($name, $component);
+      $b_view_changed = TRUE;
+    }
+    elseif (isset($component['weight']) && (int) ($current['weight'] ?? -999) !== (int) $component['weight']) {
+      $merged = $current + $component;
+      $merged['weight'] = $component['weight'];
+      $b_view->setComponent($name, $merged);
       $b_view_changed = TRUE;
     }
   }
@@ -7527,38 +7653,38 @@ function _custom_configs_ensure_beneficios_estudantes_displays(): string {
 }
 
 /**
- * Seed idempotente do bloco Benefícios Estudantes (UUID fixo + 4 cards).
+ * Seed idempotente do bloco Benefícios Estudantes (UUID fixo + layout Figma 054).
+ *
+ * Migra legado conhecido das 4 cards (022/053) → 6 itens canônicos; fill-if-empty
+ * para badge/CTA/colagem; preserva editorial divergente.
  */
 function _custom_configs_seed_beneficios_estudantes(): string {
   $uuid = 'a8b9c0d1-e2f3-4456-a789-0bcdef123456';
   $storage = \Drupal::entityTypeManager()->getStorage('block_content');
   $existing = $storage->loadByProperties(['uuid' => $uuid]);
 
-  $items_seed = [
-    [
-      'label' => 'Vagas alinhadas',
-      'text' => 'Oportunidades filtradas pelo seu curso, interesses e objetivos profissionais.',
-      'file' => 'icon-1.png',
-    ],
-    [
-      'label' => 'Modelos de trabalho',
-      'text' => 'Presencial, híbrido ou remoto — escolha o formato que encaixa na sua rotina.',
-      'file' => 'icon-2.png',
-    ],
-    [
-      'label' => 'Vários segmentos',
-      'text' => 'Empresas de diferentes áreas e portes, ampliando suas possibilidades de carreira.',
-      'file' => 'icon-3.png',
-    ],
-    [
-      'label' => 'Filtros Inteligentes',
-      'text' => 'Refine a busca por localização, escolaridade, regime e outros critérios relevantes.',
-      'file' => 'icon-4.png',
-    ],
+  $items_seed = _custom_configs_beneficios_estudantes_canonical_items();
+  $badge_seed = 'BENEFÍCIOS PARA ESTUDANTES';
+  $title_seed = 'Muito mais do que encontrar um estágio.';
+  $subtitle_seed = 'Na Eu Sou Estágio você se desenvolve, recebe apoio e constrói uma carreira com mais segurança e propósito.';
+  $cta_seed = [
+    'uri' => 'internal:/cadastro/candidato',
+    'title' => 'Cadastre-se gratuitamente',
   ];
-
-  $title_seed = 'Encontre oportunidades que combinam com você.';
-  $subtitle_seed = 'Nossa plataforma utiliza inteligência para conectar você às vagas e empresas que fazem sentido para o seu perfil e momento.';
+  $legacy_titles = [
+    'Encontre oportunidades que combinam com você.',
+  ];
+  $legacy_subtitles = [
+    'Nossa plataforma utiliza inteligência para conectar você às vagas e empresas que fazem sentido para o seu perfil e momento.',
+    'Nossa plataforma utiliza inteligência de dados para conectar seu perfil às melhores vagas do mercado.',
+  ];
+  $legacy_item_titles = [
+    'Vagas alinhadas',
+    'Modelos de trabalho',
+    'Vários segmentos',
+    'Filtros Inteligentes',
+    'Filtros inteligentes',
+  ];
 
   $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
   if (!isset($bundle_info['beneficios_estudantes'])) {
@@ -7576,30 +7702,102 @@ function _custom_configs_seed_beneficios_estudantes(): string {
     $messages = [];
     $changed = FALSE;
 
-    if ($block->hasField('field_text_simple') && $block->get('field_text_simple')->isEmpty()) {
-      $block->set('field_text_simple', $title_seed);
-      $changed = TRUE;
-      $messages[] = (string) t('Título seed preenchido.');
-    }
-    if ($block->hasField('field_text_simple_long') && $block->get('field_text_simple_long')->isEmpty()) {
-      $block->set('field_text_simple_long', $subtitle_seed);
-      $changed = TRUE;
-      $messages[] = (string) t('Subtítulo seed preenchido.');
-    }
-
-    if ($block->hasField('field_itens_lista') && $block->get('field_itens_lista')->isEmpty()) {
-      $paragraphs = _custom_configs_build_beneficios_estudantes_paragraphs($items_seed);
-      if ($paragraphs !== []) {
-        $block->set('field_itens_lista', $paragraphs);
+    if ($block->hasField('field_text_simple_2')) {
+      if ($block->get('field_text_simple_2')->isEmpty()) {
+        $block->set('field_text_simple_2', $badge_seed);
         $changed = TRUE;
-        $messages[] = (string) t('@count cards seed anexados.', ['@count' => count($paragraphs)]);
+        $messages[] = (string) t('Badge seed preenchido.');
       }
     }
-    else {
-      $icons_filled = _custom_configs_fill_beneficios_estudantes_icons($block, $items_seed);
-      if ($icons_filled > 0) {
+
+    if ($block->hasField('field_text_simple')) {
+      $current_title = trim((string) ($block->get('field_text_simple')->value ?? ''));
+      if ($current_title === '' || in_array($current_title, $legacy_titles, TRUE)) {
+        if ($current_title !== $title_seed) {
+          $block->set('field_text_simple', $title_seed);
+          $changed = TRUE;
+          $messages[] = (string) t('Título canônico Figma aplicado.');
+        }
+      }
+    }
+
+    if ($block->hasField('field_text_simple_long')) {
+      $current_sub = trim((string) ($block->get('field_text_simple_long')->value ?? ''));
+      if ($current_sub === '' || in_array($current_sub, $legacy_subtitles, TRUE)) {
+        if ($current_sub !== $subtitle_seed) {
+          $block->set('field_text_simple_long', $subtitle_seed);
+          $changed = TRUE;
+          $messages[] = (string) t('Subtítulo canônico Figma aplicado.');
+        }
+      }
+    }
+
+    if ($block->hasField('field_link') && $block->get('field_link')->isEmpty()) {
+      $block->set('field_link', $cta_seed);
+      $changed = TRUE;
+      $messages[] = (string) t('CTA seed preenchido.');
+    }
+
+    if ($block->hasField('field_image') && $block->get('field_image')->isEmpty()) {
+      $file = _custom_configs_seed_file_from_module_asset(
+        'beneficios-estudantes/collage.png',
+        'public://beneficios-estudantes/collage.png',
+        'block_content',
+        (int) $block->id()
+      );
+      if ($file) {
+        $block->set('field_image', [
+          'target_id' => $file->id(),
+          'alt' => 'Benefícios para estudantes',
+        ]);
         $changed = TRUE;
-        $messages[] = (string) t('@count ícone(s) seed anexado(s).', ['@count' => $icons_filled]);
+        $messages[] = (string) t('Colagem seed anexada.');
+      }
+    }
+
+    if ($block->hasField('field_itens_lista')) {
+      $replace_items = FALSE;
+      if ($block->get('field_itens_lista')->isEmpty()) {
+        $replace_items = TRUE;
+      }
+      else {
+        $titles = [];
+        foreach ($block->get('field_itens_lista') as $item) {
+          /** @var \Drupal\paragraphs\ParagraphInterface|null $paragraph */
+          $paragraph = $item->entity;
+          if ($paragraph && $paragraph->hasField('field_text_simple')) {
+            $titles[] = trim((string) ($paragraph->get('field_text_simple')->value ?? ''));
+          }
+        }
+        $count = count($titles);
+        if ($count === 4) {
+          $all_legacy = TRUE;
+          foreach ($titles as $t) {
+            if (!in_array($t, $legacy_item_titles, TRUE)) {
+              $all_legacy = FALSE;
+              break;
+            }
+          }
+          if ($all_legacy) {
+            $replace_items = TRUE;
+          }
+        }
+      }
+
+      if ($replace_items) {
+        $paragraphs = _custom_configs_build_beneficios_estudantes_paragraphs($items_seed);
+        if ($paragraphs !== []) {
+          $block->set('field_itens_lista', $paragraphs);
+          $changed = TRUE;
+          $messages[] = (string) t('@count itens canônicos anexados.', ['@count' => count($paragraphs)]);
+        }
+      }
+      else {
+        $icons_filled = _custom_configs_fill_beneficios_estudantes_icons($block, $items_seed);
+        if ($icons_filled > 0) {
+          $changed = TRUE;
+          $messages[] = (string) t('@count ícone(s) seed anexado(s).', ['@count' => $icons_filled]);
+        }
       }
     }
 
@@ -7608,7 +7806,7 @@ function _custom_configs_seed_beneficios_estudantes(): string {
     }
 
     if (!$messages) {
-      $messages[] = (string) t('Bloco Benefícios Estudantes (@uuid) já existe — seed ignorado.', ['@uuid' => $uuid]);
+      $messages[] = (string) t('Bloco Benefícios Estudantes (@uuid) já canônico — seed no-op.', ['@uuid' => $uuid]);
     }
     return implode(' ', $messages);
   }
@@ -7621,16 +7819,72 @@ function _custom_configs_seed_beneficios_estudantes(): string {
     'uuid' => $uuid,
     'info' => 'Benefícios Estudantes',
     'status' => TRUE,
+    'field_text_simple_2' => $badge_seed,
     'field_text_simple' => $title_seed,
     'field_text_simple_long' => $subtitle_seed,
     'field_itens_lista' => $paragraphs,
+    'field_link' => $cta_seed,
   ]);
   $block->save();
 
-  return (string) t('Bloco Benefícios Estudantes seed criado (@uuid) com @count cards.', [
+  $file = _custom_configs_seed_file_from_module_asset(
+    'beneficios-estudantes/collage.png',
+    'public://beneficios-estudantes/collage.png',
+    'block_content',
+    (int) $block->id()
+  );
+  if ($file && $block->hasField('field_image')) {
+    $block->set('field_image', [
+      'target_id' => $file->id(),
+      'alt' => 'Benefícios para estudantes',
+    ]);
+    $block->save();
+  }
+
+  return (string) t('Bloco Benefícios Estudantes seed criado (@uuid) com @count itens.', [
     '@uuid' => $uuid,
     '@count' => count($paragraphs),
   ]);
+}
+
+/**
+ * Itens canônicos Figma (6) para Benefícios Estudantes.
+ *
+ * @return array<int, array{label: string, text: string, file: string}>
+ */
+function _custom_configs_beneficios_estudantes_canonical_items(): array {
+  return [
+    [
+      'label' => 'Encontrar propósito',
+      'text' => 'Descubra oportunidades que fazem sentido para você.',
+      'file' => 'icon-1.png',
+    ],
+    [
+      'label' => 'Desenvolver competências',
+      'text' => 'Acesse conteúdos e recursos para a sua evolução.',
+      'file' => 'icon-2.png',
+    ],
+    [
+      'label' => 'Receber acompanhamento',
+      'text' => 'Conte com orientação durante toda a sua jornada.',
+      'file' => 'icon-3.png',
+    ],
+    [
+      'label' => 'Aprender mais',
+      'text' => 'Tenha acesso a dicas, cursos e materiais exclusivos.',
+      'file' => 'icon-4.png',
+    ],
+    [
+      'label' => 'Construir carreira',
+      'text' => 'Dê os primeiros passos para um futuro promissor.',
+      'file' => 'icon-5.png',
+    ],
+    [
+      'label' => 'Ter uma experiência de estágio de verdade',
+      'text' => 'Conecte-se com empresas que valorizam seu potencial.',
+      'file' => 'icon-6.png',
+    ],
+  ];
 }
 
 /**
@@ -16144,6 +16398,22 @@ function custom_configs_update_11077(): string {
     _custom_configs_ensure_vagas_hero_search_estudantes_placement(),
     _custom_configs_seed_beneficios_estudantes(),
     _custom_configs_fix_beneficios_estudantes_legacy_copy(),
+    _custom_configs_ensure_beneficios_estudantes_placement(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Feature 054: Benefícios Estudantes — layout Figma (badge, 6 itens, CTA, colagem).
+ *
+ * Ensure instances field_text_simple_2 / field_link / field_image + displays;
+ * migra legado 4 cards → 6 canônicos; seed CTA/colagem; placement ativo.
+ * Destino: git pull → drush cim -y → drush updb -y → drush cim -y → drush cr.
+ */
+function custom_configs_update_11078(): string {
+  $messages = [
+    _custom_configs_ensure_beneficios_estudantes_structure(),
+    _custom_configs_seed_beneficios_estudantes(),
     _custom_configs_ensure_beneficios_estudantes_placement(),
   ];
   return implode(' ', array_filter($messages));

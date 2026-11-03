@@ -152,6 +152,8 @@ h6 {
 .site-footer-custom {
 	background-color: #023c62;
 	color: #fff;
+	/* Separador 1px entre o último bloco (ex.: CTA) e o rodapé — todas as páginas */
+	border-top: 1px solid #ffffff;
 	padding-top: 64px;
 	padding-bottom: 64px;
 }

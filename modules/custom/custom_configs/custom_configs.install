@@ -8134,7 +8134,7 @@ function _custom_configs_ensure_beneficios_estudantes_placement(): string {
       'id' => $block_id,
       'theme' => 'default',
       'region' => 'content_full',
-      'weight' => 0,
+      'weight' => 1,
       'provider' => NULL,
       'plugin' => $plugin,
       'settings' => [
@@ -8161,8 +8161,9 @@ function _custom_configs_ensure_beneficios_estudantes_placement(): string {
     $block->setRegion('content_full');
     $changed = TRUE;
   }
-  if ((int) $block->getWeight() !== 0) {
-    $block->setWeight(0);
+  // Após oportunidades_estudantes (weight 0): benefícios fica em weight 1.
+  if ((int) $block->getWeight() !== 1) {
+    $block->setWeight(1);
     $changed = TRUE;
   }
   $settings = $block->get('settings') ?: [];
@@ -8647,7 +8648,7 @@ function _custom_configs_ensure_jornada_estudante_placement(): string {
       'id' => $block_id,
       'theme' => 'default',
       'region' => 'content_full',
-      'weight' => 1,
+      'weight' => 2,
       'provider' => NULL,
       'plugin' => $plugin,
       'settings' => [
@@ -8674,8 +8675,9 @@ function _custom_configs_ensure_jornada_estudante_placement(): string {
     $block->setRegion('content_full');
     $changed = TRUE;
   }
-  if ((int) $block->getWeight() !== 1) {
-    $block->setWeight(1);
+  // Após oportunidades (0) + benefícios (1).
+  if ((int) $block->getWeight() !== 2) {
+    $block->setWeight(2);
     $changed = TRUE;
   }
   $settings = $block->get('settings') ?: [];
@@ -9455,7 +9457,7 @@ function _custom_configs_fill_perfil_destaque_estudante_icons(
 }
 
 /**
- * Garante placement default_perfildestaqueestudante em content_full weight 2 /para-estudantes.
+ * Garante placement default_perfildestaqueestudante em content_full weight 3 /para-estudantes.
  */
 function _custom_configs_ensure_perfil_destaque_estudante_placement(): string {
   $plugin = 'block_content:c0d1e2f3-a4b5-4678-c901-2def01234567';
@@ -9469,7 +9471,7 @@ function _custom_configs_ensure_perfil_destaque_estudante_placement(): string {
       'id' => $block_id,
       'theme' => 'default',
       'region' => 'content_full',
-      'weight' => 2,
+      'weight' => 3,
       'provider' => NULL,
       'plugin' => $plugin,
       'settings' => [
@@ -9496,8 +9498,8 @@ function _custom_configs_ensure_perfil_destaque_estudante_placement(): string {
     $block->setRegion('content_full');
     $changed = TRUE;
   }
-  if ((int) $block->getWeight() !== 2) {
-    $block->setWeight(2);
+  if ((int) $block->getWeight() !== 3) {
+    $block->setWeight(3);
     $changed = TRUE;
   }
   $settings = $block->get('settings') ?: [];
@@ -16607,6 +16609,473 @@ function custom_configs_update_11083(): string {
  */
 function custom_configs_update_11084(): string {
   return _custom_configs_sync_beneficios_estudantes_collage();
+}
+
+/**
+ * Feature 056: restaura grade "Encontre oportunidades…" como bloco próprio.
+ *
+ * Causa raiz do sumiço recorrente: 022/053 e 054/055 disputavam a mesma
+ * instância beneficios_estudantes. Agora oportunidades_estudantes (4 cards)
+ * e beneficios_estudantes (split Figma) coexistem em /para-estudantes.
+ * Ordem content_full: oportunidades w0 → benefícios w1 → jornada w2 → …
+ * Destino: git pull → drush cim -y → drush updb -y → drush cim -y → drush cr.
+ */
+function custom_configs_update_11085(): string {
+  $messages = [
+    _custom_configs_ensure_oportunidades_estudantes_structure(),
+    _custom_configs_seed_oportunidades_estudantes(),
+    _custom_configs_ensure_oportunidades_estudantes_placement(),
+    // Reaplica weights da composição para não colidir com o novo bloco.
+    _custom_configs_ensure_beneficios_estudantes_placement(),
+    _custom_configs_ensure_jornada_estudante_placement(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Ensure block type oportunidades_estudantes + fields/displays (reusa storages).
+ */
+function _custom_configs_ensure_oportunidades_estudantes_structure(): string {
+  $parts = [];
+
+  // Paragraph card_icon_text_p já existe via benefícios; só garante se ausente.
+  if (!\Drupal\paragraphs\Entity\ParagraphsType::load('card_icon_text_p')) {
+    $parts[] = _custom_configs_ensure_beneficios_estudantes_structure();
+  }
+
+  if (!\Drupal\block_content\Entity\BlockContentType::load('oportunidades_estudantes')) {
+    \Drupal\block_content\Entity\BlockContentType::create([
+      'id' => 'oportunidades_estudantes',
+      'label' => 'Oportunidades Estudantes',
+      'revision' => FALSE,
+      'description' => 'Grade “Encontre oportunidades…” (4 cards) em /para-estudantes — distinta de Benefícios.',
+    ])->save();
+    $parts[] = (string) t('Block type oportunidades_estudantes criado.');
+  }
+
+  $block_fields = [
+    'field_text_simple' => [
+      'label' => 'Título da seção',
+      'required' => FALSE,
+      'settings' => [],
+      'description' => '',
+    ],
+    'field_text_simple_long' => [
+      'label' => 'Subtítulo',
+      'required' => FALSE,
+      'settings' => [],
+      'description' => '',
+    ],
+    'field_itens_lista' => [
+      'label' => 'Cards',
+      'required' => FALSE,
+      'description' => 'Cards da grade (ícone + título + texto).',
+      'settings' => [
+        'handler' => 'default:paragraph',
+        'handler_settings' => [
+          'target_bundles' => ['card_icon_text_p' => 'card_icon_text_p'],
+          'negate' => 0,
+          'target_bundles_drag_drop' => [
+            'card_icon_text_p' => [
+              'weight' => 0,
+              'enabled' => TRUE,
+            ],
+          ],
+        ],
+      ],
+    ],
+  ];
+  foreach ($block_fields as $field_name => $definition) {
+    if (\Drupal\field\Entity\FieldConfig::loadByName('block_content', 'oportunidades_estudantes', $field_name)) {
+      continue;
+    }
+    $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('block_content', $field_name);
+    if (!$storage) {
+      $parts[] = (string) t('Storage block_content.@field ausente — rode drush cim -y.', ['@field' => $field_name]);
+      continue;
+    }
+    \Drupal\field\Entity\FieldConfig::create([
+      'field_storage' => $storage,
+      'bundle' => 'oportunidades_estudantes',
+      'label' => $definition['label'],
+      'required' => $definition['required'],
+      'settings' => $definition['settings'],
+      'description' => $definition['description'] ?? '',
+      'translatable' => FALSE,
+    ])->save();
+    $parts[] = (string) t('Instance block_content.oportunidades_estudantes.@field criada.', ['@field' => $field_name]);
+  }
+
+  $parts[] = _custom_configs_ensure_oportunidades_estudantes_displays();
+
+  if (!$parts) {
+    $parts[] = (string) t('Estrutura Oportunidades Estudantes já presente.');
+  }
+
+  return implode(' ', array_filter($parts));
+}
+
+/**
+ * Form/view displays do bloco oportunidades_estudantes.
+ */
+function _custom_configs_ensure_oportunidades_estudantes_displays(): string {
+  $messages = [];
+  $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+  $view_storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+
+  $b_form = $form_storage->load('block_content.oportunidades_estudantes.default');
+  if (!$b_form) {
+    $b_form = $form_storage->create([
+      'targetEntityType' => 'block_content',
+      'bundle' => 'oportunidades_estudantes',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $b_form_changed = FALSE;
+  $b_form_fields = [
+    'info' => [
+      'type' => 'string_textfield',
+      'weight' => -5,
+      'region' => 'content',
+      'settings' => ['size' => 60, 'placeholder' => ''],
+      'third_party_settings' => [],
+    ],
+    'field_text_simple' => [
+      'type' => 'string_textfield',
+      'weight' => 0,
+      'region' => 'content',
+      'settings' => ['size' => 60, 'placeholder' => ''],
+      'third_party_settings' => [],
+    ],
+    'field_text_simple_long' => [
+      'type' => 'string_textarea',
+      'weight' => 1,
+      'region' => 'content',
+      'settings' => ['rows' => 3, 'placeholder' => ''],
+      'third_party_settings' => [],
+    ],
+    'field_itens_lista' => [
+      'type' => 'paragraphs',
+      'weight' => 2,
+      'region' => 'content',
+      'settings' => [
+        'title' => 'Card',
+        'title_plural' => 'Cards',
+        'edit_mode' => 'open',
+        'closed_mode' => 'summary',
+        'autocollapse' => 'none',
+        'closed_mode_threshold' => 0,
+        'add_mode' => 'dropdown',
+        'form_display_mode' => 'default',
+        'default_paragraph_type' => 'card_icon_text_p',
+        'features' => [
+          'add_above' => '0',
+          'collapse_edit_all' => 'collapse_edit_all',
+          'duplicate' => 'duplicate',
+        ],
+      ],
+      'third_party_settings' => [],
+    ],
+  ];
+  foreach ($b_form_fields as $name => $component) {
+    if ($b_form->getComponent($name) === NULL) {
+      $b_form->setComponent($name, $component);
+      $b_form_changed = TRUE;
+    }
+  }
+  if ($b_form_changed || $b_form->isNew()) {
+    $b_form->save();
+    $messages[] = (string) t('Form display block_content.oportunidades_estudantes atualizado.');
+  }
+
+  $b_view = $view_storage->load('block_content.oportunidades_estudantes.default');
+  if (!$b_view) {
+    $b_view = $view_storage->create([
+      'targetEntityType' => 'block_content',
+      'bundle' => 'oportunidades_estudantes',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $b_view_changed = FALSE;
+  $b_view_fields = [
+    'field_text_simple' => [
+      'type' => 'string',
+      'label' => 'hidden',
+      'settings' => ['link_to_entity' => FALSE],
+      'third_party_settings' => [],
+      'weight' => 0,
+      'region' => 'content',
+    ],
+    'field_text_simple_long' => [
+      'type' => 'basic_string',
+      'label' => 'hidden',
+      'settings' => [],
+      'third_party_settings' => [],
+      'weight' => 1,
+      'region' => 'content',
+    ],
+    'field_itens_lista' => [
+      'type' => 'entity_reference_revisions_entity_view',
+      'label' => 'hidden',
+      'settings' => [
+        'view_mode' => 'default',
+        'link' => '',
+      ],
+      'third_party_settings' => [],
+      'weight' => 2,
+      'region' => 'content',
+    ],
+  ];
+  foreach ($b_view_fields as $name => $component) {
+    if ($b_view->getComponent($name) === NULL) {
+      $b_view->setComponent($name, $component);
+      $b_view_changed = TRUE;
+    }
+  }
+  if ($b_view_changed || $b_view->isNew()) {
+    $b_view->save();
+    $messages[] = (string) t('View display block_content.oportunidades_estudantes atualizado.');
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
+ * Itens canônicos (4) — grade Encontre oportunidades (Figma 053 / anexo).
+ *
+ * @return array<int, array{label: string, text: string, file: string}>
+ */
+function _custom_configs_oportunidades_estudantes_canonical_items(): array {
+  return [
+    [
+      'label' => 'Vagas alinhadas',
+      'text' => 'Receba recomendações baseadas no seu curso, semestre e interesses profissionais.',
+      'file' => 'icon-1.png',
+    ],
+    [
+      'label' => 'Modelos de trabalho',
+      'text' => 'Filtre por vagas presenciais, remotas ou híbridas, adaptando-se à sua rotina.',
+      'file' => 'icon-2.png',
+    ],
+    [
+      'label' => 'Vários segmentos',
+      'text' => 'Explore oportunidades em tecnologia, finanças, engenharia, marketing e muito mais.',
+      'file' => 'icon-3.png',
+    ],
+    [
+      'label' => 'Filtros inteligentes',
+      'text' => 'Encontre exatamente o que procura com filtros avançados de bolsa-auxílio e benefícios.',
+      'file' => 'icon-4.png',
+    ],
+  ];
+}
+
+/**
+ * Seed idempotente do bloco Oportunidades Estudantes (UUID fixo).
+ */
+function _custom_configs_seed_oportunidades_estudantes(): string {
+  $uuid = 'c1d2e3f4-a5b6-4789-c012-3456789abcde';
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+
+  $items_seed = _custom_configs_oportunidades_estudantes_canonical_items();
+  $title_seed = 'Encontre oportunidades que combinam com você.';
+  $subtitle_seed = 'Nossa plataforma utiliza inteligência de dados para conectar seu perfil às melhores vagas do mercado.';
+  // Copy antiga 022 — migrar para a frase Figma 053.
+  $legacy_subtitles = [
+    'Nossa plataforma utiliza inteligência para conectar você às vagas e empresas que fazem sentido para o seu perfil e momento.',
+  ];
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
+  if (!isset($bundle_info['oportunidades_estudantes'])) {
+    return (string) t('Bundle oportunidades_estudantes ausente — rode drush cim -y antes do updb.');
+  }
+  $paragraph_bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('paragraph');
+  if (!isset($paragraph_bundles['card_icon_text_p'])) {
+    return (string) t('Bundle card_icon_text_p ausente — rode drush cim -y antes do updb.');
+  }
+
+  if ($existing) {
+    /** @var \Drupal\block_content\BlockContentInterface $block */
+    $block = reset($existing);
+    $messages = [];
+    $changed = FALSE;
+
+    if ($block->hasField('field_text_simple')) {
+      $current_title = trim((string) ($block->get('field_text_simple')->value ?? ''));
+      if ($current_title === '') {
+        $block->set('field_text_simple', $title_seed);
+        $changed = TRUE;
+        $messages[] = (string) t('Título Oportunidades aplicado.');
+      }
+    }
+
+    if ($block->hasField('field_text_simple_long')) {
+      $current_sub = trim((string) ($block->get('field_text_simple_long')->value ?? ''));
+      if ($current_sub === '' || in_array($current_sub, $legacy_subtitles, TRUE)) {
+        if ($current_sub !== $subtitle_seed) {
+          $block->set('field_text_simple_long', $subtitle_seed);
+          $changed = TRUE;
+          $messages[] = (string) t('Subtítulo Oportunidades canônico aplicado.');
+        }
+      }
+    }
+
+    if ($block->hasField('field_itens_lista') && $block->get('field_itens_lista')->isEmpty()) {
+      $paragraphs = _custom_configs_build_oportunidades_estudantes_paragraphs($items_seed);
+      if ($paragraphs !== []) {
+        $block->set('field_itens_lista', $paragraphs);
+        $changed = TRUE;
+        $messages[] = (string) t('@count cards Oportunidades anexados.', ['@count' => count($paragraphs)]);
+      }
+    }
+
+    if ($changed) {
+      $block->save();
+    }
+    if (!$messages) {
+      $messages[] = (string) t('Bloco Oportunidades Estudantes (@uuid) já seedado — no-op.', ['@uuid' => $uuid]);
+    }
+    return implode(' ', $messages);
+  }
+
+  $paragraphs = _custom_configs_build_oportunidades_estudantes_paragraphs($items_seed);
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = $storage->create([
+    'type' => 'oportunidades_estudantes',
+    'uuid' => $uuid,
+    'info' => 'Oportunidades Estudantes',
+    'status' => TRUE,
+    'field_text_simple' => $title_seed,
+    'field_text_simple_long' => $subtitle_seed,
+    'field_itens_lista' => $paragraphs,
+  ]);
+  $block->save();
+
+  return (string) t('Bloco Oportunidades Estudantes seed criado (@uuid) com @count cards.', [
+    '@uuid' => $uuid,
+    '@count' => count($paragraphs),
+  ]);
+}
+
+/**
+ * Cria paragraphs card_icon_text_p com ícones de oportunidades-estudantes/.
+ *
+ * @param array<int, array{label: string, text: string, file: string}> $items_seed
+ *
+ * @return array<int, array{target_id: int|string, target_revision_id: int|string}>
+ */
+function _custom_configs_build_oportunidades_estudantes_paragraphs(array $items_seed): array {
+  $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
+  $paragraphs = [];
+
+  foreach ($items_seed as $item) {
+    /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
+    $paragraph = $paragraph_storage->create([
+      'type' => 'card_icon_text_p',
+      'field_text_simple' => $item['label'],
+      'field_text_simple_long' => $item['text'],
+    ]);
+    $paragraph->save();
+
+    $file = _custom_configs_seed_file_from_module_asset(
+      'oportunidades-estudantes/' . $item['file'],
+      'public://oportunidades-estudantes/' . $item['file'],
+      'paragraph',
+      (int) $paragraph->id()
+    );
+    if ($file && $paragraph->hasField('field_image')) {
+      $paragraph->set('field_image', [
+        'target_id' => $file->id(),
+        'alt' => $item['label'],
+      ]);
+      $paragraph->save();
+    }
+
+    $paragraphs[] = [
+      'target_id' => $paragraph->id(),
+      'target_revision_id' => $paragraph->getRevisionId(),
+    ];
+  }
+
+  return $paragraphs;
+}
+
+/**
+ * Garante placement default_oportunidadesestudantes (content_full w0).
+ */
+function _custom_configs_ensure_oportunidades_estudantes_placement(): string {
+  $plugin = 'block_content:c1d2e3f4-a5b6-4789-c012-3456789abcde';
+  $block_id = 'default_oportunidadesestudantes';
+  $storage = \Drupal::entityTypeManager()->getStorage('block');
+
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = $storage->load($block_id);
+  if (!$block) {
+    $block = $storage->create([
+      'id' => $block_id,
+      'theme' => 'default',
+      'region' => 'content_full',
+      'weight' => 0,
+      'provider' => NULL,
+      'plugin' => $plugin,
+      'settings' => [
+        'id' => $plugin,
+        'label' => 'Oportunidades Estudantes',
+        'label_display' => '0',
+        'provider' => 'block_content',
+        'view_mode' => 'full',
+      ],
+      'visibility' => [
+        'request_path' => [
+          'id' => 'request_path',
+          'negate' => FALSE,
+          'pages' => '/para-estudantes',
+        ],
+      ],
+    ]);
+    $block->save();
+    return (string) t('Placement default_oportunidadesestudantes criado.');
+  }
+
+  $changed = FALSE;
+  if ($block->getRegion() !== 'content_full') {
+    $block->setRegion('content_full');
+    $changed = TRUE;
+  }
+  if ((int) $block->getWeight() !== 0) {
+    $block->setWeight(0);
+    $changed = TRUE;
+  }
+  $settings = $block->get('settings') ?: [];
+  if (($settings['label_display'] ?? NULL) !== '0') {
+    $settings['label_display'] = '0';
+    $block->set('settings', $settings);
+    $changed = TRUE;
+  }
+  if (!$block->status()) {
+    $block->setStatus(TRUE);
+    $changed = TRUE;
+  }
+  $visibility = $block->getVisibility();
+  $pages = (string) ($visibility['request_path']['pages'] ?? '');
+  if (trim($pages) !== '/para-estudantes') {
+    $block->setVisibilityConfig('request_path', [
+      'id' => 'request_path',
+      'negate' => FALSE,
+      'pages' => '/para-estudantes',
+    ]);
+    $changed = TRUE;
+  }
+
+  if ($changed) {
+    $block->save();
+    return (string) t('Placement default_oportunidadesestudantes atualizado (região/visibilidade).');
+  }
+
+  return (string) t('Placement default_oportunidadesestudantes já ok.');
 }
 
 /**

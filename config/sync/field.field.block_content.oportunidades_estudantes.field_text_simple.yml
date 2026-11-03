@@ -1,0 +1,19 @@
+uuid: 8097e4bd-527c-4559-ab88-ad6d5df0fbbf
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.oportunidades_estudantes
+    - field.storage.block_content.field_text_simple
+id: block_content.oportunidades_estudantes.field_text_simple
+field_name: field_text_simple
+entity_type: block_content
+bundle: oportunidades_estudantes
+label: 'Título da seção'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

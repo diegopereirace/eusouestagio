@@ -1,0 +1,43 @@
+uuid: 1f34ff36-1bbf-4298-927f-cec7eb8a761b
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.oportunidades_estudantes
+    - field.field.block_content.oportunidades_estudantes.field_itens_lista
+    - field.field.block_content.oportunidades_estudantes.field_text_simple
+    - field.field.block_content.oportunidades_estudantes.field_text_simple_long
+  module:
+    - entity_reference_revisions
+id: block_content.oportunidades_estudantes.default
+targetEntityType: block_content
+bundle: oportunidades_estudantes
+mode: default
+content:
+  field_itens_lista:
+    type: entity_reference_revisions_entity_view
+    label: hidden
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_text_simple:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+      link_rel: canonical
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_text_simple_long:
+    type: basic_string
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
+hidden:
+  langcode: true

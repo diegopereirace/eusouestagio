@@ -1,0 +1,28 @@
+uuid: 09d9ff6f-bcec-4a9a-b763-372ce5618708
+langcode: pt-br
+status: true
+dependencies:
+  content:
+    - 'block_content:oportunidades_estudantes:c1d2e3f4-a5b6-4789-c012-3456789abcde'
+  module:
+    - block_content
+    - system
+  theme:
+    - default
+id: default_oportunidadesestudantes
+theme: default
+region: content_full
+weight: 0
+provider: null
+plugin: 'block_content:c1d2e3f4-a5b6-4789-c012-3456789abcde'
+settings:
+  id: 'block_content:c1d2e3f4-a5b6-4789-c012-3456789abcde'
+  label: 'Oportunidades Estudantes'
+  label_display: '0'
+  provider: block_content
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /para-estudantes

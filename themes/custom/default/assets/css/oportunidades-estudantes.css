@@ -1,0 +1,101 @@
+/**
+ * Oportunidades Estudantes — grade de 4 cards (feature 056).
+ * Escopo isolado sob .block-oportunidades-estudantes.
+ * Não alterar .block-beneficios-estudantes / .be-* .
+ */
+.block-oportunidades-estudantes {
+  overflow-x: hidden;
+  color: #0f172a;
+  background-color: #ffffff;
+}
+
+.block-oportunidades-estudantes .oe-header__title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.375rem, 2vw, 1.75rem);
+  line-height: 1.3;
+  color: #0f172a;
+  max-width: 560px;
+  margin-bottom: 1rem;
+}
+
+.block-oportunidades-estudantes .oe-header__subtitle {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: #0f172a;
+  max-width: 680px;
+  margin-bottom: 0;
+}
+
+.block-oportunidades-estudantes .oe-grid {
+  --bs-gutter-x: 1.25rem;
+  --bs-gutter-y: 1.25rem;
+}
+
+.block-oportunidades-estudantes .oe-card {
+  min-height: 310px;
+  padding: 32px 32px 64px;
+  gap: 12px;
+  border: 1px solid rgba(198, 198, 205, 0.3);
+  border-radius: 12px;
+  background-color: #f8f9ff;
+}
+
+.block-oportunidades-estudantes .oe-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 0;
+}
+
+.block-oportunidades-estudantes .oe-card__icon img {
+  max-width: 64px;
+  max-height: 64px;
+  width: auto;
+  height: auto;
+}
+
+.block-oportunidades-estudantes .oe-card__title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 1.0625rem;
+  line-height: 1.35;
+  color: #0f172a;
+  margin-bottom: 0;
+}
+
+.block-oportunidades-estudantes .oe-card__text {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: #45464d;
+  margin-bottom: 0;
+}
+
+@media (max-width: 575.98px) {
+  .block-oportunidades-estudantes .oe-header__title {
+    font-size: 1.375rem;
+  }
+
+  .block-oportunidades-estudantes .oe-header__subtitle {
+    font-size: 0.9375rem;
+  }
+
+  .block-oportunidades-estudantes .oe-card {
+    min-height: 0;
+    padding: 24px 24px 40px;
+  }
+
+  .block-oportunidades-estudantes .oe-card__title {
+    font-size: 1rem;
+  }
+
+  .block-oportunidades-estudantes .oe-card__text {
+    font-size: 0.875rem;
+  }
+}

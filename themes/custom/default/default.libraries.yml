@@ -131,6 +131,12 @@ beneficios_estudantes:
       assets/css/beneficios-estudantes.css: {}
   dependencies:
     - default/bootstrap
+oportunidades_estudantes:
+  css:
+    component:
+      assets/css/oportunidades-estudantes.css: {}
+  dependencies:
+    - default/bootstrap
 jornada_estudante:
   css:
     component:

@@ -12,7 +12,7 @@ dependencies:
 id: default_jornadaestudante
 theme: default
 region: content_full
-weight: 1
+weight: 2
 provider: null
 plugin: 'block_content:b9c0d1e2-f3a4-4567-b890-1cdef0123456'
 settings:

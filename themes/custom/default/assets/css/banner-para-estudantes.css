@@ -48,10 +48,20 @@ body.path-para-estudantes .banner .region-wrapper-banner {
 	background: #0f172a;
 }
 
-.banner-para-estudantes-wrapper .banner-para-estudantes__carousel .carousel-inner,
+/* Proporção no contêiner: o carrossel cinematográfico usa display:grid e o
+   min-height automático do item ignora aspect-ratio na <img>. A arte seed é
+   retrato (465×566); sem isto a faixa cresce com a altura intrínseca. */
+.banner-para-estudantes-wrapper .banner-para-estudantes__carousel .carousel-inner {
+	width: 100%;
+	line-height: 0;
+	aspect-ratio: 1200 / 433;
+}
+
 .banner-para-estudantes-wrapper .banner-para-estudantes__carousel .carousel-item,
 .banner-para-estudantes-wrapper .banner-para-estudantes__carousel picture {
 	width: 100%;
+	height: 100%;
+	min-height: 0;
 	line-height: 0;
 }
 
@@ -59,8 +69,7 @@ body.path-para-estudantes .banner .region-wrapper-banner {
 	display: block;
 	width: 100%;
 	max-width: 100%;
-	height: auto;
-	aspect-ratio: 1200 / 433;
+	height: 100%;
 	object-fit: cover;
 	object-position: center;
 }
@@ -201,7 +210,7 @@ body.path-para-estudantes .banner .region-wrapper-banner {
 
 /* Tablet intermediário: aspect do slide; CTAs ainda em overlay (≥768px). */
 @media (max-width: 991.98px) {
-	.banner-para-estudantes-wrapper .banner-para-estudantes__img {
+	.banner-para-estudantes-wrapper .banner-para-estudantes__carousel .carousel-inner {
 		aspect-ratio: 16 / 10;
 	}
 

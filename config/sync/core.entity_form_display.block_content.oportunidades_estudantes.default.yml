@@ -1,0 +1,67 @@
+uuid: 234602c7-773e-443c-a928-d38983bbb87a
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.oportunidades_estudantes
+    - field.field.block_content.oportunidades_estudantes.field_itens_lista
+    - field.field.block_content.oportunidades_estudantes.field_text_simple
+    - field.field.block_content.oportunidades_estudantes.field_text_simple_long
+  module:
+    - paragraphs
+id: block_content.oportunidades_estudantes.default
+targetEntityType: block_content
+bundle: oportunidades_estudantes
+mode: default
+content:
+  field_itens_lista:
+    type: paragraphs
+    weight: 2
+    region: content
+    settings:
+      title: Card
+      title_plural: Cards
+      edit_mode: open
+      closed_mode: summary
+      autocollapse: none
+      closed_mode_threshold: 0
+      add_mode: dropdown
+      form_display_mode: default
+      default_paragraph_type: card_icon_text_p
+      features:
+        add_above: '0'
+        collapse_edit_all: collapse_edit_all
+        duplicate: duplicate
+    third_party_settings: {  }
+  field_text_simple:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_text_simple_long:
+    type: string_textarea
+    weight: 1
+    region: content
+    settings:
+      rows: 3
+      placeholder: ''
+    third_party_settings: {  }
+  info:
+    type: string_textfield
+    weight: -5
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  langcode:
+    type: language_select
+    weight: 2
+    region: content
+    settings:
+      include_locked: true
+    third_party_settings: {  }
+hidden: {  }

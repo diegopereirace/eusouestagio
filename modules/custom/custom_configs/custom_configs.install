@@ -6930,7 +6930,8 @@ function _custom_configs_ensure_banners_block_para_estudantes_display(): string 
  * Seed de 1 node banners (local=para_estudantes) com asset versionado.
  *
  * UUID fixo c3d4e5f6-a7b8-4901-c234-567890abcdef.
- * Não sobrescreve editorial divergente; anexa imagem só se campo vazio.
+ * Não sobrescreve editorial divergente; anexa/troca só se campo vazio,
+ * placeholder PE ou retrato legado (ratio &lt; 2) — hero canônico é 1200×433.
  */
 function _custom_configs_seed_banner_para_estudantes(): string {
   $uuid = 'c3d4e5f6-a7b8-4901-c234-567890abcdef';
@@ -6951,12 +6952,29 @@ function _custom_configs_seed_banner_para_estudantes(): string {
     $node = reset($by_uuid);
     $desktop_empty = $node->hasField('field_imagem_desktop') && $node->get('field_imagem_desktop')->isEmpty();
     $needs_canonical_image = $desktop_empty;
+    $force_mobile_too = FALSE;
     if (!$desktop_empty && $node->hasField('field_imagem_desktop')) {
       $current = $node->get('field_imagem_desktop')->entity;
       $filename = $current ? (string) $current->getFilename() : '';
       // Placeholder PE colado no seed PE por engano — faixa sólida, não a arte do hero.
       if ($filename !== '' && str_contains($filename, 'para-empresas-placeholder')) {
         $needs_canonical_image = TRUE;
+        $force_mobile_too = TRUE;
+      }
+      // Retrato legado (ex.: 465×566) na faixa 1200×433 corta o rosto.
+      elseif ($current) {
+        $real = \Drupal::service('file_system')->realpath($current->getFileUri());
+        if ($real && is_readable($real)) {
+          $size = @getimagesize($real);
+          if (is_array($size) && $size[0] > 0 && $size[1] > 0) {
+            $ratio = $size[0] / $size[1];
+            // Canônico ≈ 1200/433 ≈ 2.77; retrato ou quase-quadrado = legado.
+            if ($ratio < 2.0) {
+              $needs_canonical_image = TRUE;
+              $force_mobile_too = TRUE;
+            }
+          }
+        }
       }
     }
     if ($needs_canonical_image) {
@@ -6974,7 +6992,7 @@ function _custom_configs_seed_banner_para_estudantes(): string {
             $mobile_name = $mobile_file ? (string) $mobile_file->getFilename() : '';
             $mobile_is_placeholder = $mobile_name !== '' && str_contains($mobile_name, 'para-empresas-placeholder');
           }
-          if ($mobile_empty || $mobile_is_placeholder) {
+          if ($mobile_empty || $mobile_is_placeholder || $force_mobile_too) {
             $node->set('field_imagem_mobile', [
               'target_id' => $file->id(),
               'alt' => $alt,
@@ -16640,6 +16658,17 @@ function custom_configs_update_11085(): string {
  */
 function custom_configs_update_11086(): string {
   return _custom_configs_sync_oportunidades_estudantes_icons();
+}
+
+/**
+ * Banner Para Estudantes: troca retrato legado pelo hero landscape 1200×433.
+ *
+ * O PNG seed antigo (465×566) com object-fit:cover na faixa cinematográfica
+ * cortava o rosto. Asset canônico agora é landscape com a estudante à direita.
+ * Destino: git pull → drush cim -y → drush updb -y → drush cr.
+ */
+function custom_configs_update_11087(): string {
+  return _custom_configs_seed_banner_para_estudantes();
 }
 
 /**

@@ -2,10 +2,19 @@
  * @file
  * Cadastro de candidato. Escopo exclusivo de /cadastro/candidato.
  * Library default/cadastro_candidato — não entra em global-styling.
+ * Body class page-cadastro-candidato via default_preprocess_html().
  */
 
-.page-cadastro-candidato {
-  overflow-x: hidden;
+.page-cadastro-candidato,
+.page-cadastro-candidato #page-wrapper,
+.page-cadastro-candidato #page,
+.page-cadastro-candidato .cadastro-candidato-page {
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+.page-cadastro-candidato .cadastro-candidato-page {
+  background: #f3f6fa;
 }
 
 .page-cadastro-candidato #block-default-page-title {
@@ -16,28 +25,40 @@
 .page-cadastro-candidato .cadastro-candidato-banner {
   position: relative;
   min-height: 220px;
+  height: clamp(220px, 28vw, 360px);
   background-color: #07132e;
   overflow: hidden;
+  isolation: isolate;
 }
 
-.page-cadastro-candidato .cadastro-candidato-banner__picture,
+.page-cadastro-candidato .cadastro-candidato-banner__picture {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  z-index: 0;
+}
+
 .page-cadastro-candidato .cadastro-candidato-banner__img {
   display: block;
   width: 100%;
   height: 100%;
-}
-
-.page-cadastro-candidato .cadastro-candidato-banner__img {
+  max-width: 100%;
   object-fit: cover;
-  object-position: center;
-  min-height: 220px;
-  max-height: 400px;
+  /* Mantém a figura/UI cards à direita visíveis; deixa área limpa à esquerda p/ título */
+  object-position: 65% center;
 }
 
 @media (max-width: 575.98px) {
-  .page-cadastro-candidato .cadastro-candidato-banner__img {
-    max-height: 320px;
+  .page-cadastro-candidato .cadastro-candidato-banner {
+    height: 260px;
     min-height: 260px;
+  }
+
+  .page-cadastro-candidato .cadastro-candidato-banner__img {
+    object-position: center center;
   }
 }
 
@@ -45,23 +66,37 @@
   position: absolute;
   inset: 0;
   background: linear-gradient(
-    180deg,
-    rgba(7, 19, 46, 0.55) 0%,
-    rgba(7, 19, 46, 0.72) 100%
+    105deg,
+    rgba(7, 19, 46, 0.92) 0%,
+    rgba(7, 19, 46, 0.78) 42%,
+    rgba(7, 19, 46, 0.35) 72%,
+    rgba(7, 19, 46, 0.2) 100%
   );
   pointer-events: none;
   z-index: 1;
 }
 
 .page-cadastro-candidato .cadastro-candidato-banner__content {
-  position: absolute;
-  inset: 0;
+  position: relative;
   z-index: 2;
+  height: 100%;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   justify-content: center;
-  text-align: center;
-  padding: 1.5rem 1rem;
+  text-align: left;
+  padding-block: 1.5rem;
+  max-width: 100%;
+}
+
+.page-cadastro-candidato .cadastro-candidato-banner__eyebrow {
+  margin: 0 0 0.5rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-family: "Poppins", sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .page-cadastro-candidato .cadastro-candidato-banner__title {
@@ -71,79 +106,258 @@
   font-weight: 600;
   line-height: 1.25;
   margin: 0;
-  max-width: 36rem;
+  max-width: 28rem;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
-/* Card */
+/* Form stack */
 .page-cadastro-candidato .cadastro-candidato-page__form-wrap {
   position: relative;
   z-index: 3;
+  padding-block: 1.75rem 3rem;
+  margin-top: -1.75rem;
+  max-width: 100%;
 }
 
-.page-cadastro-candidato .cadastro-candidato-card {
+@media (max-width: 767.98px) {
+  .page-cadastro-candidato .cadastro-candidato-page__form-wrap {
+    margin-top: -1rem;
+    padding-block: 1.25rem 2.5rem;
+  }
+}
+
+.page-cadastro-candidato .cadastro-candidato-form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 100%;
+}
+
+.page-cadastro-candidato .cadastro-intro {
+  margin: 0 0 1.25rem;
+  padding: 1rem 1.15rem;
+  background: #fff;
+  border: 1px solid #e6ebf2;
+  border-radius: 0.85rem;
+  box-shadow: 0 4px 14px rgba(7, 19, 46, 0.04);
+}
+
+.page-cadastro-candidato .cadastro-intro__text {
+  margin: 0;
+  color: #5a6b7d;
+  font-size: 0.975rem;
+  line-height: 1.5;
+}
+
+/* Section cards */
+.page-cadastro-candidato .cadastro-section {
+  background: #fff;
+  border: 1px solid #e6ebf2;
+  border-radius: 1rem;
+  box-shadow: 0 8px 24px rgba(7, 19, 46, 0.06);
+  padding: clamp(1.25rem, 3vw, 1.75rem);
+  margin-bottom: 1.25rem;
+  max-width: 100%;
+}
+
+.page-cadastro-candidato .cadastro-section--actions {
+  border-color: rgba(253, 123, 26, 0.28);
+  box-shadow: 0 10px 28px rgba(253, 123, 26, 0.08);
+}
+
+.page-cadastro-candidato .cadastro-section__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.page-cadastro-candidato .cadastro-section__icon {
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 48, 96, 0.08);
+  color: #003060;
+  font-size: 1.05rem;
+}
+
+.page-cadastro-candidato .cadastro-section__titles {
+  min-width: 0;
+  flex: 1;
+}
+
+.page-cadastro-candidato .cadastro-section__title {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #0f2438;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.page-cadastro-candidato .cadastro-section__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(94, 179, 68, 0.12);
+  color: #3f8a2a;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.page-cadastro-candidato .cadastro-section__subtitle {
+  margin: 0.35rem 0 0;
+  color: #667a8f;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.page-cadastro-candidato .cadastro-section__actions {
+  margin-top: 1.25rem;
+}
+
+/* Nested subcards (instituição / curso / experiência) */
+.page-cadastro-candidato .cadastro-subcard {
+  background: #f7f9fc;
+  border: 1px solid #e6ebf2;
+  border-radius: 0.85rem;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.page-cadastro-candidato .cadastro-subcard__body {
+  padding: 1rem 1.1rem 1.15rem;
+}
+
+.page-cadastro-candidato .cadastro-subcard__title {
+  margin: 0 0 0.85rem;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #4a5d73;
+}
+
+/* Fields */
+.page-cadastro-candidato .cadastro-section .form-label,
+.page-cadastro-candidato .cadastro-section label.form-label {
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 0.4rem;
+}
+
+.page-cadastro-candidato .cadastro-section .form-control,
+.page-cadastro-candidato .cadastro-section .form-select,
+.page-cadastro-candidato .cadastro-section .form-control-lg,
+.page-cadastro-candidato .cadastro-section .form-select-lg {
+  border-radius: 0.65rem;
+  border-color: #d5dde8;
   background-color: #fff;
 }
 
-.page-cadastro-candidato .cadastro-candidato-card .form-label,
-.page-cadastro-candidato .cadastro-candidato-card label.form-label {
-  font-weight: 700;
-  color: #212529;
+.page-cadastro-candidato .cadastro-section .form-control:focus,
+.page-cadastro-candidato .cadastro-section .form-select:focus,
+.page-cadastro-candidato .cadastro-section .form-control-lg:focus,
+.page-cadastro-candidato .cadastro-section .form-select-lg:focus {
+  border-color: #003060;
+  box-shadow: 0 0 0 0.2rem rgba(0, 48, 96, 0.15);
 }
 
-.page-cadastro-candidato .cadastro-candidato-card .form-control-lg {
-  border-radius: 0.5rem;
+/* Add / remove buttons with icon glyphs (CSS, no FA SVG dependency) */
+.page-cadastro-candidato .cadastro-btn--add,
+.page-cadastro-candidato .cadastro-btn--remove {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 0.55rem;
+  font-weight: 600;
+}
+
+.page-cadastro-candidato .cadastro-btn--add::before,
+.page-cadastro-candidato .cadastro-btn--remove::before {
+  content: "";
+  display: inline-block;
+  width: 0.85rem;
+  height: 0.85rem;
+  flex-shrink: 0;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.page-cadastro-candidato .cadastro-btn--add::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%234a5d73'%3E%3Cpath d='M8 1a.75.75 0 0 1 .75.75v5.5h5.5a.75.75 0 0 1 0 1.5h-5.5v5.5a.75.75 0 0 1-1.5 0v-5.5h-5.5a.75.75 0 0 1 0-1.5h5.5v-5.5A.75.75 0 0 1 8 1z'/%3E%3C/svg%3E");
+}
+
+.page-cadastro-candidato .cadastro-btn--remove::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23b02a37'%3E%3Cpath d='M2 7.25a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 7.25z'/%3E%3C/svg%3E");
 }
 
 /* Submit marca (#FD7B1A local — não muta --brand-orange) */
-.page-cadastro-candidato .cadastro-candidato-card .btn-primary,
-.page-cadastro-candidato .cadastro-candidato-card .js-candidato-submit {
+.page-cadastro-candidato .cadastro-section .btn-primary,
+.page-cadastro-candidato .cadastro-section .js-candidato-submit {
   background-color: #fd7b1a;
   border-color: #fd7b1a;
   color: #fff;
+  font-weight: 700;
+  border-radius: 0.75rem;
 }
 
-.page-cadastro-candidato .cadastro-candidato-card .btn-primary:hover,
-.page-cadastro-candidato .cadastro-candidato-card .btn-primary:focus,
-.page-cadastro-candidato .cadastro-candidato-card .js-candidato-submit:hover,
-.page-cadastro-candidato .cadastro-candidato-card .js-candidato-submit:focus {
+.page-cadastro-candidato .cadastro-section .btn-primary:hover,
+.page-cadastro-candidato .cadastro-section .btn-primary:focus,
+.page-cadastro-candidato .cadastro-section .js-candidato-submit:hover,
+.page-cadastro-candidato .cadastro-section .js-candidato-submit:focus {
   background-color: #e66e15;
   border-color: #e66e15;
   color: #fff;
 }
 
-.page-cadastro-candidato .cadastro-candidato-card .btn-primary:active,
-.page-cadastro-candidato .cadastro-candidato-card .js-candidato-submit:active {
+.page-cadastro-candidato .cadastro-section .btn-primary:active,
+.page-cadastro-candidato .cadastro-section .js-candidato-submit:active {
   background-color: #d46312;
   border-color: #d46312;
 }
 
 /* Aceite */
-.page-cadastro-candidato .cadastro-candidato-card .form-check {
+.page-cadastro-candidato .cadastro-section .form-check {
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
   padding-left: 0;
 }
 
-.page-cadastro-candidato .cadastro-candidato-card .form-check-input {
+.page-cadastro-candidato .cadastro-section .form-check-input {
   margin-top: 0.35rem;
   flex-shrink: 0;
 }
 
-.page-cadastro-candidato .cadastro-candidato-card .form-check-label a {
+.page-cadastro-candidato .cadastro-section .form-check-label a {
   color: #005b9f;
   text-decoration: underline;
 }
 
 /* CAPTCHA */
-.page-cadastro-candidato .cadastro-candidato-card .captcha {
+.page-cadastro-candidato .cadastro-section .captcha {
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
 }
 
 /* Mensagens / erros no card */
-.page-cadastro-candidato .cadastro-candidato-card .messages,
-.page-cadastro-candidato .cadastro-candidato-card .alert {
+.page-cadastro-candidato .cadastro-candidato-form-stack .messages,
+.page-cadastro-candidato .cadastro-candidato-form-stack .alert,
+.page-cadastro-candidato .cadastro-section .messages,
+.page-cadastro-candidato .cadastro-section .alert {
   margin-bottom: 1rem;
 }

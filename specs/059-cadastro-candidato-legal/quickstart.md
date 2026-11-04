@@ -48,18 +48,19 @@ docker compose exec drupal drush cr
 
 ---
 
-## C) Banner + card (US2 → SC-003, SC-004)
+## C) Banner + seções-cartão (US2 → SC-003, SC-004)
 
-1. Desktop 1440: banner com overlay + título canônico; formulário em card centralizado (não full-bleed cru).
-2. Inspecionar Network/DOM: `<picture>` com variante mobile; **sem** bloco View banners na região.
-3. Mobile 375: arte mobile; card confortável; **sem** scroll horizontal do layout.
+1. Confirmar `body.page-cadastro-candidato` (senão o CSS da library não aplica).
+2. Desktop 1440: banner com overlay lateral + eyebrow + título canônico à esquerda; formulário em seções-cartão (`col-xl-10`/`col-xxl-9`), não full-bleed cru.
+3. Inspecionar Network/DOM: `<picture>` com variante mobile; **sem** bloco View banners na região.
+4. Em 1440 / 1024 / 768 / 375: `document.documentElement.scrollWidth === clientWidth` (**sem** scroll horizontal).
 
 ---
 
 ## D) Form + aceite (US3, US4 → SC-002)
 
-1. Seções (Acesso, Dados Pessoais, Endereço, Formação…) distinguíveis.
-2. Inputs grandes; labels escuros/negrito; botão laranja `#FD7B1A` full width.
+1. Cada seção (Acesso, Dados Pessoais, Endereço, Formação…) em `.cadastro-section` com chip de ícone distinto.
+2. Inputs grandes; labels escuros/negrito; botão laranja `#FD7B1A` full width no cartão final.
 3. Checkbox: links Termos/Política → URLs canônicas, `target="_blank"`.
 4. Enviar sem aceite → bloqueio com mensagem amigável.
 

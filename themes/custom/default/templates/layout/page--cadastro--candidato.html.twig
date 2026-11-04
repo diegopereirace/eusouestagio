@@ -1,7 +1,7 @@
 {#
 /**
  * @file
- * Página /cadastro/candidato: banner picture + formulário em card.
+ * Página /cadastro/candidato: banner picture + formulário em seções-cartão.
  *
  * Suggestion nativa page__cadastro__candidato. Sem lógica de estado do form.
  */
@@ -26,24 +26,24 @@
         <picture class="cadastro-candidato-banner__picture">
           <source
             media="(max-width: 575.98px)"
-            srcset="/{{ theme_path }}/assets/images/cadastro-candidato/hero-mobile.webp"
+            srcset="/{{ theme_path }}/assets/images/cadastro-candidato/hero-mobile.webp?v=2"
             type="image/webp"
             width="800"
             height="600">
           <source
             media="(max-width: 575.98px)"
-            srcset="/{{ theme_path }}/assets/images/cadastro-candidato/hero-mobile.jpg"
+            srcset="/{{ theme_path }}/assets/images/cadastro-candidato/hero-mobile.jpg?v=2"
             type="image/jpeg"
             width="800"
             height="600">
           <source
-            srcset="/{{ theme_path }}/assets/images/cadastro-candidato/hero-desktop.webp"
+            srcset="/{{ theme_path }}/assets/images/cadastro-candidato/hero-desktop.webp?v=2"
             type="image/webp"
             width="1920"
             height="400">
           <img
             class="cadastro-candidato-banner__img"
-            src="/{{ theme_path }}/assets/images/cadastro-candidato/hero-desktop.jpg"
+            src="/{{ theme_path }}/assets/images/cadastro-candidato/hero-desktop.jpg?v=2"
             alt=""
             width="1920"
             height="400"
@@ -53,14 +53,15 @@
         </picture>
         <div class="cadastro-candidato-banner__overlay" aria-hidden="true"></div>
         <div class="container cadastro-candidato-banner__content">
+          <p class="cadastro-candidato-banner__eyebrow">{{ 'Cadastro de candidato'|t }}</p>
           <h1 class="cadastro-candidato-banner__title">{{ 'Crie sua conta e encontre seu estágio ideal'|t }}</h1>
         </div>
       </section>
 
-      <div class="container py-4 py-lg-5 cadastro-candidato-page__form-wrap">
+      <div class="container cadastro-candidato-page__form-wrap">
         <div class="row justify-content-center">
-          <div class="col-12 col-lg-6">
-            <div class="card border-0 shadow-sm rounded-4 p-4 p-lg-5 cadastro-candidato-card">
+          <div class="col-12 col-xl-10 col-xxl-9">
+            <div class="cadastro-candidato-form-stack">
               {{ page.highlighted }}
               {{ page.content }}
             </div>

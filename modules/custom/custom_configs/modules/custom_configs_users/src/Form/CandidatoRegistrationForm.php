@@ -26,6 +26,40 @@ class CandidatoRegistrationForm extends FormBase
     }
 
     /**
+     * Cabeçalho de seção do cadastro (ícone em chip + título + subtítulo).
+     *
+     * @param string $icon
+     *   Classe Font Awesome solid sem o prefixo (ex.: fa-key).
+     * @param \Drupal\Core\StringTranslation\TranslatableMarkup|string $title
+     *   Título da seção.
+     * @param \Drupal\Core\StringTranslation\TranslatableMarkup|string $subtitle
+     *   Subtítulo curto opcional.
+     * @param bool $optional
+     *   Se TRUE, exibe badge "Opcional".
+     *
+     * @return array
+     *   Render array do cabeçalho.
+     */
+    private function sectionHeading(string $icon, $title, $subtitle = '', bool $optional = FALSE): array
+    {
+        $badge = $optional
+            ? ' <span class="cadastro-section__badge">' . $this->t('Opcional') . '</span>'
+            : '';
+        $subtitle_html = ((string) $subtitle) !== ''
+            ? '<p class="cadastro-section__subtitle">' . $subtitle . '</p>'
+            : '';
+
+        return [
+            '#markup' => '<div class="cadastro-section__header">'
+                . '<span class="cadastro-section__icon" aria-hidden="true"><i class="fa-solid ' . $icon . '"></i></span>'
+                . '<div class="cadastro-section__titles">'
+                . '<h2 class="cadastro-section__title">' . $title . $badge . '</h2>'
+                . $subtitle_html
+                . '</div></div>',
+        ];
+    }
+
+    /**
      * Carrega as opções de um campo list_string.
      */
     private function getListOptions(string $field_name, string $entity_type = 'user'): array
@@ -181,20 +215,22 @@ class CandidatoRegistrationForm extends FormBase
         // ── Seção 1 — Dados de Acesso ──────────────────────────────
 
         $form['page_title'] = [
-            '#markup' => '<div class="mb-4 mt-5">'
-                . '<p class="text-muted mb-0">' . $this->t('Preencha os dados abaixo para criar sua conta como candidato a estágio.') . '</p>'
+            '#markup' => '<div class="cadastro-intro">'
+                . '<p class="cadastro-intro__text">' . $this->t('Preencha os dados abaixo para criar sua conta como candidato a estágio.') . '</p>'
                 . '</div>',
         ];
         $form['section_acesso'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['mb-4']],
+            '#attributes' => ['class' => ['cadastro-section']],
         ];
-        $form['section_acesso']['heading'] = [
-            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-lock me-2"></i>' . $this->t('Dados de Acesso') . '</h4>',
-        ];
+        $form['section_acesso']['heading'] = $this->sectionHeading(
+            'fa-key',
+            $this->t('Dados de Acesso'),
+            $this->t('Credenciais para entrar na plataforma.')
+        );
         $form['section_acesso']['row'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['row', 'g-3']],
+            '#attributes' => ['class' => ['row', 'g-3', 'g-lg-4']],
         ];
 
         $form['section_acesso']['row']['col_name'] = [
@@ -255,14 +291,16 @@ class CandidatoRegistrationForm extends FormBase
         // ── Seção 2 — Dados Pessoais ───────────────────────────────
         $form['section_pessoal'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['mb-4']],
+            '#attributes' => ['class' => ['cadastro-section']],
         ];
-        $form['section_pessoal']['heading'] = [
-            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-user me-2"></i>' . $this->t('Dados Pessoais') . '</h4>',
-        ];
+        $form['section_pessoal']['heading'] = $this->sectionHeading(
+            'fa-id-card',
+            $this->t('Dados Pessoais'),
+            $this->t('Informações básicas do seu perfil.')
+        );
         $form['section_pessoal']['row'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['row', 'g-3']],
+            '#attributes' => ['class' => ['row', 'g-3', 'g-lg-4']],
         ];
 
         $form['section_pessoal']['row']['col_nome_completo'] = [
@@ -397,14 +435,16 @@ class CandidatoRegistrationForm extends FormBase
         // ── Seção 3 — Filiação ─────────────────────────────────────
         $form['section_filiacao'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['mb-4']],
+            '#attributes' => ['class' => ['cadastro-section']],
         ];
-        $form['section_filiacao']['heading'] = [
-            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-people-arrows me-2"></i>' . $this->t('Filiação') . '</h4>',
-        ];
+        $form['section_filiacao']['heading'] = $this->sectionHeading(
+            'fa-users',
+            $this->t('Filiação'),
+            $this->t('Nome da mãe e do pai, quando aplicável.')
+        );
         $form['section_filiacao']['row'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['row', 'g-3']],
+            '#attributes' => ['class' => ['row', 'g-3', 'g-lg-4']],
         ];
 
         $form['section_filiacao']['row']['col_nome_mae'] = [
@@ -432,16 +472,18 @@ class CandidatoRegistrationForm extends FormBase
         // ── Seção 4 — Endereço ─────────────────────────────────────
         $form['section_endereco'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['mb-4']],
+            '#attributes' => ['class' => ['cadastro-section']],
         ];
 
-        $form['section_endereco']['heading'] = [
-            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-map-marker-alt me-2"></i>' . $this->t('Endereço') . '</h4>',
-        ];
+        $form['section_endereco']['heading'] = $this->sectionHeading(
+            'fa-location-dot',
+            $this->t('Endereço'),
+            $this->t('Onde você mora. O CEP preenche cidade e bairro automaticamente.')
+        );
 
         $form['section_endereco']['row'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['row', 'g-3']],
+            '#attributes' => ['class' => ['row', 'g-3', 'g-lg-4']],
         ];
 
         $form['section_endereco']['row']['col_cep'] = [
@@ -533,14 +575,16 @@ class CandidatoRegistrationForm extends FormBase
         // ── Seção 5 — Contato e Redes Sociais ──────────────────────
         $form['section_contato'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['mb-4']],
+            '#attributes' => ['class' => ['cadastro-section']],
         ];
-        $form['section_contato']['heading'] = [
-            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-address-book me-2"></i>' . $this->t('Contato e Redes Sociais') . '</h4>',
-        ];
+        $form['section_contato']['heading'] = $this->sectionHeading(
+            'fa-at',
+            $this->t('Contato e Redes Sociais'),
+            $this->t('Telefone e perfis para a empresa falar com você.')
+        );
         $form['section_contato']['row'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['row', 'g-3']],
+            '#attributes' => ['class' => ['row', 'g-3', 'g-lg-4']],
         ];
 
         $form['section_contato']['row']['col_telefone'] = [
@@ -597,11 +641,13 @@ class CandidatoRegistrationForm extends FormBase
         // ── Seção 6 — Instituição de Ensino (Paragraphs) ──────────
         $form['section_instituicao'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['mb-4']],
+            '#attributes' => ['class' => ['cadastro-section']],
         ];
-        $form['section_instituicao']['heading'] = [
-            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-university me-2"></i>' . $this->t('Instituição de Ensino') . '</h4>',
-        ];
+        $form['section_instituicao']['heading'] = $this->sectionHeading(
+            'fa-building-columns',
+            $this->t('Instituição de Ensino'),
+            $this->t('Faculdade, escola ou curso onde você estuda.')
+        );
 
         $form['section_instituicao']['instituicoes_wrapper'] = [
             '#type' => 'container',
@@ -614,18 +660,18 @@ class CandidatoRegistrationForm extends FormBase
         for ($i = 0; $i < $num_instituicoes; $i++) {
             $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i] = [
                 '#type' => 'container',
-                '#attributes' => ['class' => ['card', 'mb-3']],
+                '#attributes' => ['class' => ['cadastro-subcard']],
             ];
             $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body'] = [
                 '#type' => 'container',
-                '#attributes' => ['class' => ['card-body']],
+                '#attributes' => ['class' => ['cadastro-subcard__body']],
             ];
             $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['title'] = [
-                '#markup' => '<h6 class="card-title text-muted">' . $this->t('Instituição @num', ['@num' => $i + 1]) . '</h6>',
+                '#markup' => '<h3 class="cadastro-subcard__title">' . $this->t('Instituição @num', ['@num' => $i + 1]) . '</h3>',
             ];
             $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row'] = [
                 '#type' => 'container',
-                '#attributes' => ['class' => ['row', 'g-3']],
+                '#attributes' => ['class' => ['row', 'g-3', 'g-lg-4']],
             ];
 
             $form['section_instituicao']['instituicoes_wrapper']['inst_' . $i]['body']['row']['col_nome'] = [
@@ -724,7 +770,7 @@ class CandidatoRegistrationForm extends FormBase
                 'callback' => '::ajaxRefreshInstituicoes',
                 'wrapper' => 'instituicoes-wrapper',
             ],
-            '#attributes' => ['class' => ['btn', 'btn-outline-secondary', 'btn-sm']],
+            '#attributes' => ['class' => ['btn', 'btn-outline-secondary', 'btn-sm', 'cadastro-btn--add']],
             '#limit_validation_errors' => [],
         ];
 
@@ -737,7 +783,7 @@ class CandidatoRegistrationForm extends FormBase
                     'callback' => '::ajaxRefreshInstituicoes',
                     'wrapper' => 'instituicoes-wrapper',
                 ],
-                '#attributes' => ['class' => ['btn', 'btn-outline-danger', 'btn-sm', 'ms-2']],
+                '#attributes' => ['class' => ['btn', 'btn-outline-danger', 'btn-sm', 'ms-2', 'cadastro-btn--remove']],
                 '#limit_validation_errors' => [],
             ];
         }
@@ -745,14 +791,16 @@ class CandidatoRegistrationForm extends FormBase
         // ── Seção 7 — Informações Acadêmicas ───────────────────────
         $form['section_academico'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['mb-4']],
+            '#attributes' => ['class' => ['cadastro-section']],
         ];
-        $form['section_academico']['heading'] = [
-            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-graduation-cap me-2"></i>' . $this->t('Informações Acadêmicas') . '</h4>',
-        ];
+        $form['section_academico']['heading'] = $this->sectionHeading(
+            'fa-graduation-cap',
+            $this->t('Informações Acadêmicas'),
+            $this->t('Curso, período e disponibilidade para estágio.')
+        );
         $form['section_academico']['row'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['row', 'g-3']],
+            '#attributes' => ['class' => ['row', 'g-3', 'g-lg-4']],
         ];
 
         $form['section_academico']['row']['col_escolaridade'] = [
@@ -897,11 +945,14 @@ class CandidatoRegistrationForm extends FormBase
         // ── Seção 8 — Cursos Extracurriculares (Paragraphs) ────────
         $form['section_extracurricular'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['mb-4']],
+            '#attributes' => ['class' => ['cadastro-section']],
         ];
-        $form['section_extracurricular']['heading'] = [
-            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-award me-2"></i>' . $this->t('Cursos Extracurriculares') . ' <small class="text-muted">(' . $this->t('Opcional') . ')</small></h4>',
-        ];
+        $form['section_extracurricular']['heading'] = $this->sectionHeading(
+            'fa-certificate',
+            $this->t('Cursos Extracurriculares'),
+            $this->t('Cursos, idiomas e habilidades extras.'),
+            TRUE
+        );
 
         $form['section_extracurricular']['cursos_wrapper'] = [
             '#type' => 'container',
@@ -923,18 +974,18 @@ class CandidatoRegistrationForm extends FormBase
         for ($i = 0; $i < $num_cursos; $i++) {
             $form['section_extracurricular']['cursos_wrapper']['curso_' . $i] = [
                 '#type' => 'container',
-                '#attributes' => ['class' => ['card', 'mb-3']],
+                '#attributes' => ['class' => ['cadastro-subcard']],
             ];
             $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body'] = [
                 '#type' => 'container',
-                '#attributes' => ['class' => ['card-body']],
+                '#attributes' => ['class' => ['cadastro-subcard__body']],
             ];
             $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['title'] = [
-                '#markup' => '<h6 class="card-title text-muted">' . $this->t('Curso @num', ['@num' => $i + 1]) . '</h6>',
+                '#markup' => '<h3 class="cadastro-subcard__title">' . $this->t('Curso @num', ['@num' => $i + 1]) . '</h3>',
             ];
             $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['row'] = [
                 '#type' => 'container',
-                '#attributes' => ['class' => ['row', 'g-3']],
+                '#attributes' => ['class' => ['row', 'g-3', 'g-lg-4']],
             ];
 
             $form['section_extracurricular']['cursos_wrapper']['curso_' . $i]['body']['row']['col_tipo'] = [
@@ -990,7 +1041,7 @@ class CandidatoRegistrationForm extends FormBase
                 'callback' => '::ajaxRefreshCursos',
                 'wrapper' => 'cursos-extracurriculares-wrapper',
             ],
-            '#attributes' => ['class' => ['btn', 'btn-outline-secondary', 'btn-sm']],
+            '#attributes' => ['class' => ['btn', 'btn-outline-secondary', 'btn-sm', 'cadastro-btn--add']],
             '#limit_validation_errors' => [],
         ];
 
@@ -1003,7 +1054,7 @@ class CandidatoRegistrationForm extends FormBase
                     'callback' => '::ajaxRefreshCursos',
                     'wrapper' => 'cursos-extracurriculares-wrapper',
                 ],
-                '#attributes' => ['class' => ['btn', 'btn-outline-danger', 'btn-sm', 'ms-2']],
+                '#attributes' => ['class' => ['btn', 'btn-outline-danger', 'btn-sm', 'ms-2', 'cadastro-btn--remove']],
                 '#limit_validation_errors' => [],
             ];
         }
@@ -1011,11 +1062,14 @@ class CandidatoRegistrationForm extends FormBase
         // ── Seção 9 — Experiência Profissional (Paragraphs) ────────
         $form['section_experiencia'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['mb-4']],
+            '#attributes' => ['class' => ['cadastro-section']],
         ];
-        $form['section_experiencia']['heading'] = [
-            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-briefcase me-2"></i>' . $this->t('Experiência Profissional') . ' <small class="text-muted">(' . $this->t('Opcional') . ')</small></h4>',
-        ];
+        $form['section_experiencia']['heading'] = $this->sectionHeading(
+            'fa-briefcase',
+            $this->t('Experiência Profissional'),
+            $this->t('Estágios e empregos anteriores, se houver.'),
+            TRUE
+        );
 
         $form['section_experiencia']['experiencias_wrapper'] = [
             '#type' => 'container',
@@ -1040,18 +1094,18 @@ class CandidatoRegistrationForm extends FormBase
         for ($i = 0; $i < $num_experiencias; $i++) {
             $form['section_experiencia']['experiencias_wrapper']['exp_' . $i] = [
                 '#type' => 'container',
-                '#attributes' => ['class' => ['card', 'mb-3']],
+                '#attributes' => ['class' => ['cadastro-subcard']],
             ];
             $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body'] = [
                 '#type' => 'container',
-                '#attributes' => ['class' => ['card-body']],
+                '#attributes' => ['class' => ['cadastro-subcard__body']],
             ];
             $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['title'] = [
-                '#markup' => '<h6 class="card-title text-muted">' . $this->t('Experiência @num', ['@num' => $i + 1]) . '</h6>',
+                '#markup' => '<h3 class="cadastro-subcard__title">' . $this->t('Experiência @num', ['@num' => $i + 1]) . '</h3>',
             ];
             $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row'] = [
                 '#type' => 'container',
-                '#attributes' => ['class' => ['row', 'g-3']],
+                '#attributes' => ['class' => ['row', 'g-3', 'g-lg-4']],
             ];
 
             $form['section_experiencia']['experiencias_wrapper']['exp_' . $i]['body']['row']['col_empresa'] = [
@@ -1128,7 +1182,7 @@ class CandidatoRegistrationForm extends FormBase
                 'callback' => '::ajaxRefreshExperiencias',
                 'wrapper' => 'experiencias-wrapper',
             ],
-            '#attributes' => ['class' => ['btn', 'btn-outline-secondary', 'btn-sm']],
+            '#attributes' => ['class' => ['btn', 'btn-outline-secondary', 'btn-sm', 'cadastro-btn--add']],
             '#limit_validation_errors' => [],
         ];
 
@@ -1141,23 +1195,25 @@ class CandidatoRegistrationForm extends FormBase
                     'callback' => '::ajaxRefreshExperiencias',
                     'wrapper' => 'experiencias-wrapper',
                 ],
-                '#attributes' => ['class' => ['btn', 'btn-outline-danger', 'btn-sm', 'ms-2']],
+                '#attributes' => ['class' => ['btn', 'btn-outline-danger', 'btn-sm', 'ms-2', 'cadastro-btn--remove']],
                 '#limit_validation_errors' => [],
             ];
         }
 
         $form['section_complementar'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['mb-4']],
+            '#attributes' => ['class' => ['cadastro-section']],
         ];
 
-        $form['section_complementar']['heading'] = [
-            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-info-circle me-2"></i>' . $this->t('Informações Complementares') . '</h4>',
-        ];
+        $form['section_complementar']['heading'] = $this->sectionHeading(
+            'fa-universal-access',
+            $this->t('Informações Complementares'),
+            $this->t('Dados de acessibilidade, se aplicável.')
+        );
 
         $form['section_complementar']['row'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['row', 'g-3']],
+            '#attributes' => ['class' => ['row', 'g-3', 'g-lg-4']],
         ];
 
         $form['section_complementar']['row']['col_deficiencia'] = [
@@ -1201,8 +1257,14 @@ class CandidatoRegistrationForm extends FormBase
 
         $form['section_termo'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['mb-4']],
+            '#attributes' => ['class' => ['cadastro-section', 'cadastro-section--actions']],
         ];
+
+        $form['section_termo']['heading'] = $this->sectionHeading(
+            'fa-file-signature',
+            $this->t('Finalizar cadastro'),
+            $this->t('Aceite os termos e envie seus dados.')
+        );
 
         $termo_help_text = '';
         $termo_field_config = FieldConfig::loadByName('user', 'user', 'field_termo');
@@ -1234,22 +1296,22 @@ class CandidatoRegistrationForm extends FormBase
 
         // Local Docker: $settings['disable_captcha'] = TRUE em settings.php.
         if (!Settings::get('disable_captcha', FALSE)) {
-            $form['captcha'] = [
+            $form['section_termo']['captcha'] = [
                 '#type' => 'captcha',
                 '#captcha_type' => 'recaptcha/reCAPTCHA',
             ];
         }
 
-        $form['actions'] = [
+        $form['section_termo']['actions'] = [
             '#type' => 'actions',
-            '#attributes' => ['class' => ['mt-4', 'd-grid', 'gap-2']],
+            '#attributes' => ['class' => ['cadastro-section__actions', 'd-grid', 'gap-2']],
         ];
 
-        $form['actions']['submit'] = [
+        $form['section_termo']['actions']['submit'] = [
             '#type' => 'submit',
             '#value' => $this->t('Cadastrar'),
             '#button_type' => 'primary',
-            '#attributes' => ['class' => ['btn', 'btn-primary', 'btn-lg', 'w-100', 'mt-4', 'js-candidato-submit']],
+            '#attributes' => ['class' => ['btn', 'btn-primary', 'btn-lg', 'w-100', 'js-candidato-submit']],
         ];
 
         $this->applyCadastroBootstrapClasses($form);

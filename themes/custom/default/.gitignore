@@ -1,0 +1,5 @@
+# Dependências locais do pipeline Vite (não versionar).
+node_modules/
+
+# Source maps de watch/dev (artefatos de produção em dist/ são versionados).
+dist/**/*.map

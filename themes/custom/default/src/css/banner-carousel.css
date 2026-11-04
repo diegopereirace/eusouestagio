@@ -98,12 +98,12 @@
 
 .home-hero__carousel .carousel-control-prev-icon,
 .banner-carousel .carousel-control-prev-icon {
-	background-image: url('../images/icon-arrow-left.png');
+	background-image: url('/themes/custom/default/assets/images/icon-arrow-left.png');
 }
 
 .home-hero__carousel .carousel-control-next-icon,
 .banner-carousel .carousel-control-next-icon {
-	background-image: url('../images/icon-arrow-right.png');
+	background-image: url('/themes/custom/default/assets/images/icon-arrow-right.png');
 }
 
 .home-hero__carousel .carousel-control-prev:hover,

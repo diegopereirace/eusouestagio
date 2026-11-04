@@ -1,0 +1,1 @@
+(function(i,a,r){i.behaviors.blockBreakpoint={attach:function(n){var e=a.blockBreakpoint&&a.blockBreakpoint.breakpoints||{};r("block-breakpoint","[data-breakpoint]",n).forEach(function(t){var c=t.getAttribute("data-breakpoint"),o=e[c];o&&(window.matchMedia(o).matches||t.remove())})}}})(Drupal,drupalSettings,once);

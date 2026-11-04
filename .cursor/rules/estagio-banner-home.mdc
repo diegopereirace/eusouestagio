@@ -23,7 +23,7 @@ alwaysApply: false
 ## Onde está no código
 
 - Twig: `themes/custom/default/templates/views/views-view--banners--block-home.html.twig`
-- CSS: `themes/custom/default/assets/css/banner-carousel.css`
+- CSS: `themes/custom/default/src/css/banner-carousel.css` → `dist/css/banner-carousel.css`
 - Spec: `specs/002-topo-figma-home/spec.md`
 - PRD: §3.6 (bloco banners home)
 

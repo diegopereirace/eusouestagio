@@ -16693,6 +16693,37 @@ function custom_configs_update_11089(): string {
 }
 
 /**
+ * Habilita agregação CSS/JS (system.performance preprocess) — WebPerf.
+ *
+ * Idempotente: só altera css.preprocess / js.preprocess para TRUE se necessário.
+ * Não altera cache.page.max_age nem compress.
+ *
+ * Destino: git pull → drush cim -y → drush updb -y → drush cim -y → drush cr.
+ *
+ * @see specs/060-build-assets-webperf/contracts/system-performance.md
+ */
+function custom_configs_update_11090(): string {
+  $config = \Drupal::configFactory()->getEditable('system.performance');
+  $changed = FALSE;
+
+  if (!$config->get('css.preprocess')) {
+    $config->set('css.preprocess', TRUE);
+    $changed = TRUE;
+  }
+  if (!$config->get('js.preprocess')) {
+    $config->set('js.preprocess', TRUE);
+    $changed = TRUE;
+  }
+
+  if ($changed) {
+    $config->save();
+    return (string) t('Performance: CSS/JS preprocess habilitados.');
+  }
+
+  return (string) t('Performance: preprocess já ativos; nada a fazer.');
+}
+
+/**
  * HTML placeholder mínimo para páginas legais (só gravado se body vazio).
  */
 function _custom_configs_legal_page_placeholder_body(string $page_label): string {

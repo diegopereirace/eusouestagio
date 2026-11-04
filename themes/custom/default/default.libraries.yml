@@ -1,14 +1,14 @@
 global-styling:
   version: VERSION
   js:
-    assets/js/global.js: {}
+    dist/js/global.js: {}
   dependencies:
     - core/drupal
     - core/drupalSettings
     - core/once
   css:
     component:
-      assets/css/style.css: {}
+      dist/css/style.css: {}
 bootstrap:
   js:
     /libraries/popper/popper.min.js: { weight: -19 }
@@ -27,7 +27,7 @@ fontawesome:
 
 block_breakpoint:
   js:
-    assets/js/block_breakpoint.js: {}
+    dist/js/block_breakpoint.js: {}
   dependencies:
     - core/drupal
     - core/drupalSettings
@@ -35,7 +35,7 @@ block_breakpoint:
 # JS init only — reused by PE without home CSS (feature 052).
 banner_carousel_js:
   js:
-    assets/js/banner-carousel.js: {}
+    dist/js/banner-carousel.js: {}
   dependencies:
     - core/drupal
     - core/once
@@ -43,24 +43,24 @@ banner_carousel_js:
 banner_carousel_cinematic:
   css:
     component:
-      assets/css/banner-carousel-cinematic.css: {}
+      dist/css/banner-carousel-cinematic.css: {}
 banner_carousel:
   css:
     component:
-      assets/css/banner-carousel.css: {}
+      dist/css/banner-carousel.css: {}
   dependencies:
     - default/banner_carousel_js
     - default/banner_carousel_cinematic
 banner_quem_somos:
   css:
     component:
-      assets/css/banner-quem-somos.css: {}
+      dist/css/banner-quem-somos.css: {}
   dependencies:
     - default/bootstrap
 banner_para_empresas:
   css:
     component:
-      assets/css/banner-para-empresas.css: {}
+      dist/css/banner-para-empresas.css: {}
   dependencies:
     - default/bootstrap
     - default/banner_carousel_js
@@ -68,125 +68,125 @@ banner_para_empresas:
 banner_para_estudantes:
   css:
     component:
-      assets/css/banner-para-estudantes.css: {}
+      dist/css/banner-para-estudantes.css: {}
   dependencies:
     - default/bootstrap
     - default/banner_carousel_js
     - default/banner_carousel_cinematic
 depoimentos_carousel:
   js:
-    assets/js/carousel-center.js: {}
+    dist/js/carousel-center.js: {}
   css:
     component:
-      assets/css/depoimentos-carousel.css: {}
+      dist/css/depoimentos-carousel.css: {}
   dependencies:
     - core/drupal
     - core/once
 # Motor center-mode compartilhado (attach via depoimentos_carousel ou direto).
 carousel_center:
   js:
-    assets/js/carousel-center.js: {}
+    dist/js/carousel-center.js: {}
   dependencies:
     - core/drupal
     - core/once
 layout_sobre_nos:
   css:
     component:
-      assets/css/layout-sobre-nos.css: {}
+      dist/css/layout-sobre-nos.css: {}
   dependencies:
     - default/bootstrap
 missao_visao:
   css:
     component:
-      assets/css/block-missao-visao.css: {}
+      dist/css/block-missao-visao.css: {}
   dependencies:
     - default/bootstrap
 quem_somos_missao_visao:
   css:
     component:
-      assets/css/quem-somos-missao-visao.css: {}
+      dist/css/quem-somos-missao-visao.css: {}
   dependencies:
     - default/bootstrap
 diferenciais_quem_somos:
   css:
     component:
-      assets/css/diferenciais-quem-somos.css: {}
+      dist/css/diferenciais-quem-somos.css: {}
   dependencies:
     - default/bootstrap
 nossos_diferenciais:
   css:
     component:
-      assets/css/nossos-diferenciais.css: {}
+      dist/css/nossos-diferenciais.css: {}
   dependencies:
     - default/bootstrap
 nossa_metodologia:
   css:
     component:
-      assets/css/nossa-metodologia.css: {}
+      dist/css/nossa-metodologia.css: {}
   dependencies:
     - default/bootstrap
 beneficios_estudantes:
   css:
     component:
-      assets/css/beneficios-estudantes.css: {}
+      dist/css/beneficios-estudantes.css: {}
   dependencies:
     - default/bootstrap
 oportunidades_estudantes:
   css:
     component:
-      assets/css/oportunidades-estudantes.css: {}
+      dist/css/oportunidades-estudantes.css: {}
   dependencies:
     - default/bootstrap
 jornada_estudante:
   css:
     component:
-      assets/css/jornada-estudante.css: {}
+      dist/css/jornada-estudante.css: {}
   dependencies:
     - default/bootstrap
 perfil_destaque_estudante:
   css:
     component:
-      assets/css/perfil-destaque-estudante.css: {}
+      dist/css/perfil-destaque-estudante.css: {}
   dependencies:
     - default/bootstrap
 impact_numbers:
   css:
     component:
-      assets/css/impact-numbers.css: {}
+      dist/css/impact-numbers.css: {}
   dependencies:
     - default/bootstrap
 cta_v1:
   css:
     component:
-      assets/css/cta-v1.css: {}
+      dist/css/cta-v1.css: {}
   dependencies:
     - default/bootstrap
 cta_v1_para_estudantes:
   css:
     component:
-      assets/css/cta-v1-para-estudantes.css: {}
+      dist/css/cta-v1-para-estudantes.css: {}
   dependencies:
     - default/bootstrap
 cta_v1_vagas:
   css:
     component:
-      assets/css/cta-v1-vagas.css: {}
+      dist/css/cta-v1-vagas.css: {}
   dependencies:
     - default/bootstrap
 layout_contato:
   css:
     component:
-      assets/css/ese-section-title.css: {}
-      assets/css/layout-contato.css: {}
+      dist/css/ese-section-title.css: {}
+      dist/css/layout-contato.css: {}
   dependencies:
     - default/bootstrap
 hero_search:
   version: 1.4.4
   js:
-    assets/js/hero-search.js: {}
+    dist/js/hero-search.js: {}
   css:
     component:
-      assets/css/components/hero-search.css: {}
+      dist/css/components/hero-search.css: {}
   dependencies:
     - core/drupal
     - core/once
@@ -197,22 +197,22 @@ hero_search:
 vagas_hero_search:
   version: 1.2.5
   js:
-    assets/js/vagas-hero-search.js: {}
-    assets/js/vagas-hero-autocomplete.js: {}
+    dist/js/vagas-hero-search.js: {}
+    dist/js/vagas-hero-autocomplete.js: {}
   css:
     component:
-      assets/css/components/vagas-hero-search.css: {}
+      dist/css/components/vagas-hero-search.css: {}
   dependencies:
     - default/bootstrap
     - core/drupal
     - core/once
 vagas_lista_vertical:
   js:
-    assets/js/vagas-lista-load-more.js: {}
-    assets/js/vagas-lista-sort.js: {}
+    dist/js/vagas-lista-load-more.js: {}
+    dist/js/vagas-lista-sort.js: {}
   css:
     component:
-      assets/css/components/vagas-lista-vertical.css: {}
+      dist/css/components/vagas-lista-vertical.css: {}
   dependencies:
     - default/bootstrap
     - core/drupal
@@ -221,10 +221,10 @@ vagas_lista_vertical:
     - views/views.ajax
 vagas_detalhe:
   js:
-    assets/js/vagas-detalhe-share.js: {}
+    dist/js/vagas-detalhe-share.js: {}
   css:
     component:
-      assets/css/components/vagas-detalhe.css: {}
+      dist/css/components/vagas-detalhe.css: {}
   dependencies:
     - default/bootstrap
     - core/drupal
@@ -232,20 +232,20 @@ vagas_detalhe:
 empresa_pagina:
   css:
     component:
-      assets/css/components/empresa-pagina.css: {}
+      dist/css/components/empresa-pagina.css: {}
   dependencies:
     - default/bootstrap
 login_card:
   css:
     component:
-      assets/css/components/login.css: {}
+      dist/css/components/login.css: {}
   dependencies:
     - default/bootstrap
 
 cadastro_candidato:
   css:
     component:
-      assets/css/components/cadastro-candidato.css: {}
+      dist/css/components/cadastro-candidato.css: {}
   dependencies:
     - default/bootstrap
 
@@ -256,7 +256,7 @@ jquery_mask:
     - core/jquery
 masks:
   js:
-    assets/js/masks.js: {}
+    dist/js/masks.js: {}
   dependencies:
     - core/jquery
     - core/drupal
@@ -265,10 +265,10 @@ masks:
     - default/jquery_mask
 script-painel:
   js:
-    assets/js/script-painel.js: {}
+    dist/js/script-painel.js: {}
   css:
     component:
-      assets/css/css-painel.css: {}
+      dist/css/css-painel.css: {}
   dependencies:
     - core/drupal
     - core/drupalSettings

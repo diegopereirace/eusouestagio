@@ -186,11 +186,11 @@ body.path-para-empresas .banner .region-wrapper-banner {
 }
 
 .banner-para-empresas-wrapper .carousel-control-prev-icon {
-	background-image: url('../images/icon-arrow-left.png');
+	background-image: url('/themes/custom/default/assets/images/icon-arrow-left.png');
 }
 
 .banner-para-empresas-wrapper .carousel-control-next-icon {
-	background-image: url('../images/icon-arrow-right.png');
+	background-image: url('/themes/custom/default/assets/images/icon-arrow-right.png');
 }
 
 .banner-para-empresas-wrapper .carousel-control-prev:hover,

@@ -1,0 +1,1 @@
+(function(n,a,e){n.behaviors.bannerCarousel={attach:function(r){a("banner-carousel",".banner-carousel:not(.banner-carousel--single)",r).forEach(function(o){if(!(!e||!e.Carousel)){var c=e.Carousel.getOrCreateInstance(o);window.matchMedia("(prefers-reduced-motion: reduce)").matches&&c.pause()}})}}})(Drupal,once,window.bootstrap);

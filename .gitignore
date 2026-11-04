@@ -74,3 +74,6 @@ docker/*.local.*
 Thumbs.db
 *.tmp
 *.swp
+
+# Pipeline front do tema (Vite) — node_modules local; dist/ do tema É versionado.
+**/node_modules/

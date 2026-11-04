@@ -4,10 +4,10 @@
 **Consumidor**: tema `default` — somente `/contato`  
 **Fonte de verdade**: anexo Figma Contato — “Envie sua mensagem”
 
-## Decisão de produto (override)
+## Decisão de produto
 
 O token tipográfico do Figma Contato aplica-se **somente** ao H2 “Envie sua mensagem” em `/contato`.  
-Headers de seção de outros blocos/páginas **não** herdam este token (mantêm tipografia própria).
+Headers de seção de outros blocos/páginas **não** herdam este token (mantêm tipografia própria). Spec/plan/PRD alinhados a este escopo.
 
 ## Token canônico
 
@@ -40,4 +40,4 @@ Headers de seção de outros blocos/páginas **não** herdam este token (mantêm
 ## Aceite
 
 - SC-007: Contato 100% no token.
-- SC-008: **N/A** (aliases globais retirados por decisão de produto; tipografia dos demais blocos permanece local).
+- SC-008: headers de outros blocos **não** herdaram o token (tipografia local preservada).

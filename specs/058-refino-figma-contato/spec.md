@@ -2,8 +2,8 @@
 
 **Feature Directory**: `specs/058-refino-figma-contato`  
 **Created**: 2026-11-04  
-**Status**: Draft  
-**Input do usuário**: Refatorar a página **Contato** (`/contato`) — template do Node Contato e estilos dedicados — para eliminar a discrepância com o Figma: painel direito azul com *bleed* até a borda direita do navegador, formulário alinhado à margem esquerda do header, dimensões/estilos corretos dos campos e botão, cards de E-mail/WhatsApp na linha de ações, e empilhamento responsivo em viewports estreitas. Em complemento, o título **“Envie sua mensagem”** deve seguir o token tipográfico do anexo Figma (Inter 600 / 30px / 38px / letter-spacing −0.3px / `#000000`), e esse token deve **padronizar os títulos de seção no projeto inteiro**. Aproveitar CSS limpo (Grid/Flexbox, sem aninhamentos profundos) durante a implementação.
+**Status**: Implemented  
+**Input do usuário**: Refatorar a página **Contato** (`/contato`) — template do Node Contato e estilos dedicados — para eliminar a discrepância com o Figma: painel direito azul com *bleed* até a borda direita do navegador, formulário alinhado à margem esquerda do header, dimensões/estilos corretos dos campos e botão, cards de E-mail/WhatsApp na linha de ações, e empilhamento responsivo em viewports estreitas. Em complemento, o título **“Envie sua mensagem”** deve seguir o token tipográfico do anexo Figma (Inter 600 / 30px / 38px / letter-spacing −0.3px / `#000000`). **Decisão de produto**: esse token aplica-se **somente** a `/contato` (não padroniza títulos de seção no restante do site). Aproveitar CSS limpo (Grid/Flexbox, sem aninhamentos profundos) durante a implementação.
 
 ## Escopo
 
@@ -24,8 +24,8 @@
   - altura de linha **38px**;
   - letter-spacing **−0.3px**;
   - cor **`#000000`**;
-- Aplicação desse token ao título “Envie sua mensagem” em `/contato`;
-- **Padronização projeto inteiro** dos títulos de seção de páginas/blocos públicos para o mesmo token (em substituição ao uso inconsistente de Poppins/tamanhos variados nesses títulos), via estilo base reutilizável do tema;
+- Aplicação desse token **somente** ao título “Envie sua mensagem” em `/contato` (classe `.ese-section-title` na library `layout_contato`);
+- Image Style `contato_painel` (scale 640 + WebP) para `field_imagem`, com `loading="lazy"` e `decoding="async"`;
 - Documentação cirúrgica no quickstart/PRD da feature se o comportamento visual publicado mudar de forma relevante para editores/deploy.
 
 ### Fora
@@ -36,8 +36,9 @@
 - Layout Builder / edição visual de colunas pelo editor;
 - Mudança de copy institucional além do que já vem dos campos do Node;
 - Tipografia de **microtítulos** (títulos de cards internos, labels de formulário, links de navegação, rodapé, metadados);
-- Tipografia de **heroes/banners** e displays especiais que já possuem especificação Figma própria distinta deste token de seção;
-- Painéis administrativos / área logada (candidato, empresa), salvo se reutilizarem o mesmo componente de título de seção pública;
+- Tipografia de **heroes/banners** e displays especiais que já possuem especificação Figma própria;
+- **Padronização tipográfica projeto-wide** de headers de seção de outros blocos/páginas (mantêm tipografia local);
+- Painéis administrativos / área logada (candidato, empresa);
 - Código de implementação nesta etapa de especificação (entregue em `/speckit-plan` → `/speckit-tasks` → `/speckit-implement`).
 
 ## User Scenarios & Testing *(mandatory)*
@@ -123,18 +124,18 @@ Visitante abre `/contato` e lê “Envie sua mensagem” com a tipografia do ane
 
 ---
 
-### User Story 6 — Visitante encontra títulos de seção consistentes no site (Priority: P1)
+### User Story 6 — Tipografia de seção fora de Contato permanece local (Priority: P1)
 
-Nas páginas públicas, títulos de seção com o mesmo papel tipográfico de “Envie sua mensagem” compartilham o mesmo token (Inter 600 / 30 / 38 / −0.3px / `#000`), em vez de misturas de Poppins e tamanhos ad hoc.
+**Decisão de produto**: o token do anexo Contato **não** se propaga a headers de seção de outras páginas/blocos. Visitante em Home, Quem Somos, Para Estudantes, Para Empresas, Vagas etc. continua vendo a tipografia local de cada bloco.
 
-**Why this priority**: Pedido explícito de padronização para o projeto inteiro a partir do anexo.
+**Why this priority**: Evita regressão visual em seções já refinadas por features anteriores (042–056).
 
-**Independent Test**: Amostrar títulos de seção em Home, Quem Somos, Para Estudantes, Para Empresas, Contato e Vagas; verificar família/peso/tamanho/line-height/letter-spacing/cor.
+**Independent Test**: Amostrar headers (ex. `.nd-header__title`, `.be-header__title`) e confirmar que **não** herdaram Inter 600 / 30 / 38 / −0.3px / `#000` via `.ese-section-title`.
 
 **Acceptance Scenarios**:
 
-1. **Given** uma página pública com título de seção principal de bloco/conteúdo, **When** o visitante compara com “Envie sua mensagem”, **Then** o token tipográfico é o mesmo (Inter 600 / 30px / 38px / −0.3px / `#000000`), salvo exceções listadas em Fora (heroes/banners/microtítulos).
-2. **Given** o tema após a padronização, **When** um novo bloco público usa o estilo base de título de seção, **Then** herda o token sem precisar redefinir família/tamanho localmente.
+1. **Given** páginas públicas além de `/contato`, **When** inspeciona títulos de seção de blocos, **Then** a tipografia local permanece (não é forçada ao token de Contato).
+2. **Given** `/contato`, **When** inspeciona “Envie sua mensagem”, **Then** o token Contato continua aplicado (US5 / SC-007).
 
 ---
 
@@ -163,9 +164,10 @@ O refino visual não quebra o envio do webform nem a legibilidade dos campos.
 - Viewport intermediário (tablet ~768–991px): empilhamento mobile se aplica; sem overflow horizontal.
 - Zoom/browser com scrollbar: o painel direito continua visualmente colado à borda direita útil da viewport em desktop.
 - Mensagens de validação/sucesso do webform: não empurram o layout de forma a gerar overflow ou sobreposição com os cards.
-- Título de seção muito longo (quebra de linha): line-height 38px e letter-spacing −0.3px permanecem; não há overflow horizontal.
-- Página/bloco cujo “título” era display de hero: permanece com tipografia própria (Fora); não é forçado ao token de seção.
-- Título de card interno (ex.: nome de benefício): permanece fora do token de seção.
+- Título “Envie sua mensagem” muito longo (quebra de linha): line-height 38px e letter-spacing −0.3px permanecem; não há overflow horizontal.
+- Desktop intermediário (≥992px com coluna de form estreita): botão + cards podem quebrar linha sem scroll horizontal da página.
+- Imagem editorial com aspect ratio diferente do seed: atributos `width`/`height` no `<img>` acompanham a proporção após scale 640 (sem forçar 640×720 fixo).
+- Título de card interno / heroes / headers de outros blocos: permanecem fora do token Contato.
 
 ## Requirements *(mandatory)*
 
@@ -182,14 +184,14 @@ O refino visual não quebra o envio do webform nem a legibilidade dos campos.
 - **FR-009**: O botão **Enviar Mensagem** MUST usar cor `#FD7B1A`, texto branco e aparência sem borda; no desktop, proporção próxima de 180×56; em viewport &lt;992px, MUST ocupar 100% da largura da coluna do formulário.
 - **FR-010**: O painel direito MUST renderizar `field_imagem` (quando presente), o título curto do Node e o texto longo do Node, centralizados no painel.
 - **FR-010a**: A imagem do painel (`field_imagem`) MUST ser servida via Image Style `contato_painel` (scale max-width 640, conversão WebP), com `loading="lazy"` e `decoding="async"`, e MUST ser omitida se o campo estiver vazio. Sem rewrite dos bytes do arquivo seed (057).
-- **FR-011**: Em viewport &lt;992px, formulário e painel MUST empilhar (formulário primeiro); o painel MUST ocupar 100% da largura disponível; a linha de ações MUST quebrar sem overflow horizontal.
+- **FR-011**: Em viewport &lt;992px, formulário e painel MUST empilhar (formulário primeiro); o painel MUST ocupar 100% da largura disponível; a linha de ações MUST quebrar sem overflow horizontal. Em desktop (≥992px), a linha de ações SHOULD preferir fileira única e MUST poder quebrar sem overflow se a coluna estreitar.
 - **FR-012**: Campos do webform MUST manter aparência de inputs com borda fina, cantos suaves e altura confortável; pares de campos nas primeiras linhas MUST permanecer lado a lado no desktop e empilhar no mobile conforme o comportamento já esperado do formulário.
-- **FR-013**: Estilos de layout específicos de Contato (bleed, cards, painel) MUST não alterar o layout de outras rotas. A tipografia de títulos de seção MUST propagar-se globalmente conforme FR-016–FR-018.
+- **FR-013**: Estilos de layout e tipografia específicos de Contato (bleed, cards, painel, token do H2) MUST não alterar o layout nem a tipografia de outras rotas/blocos.
 - **FR-014**: A refatoração MUST preservar o envio funcional do webform `contato` (sucesso e erros de validação).
 - **FR-015**: Se e-mail ou WhatsApp estiverem vazios no Node, o card correspondente MUST ser omitido sem quebrar o alinhamento dos elementos restantes.
-- **FR-016**: O título “Envie sua mensagem” MUST usar o token tipográfico de título de seção: Inter, peso 600, 30px, line-height 38px, letter-spacing −0.3px, cor `#000000`.
-- **FR-017**: O tema MUST expor um estilo base reutilizável de **título de seção** com exatamente esse token, para uso nas páginas/blocos públicos.
-- **FR-018**: Títulos de seção públicos existentes que hoje usam tipografia ad hoc (ex.: Poppins em headers de bloco com o mesmo papel) MUST ser alinhados a esse token, sem alterar microtítulos, heroes/banners com spec própria, nav ou rodapé.
+- **FR-016**: O título “Envie sua mensagem” MUST usar o token tipográfico: Inter, peso 600, 30px, line-height 38px, letter-spacing −0.3px, cor `#000000`.
+- **FR-017**: O tema MUST expor a classe `.ese-section-title` com exatamente esse token, carregada via library `layout_contato` (escopo Contato).
+- **FR-018**: Headers de seção de outros blocos/páginas públicas MUST **não** ser forçados a esse token; mantêm tipografia local.
 
 ### Key Entities
 
@@ -197,7 +199,7 @@ O refino visual não quebra o envio do webform nem a legibilidade dos campos.
 - **Webform Contato**: Formulário embutido na coluna esquerda (campos e submit já existentes).
 - **Card de contato**: Unidade visual clicável (E-mail ou WhatsApp) na linha de ações.
 - **Painel visual**: Faixa direita (ou bloco inferior no mobile) com fundo `#E5EEFF`, ilustração e textos de apoio.
-- **Token de título de seção**: Spec tipográfica canônica (Inter 600 / 30 / 38 / −0.3px / `#000`) aplicada a títulos de seção públicos.
+- **Token tipográfico Contato**: Spec tipográfica (Inter 600 / 30 / 38 / −0.3px / `#000`) aplicada ao H2 “Envie sua mensagem” em `/contato`.
 
 ## Success Criteria *(mandatory)*
 
@@ -210,7 +212,7 @@ O refino visual não quebra o envio do webform nem a legibilidade dos campos.
 - **SC-005**: 100% dos envios de teste com dados válidos continuam a concluir com confirmação de sucesso após o refino visual.
 - **SC-006**: Revisores de UI conseguem validar a fidelidade Figma da página Contato em até 10 minutos (checklist: bleed, alinhamento esquerdo, cards, painel, tipografia do título, mobile).
 - **SC-007**: Em `/contato`, o título “Envie sua mensagem” corresponde 100% ao token tipográfico do anexo (Inter 600 / 30px / 38px / −0.3px / `#000000`) na inspeção computada.
-- **SC-008**: Em amostragem de ao menos 5 páginas/blocos públicos distintos, ≥95% dos títulos de seção no escopo usam o mesmo token; exceções documentadas apenas para heroes/banners/microtítulos.
+- **SC-008**: Em amostragem de páginas públicas além de `/contato`, os headers de seção de blocos **não** herdaram o token Contato (tipografia local preservada).
 
 ## Assumptions
 
@@ -218,9 +220,9 @@ O refino visual não quebra o envio do webform nem a legibilidade dos campos.
 - O header do tema continua usando container restrito como referência de margem esquerda; a solução de alinhamento assimétrico (conteúdo esquerdo “dentro” + painel direito em bleed) é a abordagem esperada.
 - Breakpoint de empilhamento: large do Bootstrap 5 (992px), coerente com `col-lg-*` já usados na página.
 - Cores e medidas do Figma fornecidas pelo pedido (`#E5EEFF`, `#FD7B1A`, `#C6C6CD`, `#45464D`, dimensões dos cards/botão/inputs) são a fonte de verdade visual desta iteração.
-- O anexo tipográfico de “Envie sua mensagem” (Inter 600 / 30 / 38 / −0.3px / `#000`) é a **fonte de verdade** para títulos de seção públicos do projeto, mesmo onde specs anteriores citavam Poppins.
-- “Título de seção” = cabeçalho principal de uma seção/bloco de página pública com o mesmo papel de “Envie sua mensagem” (tipicamente o H2/header do bloco). Não inclui títulos de cards, CTAs, nav, footer, labels nem displays de hero/banner com Figma próprio.
-- Inter já está disponível no tema (carregada junto com Poppins); a padronização reusa essa família.
+- O anexo tipográfico de “Envie sua mensagem” (Inter 600 / 30 / 38 / −0.3px / `#000`) é a **fonte de verdade** do H2 de Contato; **não** substitui tipografias locais de outros blocos (decisão de produto pós-implementação).
+- Inter já está disponível no tema (carregada junto com Poppins); Contato reusa essa família.
+- Image Style `contato_painel` vive em `config/sync` — deploy de destino exige `drush cim` (não basta `drush cr`).
 - Padding vertical extremo do mockup (~318px) é referência de centralização generosa no frame Figma; na implementação, a centralização vertical do conteúdo do painel (em vez de paddings fixos gigantes) é aceitável desde que o resultado visual seja equivalente.
 - Proporção de colunas desktop ~7/5 ou ~8/4 é aceitável desde que o painel direito alcance ~499px de largura em viewport próximo ao frame de design e o formulário caiba sem aperto.
 - Não há mudança obrigatória de Configuration Management / `hook_update_N` salvo se a implementação descobrir ausência dos cards por falta de campos no display — nesse caso, garantir display + export `drush cex` e update idempotente conforme governança do projeto.

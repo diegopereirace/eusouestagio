@@ -1,8 +1,8 @@
-# Research: Refino Figma Contato (bleed + cards) e tipografia de títulos
+# Research: Refino Figma Contato (bleed + cards) e tipografia Contato
 
 **Data**: 2026-11-04 | **Feature**: [spec.md](spec.md) | **Plan**: [plan.md](plan.md)
 
-Todas as decisões priorizam **fidelidade ao Figma de Contato**, **token tipográfico único de seção**, **CSS limpo sem `100vw`**, e **zero regressão do webform**, reusando Node/fields/alter da 018.
+Todas as decisões priorizam **fidelidade ao Figma de Contato**, **token tipográfico só no H2 Contato**, **CSS limpo sem `100vw`**, e **zero regressão do webform**, reusando Node/fields/alter da 018.
 
 ---
 
@@ -87,48 +87,34 @@ color: #000000;
 
 Aplicar no H2 “Envie sua mensagem” (Twig + CSS Contato). Carregar via library global leve ou dependência anexada no tema base / `style` para que blocos públicos herdem sem library por página. Inter já está disponível no tema.
 
-**Rationale**: FR-016 / FR-017 / SC-007. Anexo Contato = fonte de verdade.
+**Rationale**: FR-016 / FR-017 / SC-007. Anexo Contato = fonte de verdade do H2.
 
 **Alternatives considered**:
-- Só CSS em `.layout-contato-node__title` — rejeitado (não cobre FR-018).
-- Variáveis CSS `--ese-section-*` sem classe — útil como complemento, mas a classe/aliases dão aplicabilidade imediata.
+- Só CSS em `.layout-contato-node__title` sem classe canônica — rejeitado (FR-017 pede `.ese-section-title`).
+- Variáveis CSS `--ese-section-*` sem classe — útil como complemento, mas a classe dá aplicabilidade imediata.
 - Migrar tudo para Poppins 600 — rejeitado (spec manda Inter).
 
 ---
 
-## R6 — Padronização projeto-wide (escopo e exclusões)
+## R6 — Escopo tipográfico: só Contato (override de produto)
 
-**Decision**: Alinhar ao token (via `.ese-section-title` ou seletores agrupados que copiam as mesmas propriedades) os **headers principais de seção/bloco público**, incluindo tipicamente:
+**Decision**: O token aplica-se **somente** a `/contato` (`.layout-contato-node__title` + `.ese-section-title` + legado `.block-layout-contato .layout-contato__title`). Library: `layout_contato` (não `global-styling`).
 
-- Contato: `.layout-contato-node__title`
-- Home / PE: `.nd-header__title`, `.nm-header__title`, `.oqf-header__title`, `.cf-header__title`
-- Estudantes: `.be-header__title`, `.oe-header__title`, `.je-header__title`
-- Quem Somos: `.dqs-header__title` (+ outros H2 de seção com o mesmo papel, se confirmados na implementação)
+**Não** aplicar aliases a `.nd-header__title`, `.nm-header__title`, `.oqf-header__title`, `.cf-header__title`, `.be-header__title`, `.oe-header__title`, `.je-header__title`, `.dqs-header__title`, heroes, cards, CTAs, nav, footer, labels.
 
-**Exclusões explícitas (Fora / FR-018)**:
+**Rationale**: FR-018 / SC-008 (revisados): evitar regressão tipográfica em blocos já refinados (042–056).
 
-- Heroes/banners, `vagas-hero-search__title`, displays com Figma próprio
-- Títulos de cards internos (`*-card__title`, `*-item__title`, painel Contato)
-- CTAs (`cta-v1__title` e variantes), nav, footer, labels, painéis admin
-- `h1–h6` globais em `style.css` **não** são reescritos em massa — só os headers de seção listados (evita colateral em login/painel)
-
-**Acentos de cor**: onde o Figma local usa span colorido (ex. Benefícios dark/blue), aplicar família/peso/tamanho/lh/ls do token; **preservar** overrides de cor nos spans.
-
-Na implementação: amostrar ≥5 páginas (Home, Quem Somos, Para Estudantes, Para Empresas, Contato, Vagas) e ajustar só o que for claramente “título de seção”.
-
-**Rationale**: FR-018 / SC-008.
-
-**Alternatives considered**: Trocar `h2` global Poppins → Inter — rejeitado (atinge painel, login, microcopy). Forçar `#000` em spans coloridos — rejeitado (quebra Benefícios).
+**Alternatives considered**: Padronização site-wide via aliases — rejeitada por decisão de produto pós-implementação. Trocar `h2` global — rejeitado (colateral amplo).
 
 ---
 
 ## R7 — Deploy / hook / config
 
-**Decision**: Feature predominantemente **tema**. Sem `hook_update_N` salvo descoberta de display incompleto. Assets Contato **não** são reescritos (057). Origem: `drush cr` (+ `cex` se houver YAML). Destino: `cr`; ou receita `cim` → `updb` → `cim` → `cr` se `11089` existir.
+**Decision**: Tema + **Image Style** `contato_painel` em `config/sync`. Sem `hook_update_N` salvo display incompleto. Assets Contato **não** são reescritos (057). Origem: `drush cex -y` + `drush cr`. Destino: **`cim` + `cr`** (obrigatório); se `11089` → `cim` → `updb` → `cim` → `cr`.
 
-**Rationale**: Assumptions da spec + gates deploy.
+**Rationale**: FR-010a + gates deploy; “só `cr`” quebraria a imagem do painel sem o style importado.
 
-**Alternatives considered**: Hook cosmético vazio — rejeitado. Reseed Node — rejeitado (editorial / 057).
+**Alternatives considered**: Hook cosmético vazio — rejeitado. Reseed Node — rejeitado (editorial / 057). Deploy só tema — rejeitado após T038.
 
 ---
 

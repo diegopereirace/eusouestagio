@@ -24,10 +24,23 @@
 {% set panel_text = node.field_text_simple_long.value|default('')|trim %}
 {% set img_uri = '' %}
 {% set img_alt = panel_title ? panel_title : ('Time de especialistas'|t) %}
+{# Image Style contato_painel: scale max-width 640 — width/height HTML proporcionais ao asset. #}
+{% set img_w = 640 %}
+{% set img_h = 0 %}
 {% if node.field_imagem.entity and node.field_imagem.entity.uri.value %}
   {% set img_uri = node.field_imagem.entity.uri.value %}
   {% if node.field_imagem.alt %}
     {% set img_alt = node.field_imagem.alt %}
+  {% endif %}
+  {% set src_w = node.field_imagem.width|default(0) %}
+  {% set src_h = node.field_imagem.height|default(0) %}
+  {% if src_w > 0 and src_h > 0 %}
+    {% if src_w > 640 %}
+      {% set img_h = (src_h * 640 / src_w)|round(0, 'common') %}
+    {% else %}
+      {% set img_w = src_w %}
+      {% set img_h = src_h %}
+    {% endif %}
   {% endif %}
 {% endif %}
 
@@ -45,7 +58,7 @@
     <div class="layout-contato-node__media-col">
       <div class="layout-contato-node__panel">
         {% if img_uri %}
-          <img class="img-fluid layout-contato-node__image" src="{{ img_uri|image_style('contato_painel')|e('html_attr') }}" alt="{{ img_alt|e('html_attr') }}" loading="lazy" decoding="async" width="640" height="720">
+          <img class="img-fluid layout-contato-node__image" src="{{ img_uri|image_style('contato_painel')|e('html_attr') }}" alt="{{ img_alt|e('html_attr') }}" loading="lazy" decoding="async"{% if img_w %} width="{{ img_w }}"{% endif %}{% if img_h %} height="{{ img_h }}"{% endif %}>
         {% endif %}
         {% if panel_title %}
           <p class="layout-contato-node__panel-title">{{ panel_title }}</p>

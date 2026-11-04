@@ -30,7 +30,7 @@ Contrato de apresentação estável para `/contato` frente ao Figma (bleed + car
     </div>
     <div class="layout-contato-node__media-col">
       <div class="layout-contato-node__panel">
-        <img class="layout-contato-node__image" src="…/styles/contato_painel/…" loading="lazy" decoding="async" width="640" height="720">
+        <img class="layout-contato-node__image" src="…/styles/contato_painel/…" loading="lazy" decoding="async" width="{proporcional}" height="{proporcional}">
         <p class="layout-contato-node__panel-title">…</p>
         <p class="layout-contato-node__panel-text">…</p>
       </div>
@@ -44,7 +44,8 @@ Notas:
 - Escopo CSS Contato: `.node--contato` / `.layout-contato-node` (FR-013).
 - Shell `#main.container` pode ser liberado em `path-contato` / `:has(.node--contato)` para permitir bleed (sem `100vw`).
 - Omitir webform, `<img>`, card ou textos quando field vazio.
-- Imagem do painel: Image Style `contato_painel` (scale 640 + WebP); `loading="lazy"`; `decoding="async"`; sem URI crua (FR-010a).
+- Imagem do painel: Image Style `contato_painel` (scale 640 + WebP); `loading="lazy"`; `decoding="async"`; `width`/`height` HTML proporcionais ao asset após scale (não hardcode 640×720); sem URI crua (FR-010a).
+- Deploy destino: `cim` obrigatório para importar `image.style.contato_painel`.
 - **Proibido**: segundo formulário / bloco `layout_contato` na mesma resposta.
 
 ## Contrato visual
@@ -59,6 +60,7 @@ Notas:
 | Submit | `#FD7B1A`, texto branco, sem borda; ~180×56 desktop; 100% width &lt;992px |
 | Card E-mail | ~280×70; borda `#C6C6CD`; valor `#45464D`; `mailto:` |
 | Card WhatsApp | ~214×70; mesma linguagem; `https://wa.me/{digits}` |
+| Ações ≥992px | preferir fileira única; wrap permitido sem overflow-x se a coluna estreitar |
 | Inputs linha | altura ~57px; borda fina; radius suave |
 | &lt;992px | form acima; painel 100%; ações wrap; sem overflow-x |
 
@@ -74,4 +76,4 @@ Notas:
 
 ## Aceite
 
-US1–US5, US7 / SC-001–007 → este contrato. US6 / SC-008 → também [section-title-token.md](section-title-token.md).
+US1–US5, US7 / SC-001–007 → este contrato. US6 / SC-008 (token **não** vaza) → [section-title-token.md](section-title-token.md).

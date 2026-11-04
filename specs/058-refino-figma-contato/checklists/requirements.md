@@ -32,6 +32,6 @@
 ## Notes
 
 - Validação 2026-11-04 (iteração 1): aprovada.
-- Validação 2026-11-04 (iteração 2): incluído token tipográfico do anexo (Inter 600 / 30 / 38 / −0.3px / `#000`) + padronização de títulos de seção no projeto; checklist reaprovado.
-- Escopo tipográfico delimitado: títulos de seção públicos; fora: microtítulos, heroes/banners com Figma próprio, nav/footer.
-- Pronto para `/speckit-clarify` (opcional) ou `/speckit-plan`.
+- Validação 2026-11-04 (iteração 2): incluído token tipográfico do anexo (Inter 600 / 30 / 38 / −0.3px / `#000`); checklist reaprovado.
+- Validação 2026-11-04 (iteração 3 / pós-review): escopo tipográfico = **somente Contato**; SC-008 = não vazar token; deploy destino com `cim` (Image Style); checklist reaprovado.
+- Fora: microtítulos, heroes/banners, nav/footer, headers de outros blocos.

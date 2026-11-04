@@ -9,15 +9,15 @@
 
 ## Summary
 
-Fechar as **lacunas reais** de `/contato` frente ao Figma e padronizar o **token tipográfico de título de seção** no site público, sem recriar o Content Type / webform das features 017/018:
+Fechar as **lacunas reais** de `/contato` frente ao Figma e aplicar o **token tipográfico do anexo somente ao H2 de Contato**, sem recriar o Content Type / webform das features 017/018:
 
 1. **Bleed assimétrico**: formulário alinhado à margem do header; painel `#E5EEFF` encostado na borda direita da viewport (≥992px); empilhamento abaixo de 992px.
-2. **Linha de ações**: botão Enviar (~180×56, `#FD7B1A`) + cards E-mail (~280×70) e WhatsApp (~214×70) com borda `#C6C6CD` e valor `#45464D`; omit empty já existente no `hook_webform_submission_form_alter`.
-3. **Painel**: imagem + textos centralizados; cantos/“caixa” arredondada interior substituídos pelo bleed de coluna quando desktop.
+2. **Linha de ações**: botão Enviar (~180×56, `#FD7B1A`) + cards E-mail (~280×70) e WhatsApp (~214×70) com borda `#C6C6CD` e valor `#45464D`; omit empty já existente no `hook_webform_submission_form_alter`; wrap sem overflow se a coluna estreitar.
+3. **Painel**: imagem + textos centralizados; Image Style `contato_painel` (640 + WebP) + lazy/async; cantos/“caixa” arredondada interior substituídos pelo bleed de coluna quando desktop.
 4. **Inputs**: altura ~57px, borda fina, radius suave; submit full-width &lt;992px.
-5. **Token de seção**: Inter 600 / 30px / 38px / ls −0.3px / `#000` — estilo base reutilizável + aplicação em Contato e headers de seção públicos (exceto heroes/microtítulos/nav/footer/CTAs especiais).
+5. **Token Contato**: Inter 600 / 30px / 38px / ls −0.3px / `#000` via `.ese-section-title` na library `layout_contato` — **somente** `/contato` (demais blocos mantêm tipografia local; decisão de produto).
 
-Zero passos manuais em produção. Sem tipos/fields novos.
+Zero passos manuais em produção. Sem tipos/fields novos. Config: `image.style.contato_painel` → destino exige `cim`.
 
 ## Technical Context
 
@@ -27,10 +27,10 @@ Zero passos manuais em produção. Sem tipos/fields novos.
 | Primary Dependencies | Node `contato`, Webform `contato`, tema `default` (Bootstrap 5 / Barrio). **Sem** Composer novo |
 | Storage | Sem tipos/fields/storages novos; Node UUID seed `a4b5c6d7-e8f9-4012-b345-d6e7f8a9b0c1` |
 | Testing | Manual via [quickstart.md](quickstart.md); sem PHPUnit dedicado |
-| Target Platform | `/contato` (node `contato` full) + tipografia global de seção em páginas públicas; breakpoint 992px |
-| Performance | CSS dedicado `layout_contato` + utilitário tipográfico leve; sem JS novo; imagem painel via style `contato_painel` (640 + WebP) + `lazy` + `decoding=async` |
-| Constraints | Sem `core/`/`vendor/`; sem SCSS toolchain; CSS plano / Grid+Flex rasos; layout Contato isolado (FR-013); tipografia de seção propaga globalmente; não regressar webform/envio; assets seed imutáveis (057) |
-| Scale/Scope | Twig node Contato + CSS Contato + utilitário/token tipográfico + alinhamento de headers de bloco existentes + PRD cirúrgico se visual publicado mudar |
+| Target Platform | `/contato` (node `contato` full) + token tipográfico só no H2 Contato; breakpoint 992px |
+| Performance | CSS dedicado `layout_contato` + `ese-section-title` na mesma library; sem JS novo; imagem painel via style `contato_painel` (640 + WebP) + `lazy` + `decoding=async` |
+| Constraints | Sem `core/`/`vendor/`; sem SCSS toolchain; CSS plano / Grid+Flex rasos; layout + tipografia Contato isolados (FR-013); não regressar webform/envio; assets seed imutáveis (057) |
+| Scale/Scope | Twig/CSS Contato + token local + Image Style em `config/sync` + PRD cirúrgico |
 
 **Estado atual verificado (2026-11-04):**
 
@@ -53,15 +53,15 @@ Não há `.specify/memory/constitution.md`. Gates: `.cursor/rules/estagio-*.mdc`
 | SDD — spec antes do código | PASS | `spec.md` + checklist; zero `[NEEDS CLARIFICATION]` |
 | Sem `core/` / `vendor/` | PASS | só tema `default`, opcional `custom_configs`/`PRD.md`/`config/sync` |
 | Reuso / sem tipos novos | PASS | CT/fields/webform 017–018 inalterados |
-| Deploy `cim` → `updb` → `cim` → `cr` + hook idempotente | PASS | sem hook estrutural esperado; se `11089`, receita padrão |
+| Deploy `cim` → `updb` → `cim` → `cr` + hook idempotente | PASS | Image Style em sync → destino `cim` + `cr`; hook `11089` só se gap estrutural extra |
 | Seeds Entity API / não sobrescrever editorial / 057 | PASS | sem reseed de imagem; cards só leitura de fields |
 | Clean URLs | PASS | `/contato`, `mailto:`, `wa.me` inalterados |
 | Performance / CSS isolado | PASS | Contato sob `.node--contato`; token tipográfico como utilitário nomeado |
 | Contrib first / custom mínimo | PASS | Webform + Node; alter só apresentação |
 | Convivência 017/018 | PASS | refino visual; envio webform preservado (FR-014) |
 | Tokens locais Contato (cores Figma) | PASS | hex da spec; tipografia Inter reutilizada |
-| PRD guardião | A avaliar na implementação | só se contrato visual §3.6 Contato mudar de forma relevante para editores |
-| Reinício cache | A executar na implementação | `drush cr` |
+| PRD guardião | PASS | §3.6 Contato: token só Contato + deploy `cim` + style `contato_painel` |
+| Reinício cache | A executar na implementação | `cim` + `cr` |
 
 **Post-design**: gates mantidos. Trade-offs em [research.md](research.md) e Complexity Tracking. Sem violação injustificada.
 
@@ -77,9 +77,9 @@ Não há `.specify/memory/constitution.md`. Gates: `.cursor/rules/estagio-*.mdc`
 │    │         └─ shortcuts (hook alter) → cards E-mail / WhatsApp
 │    └─ coluna painel: #E5EEFF bleed direita (≥992px)
 │         image + field_text_simple + field_text_simple_long
-├─ library default/layout_contato → layout-contato.css
-└─ token tipográfico global
-     .ese-section-title (+ aliases nos __header__title de blocos públicos)
+└─ library default/layout_contato
+     ├─ ese-section-title.css  (.ese-section-title — só Contato)
+     └─ layout-contato.css
 ```
 
 ## Design Decisions
@@ -88,14 +88,13 @@ Não há `.specify/memory/constitution.md`. Gates: `.cursor/rules/estagio-*.mdc`
 2. **Mobile &lt;992px**: empilhar form → painel; painel 100% largura; submit 100%; cards wrap sem overflow (R2).
 3. **Cards/botão**: só CSS (+ markup já injetado); dimensões alvo ±10%; borda `#C6C6CD`; valor `#45464D`; ícones laranja mantidos (R3).
 4. **Painel**: desktop = coluna full-bleed sem “card” flutuante; conteúdo centralizado flex; `border-radius` só se Figma exigir canto interno residual — priorizar face reta na borda direita (R4).
-5. **Token**: classe utilitária `.ese-section-title` (Inter 600 / 30px / 38px / −0.3px / `#000`) em CSS base do tema ou library tipográfica leve (R5).
-6. **Padronização**: Contato H2 + headers de seção públicos listados em research R6 herdam o token; **não** forçar heroes, CTAs escuros, card titles, nav, footer, labels (R6).
-7. **Acentos de cor** (ex. Benefícios azul/escuro): métricas do token; spans de cor locais preservados (R6).
-8. **Hook**: nenhum por padrão; `11089` só se display/fields/placement faltarem (R7).
-9. **Origem**: `drush cr`; `drush cex -y` só se houver diff estrutural.
-10. **Destino**: se só tema → `git pull` + `drush cr`; se houver `11089`/config → `cim` → `updb` → `cim` → `cr`.
-11. **PRD**: cirúrgico §3.6 Contato / tipografia de seção se o contrato publicado mudar.
-12. **Fora**: SCSS; novos bundles; redesign header/footer/FAB; alterar elementos do webform; Layout Builder.
+5. **Token**: classe `.ese-section-title` (Inter 600 / 30px / 38px / −0.3px / `#000`) anexada só em `layout_contato` (R5).
+6. **Escopo tipográfico**: somente H2 Contato; **não** aliases em headers de outros blocos (R6 — override de produto).
+7. **Hook**: nenhum por padrão; `11089` só se display/fields/placement faltarem (R7).
+8. **Origem**: `drush cex -y` (Image Style) + `drush cr`.
+9. **Destino**: `git pull` → `drush cim -y` → `drush cr` (obrigatório por `image.style.contato_painel`); se houver `11089` → `cim` → `updb` → `cim` → `cr`.
+10. **PRD**: §3.6 Contato alinhado (token só Contato + deploy com `cim`).
+11. **Fora**: SCSS; novos bundles; redesign header/footer/FAB; tipografia site-wide; alterar YAML do webform; Layout Builder.
 
 ## Project Structure
 
@@ -122,33 +121,35 @@ themes/custom/default/
       # markup assimétrico; classe .ese-section-title no H2
   assets/css/layout-contato.css
       # bleed, painel, cards, botão, inputs, mobile
-  assets/css/ese-section-title.css   # NOVO (ou bloco em style.css)
-      # token + lista de aliases de headers de seção
+  assets/css/ese-section-title.css
+      # token só Contato
   default.libraries.yml
-      # anexar utilitário tipográfico (global ou via dependência)
+      # ese-section-title.css em layout_contato
 
 modules/custom/custom_configs/
   custom_configs.install             # só se 11089 necessário
   custom_configs.module              # alter de shortcuts: só se markup/classes precisarem ajuste fino
 
-config/sync/                         # via cex só se display/estrutural
+config/sync/
+  image.style.contato_painel.yml     # via cex (obrigatório no destino)
 
-PRD.md                               # §3.6 cirúrgico se aplicável
+PRD.md                               # §3.6 Contato
 ```
 
 ## Phases
 
-1. Spec/plan/research/data-model/contracts/quickstart (esta entrega)
+1. Spec/plan/research/data-model/contracts/quickstart
 2. `/speckit-tasks` → tasks ordenadas
-3. Implementação: Twig/CSS bleed Contato → cards/botão/inputs → token + aliases de seção → PRD se preciso → `cr` (+ `cex`/`11089` se surgir)
+3. Implementação: Twig/CSS Contato → token local → Image Style + cex → PRD → cim/cr
 4. Validação [quickstart.md](quickstart.md)
+5. Pós-review: reconciliar spec (token só Contato), deploy com `cim`, botão 56px, wrap desktop, `width`/`height` proporcionais
 
 ## Complexity Tracking
 
 | Violação / trade-off | Justificativa | Alternativa rejeitada |
 |----------------------|---------------|------------------------|
-| Tipografia global além de `/contato` | FR-017/FR-018 + SC-008 exigem padronização projeto-wide | Só alterar Contato |
-| Preservar spans de cor em títulos (Benefícios) | Token define `#000` default; Figma local usa acento azul | Forçar preto absoluto e quebrar marca da seção |
+| Token só em `/contato` (override vs pedido inicial site-wide) | Decisão de produto: evitar regressão tipográfica em blocos já refinados | Aliases globais em `__header__title` |
+| Image Style em sync (não “só tema”) | FR-010a / performance WebP | URI crua ou style só local |
 | Liberar container / grid assimétrico sem `100vw` | SC-001 + edge case scrollbar; padrão Missão/Visão | `width: 100vw` / margin negativo cego |
-| Sem hook por padrão | Feature é apresentação; 057 desencoraja touch de assets | Seed/recreate Node Contato |
+| Sem hook por padrão | Feature é apresentação + config de style exportável; 057 desencoraja touch de assets | Seed/recreate Node Contato |
 | `mattpocock/skills` ausente | Pacote não instalado; CSS plano do repo cobre Grid/Flex | Bloquear feature à espera do pacote |

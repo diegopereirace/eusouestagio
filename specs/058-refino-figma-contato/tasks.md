@@ -7,7 +7,7 @@
 **Hook**: nenhum esperado; `custom_configs_update_11089` só se display/fields faltarem  
 **Testes automatizados**: não solicitados — validação manual via `quickstart.md` (sem PHPUnit)  
 **Nota de setup**: `.specify/scripts` e `.specify/templates` ausentes neste repo; `FEATURE_DIR` = `specs/058-refino-figma-contato` (via `.specify/feature.json`); template alinhado a `specs/053-refino-figma-para-estudantes/tasks.md`  
-**Config estrutural**: só tema por padrão (`drush cr`); `drush cex` / `11089` apenas se surgir gap estrutural
+**Config estrutural**: tema + `image.style.contato_painel` (destino: `cim` + `cr`); `11089` só se surgir gap estrutural extra
 
 ## Phase 1: Setup (Project Initialization)
 
@@ -107,14 +107,11 @@
 
 ## Phase 8: User Story 6 — Títulos de seção consistentes no site (Priority: P1)
 
-**Status**: **REVERTIDO** — decisão de produto: token somente em `/contato`; demais títulos de seção mantêm tipografia local.
+**Goal**: Token isolado em `/contato`; headers de outros blocos mantêm tipografia local (FR-018 / SC-008).
 
-**Goal** (original): Headers de seção públicos listados herdam o mesmo token (aliases CSS); preservar spans de cor locais (ex. Benefícios); exclusões heroes/cards/CTAs/nav/footer (FR-018 / SC-008).  
-**Override**: aliases removidos de `ese-section-title.css`; CSS dos blocos restaurado; library do token anexada só em `layout_contato`. SC-008 N/A.
-
-- [X] T027 [US6] ~~Aliases globais~~ → escopo restrito a Contato em `ese-section-title.css` + library `layout_contato`
-- [X] T028 [P] [US6] Tipografia local restaurada nos CSS dos blocos (nd/nm/oqf/cf/be/oe/je/dqs)
-- [X] T029 [US6] SC-008 N/A — contrato atualizado em `contracts/section-title-token.md`
+- [X] T027 [US6] Escopo restrito a Contato em `ese-section-title.css` + library `layout_contato`
+- [X] T028 [P] [US6] Tipografia local preservada nos CSS dos blocos (nd/nm/oqf/cf/be/oe/je/dqs)
+- [X] T029 [US6] Validar SC-008 (token não vaza) — contrato em `contracts/section-title-token.md`
 
 **Checkpoint**: token tipográfico isolado em `/contato`; demais títulos inalterados.
 
@@ -134,7 +131,7 @@
 
 ## Phase 10: Polish & Cross-Cutting Concerns
 
-**Objetivo**: regressão fora de escopo, PRD cirúrgico se necessário, cache, aceite SC-001–SC-008; hook/`cex` só se gap estrutural surgir.
+**Objetivo**: regressão fora de escopo, PRD cirúrgico, `cim`/`cr`, aceite SC-001–SC-008; `11089` só se gap estrutural extra.
 
 - [X] T032 [P] Smoke de regressão: header, footer, FAB WhatsApp, home e outras rotas — layout Contato não vaza; tipografia de seção não altera heroes/microtítulos/CTAs — conforme `specs/058-refino-figma-contato/quickstart.md` seção I
 - [X] T033 [P] Atualizar `PRD.md` §3.6 de forma **cirúrgica** somente se o contrato visual publicado de Contato / tipografia de seção mudar de forma relevante para editores; caso contrário, no-op documentado na task
@@ -150,8 +147,8 @@
 **Objetivo**: servir `field_imagem` via Image Style `contato_painel` (scale 640 + WebP) com `loading="lazy"` e `decoding="async"`; sem URI crua; sem rewrite de seed (057).
 
 - [X] T038 Criar Image Style `contato_painel` (scale width 640, upscale false, convert WebP) via Entity API / Drush e exportar com `drush cex` → `config/sync/image.style.contato_painel.yml`
-- [X] T039 Atualizar markup da imagem em `themes/custom/default/templates/node/node--contato--full.html.twig`: `|image_style('contato_painel')`, `loading="lazy"`, `decoding="async"`, `width`/`height` 640×720
-- [X] T040 Validar FR-010a: HTML com lazy/async; Network com `/styles/contato_painel/…`; omit se campo vazio; `drush cr`
+- [X] T039 Atualizar markup da imagem em `themes/custom/default/templates/node/node--contato--full.html.twig`: `|image_style('contato_painel')`, `loading="lazy"`, `decoding="async"`, `width`/`height` proporcionais ao asset (scale 640)
+- [X] T040 Validar FR-010a: HTML com lazy/async; Network com `/styles/contato_painel/…`; omit se campo vazio; destino usa `cim` + `cr`
 
 ---
 
@@ -162,9 +159,9 @@
 - US2 (cards) e US3 (painel) podem avançar em paralelo após T011 (markup base), em arquivos CSS/Twig distintos onde marcado `[P]`
 - US4 (mobile) depende do layout de US1 (+ idealmente estilos de US2/US3 já no CSS Contato)
 - US5 (token Contato) pode iniciar após Foundational em arquivos novos; idealmente após T011 se o H2 já estiver no Twig refatorado
-- US6 (aliases globais) depende de T023–T024 (arquivo/library do token)
+- US6 (escopo negativo tipográfico) depende de T023–T024
 - US7 (inputs/envio) pode paralelizar com US2 no mesmo `layout-contato.css` com cuidado de merge; sequenciar após US2 se um único agente
-- Polish após US1–US7
+- Phase 11 (Image Style) após painel Twig; Polish após US1–US7 + T038–T040
 
 ## Dependency Graph
 
@@ -175,9 +172,9 @@ Phase1 → Phase2 (escopo + path + UUID)
            │     ├→ US3 (P1) painel Twig/CSS
            │     └→ US4 (P1) mobile media queries
            ├→ US5 (P1) ese-section-title.css + H2 Contato
-           │     └→ US6 (P1) aliases headers de seção
+           │     └→ US6 (P1) token isolado (não vaza p/ outros blocos)
            └→ US7 (P2) inputs + smoke envio webform
-                └→ Polish (regressão, PRD, cr, SC-001–SC-008)
+                └→ Phase11 Image Style → Polish (PRD, cim/cr, SC-001–SC-008)
 ```
 
 ## Parallel Execution Opportunities
@@ -187,7 +184,7 @@ Phase1 → Phase2 (escopo + path + UUID)
 - **US1**: T011 → T012 ∥ T013; T014 por último
 - **US2 ∥ US3** (após T011): T015 [P] ∥ T018; T016 / T019 em `layout-contato.css` — coordenar se mesmo arquivo; T017/T020 após cada história
 - **US4**: após US1 (+ preferível pós US2/US3 CSS)
-- **US5 → US6**: T023 → T024 → T025; depois T027 → T028 [P] nos CSS de bloco; T026/T029 validação
+- **US5 → US6**: T023 → T024 → T025; T027–T029 confirmação de escopo; T026/T029 validação
 - **US7**: T030 após estilos de ações (US2) estabilizados; T031 por último na história
 - **Polish**: T032 ∥ T033 ∥ T034; T035 se necessário; depois T036 → T037
 
@@ -195,14 +192,15 @@ Phase1 → Phase2 (escopo + path + UUID)
 
 1. **MVP**: Phase 1–2 + US1 (bleed assimétrico Contato)
 2. **Fidelidade Contato**: US2 (ações) ∥ US3 (painel) → US4 (mobile)
-3. **Tipografia**: US5 (token + Contato) → US6 (padronização site-wide)
+3. **Tipografia**: US5 (token Contato) → US6 (não propagar)
 4. **Não-regressão funcional**: US7 (inputs + envio)
-5. **Fechamento**: Polish — regressão, PRD cirúrgico se preciso, `drush cr`, SC-001–SC-008
+5. **Performance imagem**: Phase 11 (`contato_painel` + cex)
+6. **Fechamento**: Polish — regressão, PRD, `cim`/`cr`, SC-001–SC-008
 
 ## Format Validation
 
-- Todas as tarefas usam checkbox `- [ ]`, ID sequencial (`T001`…`T037`), caminho de arquivo e label `[USn]` nas fases de história
-- Setup, Foundational e Polish sem label de história
+- Todas as tarefas usam checkbox, ID sequencial (`T001`…`T040`), caminho de arquivo e label `[USn]` nas fases de história
+- Setup, Foundational, Polish e Phase 11 sem label de história (exceto T039 em Twig Contato)
 - Marcador `[P]` apenas onde arquivos/trabalhos distintos permitem paralelismo real
 - Sem tasks de teste automatizado (não solicitadas na spec; validação manual no quickstart)
-- Ordem de histórias: US1–US6 (P1) → US7 (P2) → Polish
+- Ordem de histórias: US1–US6 (P1) → US7 (P2) → Phase 11 → Polish

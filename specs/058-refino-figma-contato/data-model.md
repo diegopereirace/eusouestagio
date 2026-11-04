@@ -40,7 +40,7 @@ Inalterado estruturalmente. Submit label **Enviar Mensagem**. Máscaras via libr
 | Cor default | `#000000` |
 | Classe canônica | `.ese-section-title` |
 
-Aplicado a headers de seção públicos (ver [contracts/section-title-token.md](contracts/section-title-token.md)); sem storage Drupal.
+Aplicado **somente** ao H2 Contato (ver [contracts/section-title-token.md](contracts/section-title-token.md)); sem storage Drupal.
 
 ## Relacionamentos
 
@@ -48,12 +48,13 @@ Aplicado a headers de seção públicos (ver [contracts/section-title-token.md](
 alias /contato → node:contato
   ├── webform field → webform.contato
   │     └── form-actions
-  │           ├── submit
+  │           ├── submit (~180×56)
   │           └── shortcuts (alter ← field_email / field_phone_wpp)
-  ├── field_imagem / field_text_simple / field_text_simple_long → painel
-  └── H2 "Envie sua mensagem" → .ese-section-title (token CSS)
+  ├── field_imagem → Image Style contato_painel → painel
+  ├── field_text_simple / field_text_simple_long → painel
+  └── H2 "Envie sua mensagem" → .ese-section-title (token CSS, só Contato)
 
-blocos públicos (nd/be/oe/…) → __header__title → mesmo token (aliases CSS)
+blocos públicos (nd/be/oe/…) → tipografia local (fora do escopo 058)
 ```
 
 ## Validação

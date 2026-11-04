@@ -1,4 +1,4 @@
-# Quickstart: Refino Figma Contato + tipografia de seção
+# Quickstart: Refino Figma Contato + tipografia Contato
 
 **Feature**: [spec.md](spec.md) | **Plan**: [plan.md](plan.md) | **Data**: 2026-11-04
 
@@ -10,7 +10,7 @@ Modelo: [data-model.md](data-model.md). Contratos: [contracts/contato-refino-ren
 
 1. Stack local no ar; `$settings['config_sync_directory'] = 'config/sync'`.
 2. Features `017`/`018` aplicadas; `/contato` responde 200 com Node Contato + webform.
-3. Branch com tema (Twig/CSS/libraries) commitado; hook `11089` só se existir na entrega.
+3. Branch com tema (Twig/CSS/libraries) **e** `config/sync/image.style.contato_painel.yml` commitados.
 
 ---
 
@@ -19,22 +19,22 @@ Modelo: [data-model.md](data-model.md). Contratos: [contracts/contato-refino-ren
 ### Origem (após implementar)
 
 ```bash
-docker compose exec drupal drush cr
-# Se houver alteração estrutural / hook 11089:
-docker compose exec drupal drush updb -y
 docker compose exec drupal drush cex -y
 docker compose exec drupal drush cr
 git status
 ```
 
-### Destino (só tema)
+### Destino (tema + Image Style — receita obrigatória desta feature)
+
+Há config estrutural (`image.style.contato_painel`). **Não** usar só `drush cr`.
 
 ```bash
 git pull
+docker compose exec drupal drush cim -y
 docker compose exec drupal drush cr
 ```
 
-### Destino (com config/hook)
+Se no futuro existir `hook_update_N` (ex. `11089`):
 
 ```bash
 git pull
@@ -44,7 +44,7 @@ docker compose exec drupal drush cim -y
 docker compose exec drupal drush cr
 ```
 
-**Gates**: `/contato` reflete Figma sem edição manual; segunda `updb` (se houver) = no-op.
+**Gates**: `/contato` reflete Figma sem edição manual; Network da imagem usa `/styles/contato_painel/…`.
 
 ---
 
@@ -59,8 +59,8 @@ docker compose exec drupal drush cr
 
 ## C) Linha de ações (US2 → SC-003)
 
-1. Desktop: submit + card E-mail + card WhatsApp na mesma fileira (±10% vs 180×56 / 280×70 / 214×70).
-2. Submit: `#FD7B1A`, texto branco.
+1. Desktop: submit + card E-mail + card WhatsApp na mesma fileira quando couber (±10% vs 180×56 / 280×70 / 214×70); se a coluna estreitar, quebra sem overflow-x.
+2. Submit: `#FD7B1A`, texto branco, altura ~56px.
 3. Cards: borda `#C6C6CD`, valor `#45464D`; clique → `mailto:` / `wa.me`.
 4. Esvaziar um field no Node → card some; layout restante ok.
 
@@ -70,6 +70,7 @@ docker compose exec drupal drush cr
 
 1. Imagem acima; título/texto centralizados sobre `#E5EEFF`.
 2. Sem imagem: textos permanecem; sem textos: imagem centralizada.
+3. `<img>` com `loading="lazy"`, `decoding="async"`, style `contato_painel`; `width`/`height` proporcionais ao asset.
 
 ---
 
@@ -86,11 +87,10 @@ docker compose exec drupal drush cr
 
 ---
 
-## G) Tipografia global (US6 → SC-008)
+## G) Tipografia fora de Contato (US6 → SC-008)
 
-1. Amostrar ≥5 páginas públicas (Home, Quem Somos, Para Estudantes, Para Empresas, Contato; opcional Vagas).
-2. Headers de seção no escopo = mesmo token; heroes/cards/CTAs/nav/footer fora.
-3. Benefícios: métricas do token; spans coloridos podem manter cor.
+1. Amostrar headers de seção em Home / Quem Somos / Para Estudantes / Para Empresas (ex. `.nd-header__title`, `.be-header__title`).
+2. Confirmar que **não** herdaram o token Contato (tipografia local preservada).
 
 ---
 
@@ -104,4 +104,4 @@ docker compose exec drupal drush cr
 
 ## I) Regressão
 
-Header, footer, FAB WhatsApp, home e outras rotas: smoke visual — layout Contato não vaza; tipografia de seção não altera heroes/microtítulos.
+Header, footer, FAB WhatsApp, home e outras rotas: smoke visual — layout Contato não vaza; tipografia Contato não altera heroes/microtítulos/headers de outros blocos.

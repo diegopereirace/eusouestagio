@@ -1325,7 +1325,7 @@ class CandidatoRegistrationForm extends FormBase
     private function applyCadastroBootstrapClasses(array &$element): void
     {
         $type = $element['#type'] ?? NULL;
-        $input_types = ['textfield', 'email', 'password', 'tel', 'number', 'search', 'url', 'textarea', 'select'];
+        $input_types = ['textfield', 'email', 'password', 'tel', 'number', 'search', 'url', 'textarea', 'select', 'date'];
 
         if (in_array($type, $input_types, TRUE)) {
             $classes = &$element['#attributes']['class'];

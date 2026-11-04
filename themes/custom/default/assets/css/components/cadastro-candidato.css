@@ -258,19 +258,52 @@
   margin-bottom: 0.4rem;
 }
 
+/* Altura/padding iguais: text, date e select na mesma linha visual. */
 .page-cadastro-candidato .cadastro-section .form-control,
 .page-cadastro-candidato .cadastro-section .form-select,
 .page-cadastro-candidato .cadastro-section .form-control-lg,
-.page-cadastro-candidato .cadastro-section .form-select-lg {
+.page-cadastro-candidato .cadastro-section .form-select-lg,
+.page-cadastro-candidato .cadastro-section input[type="date"],
+.page-cadastro-candidato .cadastro-section input[type="email"],
+.page-cadastro-candidato .cadastro-section input[type="text"],
+.page-cadastro-candidato .cadastro-section input[type="tel"],
+.page-cadastro-candidato .cadastro-section input[type="password"],
+.page-cadastro-candidato .cadastro-section input[type="number"],
+.page-cadastro-candidato .cadastro-section textarea {
+  box-sizing: border-box;
   border-radius: 0.65rem;
-  border-color: #d5dde8;
+  border: 1px solid #d5dde8;
   background-color: #fff;
+  min-height: 3rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  padding: 0.625rem 1rem;
+}
+
+.page-cadastro-candidato .cadastro-section .form-select,
+.page-cadastro-candidato .cadastro-section .form-select-lg {
+  height: 3rem;
+  padding-right: 2.5rem;
+  background-position: right 1rem center;
+}
+
+.page-cadastro-candidato .cadastro-section input.form-control,
+.page-cadastro-candidato .cadastro-section input.form-control-lg,
+.page-cadastro-candidato .cadastro-section input[type="date"] {
+  height: 3rem;
+}
+
+.page-cadastro-candidato .cadastro-section textarea.form-control,
+.page-cadastro-candidato .cadastro-section textarea.form-control-lg {
+  height: auto;
+  min-height: 5.5rem;
 }
 
 .page-cadastro-candidato .cadastro-section .form-control:focus,
 .page-cadastro-candidato .cadastro-section .form-select:focus,
 .page-cadastro-candidato .cadastro-section .form-control-lg:focus,
-.page-cadastro-candidato .cadastro-section .form-select-lg:focus {
+.page-cadastro-candidato .cadastro-section .form-select-lg:focus,
+.page-cadastro-candidato .cadastro-section input[type="date"]:focus {
   border-color: #003060;
   box-shadow: 0 0 0 0.2rem rgba(0, 48, 96, 0.15);
 }

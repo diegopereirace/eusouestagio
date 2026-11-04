@@ -3,7 +3,8 @@
  * @file
  * Node Contato (bundle contato) — /contato.
  *
- * View mode full; classes alinhadas a contracts/contato-node-render.md.
+ * View mode full; layout assimétrico (form + painel bleed) — feature 058.
+ * Contrato: specs/058-refino-figma-contato/contracts/contato-refino-render.md
  */
 #}
 {{ attach_library('default/layout_contato') }}
@@ -32,28 +33,26 @@
 
 <article{{ attributes.addClass(classes) }}>
   {{ title_prefix }}{{ title_suffix }}
-  <div{{ content_attributes.addClass('layout-contato-node', 'container', 'py-5') }}>
-    <div class="row">
-      <div class="layout-contato-node__form-col col-12 col-lg-7">
-        <h2 class="layout-contato-node__title">{{ 'Envie sua mensagem'|t }}</h2>
-        {% if has_webform %}
-          <div class="layout-contato-node__webform">
-            {{ content.webform }}
-          </div>
-        {% endif %}
-      </div>
-      <div class="layout-contato-node__media-col col-12 col-lg-5">
-        <div class="layout-contato-node__panel">
-          {% if img_uri %}
-            <img class="img-fluid layout-contato-node__image" src="{{ file_url(img_uri)|e('html_attr') }}" alt="{{ img_alt|e('html_attr') }}" loading="lazy" width="640" height="720">
-          {% endif %}
-          {% if panel_title %}
-            <p class="layout-contato-node__panel-title text-center">{{ panel_title }}</p>
-          {% endif %}
-          {% if panel_text %}
-            <p class="layout-contato-node__panel-text text-center">{{ panel_text }}</p>
-          {% endif %}
+  <div{{ content_attributes.addClass('layout-contato-node') }}>
+    <div class="layout-contato-node__form-col">
+      <h2 class="layout-contato-node__title ese-section-title">{{ 'Envie sua mensagem'|t }}</h2>
+      {% if has_webform %}
+        <div class="layout-contato-node__webform">
+          {{ content.webform }}
         </div>
+      {% endif %}
+    </div>
+    <div class="layout-contato-node__media-col">
+      <div class="layout-contato-node__panel">
+        {% if img_uri %}
+          <img class="img-fluid layout-contato-node__image" src="{{ img_uri|image_style('contato_painel')|e('html_attr') }}" alt="{{ img_alt|e('html_attr') }}" loading="lazy" decoding="async" width="640" height="720">
+        {% endif %}
+        {% if panel_title %}
+          <p class="layout-contato-node__panel-title">{{ panel_title }}</p>
+        {% endif %}
+        {% if panel_text %}
+          <p class="layout-contato-node__panel-text">{{ panel_text }}</p>
+        {% endif %}
       </div>
     </div>
   </div>

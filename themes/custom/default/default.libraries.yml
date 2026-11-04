@@ -176,6 +176,7 @@ cta_v1_vagas:
 layout_contato:
   css:
     component:
+      assets/css/ese-section-title.css: {}
       assets/css/layout-contato.css: {}
   dependencies:
     - default/bootstrap

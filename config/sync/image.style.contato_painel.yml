@@ -1,0 +1,21 @@
+uuid: 08db0921-75dd-4d48-aa40-55a7a3b2f53b
+langcode: pt-br
+status: true
+dependencies: {  }
+name: contato_painel
+label: 'Contato — Painel (640w WebP)'
+effects:
+  4628e53c-51dc-4a42-8f17-a968f1799c39:
+    uuid: 4628e53c-51dc-4a42-8f17-a968f1799c39
+    id: image_scale
+    weight: 0
+    data:
+      width: 640
+      height: null
+      upscale: false
+  3a2b14e1-1820-4f4f-93f3-35fdb10c909f:
+    uuid: 3a2b14e1-1820-4f4f-93f3-35fdb10c909f
+    id: image_convert_avif
+    weight: 2
+    data:
+      extension: webp

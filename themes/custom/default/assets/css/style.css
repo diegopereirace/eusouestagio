@@ -1274,9 +1274,14 @@ html[dir='rtl'] .js input.form-autocomplete.ui-autocomplete-loading {
 	text-decoration: none;
 }
 
+/* "Vagas de Destaque" — Home. Ref. Figma: Poppins 600 / 30px / 38px / ls −0.3px / #000. */
 .css-vagas-home #vagas-home-header .text-title {
-	color: #0f172a;
-	font-weight: 700;
+	font-family: 'Poppins', sans-serif;
+	font-weight: 600;
+	font-size: 30px;
+	line-height: 38px;
+	letter-spacing: -0.3px;
+	color: #000000;
 }
 
 /* "Ver todas as vagas ›" — Vagas de Destaque (Home + Para Estudantes). Ref. Figma: #002B5C, Poppins 400/14/20, letter-spacing 0.14px. */

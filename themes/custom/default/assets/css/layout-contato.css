@@ -1,21 +1,43 @@
 /**
- * Layout de Contato — /contato.
+ * Layout de Contato — /contato (feature 058).
  * Escopo isolado sob .node--contato / .layout-contato-node
  * (dual-scope legado .block-layout-contato até limpeza via updb 11023).
+ *
+ * Bleed assimétrico ≥992px sem 100vw (padrão Missão/Visão / Impact Numbers).
  */
+
+/* ------------------------------------------------------------
+ * Libera #main.container só em Contato — sem clipar o bleed.
+ * ------------------------------------------------------------ */
+.layout-main-wrapper:has(.node--contato) > #main.container,
+body.path-contato .layout-main-wrapper > #main.container {
+  max-width: none;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.layout-main-wrapper:has(.node--contato) > #main > .row,
+body.path-contato .layout-main-wrapper > #main > .row {
+  --bs-gutter-x: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.layout-main-wrapper:has(.node--contato) > #main > .row > main.main-content,
+body.path-contato .layout-main-wrapper > #main > .row > main.main-content {
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .block-layout-contato,
 .node--contato {
   overflow-x: hidden;
 }
 
+/* Título: tipografia via .ese-section-title (token); só ritmo local. */
 .block-layout-contato .layout-contato__title,
 .node--contato .layout-contato-node__title {
-  font-family: 'Poppins', sans-serif;
-  font-weight: 700;
-  color: #0f172a;
   margin: 0 0 1.5rem;
-  line-height: 1.25;
-  font-size: clamp(1.5rem, 2vw + 1rem, 2rem);
 }
 
 /* Legendás dos campos — acima do input, cinza claro (Figma). */
@@ -54,12 +76,42 @@
 .node--contato .layout-contato-node__webform select,
 .node--contato .layout-contato-node__webform textarea {
   border-radius: 8px;
+  border: 1px solid #c6c6cd;
+  box-sizing: border-box;
+}
+
+/* Inputs de linha ~57px (FR-012 / US7). */
+.node--contato .layout-contato-node__webform input[type="text"],
+.node--contato .layout-contato-node__webform input[type="email"],
+.node--contato .layout-contato-node__webform input[type="tel"],
+.node--contato .layout-contato-node__webform .form-control:not(textarea):not(select),
+.node--contato .layout-contato-node__webform .form-select,
+.node--contato .layout-contato-node__webform select {
+  height: 57px;
+  min-height: 57px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.node--contato .layout-contato-node__webform textarea {
+  min-height: 120px;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+/* ============================================================
+ * Shell assimétrico (sem .container que corte o painel).
+ * ============================================================ */
+.node--contato .layout-contato-node {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
 }
 
 /* ============================================================
  * Barra de ações: submit + atalhos (E-mail, WhatsApp).
- * Os atalhos são injetados via custom_configs_webform_submission_form_alter()
- * dentro do container .form-actions gerado pelo webform.
+ * Fileira única no desktop: mesma altura, gap uniforme,
+ * borda direita do último card alinhada aos campos do form.
  * ============================================================ */
 .node--contato .layout-contato-node__webform .form-actions.webform-actions {
   display: flex;
@@ -67,20 +119,27 @@
   align-items: stretch;
   gap: 1rem;
   margin-top: 1rem;
+  width: 100%;
 }
 
-/* Submit "Enviar Mensagem" — cor da marca; venceendo .btn.btn-primary.form-control */
+/* Submit "Enviar Mensagem" — Figma ~180×70 / #FD7B1A (altura = cards) */
 .node--contato .layout-contato-node__webform .form-actions .webform-button--submit,
 .node--contato .layout-contato-node__webform .form-actions input[type="submit"],
 .node--contato .layout-contato-node__webform .form-actions button[type="submit"] {
   background-color: #fd7b1a;
-  border-color: #fd7b1a;
+  border: none;
+  border-color: transparent;
   color: #fff;
   font-weight: 600;
   border-radius: 8px;
-  padding: 0.75rem 1.75rem;
-  width: auto;
+  width: 180px;
+  height: 70px;
+  min-height: 70px;
+  padding: 0 1.25rem;
   flex: 0 0 auto;
+  align-self: stretch;
+  box-sizing: border-box;
+  line-height: 1.2;
 }
 
 .node--contato .layout-contato-node__webform .form-actions .webform-button--submit:hover,
@@ -90,18 +149,19 @@
 .node--contato .layout-contato-node__webform .form-actions button[type="submit"]:hover,
 .node--contato .layout-contato-node__webform .form-actions button[type="submit"]:focus {
   background-color: #e56a10;
-  border-color: #e56a10;
+  border-color: transparent;
   color: #fff;
 }
 
 .node--contato .layout-contato-node__webform .layout-contato-node__shortcuts {
   display: flex;
   flex: 1 1 auto;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: stretch;
   justify-content: flex-start;
-  gap: 0.75rem;
+  gap: 1rem;
   margin: 0;
+  min-width: 0;
 }
 
 .node--contato .layout-contato-node__webform .layout-contato-node__shortcut {
@@ -111,13 +171,29 @@
   color: #0f172a;
   text-decoration: none;
   font-family: 'Poppins', sans-serif;
-  border: 1px solid #d0d7e5;
+  border: 1px solid #c6c6cd;
   border-radius: 10px;
-  padding: 0.55rem 0.95rem;
+  padding: 0 1rem;
   background: #fff;
   box-sizing: border-box;
   line-height: 1.2;
+  height: 70px;
+  min-height: 70px;
+  min-width: 0;
   transition: color .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+
+/* Proporção Figma 280:214 — crescem para preencher a fileira. */
+.node--contato .layout-contato-node__webform .layout-contato-node__shortcut--email {
+  width: auto;
+  max-width: none;
+  flex: 280 1 0;
+}
+
+.node--contato .layout-contato-node__webform .layout-contato-node__shortcut--whatsapp {
+  width: auto;
+  max-width: none;
+  flex: 214 1 0;
 }
 
 .node--contato .layout-contato-node__webform .layout-contato-node__shortcut:hover,
@@ -138,6 +214,7 @@
   display: inline-flex;
   flex-direction: column;
   min-width: 0;
+  overflow: hidden;
 }
 
 .node--contato .layout-contato-node__webform .layout-contato-node__shortcut-label {
@@ -149,14 +226,14 @@
 .node--contato .layout-contato-node__webform .layout-contato-node__shortcut-value {
   font-weight: 400;
   font-size: 0.78rem;
-  color: #64748b;
+  color: #45464d;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 22ch;
+  max-width: 100%;
 }
 
-/* Placement legado (bloco layout_contato) — mantém shortcuts single-line. */
+/* Placement legado (bloco layout_contato). */
 .block-layout-contato .layout-contato__webform .webform-button--submit,
 .block-layout-contato .layout-contato__webform input[type="submit"],
 .block-layout-contato .layout-contato__webform button[type="submit"] {
@@ -192,7 +269,7 @@
   font-family: 'Poppins', sans-serif;
   font-weight: 500;
   font-size: 0.95rem;
-  border: 1px solid #d0d7e5;
+  border: 1px solid #c6c6cd;
   border-radius: 12px;
   padding: 0.75rem 1rem;
   background: #fff;
@@ -212,6 +289,7 @@
   flex-shrink: 0;
 }
 
+/* Painel — tipografia própria (não é token de seção). */
 .block-layout-contato .layout-contato__panel,
 .node--contato .layout-contato-node__panel {
   background-color: #e5eeff;
@@ -222,6 +300,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-align: center;
   min-height: 280px;
   box-sizing: border-box;
   gap: 0.75rem;
@@ -241,6 +320,7 @@
   color: #0f172a;
   margin: 0;
   font-size: 1.125rem;
+  text-align: center;
 }
 
 .node--contato .layout-contato-node__panel-text {
@@ -250,25 +330,99 @@
   margin: 0;
   font-size: 0.95rem;
   line-height: 1.45;
+  text-align: center;
 }
 
-@media (max-width: 991.98px) {
-  .block-layout-contato .layout-contato__media-col,
+/* ============================================================
+ * Desktop ≥992px — bleed assimétrico (US1 / US3).
+ * Margem esquerda ≈ .container Bootstrap (sem 100vw).
+ * ============================================================ */
+@media (min-width: 992px) {
+  .node--contato .layout-contato-node {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .node--contato .layout-contato-node__form-col {
+    flex: 0 0 auto;
+    width: calc(min(100%, 960px) * 7 / 12);
+    max-width: calc(min(100%, 960px) * 7 / 12);
+    margin-left: max(0.75rem, calc((100% - 960px) / 2 + 0.75rem));
+    padding: 3rem 1.5rem 3rem 0;
+    box-sizing: border-box;
+  }
+
   .node--contato .layout-contato-node__media-col {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    background-color: #e5eeff;
+  }
+
+  .node--contato .layout-contato-node__panel {
+    border-radius: 0;
+    background-color: transparent;
+    width: 100%;
+    min-height: 100%;
+    padding: 3rem 2rem;
+  }
+
+  .node--contato .layout-contato-node__webform .form-actions.webform-actions {
+    flex-wrap: nowrap;
+    align-items: stretch;
+  }
+}
+
+@media (min-width: 1200px) {
+  .node--contato .layout-contato-node__form-col {
+    width: calc(min(100%, 1140px) * 7 / 12);
+    max-width: calc(min(100%, 1140px) * 7 / 12);
+    margin-left: max(0.75rem, calc((100% - 1140px) / 2 + 0.75rem));
+  }
+}
+
+@media (min-width: 1400px) {
+  .node--contato .layout-contato-node__form-col {
+    width: calc(min(100%, 1320px) * 7 / 12);
+    max-width: calc(min(100%, 1320px) * 7 / 12);
+    margin-left: max(0.75rem, calc((100% - 1320px) / 2 + 0.75rem));
+  }
+}
+
+/* ============================================================
+ * Mobile / tablet &lt;992px (US4).
+ * ============================================================ */
+@media (max-width: 991.98px) {
+  .node--contato .layout-contato-node {
+    display: flex;
+    flex-direction: column;
+    padding: 2.5rem 1rem;
+    box-sizing: border-box;
+  }
+
+  .node--contato .layout-contato-node__form-col {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    order: 1;
+  }
+
+  .node--contato .layout-contato-node__media-col {
+    width: 100%;
+    order: 2;
     margin-top: 2rem;
   }
-}
 
-@media (max-width: 575.98px) {
-  .block-layout-contato .layout-contato,
-  .node--contato .layout-contato-node {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
+  .node--contato .layout-contato-node__panel {
+    border-radius: 16px;
+    width: 100%;
   }
 
-  /* Mobile do node contato: submit full-width acima; atalhos lado a lado abaixo. */
   .node--contato .layout-contato-node__webform .form-actions.webform-actions {
     flex-direction: column;
+    flex-wrap: wrap;
     align-items: stretch;
     gap: 0.75rem;
   }
@@ -277,28 +431,41 @@
   .node--contato .layout-contato-node__webform .form-actions input[type="submit"],
   .node--contato .layout-contato-node__webform .form-actions button[type="submit"] {
     width: 100%;
+    max-width: 100%;
   }
 
   .node--contato .layout-contato-node__webform .layout-contato-node__shortcuts {
     flex: 0 1 auto;
-    flex-direction: row;
+    flex-direction: column;
     flex-wrap: nowrap;
-    gap: 0.5rem;
+    gap: 0.75rem;
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
   }
 
-  .node--contato .layout-contato-node__webform .layout-contato-node__shortcut {
-    flex: 1 1 0;
-    min-width: 0;
-    padding: 0.5rem 0.65rem;
-    gap: 0.45rem;
+  .node--contato .layout-contato-node__webform .layout-contato-node__shortcut,
+  .node--contato .layout-contato-node__webform .layout-contato-node__shortcut--email,
+  .node--contato .layout-contato-node__webform .layout-contato-node__shortcut--whatsapp {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 100%;
   }
 
-  .node--contato .layout-contato-node__webform .layout-contato-node__shortcut-body {
-    flex: 1 1 auto;
-    min-width: 0;
+  .block-layout-contato .layout-contato__media-col {
+    margin-top: 2rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .node--contato .layout-contato-node {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  .node--contato .layout-contato-node__webform .layout-contato-node__shortcut {
+    padding: 0 0.75rem;
+    gap: 0.45rem;
   }
 
   .node--contato .layout-contato-node__webform .layout-contato-node__shortcut-label {
@@ -310,7 +477,11 @@
     max-width: 100%;
   }
 
-  /* Placement legado no mobile: mantém stack vertical. */
+  .block-layout-contato .layout-contato {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
   .block-layout-contato .layout-contato__shortcuts {
     flex-direction: column;
     align-items: stretch;

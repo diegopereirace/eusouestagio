@@ -16668,6 +16668,217 @@ function custom_configs_update_11088(): string {
 }
 
 /**
+ * Seed páginas legais + desliga banner View em /cadastro/candidato + links do aceite.
+ *
+ * Destino: git pull → drush cim -y → drush updb -y → drush cim -y → drush cr.
+ */
+function custom_configs_update_11089(): string {
+  $messages = [
+    _custom_configs_ensure_legal_page(
+      'a1b2c3d4-e5f6-4789-a012-3456789abc01',
+      'Termos de Uso',
+      '/termos-de-uso',
+      _custom_configs_legal_page_placeholder_body('Termos de Uso')
+    ),
+    _custom_configs_ensure_legal_page(
+      'a1b2c3d4-e5f6-4789-a012-3456789abc02',
+      'Política de Privacidade',
+      '/politica-de-privacidade',
+      _custom_configs_legal_page_placeholder_body('Política de Privacidade')
+    ),
+    _custom_configs_disable_banners_block_2_cadastro_candidato(),
+    _custom_configs_ensure_field_termo_legal_links(),
+  ];
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * HTML placeholder mínimo para páginas legais (só gravado se body vazio).
+ */
+function _custom_configs_legal_page_placeholder_body(string $page_label): string {
+  $safe = htmlspecialchars($page_label, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+  return '<h2>1. Introdução</h2>'
+    . '<p>Conteúdo placeholder de ' . $safe . '. Substitua pelo texto jurídico definitivo.</p>'
+    . '<p>Esta página é editável pelo time editorial sem novo deploy de copy.</p>';
+}
+
+/**
+ * Garante Node page legal com UUID/alias canônicos (idempotente; reusa alias alheio).
+ *
+ * @see specs/059-cadastro-candidato-legal/contracts/legal-pages-seed.md
+ */
+function _custom_configs_ensure_legal_page(string $uuid, string $title, string $alias, string $body_html): string {
+  $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+  $alias_storage = \Drupal::entityTypeManager()->getStorage('path_alias');
+  $messages = [];
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('node');
+  if (!isset($bundle_info['page'])) {
+    return (string) t('Bundle page ausente — rode drush cim -y antes do updb (página @title).', [
+      '@title' => $title,
+    ]);
+  }
+
+  // 1. Load por UUID.
+  $by_uuid = $node_storage->loadByProperties(['uuid' => $uuid]);
+  /** @var \Drupal\node\NodeInterface|null $node */
+  $node = $by_uuid ? reset($by_uuid) : NULL;
+  if ($node && $node->bundle() !== 'page') {
+    $node = NULL;
+    $messages[] = (string) t('UUID @uuid colidiu com bundle inesperado — tentando reuso por alias.', [
+      '@uuid' => $uuid,
+    ]);
+  }
+
+  // 2. Se UUID ausente: reusar page publicado já apontado pelo alias (sem deletar).
+  if (!$node) {
+    $existing_aliases = $alias_storage->loadByProperties(['alias' => $alias]);
+    foreach ($existing_aliases as $existing) {
+      $path = (string) $existing->getPath();
+      $target_nid = NULL;
+      if (preg_match('#^/node/(\d+)$#', $path, $matches)) {
+        $target_nid = (int) $matches[1];
+      }
+      $target_node = $target_nid ? $node_storage->load($target_nid) : NULL;
+      if ($target_node && $target_node->bundle() === 'page' && $target_node->isPublished()) {
+        $node = $target_node;
+        $messages[] = (string) t('Página @title reusada via alias @alias (nid @nid).', [
+          '@title' => $title,
+          '@alias' => $alias,
+          '@nid' => $node->id(),
+        ]);
+        break;
+      }
+    }
+  }
+
+  // 3. Criar se nada existe.
+  $created = FALSE;
+  if (!$node) {
+    $create = [
+      'type' => 'page',
+      'title' => $title,
+      'status' => 1,
+      'uid' => 1,
+    ];
+    if (!$node_storage->loadByProperties(['uuid' => $uuid])) {
+      $create['uuid'] = $uuid;
+    }
+    $node = $node_storage->create($create);
+    $node->save();
+    $created = TRUE;
+    $messages[] = (string) t('Página @title criada (nid @nid, uuid @uuid).', [
+      '@title' => $title,
+      '@nid' => $node->id(),
+      '@uuid' => $node->uuid(),
+    ]);
+  }
+  elseif (!$created && empty($messages)) {
+    $messages[] = (string) t('Página @title (@uuid) já existe — seed reusado.', [
+      '@title' => $title,
+      '@uuid' => $node->uuid(),
+    ]);
+  }
+
+  // Título só se vazio (reuso de alias alheio).
+  if (trim((string) $node->getTitle()) === '') {
+    $node->setTitle($title);
+    $node->save();
+    $messages[] = (string) t('Título vazio preenchido em @title.', ['@title' => $title]);
+  }
+
+  // 4. Body só se vazio.
+  if ($node->hasField('body') && $node->get('body')->isEmpty()) {
+    $node->set('body', [
+      'value' => $body_html,
+      'format' => 'full_html',
+    ]);
+    $node->save();
+    $messages[] = (string) t('Body placeholder gravado em @title.', ['@title' => $title]);
+  }
+  else {
+    $messages[] = (string) t('Body de @title não vazio — skipped.', ['@title' => $title]);
+  }
+
+  // 5. Alias estrito → este Node.
+  $system_path = '/node/' . $node->id();
+  $aliases_for_path = $alias_storage->loadByProperties(['path' => $system_path]);
+  $has_alias = FALSE;
+  foreach ($aliases_for_path as $path_alias) {
+    if ($path_alias->getAlias() === $alias) {
+      $has_alias = TRUE;
+      break;
+    }
+  }
+
+  if (!$has_alias) {
+    // Se alias aponta para outro path, e não reusamos esse node acima, não deletar —
+    // só cria se o alias ainda não existir (reuso já cobriu o caso de page publicado).
+    $alias_taken = $alias_storage->loadByProperties(['alias' => $alias]);
+    if ($alias_taken) {
+      $messages[] = (string) t('Alias @alias já existe apontando para outro destino — não sobrescrito.', [
+        '@alias' => $alias,
+      ]);
+    }
+    else {
+      $alias_storage->create([
+        'path' => $system_path,
+        'alias' => $alias,
+        'langcode' => 'pt-br',
+      ])->save();
+      $messages[] = (string) t('Alias @alias criado → @p.', [
+        '@alias' => $alias,
+        '@p' => $system_path,
+      ]);
+    }
+  }
+  else {
+    $messages[] = (string) t('Alias @alias já ok.', ['@alias' => $alias]);
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
+ * Desativa placement View banners block_2 (legado /cadastro/candidato).
+ */
+function _custom_configs_disable_banners_block_2_cadastro_candidato(): string {
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = \Drupal::entityTypeManager()
+    ->getStorage('block')
+    ->load('default_views_block__banners_block_2');
+  if (!$block) {
+    return (string) t('Placement banners_block_2 ausente.');
+  }
+  if (!$block->status()) {
+    return (string) t('Placement banners_block_2 já desativado.');
+  }
+  $block->setStatus(FALSE);
+  $block->save();
+  return (string) t('Placement banners_block_2 desativado (evita segundo banner em /cadastro/candidato).');
+}
+
+/**
+ * Atualiza description de field_termo com links reais das páginas legais.
+ */
+function _custom_configs_ensure_field_termo_legal_links(): string {
+  /** @var \Drupal\field\Entity\FieldConfig|null $field */
+  $field = \Drupal\field\Entity\FieldConfig::loadByName('user', 'user', 'field_termo');
+  if (!$field) {
+    return (string) t('field_termo ausente — links legais ignorados.');
+  }
+
+  $expected = 'Li e concordo com os <a href="/termos-de-uso" target="_blank" rel="noopener noreferrer">Termos de Uso</a> e a <a href="/politica-de-privacidade" target="_blank" rel="noopener noreferrer">Política de Privacidade</a>';
+  if (trim((string) $field->getDescription()) === $expected) {
+    return (string) t('Description field_termo já com links legais.');
+  }
+
+  $field->setDescription($expected);
+  $field->save();
+  return (string) t('Description field_termo atualizada com links /termos-de-uso e /politica-de-privacidade.');
+}
+
+/**
  * Preenche ícones vazios dos cards canônicos do bloco Oportunidades.
  *
  * Política 057: fill-if-empty apenas — não Replace por MD5/filename.

@@ -11,7 +11,7 @@ field_name: field_termo
 entity_type: user
 bundle: user
 label: Termo
-description: 'Li e concordo com os <a href="#">Termos de Uso</a> e a <a href="#">Política de Privacidade</a>'
+description: 'Li e concordo com os <a href="/termos-de-uso" target="_blank" rel="noopener noreferrer">Termos de Uso</a> e a <a href="/politica-de-privacidade" target="_blank" rel="noopener noreferrer">Política de Privacidade</a>'
 required: false
 translatable: false
 default_value: {  }

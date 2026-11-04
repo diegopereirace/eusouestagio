@@ -503,9 +503,11 @@ Pergunta padrão: *“Essa alteração estrutural exige atualização no PRD.md?
 
 | Path | Role |
 |------|------|
-| `/cadastro/candidato` | anônimo |
+| `/cadastro/candidato` | anônimo — banner `<picture>` + card (feature **059**); redirect pós-login automático → `/painel/estudante/perfil` |
+| `/termos-de-uso` | público — Página Básica seed (`custom_configs_update_11089`; UUID `a1b2c3d4-…abc01`) |
+| `/politica-de-privacidade` | público — Página Básica seed (`custom_configs_update_11089`; UUID `a1b2c3d4-…abc02`) |
 | `/cadastro/empresa` | anônimo |
-| `/meu-perfil` | autenticado |
+| `/meu-perfil` | autenticado (legado; cadastro candidato usa o painel) |
 | `/admin/perfil/empresa` | empresa |
 | `/painel` | autenticado |
 | `/painel/estudante/perfil` | candidato |

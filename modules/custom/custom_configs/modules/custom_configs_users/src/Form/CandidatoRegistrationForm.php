@@ -1218,12 +1218,19 @@ class CandidatoRegistrationForm extends FormBase
             '#type' => 'checkbox',
             '#title' => $termo_title,
             '#default_value' => 0,
+            '#wrapper_attributes' => [
+                'class' => ['form-check', 'mb-3'],
+            ],
+            '#label_attributes' => [
+                'class' => ['form-check-label'],
+            ],
             '#attributes' => [
-                'class' => ['js-field-termo'],
+                'class' => ['form-check-input', 'js-field-termo'],
             ],
         ];
 
         $form['#attached']['library'][] = 'custom_configs_users/registration_forms_validation';
+        $form['#attached']['library'][] = 'default/cadastro_candidato';
 
         // Local Docker: $settings['disable_captcha'] = TRUE em settings.php.
         if (!Settings::get('disable_captcha', FALSE)) {
@@ -1235,17 +1242,66 @@ class CandidatoRegistrationForm extends FormBase
 
         $form['actions'] = [
             '#type' => 'actions',
-            '#attributes' => ['class' => ['mt-4', 'd-grid', 'gap-2', 'd-md-flex', 'justify-content-md-end']],
+            '#attributes' => ['class' => ['mt-4', 'd-grid', 'gap-2']],
         ];
 
         $form['actions']['submit'] = [
             '#type' => 'submit',
             '#value' => $this->t('Cadastrar'),
             '#button_type' => 'primary',
-            '#attributes' => ['class' => ['btn', 'btn-primary', 'btn-lg', 'px-5', 'js-candidato-submit']],
+            '#attributes' => ['class' => ['btn', 'btn-primary', 'btn-lg', 'w-100', 'mt-4', 'js-candidato-submit']],
         ];
 
+        $this->applyCadastroBootstrapClasses($form);
+
         return $form;
+    }
+
+    /**
+     * Aplica classes Bootstrap grandes em inputs/labels (sem templates de elemento do core).
+     */
+    private function applyCadastroBootstrapClasses(array &$element): void
+    {
+        $type = $element['#type'] ?? NULL;
+        $input_types = ['textfield', 'email', 'password', 'tel', 'number', 'search', 'url', 'textarea', 'select'];
+
+        if (in_array($type, $input_types, TRUE)) {
+            $classes = &$element['#attributes']['class'];
+            if (!is_array($classes)) {
+                $classes = $classes ? [(string) $classes] : [];
+            }
+            if (!in_array('form-control', $classes, TRUE) && $type !== 'select') {
+                $classes[] = 'form-control';
+            }
+            if ($type === 'select' && !in_array('form-select', $classes, TRUE)) {
+                $classes[] = 'form-select';
+            }
+            if ($type === 'select' && !in_array('form-select-lg', $classes, TRUE)) {
+                $classes[] = 'form-select-lg';
+            }
+            if ($type !== 'select' && !in_array('form-control-lg', $classes, TRUE)) {
+                $classes[] = 'form-control-lg';
+            }
+
+            $label_classes = &$element['#label_attributes']['class'];
+            if (!is_array($label_classes)) {
+                $label_classes = $label_classes ? [(string) $label_classes] : [];
+            }
+            foreach (['form-label', 'fw-bold', 'text-dark'] as $label_class) {
+                if (!in_array($label_class, $label_classes, TRUE)) {
+                    $label_classes[] = $label_class;
+                }
+            }
+        }
+
+        foreach ($element as $key => &$child) {
+            if (is_string($key) && $key !== '' && $key[0] === '#') {
+                continue;
+            }
+            if (is_array($child)) {
+                $this->applyCadastroBootstrapClasses($child);
+            }
+        }
     }
 
     /**
@@ -1631,7 +1687,7 @@ class CandidatoRegistrationForm extends FormBase
             \_user_mail_notify('register_no_approval_required', $user);
             \user_login_finalize($user);
             $this->messenger()->addStatus($this->t('Cadastro realizado com sucesso.'));
-            $form_state->setRedirect('custom_configs_users.candidato_perfil');
+            $form_state->setRedirect('custom_panel.painel_estudante_perfil');
             return;
         }
 

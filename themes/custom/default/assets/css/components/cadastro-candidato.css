@@ -1,0 +1,149 @@
+/**
+ * @file
+ * Cadastro de candidato. Escopo exclusivo de /cadastro/candidato.
+ * Library default/cadastro_candidato — não entra em global-styling.
+ */
+
+.page-cadastro-candidato {
+  overflow-x: hidden;
+}
+
+.page-cadastro-candidato #block-default-page-title {
+  display: none;
+}
+
+/* Banner */
+.page-cadastro-candidato .cadastro-candidato-banner {
+  position: relative;
+  min-height: 220px;
+  background-color: #07132e;
+  overflow: hidden;
+}
+
+.page-cadastro-candidato .cadastro-candidato-banner__picture,
+.page-cadastro-candidato .cadastro-candidato-banner__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.page-cadastro-candidato .cadastro-candidato-banner__img {
+  object-fit: cover;
+  object-position: center;
+  min-height: 220px;
+  max-height: 400px;
+}
+
+@media (max-width: 575.98px) {
+  .page-cadastro-candidato .cadastro-candidato-banner__img {
+    max-height: 320px;
+    min-height: 260px;
+  }
+}
+
+.page-cadastro-candidato .cadastro-candidato-banner__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(7, 19, 46, 0.55) 0%,
+    rgba(7, 19, 46, 0.72) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.page-cadastro-candidato .cadastro-candidato-banner__content {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1.5rem 1rem;
+}
+
+.page-cadastro-candidato .cadastro-candidato-banner__title {
+  color: #fff;
+  font-family: "Poppins", sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 0;
+  max-width: 36rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+/* Card */
+.page-cadastro-candidato .cadastro-candidato-page__form-wrap {
+  position: relative;
+  z-index: 3;
+}
+
+.page-cadastro-candidato .cadastro-candidato-card {
+  background-color: #fff;
+}
+
+.page-cadastro-candidato .cadastro-candidato-card .form-label,
+.page-cadastro-candidato .cadastro-candidato-card label.form-label {
+  font-weight: 700;
+  color: #212529;
+}
+
+.page-cadastro-candidato .cadastro-candidato-card .form-control-lg {
+  border-radius: 0.5rem;
+}
+
+/* Submit marca (#FD7B1A local — não muta --brand-orange) */
+.page-cadastro-candidato .cadastro-candidato-card .btn-primary,
+.page-cadastro-candidato .cadastro-candidato-card .js-candidato-submit {
+  background-color: #fd7b1a;
+  border-color: #fd7b1a;
+  color: #fff;
+}
+
+.page-cadastro-candidato .cadastro-candidato-card .btn-primary:hover,
+.page-cadastro-candidato .cadastro-candidato-card .btn-primary:focus,
+.page-cadastro-candidato .cadastro-candidato-card .js-candidato-submit:hover,
+.page-cadastro-candidato .cadastro-candidato-card .js-candidato-submit:focus {
+  background-color: #e66e15;
+  border-color: #e66e15;
+  color: #fff;
+}
+
+.page-cadastro-candidato .cadastro-candidato-card .btn-primary:active,
+.page-cadastro-candidato .cadastro-candidato-card .js-candidato-submit:active {
+  background-color: #d46312;
+  border-color: #d46312;
+}
+
+/* Aceite */
+.page-cadastro-candidato .cadastro-candidato-card .form-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding-left: 0;
+}
+
+.page-cadastro-candidato .cadastro-candidato-card .form-check-input {
+  margin-top: 0.35rem;
+  flex-shrink: 0;
+}
+
+.page-cadastro-candidato .cadastro-candidato-card .form-check-label a {
+  color: #005b9f;
+  text-decoration: underline;
+}
+
+/* CAPTCHA */
+.page-cadastro-candidato .cadastro-candidato-card .captcha {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Mensagens / erros no card */
+.page-cadastro-candidato .cadastro-candidato-card .messages,
+.page-cadastro-candidato .cadastro-candidato-card .alert {
+  margin-bottom: 1rem;
+}

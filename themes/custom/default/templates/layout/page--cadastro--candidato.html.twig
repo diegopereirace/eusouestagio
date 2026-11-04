@@ -1,0 +1,84 @@
+{#
+/**
+ * @file
+ * Página /cadastro/candidato: banner picture + formulário em card.
+ *
+ * Suggestion nativa page__cadastro__candidato. Sem lógica de estado do form.
+ */
+#}
+{% set theme_path = active_theme_path() %}
+<div id="page-wrapper">
+  <div id="page">
+    <header id="header" class="header container" aria-label="{{ 'Site header'|t }}">
+      <div class="row">
+        {% if page.header %}
+          <nav{{ navbar_attributes.addClass('my-2') }}>
+            {{ page.header }}
+          </nav>
+        {% endif %}
+      </div>
+    </header>
+
+    <main class="cadastro-candidato-page">
+      <a href="#main-content" id="main-content" tabindex="-1"></a>
+
+      <section class="cadastro-candidato-banner" aria-label="{{ 'Cadastro de candidato'|t }}">
+        <picture class="cadastro-candidato-banner__picture">
+          <source
+            media="(max-width: 575.98px)"
+            srcset="/{{ theme_path }}/assets/images/cadastro-candidato/hero-mobile.webp"
+            type="image/webp"
+            width="800"
+            height="600">
+          <source
+            media="(max-width: 575.98px)"
+            srcset="/{{ theme_path }}/assets/images/cadastro-candidato/hero-mobile.jpg"
+            type="image/jpeg"
+            width="800"
+            height="600">
+          <source
+            srcset="/{{ theme_path }}/assets/images/cadastro-candidato/hero-desktop.webp"
+            type="image/webp"
+            width="1920"
+            height="400">
+          <img
+            class="cadastro-candidato-banner__img"
+            src="/{{ theme_path }}/assets/images/cadastro-candidato/hero-desktop.jpg"
+            alt=""
+            width="1920"
+            height="400"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async">
+        </picture>
+        <div class="cadastro-candidato-banner__overlay" aria-hidden="true"></div>
+        <div class="container cadastro-candidato-banner__content">
+          <h1 class="cadastro-candidato-banner__title">{{ 'Crie sua conta e encontre seu estágio ideal'|t }}</h1>
+        </div>
+      </section>
+
+      <div class="container py-4 py-lg-5 cadastro-candidato-page__form-wrap">
+        <div class="row justify-content-center">
+          <div class="col-12 col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-lg-5 cadastro-candidato-card">
+              {{ page.highlighted }}
+              {{ page.content }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer-custom pt-5">
+      <div class="container">
+        <div class="row">
+          {% if page.footer_first %}
+            <div class="site-footer__top clearfix">
+              {{ page.footer_first }}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>

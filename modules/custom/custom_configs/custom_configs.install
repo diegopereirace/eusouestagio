@@ -16724,6 +16724,59 @@ function custom_configs_update_11090(): string {
 }
 
 /**
+ * WebP nos image styles do carrossel da home (feature 062).
+ *
+ * Garante efeito image_convert_avif→webp em banner_carousel e
+ * banner_carousel_mobile; flush dos derivatives para regenerar.
+ */
+function custom_configs_update_11091(): string {
+  $styles = [
+    'banner_carousel' => 'b7e4c1a2-8f3d-4a6b-9c0e-1d2f3a4b5c6d',
+    'banner_carousel_mobile' => 'e8f5d2b3-9a4e-5b7c-0d1f-2e3a4b5c6d7e',
+  ];
+  $updated = [];
+
+  foreach ($styles as $name => $effect_uuid) {
+    /** @var \Drupal\image\Entity\ImageStyle|null $style */
+    $style = \Drupal\image\Entity\ImageStyle::load($name);
+    if (!$style) {
+      continue;
+    }
+
+    $has_webp = FALSE;
+    foreach ($style->getEffects() as $effect) {
+      $cfg = $effect->getConfiguration();
+      if (($cfg['id'] ?? '') === 'image_convert_avif'
+        && ($cfg['data']['extension'] ?? '') === 'webp') {
+        $has_webp = TRUE;
+        break;
+      }
+    }
+
+    if (!$has_webp) {
+      $style->addImageEffect([
+        'uuid' => $effect_uuid,
+        'id' => 'image_convert_avif',
+        'weight' => 1,
+        'data' => ['extension' => 'webp'],
+      ]);
+      $style->save();
+      $updated[] = $name;
+    }
+
+    $style->flush();
+  }
+
+  if ($updated) {
+    return (string) t('062: WebP adicionado em @list; derivatives flushed.', [
+      '@list' => implode(', ', $updated),
+    ]);
+  }
+
+  return (string) t('062: WebP já presente nos estilos do carrossel; derivatives flushed.');
+}
+
+/**
  * HTML placeholder mínimo para páginas legais (só gravado se body vazio).
  */
 function _custom_configs_legal_page_placeholder_body(string $page_label): string {

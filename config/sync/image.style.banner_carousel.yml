@@ -13,3 +13,9 @@ effects:
       width: 1920
       height: null
       upscale: false
+  b7e4c1a2-8f3d-4a6b-9c0e-1d2f3a4b5c6d:
+    uuid: b7e4c1a2-8f3d-4a6b-9c0e-1d2f3a4b5c6d
+    id: image_convert_avif
+    weight: 1
+    data:
+      extension: webp

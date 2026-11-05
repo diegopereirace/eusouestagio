@@ -52,6 +52,9 @@
                       src="{{ slide.desktop|e('html_attr') }}"
                       alt="{{ slide.alt|e('html_attr') }}"
                       class="banner-slide-img home-hero__img d-block"
+                      {% if slide.width %}width="{{ slide.width }}"{% endif %}
+                      {% if slide.height %}height="{{ slide.height }}"{% endif %}
+                      decoding="async"
                       {% if loop.first %}fetchpriority="high" loading="eager"{% else %}loading="lazy"{% endif %}
                     >
                   </picture>

@@ -54,7 +54,13 @@
 	overflow: hidden;
 }
 
-.home-hero__carousel .carousel-inner,
+/* Reserva espaço LCP/CLS (mesmo padrão PE/estudantes). */
+.home-hero__carousel .carousel-inner {
+	width: 100%;
+	line-height: 0;
+	aspect-ratio: 1200 / 433;
+}
+
 .home-hero__carousel .carousel-item,
 .home-hero__carousel picture,
 .banner-carousel .carousel-inner,
@@ -62,6 +68,11 @@
 .banner-carousel picture {
 	width: 100%;
 	line-height: 0;
+}
+
+.home-hero__carousel .carousel-item,
+.home-hero__carousel picture {
+	height: 100%;
 }
 
 .home-hero__img,
@@ -72,6 +83,17 @@
 	height: auto;
 	margin-inline: 0;
 	object-fit: cover;
+}
+
+.home-hero__img {
+	height: 100%;
+	object-position: center;
+}
+
+@media (max-width: 991.98px) {
+	.home-hero__carousel .carousel-inner {
+		aspect-ratio: 16 / 10;
+	}
 }
 
 /* Setas laterais */

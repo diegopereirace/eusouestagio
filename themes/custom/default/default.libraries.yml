@@ -1,3 +1,14 @@
+fonts_poppins:
+  version: VERSION
+  css:
+    # preprocess:false — agregação Drupal stripava url() relativos dos WOFF2.
+    base:
+      fonts/poppins.css: { weight: -100, preprocess: false }
+fonts_inter:
+  version: VERSION
+  css:
+    base:
+      fonts/inter.css: { weight: -100, preprocess: false }
 global-styling:
   version: VERSION
   js:
@@ -22,8 +33,6 @@ fontawesome:
   css:
     component:
       /libraries/fontawesome/css/all.min.css: {}
-  js:
-    /libraries/fontawesome/js/all.min.js: {}
 
 block_breakpoint:
   js:
@@ -180,6 +189,7 @@ layout_contato:
       dist/css/layout-contato.css: {}
   dependencies:
     - default/bootstrap
+    - default/fonts_inter
 hero_search:
   version: 1.4.4
   js:

@@ -132,10 +132,24 @@ function default_preprocess_views_view__banners__block_home(array &$variables): 
     $desktop_url = $style_desktop->buildUrl($desktop_uri);
     $mobile_url = $style_mobile ? $style_mobile->buildUrl($mobile_uri) : $desktop_url;
 
+    // Dimensões intrínsecas do original (CLS); aspect-ratio no CSS reserva o box.
+    $width = NULL;
+    $height = NULL;
+    $realpath = \Drupal::service('file_system')->realpath($desktop_uri);
+    if ($realpath && is_file($realpath)) {
+      $size = @getimagesize($realpath);
+      if (is_array($size) && !empty($size[0]) && !empty($size[1])) {
+        $width = (int) $size[0];
+        $height = (int) $size[1];
+      }
+    }
+
     $slides[] = [
       'desktop' => $file_url_generator->transformRelative($desktop_url),
       'mobile' => $file_url_generator->transformRelative($mobile_url ?: $desktop_url),
       'alt' => (string) ($desktop_item->alt ?? $node->label()),
+      'width' => $width,
+      'height' => $height,
     ];
   }
 
@@ -784,6 +798,80 @@ function default_page_attachments_alter(array &$attachments)
   if (!empty($map)) {
     $attachments['#attached']['drupalSettings']['blockBreakpoint']['breakpoints'] = $map;
   }
+
+  _default_attach_home_hero_lcp_preload($attachments);
+}
+
+/**
+ * Preload do 1º slide do carrossel da home (LCP) — só na <front>.
+ */
+function _default_attach_home_hero_lcp_preload(array &$attachments): void {
+  if (!\Drupal::service('path.matcher')->isFrontPage()) {
+    return;
+  }
+
+  // Mesma ordenação da View banners/block_home: field_peso ASC, created DESC.
+  $nids = \Drupal::entityQuery('node')
+    ->accessCheck(TRUE)
+    ->condition('type', 'banners')
+    ->condition('status', 1)
+    ->condition('field_local_exibicao', 'home')
+    ->sort('field_peso', 'ASC')
+    ->sort('created', 'DESC')
+    ->range(0, 1)
+    ->execute();
+  if (!$nids) {
+    return;
+  }
+
+  /** @var \Drupal\node\NodeInterface|null $node */
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load(reset($nids));
+  if (!$node || !$node->hasField('field_imagem_desktop') || $node->get('field_imagem_desktop')->isEmpty()) {
+    return;
+  }
+  $desktop_item = $node->get('field_imagem_desktop')->first();
+  if (empty($desktop_item->entity)) {
+    return;
+  }
+  $desktop_uri = $desktop_item->entity->getFileUri();
+  if (!$desktop_uri) {
+    return;
+  }
+
+  $style_desktop = \Drupal\image\Entity\ImageStyle::load('banner_carousel');
+  $style_mobile = \Drupal\image\Entity\ImageStyle::load('banner_carousel_mobile');
+  if (!$style_desktop) {
+    return;
+  }
+
+  $file_url_generator = \Drupal::service('file_url_generator');
+  $desktop_url = $file_url_generator->transformRelative($style_desktop->buildUrl($desktop_uri));
+
+  $mobile_uri = $desktop_uri;
+  if ($node->hasField('field_imagem_mobile') && !$node->get('field_imagem_mobile')->isEmpty()) {
+    $mobile_item = $node->get('field_imagem_mobile')->first();
+    if (!empty($mobile_item->entity)) {
+      $mobile_uri = $mobile_item->entity->getFileUri() ?: $desktop_uri;
+    }
+  }
+  $mobile_url = $style_mobile
+    ? $file_url_generator->transformRelative($style_mobile->buildUrl($mobile_uri))
+    : $desktop_url;
+
+  // Desktop (default) + mobile via imagesrcset/imagesizes.
+  $attachments['#attached']['html_head_link'][] = [
+    [
+      'rel' => 'preload',
+      'as' => 'image',
+      'href' => $desktop_url,
+      'imagesrcset' => $mobile_url . ' 828w, ' . $desktop_url . ' 1920w',
+      'imagesizes' => '(max-width: 767.98px) 100vw, 100vw',
+      'fetchpriority' => 'high',
+    ],
+    'home_hero_lcp_preload',
+  ];
+  $attachments['#cache']['contexts'][] = 'url.path';
+  $attachments['#cache']['tags'][] = 'node_list:banners';
 }
 
 /**

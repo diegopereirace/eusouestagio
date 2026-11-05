@@ -54,11 +54,11 @@
 	overflow: hidden;
 }
 
-/* Reserva espaço LCP/CLS (mesmo padrão PE/estudantes). */
+/* Reserva CLS alinhada à arte home (1280×720). 1200/433 (PE) cortava a altura. */
 .home-hero__carousel .carousel-inner {
 	width: 100%;
 	line-height: 0;
-	aspect-ratio: 1200 / 433;
+	aspect-ratio: 16 / 9;
 }
 
 .home-hero__carousel .carousel-item,
@@ -90,9 +90,10 @@
 	object-position: center;
 }
 
-@media (max-width: 991.98px) {
+/* Mobile troca para field_imagem_mobile (864×1152). */
+@media (max-width: 767.98px) {
 	.home-hero__carousel .carousel-inner {
-		aspect-ratio: 16 / 10;
+		aspect-ratio: 3 / 4;
 	}
 }
 

@@ -465,7 +465,7 @@ Se houver app/SPA: habilitar JSON:API + OAuth/consumer keys, filtrar fields sens
 | **M4 — Candidaturas canônicas** | UC-08–13 | Node candidatura, salvas, aplicadas, painéis empresa/moderador, status | Sem duplicidade de candidatura; status atualizável; isolamento empresa |
 | **M5 — Notificações** | E-mails operacionais | Keys §5.3 via SMTP | Moderadores e candidato recebem eventos corretos |
 | **M6 — Higiene técnica** | Remover legado | Deprecar/remover `CandidaturasManager` path ou migrar dados residual; permissões se necessário | Um único modelo de candidatura; código morto removido |
-| **M7 — Hardening & Go-live** | NFR | Sem devel em prod; cache; backup Postgres; checklist segurança | Aceite de performance/segurança; deploy documentado |
+| **M7 — Hardening & Go-live** | NFR | Sem devel em prod; cache; backup Postgres; checklist segurança; sem metatag/header Generator (`X-Generator` / `X-Powered-By`) identificando Drupal | Aceite de performance/segurança; deploy documentado |
 
 **Dependências:** M1 alimenta todos; M4 depende de M2–M3; M5 pode paralelizar com M4; M6 após M4 estável; M7 último.
 

@@ -13,6 +13,39 @@ use Drupal\views\Plugin\views\query\Sql;
 use Drupal\views\ViewExecutable;
 
 /**
+ * Implements hook_page_attachments_alter().
+ *
+ * Feature 061: remove metatag Generator (identificação pública do CMS).
+ */
+function custom_configs_page_attachments_alter(array &$attachments): void {
+  if (empty($attachments['#attached']['html_head']) || !is_array($attachments['#attached']['html_head'])) {
+    return;
+  }
+
+  foreach ($attachments['#attached']['html_head'] as $delta => $item) {
+    if (!is_array($item)) {
+      continue;
+    }
+
+    // Formato Drupal: [$element, $key].
+    $key = $item[1] ?? NULL;
+    if ($key === 'system_meta_generator') {
+      unset($attachments['#attached']['html_head'][$delta]);
+      continue;
+    }
+
+    $element = $item[0] ?? $item;
+    if (!is_array($element)) {
+      continue;
+    }
+    $name = $element['#attributes']['name'] ?? '';
+    if (is_string($name) && strcasecmp($name, 'Generator') === 0) {
+      unset($attachments['#attached']['html_head'][$delta]);
+    }
+  }
+}
+
+/**
  * Implements hook_views_query_alter().
  *
  * Feature 029: em /vagas (page_1), ajusta só a ordem de created (ASC/DESC)

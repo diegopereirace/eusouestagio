@@ -1,0 +1,5 @@
+services:
+  custom_configs.remove_cms_identity_headers_subscriber:
+    class: Drupal\custom_configs\EventSubscriber\RemoveCmsIdentityHeadersSubscriber
+    tags:
+      - { name: event_subscriber }

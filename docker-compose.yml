@@ -18,6 +18,7 @@ services:
       DRUPAL_DB_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - ./:/var/www/html
+      - ./docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini:ro
       - ./docker/apache/000-default.conf:/etc/apache2/sites-available/000-default.conf:ro
       - ./docker/apache/default-ssl.conf:/etc/apache2/sites-available/default-ssl.conf:ro
     working_dir: /var/www/html

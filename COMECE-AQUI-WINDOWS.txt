@@ -21,8 +21,10 @@ PARAR O SITE
 OBSERVACOES
   - CAPTCHA fica DESLIGADO neste ambiente local.
   - Na primeira vez o script importa o banco automaticamente
-    (pode demorar alguns minutos).
+    (pode demorar alguns minutos) a partir de _db/dump_vps.sql.
   - Nao precisa instalar PHP, Composer nem Postgres na maquina.
+  - Para trabalhar CSS do tema, veja: GUIA-COLABORADOR-CSS.md
+    (precisa Node.js >= 20 para npm run watch / build).
 
 PROBLEMAS COMUNS
   - "Docker nao esta rodando"

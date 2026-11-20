@@ -507,6 +507,25 @@ function default_preprocess_block__default_ctav1paraempresas(array &$variables):
 {
   $user = \Drupal::currentUser();
   $variables['is_empresa'] = $user->isAuthenticated() && in_array('empresa', $user->getRoles(), TRUE);
+  $variables['whatsapp_url'] = '';
+  $variables['whatsapp_label'] = 'Falar com Especialista';
+
+  $block = $variables['content']['#block_content'] ?? NULL;
+  if ($block && $block->hasField('field_phone_wpp') && !$block->get('field_phone_wpp')->isEmpty()) {
+    $digits = preg_replace('/\D/', '', (string) $block->get('field_phone_wpp')->value) ?? '';
+    if (strlen($digits) === 10 || strlen($digits) === 11) {
+      $digits = '55' . $digits;
+    }
+    if ($digits !== '') {
+      $variables['whatsapp_url'] = 'https://wa.me/' . $digits;
+    }
+  }
+  if ($block && $block->hasField('field_link_2') && !$block->get('field_link_2')->isEmpty()) {
+    $label = trim((string) $block->get('field_link_2')->title);
+    if ($label !== '') {
+      $variables['whatsapp_label'] = $label;
+    }
+  }
 
   $variables['#cache']['contexts'][] = 'user.roles';
   if (isset($variables['elements']) && is_array($variables['elements'])) {

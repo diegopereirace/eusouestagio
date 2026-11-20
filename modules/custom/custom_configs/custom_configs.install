@@ -5942,7 +5942,7 @@ function _custom_configs_seed_cta_v1_para_empresas(): string {
   ];
   $seed_secondary = [
     'uri' => 'internal:/painel/empresa/vagas/nova',
-    'title' => 'Abrir Vaga',
+    'title' => 'Falar com Especialista',
   ];
 
   if ($existing) {
@@ -18843,5 +18843,179 @@ function _custom_configs_ensure_ctav1vagas_candidato_visibility(): string {
 
   $config->set('visibility', $visibility)->save();
   return (string) t('Bloco default_ctav1vagas: visibility user_role candidato.');
+}
+
+/**
+ * CTA Para Sua Empresa: botão secundário abre WhatsApp gerenciável.
+ *
+ * Reusa o storage block_content.field_phone_wpp. O título do botão continua
+ * em field_link_2. Preenche o telefone só se estiver vazio (botão flutuante, senão o rodapé).
+ * Troca o rótulo canônico "Abrir Vaga" por "Falar com Especialista".
+ *
+ * Destino: git pull → drush cim -y → drush updb -y → drush cim -y → drush cr.
+ */
+function custom_configs_update_11094(): string {
+  return _custom_configs_seed_cta_pe_whatsapp();
+}
+
+/**
+ * Garante o telefone de WhatsApp no CTA PE (UUID a7b8…0123).
+ */
+function _custom_configs_seed_cta_pe_whatsapp(): string {
+  $uuid = 'a7b8c9d0-e1f2-4345-a678-90abcdef0123';
+  $footer_uuid = 'd0326db5-fc80-4cf5-a0b9-8f779dc4aeba';
+  $messages = [];
+
+  $messages[] = _custom_configs_ensure_cta_v1_phone_wpp();
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('block_content');
+  if (!isset($bundle_info['cta_v1'])) {
+    return implode(' ', array_filter($messages)) . ' ' . (string) t('Bundle cta_v1 ausente — rode drush cim -y antes do updb.');
+  }
+
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $existing = $storage->loadByProperties(['uuid' => $uuid]);
+  if (!$existing) {
+    $messages[] = (string) t('Bloco CTA PE (@uuid) ausente.', ['@uuid' => $uuid]);
+    return implode(' ', array_filter($messages));
+  }
+
+  /** @var \Drupal\block_content\BlockContentInterface $block */
+  $block = reset($existing);
+  $changed = FALSE;
+
+  if ($block->hasField('field_phone_wpp') && $block->get('field_phone_wpp')->isEmpty()) {
+    $phone = _custom_configs_cta_pe_whatsapp_source_number($storage, $footer_uuid);
+    if ($phone !== '') {
+      $block->set('field_phone_wpp', $phone);
+      $changed = TRUE;
+      $messages[] = (string) t('WhatsApp do CTA PE preenchido a partir do número já usado no site.');
+    }
+    else {
+      $messages[] = (string) t('WhatsApp do CTA PE vazio e nenhum número de origem — botão fica oculto até o editorial preencher.');
+    }
+  }
+  else {
+    $messages[] = (string) t('WhatsApp do CTA PE já preenchido — número editorial preservado.');
+  }
+
+  if ($block->hasField('field_link_2')) {
+    if ($block->get('field_link_2')->isEmpty()) {
+      $block->set('field_link_2', [
+        'uri' => 'internal:/painel/empresa/vagas/nova',
+        'title' => 'Falar com Especialista',
+      ]);
+      $changed = TRUE;
+      $messages[] = (string) t('Rótulo do botão secundário preenchido com Falar com Especialista.');
+    }
+    else {
+      $item = $block->get('field_link_2')->first();
+      $current_title = trim((string) ($item->title ?? ''));
+      if ($current_title === 'Abrir Vaga') {
+        $item->set('title', 'Falar com Especialista');
+        $changed = TRUE;
+        $messages[] = (string) t('Rótulo Abrir Vaga atualizado para Falar com Especialista.');
+      }
+      else {
+        $messages[] = (string) t('Rótulo editorial do botão secundário preservado.');
+      }
+    }
+  }
+
+  if ($changed) {
+    $block->save();
+  }
+
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Número inicial: bloco flutuante de WhatsApp, senão o rodapé.
+ */
+function _custom_configs_cta_pe_whatsapp_source_number(\Drupal\Core\Entity\EntityStorageInterface $storage, string $footer_uuid): string {
+  $floating = $storage->loadByProperties(['type' => 'whatsapp']);
+  foreach ($floating as $candidate) {
+    if ($candidate->hasField('field_text_simple') && !$candidate->get('field_text_simple')->isEmpty()) {
+      $phone = trim((string) $candidate->get('field_text_simple')->value);
+      if ($phone !== '') {
+        return $phone;
+      }
+    }
+  }
+
+  $footer = $storage->loadByProperties(['uuid' => $footer_uuid]);
+  if ($footer) {
+    /** @var \Drupal\block_content\BlockContentInterface $footer_block */
+    $footer_block = reset($footer);
+    if ($footer_block->hasField('field_phone_wpp') && !$footer_block->get('field_phone_wpp')->isEmpty()) {
+      return trim((string) $footer_block->get('field_phone_wpp')->value);
+    }
+  }
+
+  return '';
+}
+
+/**
+ * Instância field_phone_wpp no bundle cta_v1 + form display.
+ */
+function _custom_configs_ensure_cta_v1_phone_wpp(): string {
+  $storage = \Drupal\field\Entity\FieldStorageConfig::loadByName('block_content', 'field_phone_wpp');
+  if (!$storage) {
+    return (string) t('Storage block_content.field_phone_wpp ausente — rode drush cim -y.');
+  }
+
+  $parts = [];
+  $field = \Drupal\field\Entity\FieldConfig::loadByName('block_content', 'cta_v1', 'field_phone_wpp');
+  $description = 'Número que abre o WhatsApp no botão secundário do CTA Para Sua Empresa. O texto do botão é o título de Botão secundário. Vazio oculta o botão.';
+  if (!$field) {
+    $field = \Drupal\field\Entity\FieldConfig::create([
+      'field_storage' => $storage,
+      'bundle' => 'cta_v1',
+      'label' => 'WhatsApp',
+      'description' => $description,
+      'required' => FALSE,
+      'translatable' => FALSE,
+    ]);
+    $field->save();
+    $parts[] = (string) t('Instance block_content.cta_v1.field_phone_wpp criada.');
+  }
+  elseif ((string) $field->getDescription() !== $description) {
+    $field->setDescription($description);
+    $field->save();
+    $parts[] = (string) t('Descrição de field_phone_wpp no CTA v1 atualizada.');
+  }
+
+  $form_display = \Drupal::entityTypeManager()
+    ->getStorage('entity_form_display')
+    ->load('block_content.cta_v1.default');
+  if ($form_display && !$form_display->getComponent('field_phone_wpp')) {
+    $form_display->setComponent('field_phone_wpp', [
+      'type' => 'string_textfield',
+      'weight' => 5,
+      'region' => 'content',
+      'settings' => [
+        'size' => 60,
+        'placeholder' => '(11) 99999-9999',
+      ],
+      'third_party_settings' => [],
+    ]);
+    $form_display->save();
+    $parts[] = (string) t('Form display CTA v1: campo WhatsApp visível.');
+  }
+
+  $view_display = \Drupal::entityTypeManager()
+    ->getStorage('entity_view_display')
+    ->load('block_content.cta_v1.default');
+  if ($view_display && $view_display->getComponent('field_phone_wpp')) {
+    $view_display->removeComponent('field_phone_wpp');
+    $view_display->save();
+    $parts[] = (string) t('View display CTA v1: WhatsApp oculto (o Twig monta o link).');
+  }
+
+  if (!$parts) {
+    $parts[] = (string) t('Campo WhatsApp do CTA v1 já configurado.');
+  }
+
+  return implode(' ', $parts);
 }
 

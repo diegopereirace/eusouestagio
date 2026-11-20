@@ -3,7 +3,7 @@ _core:
 langcode: pt-br
 enable_globally: 0
 enable_globally_on_admin_routes: false
-default_challenge: recaptcha/reCAPTCHA
+default_challenge: recaptcha_v3/formulario_publico
 description: ''
 title: ''
 administration_mode: false

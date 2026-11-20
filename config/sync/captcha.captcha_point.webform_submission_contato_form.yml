@@ -1,0 +1,7 @@
+uuid: 9a8b7c6d-5e4f-4321-a0b9-c8d7e6f5a4b3
+langcode: pt-br
+status: true
+dependencies: {  }
+formId: webform_submission_contato_form
+captchaType: default
+label: webform_submission_contato_form

@@ -6,7 +6,6 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Site\Settings;
 use Drupal\Core\Render\Markup;
 use Drupal\Component\Utility\Xss;
 use Drupal\field\Entity\FieldConfig;
@@ -426,10 +425,10 @@ class CandidatoRegistrationForm extends FormBase
             '#attributes' => ['class' => ['col-12', 'col-md-4']],
         ];
         $form['section_pessoal']['row']['col_estado_natal']['field_estado_natal'] = [
-            '#type' => 'textfield',
+            '#type' => 'select',
             '#title' => $this->t('Estado natal'),
-            '#maxlength' => 100,
-            '#attributes' => ['class' => ['form-control']],
+            '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_estado'),
+            '#attributes' => ['class' => ['form-select']],
         ];
 
         // ── Seção 3 — Filiação ─────────────────────────────────────
@@ -1293,14 +1292,6 @@ class CandidatoRegistrationForm extends FormBase
 
         $form['#attached']['library'][] = 'custom_configs_users/registration_forms_validation';
         $form['#attached']['library'][] = 'default/cadastro_candidato';
-
-        // Local Docker: $settings['disable_captcha'] = TRUE em settings.php.
-        if (!Settings::get('disable_captcha', FALSE)) {
-            $form['section_termo']['captcha'] = [
-                '#type' => 'captcha',
-                '#captcha_type' => 'recaptcha/reCAPTCHA',
-            ];
-        }
 
         $form['section_termo']['actions'] = [
             '#type' => 'actions',

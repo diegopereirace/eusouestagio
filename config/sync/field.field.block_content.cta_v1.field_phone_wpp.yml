@@ -1,0 +1,19 @@
+uuid: c9fa5111-4c71-449d-8933-1879cb7153c7
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.cta_v1
+    - field.storage.block_content.field_phone_wpp
+id: block_content.cta_v1.field_phone_wpp
+field_name: field_phone_wpp
+entity_type: block_content
+bundle: cta_v1
+label: WhatsApp
+description: 'Número que abre o WhatsApp no botão secundário do CTA Para Sua Empresa. O texto do botão é o título de Botão secundário. Vazio oculta o botão.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

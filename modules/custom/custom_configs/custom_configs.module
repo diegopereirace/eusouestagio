@@ -124,6 +124,9 @@ function custom_configs_form_block_content_form_alter(array &$form, FormStateInt
     return;
   }
   $entity = $form_object->getEntity();
+  if ($entity) {
+    _custom_configs_cta_pe_whatsapp_form($form, $entity);
+  }
   if (!$entity || !isset($form['field_itens_lista']['widget'])) {
     return;
   }
@@ -300,5 +303,25 @@ function custom_configs_webform_submission_form_alter(array &$form, FormStateInt
         'icon' => $wpp_icon,
       ],
     ];
+  }
+}
+
+/**
+ * WhatsApp do CTA v1 só no bloco Para Sua Empresa.
+ *
+ * O storage é do bundle inteiro; os outros CTAs não usam o número.
+ */
+function _custom_configs_cta_pe_whatsapp_form(array &$form, object $entity): void {
+  if (!method_exists($entity, 'bundle') || $entity->bundle() !== 'cta_v1' || !isset($form['field_phone_wpp'])) {
+    return;
+  }
+
+  if ($entity->uuid() !== 'a7b8c9d0-e1f2-4345-a678-90abcdef0123') {
+    $form['field_phone_wpp']['#access'] = FALSE;
+    return;
+  }
+
+  if (isset($form['field_link_2']['widget'][0])) {
+    $form['field_link_2']['widget'][0]['#description'] = t('O título é o texto do botão. Neste CTA o clique abre o WhatsApp do número abaixo; a URL não é usada na página.');
   }
 }

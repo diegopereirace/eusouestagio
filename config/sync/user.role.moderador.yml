@@ -128,6 +128,7 @@ permissions:
   - 'revert contato revisions'
   - 'revert page revisions'
   - 'revert vagas revisions'
+  - 'skip CAPTCHA'
   - 'use text format full_html'
   - 'use text format restricted_html'
   - 'view all revisions'

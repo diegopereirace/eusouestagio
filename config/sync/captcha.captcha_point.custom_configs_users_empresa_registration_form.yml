@@ -1,0 +1,7 @@
+uuid: 2b3c4d5e-6f70-4182-93a4-b5c6d7e8f901
+langcode: pt-br
+status: true
+dependencies: {  }
+formId: custom_configs_users_empresa_registration_form
+captchaType: default
+label: custom_configs_users_empresa_registration_form

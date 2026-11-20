@@ -104,6 +104,29 @@
   box-shadow: none;
 }
 
+/* Botão WhatsApp do CTA Para Sua Empresa (texto branco com borda #C6C6CD). */
+#block-default-ctav1paraempresas.block-cta-v1 .cta-v1__btn,
+.block-cta-v1--para-empresas .cta-v1__btn {
+  min-height: 60px;
+  padding: 16px 24px;
+}
+
+#block-default-ctav1paraempresas.block-cta-v1 .cta-v1__btn--secondary,
+.block-cta-v1--para-empresas .cta-v1__btn--secondary {
+  background-color: #ffffff;
+  color: #0f172a;
+  border: 1px solid #c6c6cd;
+}
+
+#block-default-ctav1paraempresas.block-cta-v1 .cta-v1__btn--secondary:hover,
+#block-default-ctav1paraempresas.block-cta-v1 .cta-v1__btn--secondary:focus,
+.block-cta-v1--para-empresas .cta-v1__btn--secondary:hover,
+.block-cta-v1--para-empresas .cta-v1__btn--secondary:focus {
+  background-color: #f8fafc;
+  color: #0f172a;
+  border-color: #c6c6cd;
+}
+
 @media (max-width: 575.98px) {
   .block-cta-v1 .cta-v1 {
     margin-top: 40px;

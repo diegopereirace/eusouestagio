@@ -3178,6 +3178,20 @@ body.path-painel {
 	position: relative;
 	z-index: 2;
 	isolation: isolate;
+	margin-top: 1rem;
+	margin-bottom: 1rem;
+}
+
+/*
+ * O selo do reCAPTCHA v3 fica no canto. Com o aviso de cookies aberto,
+ * sobe para não ficar coberto. O selo permanece visível.
+ */
+.grecaptcha-badge {
+	z-index: 1990 !important;
+}
+
+body:has(#lgpd-cookie-banner.is-visible) .grecaptcha-badge {
+	bottom: 8.5rem !important;
 }
 
 .captcha_element,
@@ -3215,6 +3229,10 @@ body.path-painel {
 
 	.captcha {
 		z-index: 3;
+	}
+
+	body:has(#lgpd-cookie-banner.is-visible) .grecaptcha-badge {
+		bottom: 18rem !important;
 	}
 }
 

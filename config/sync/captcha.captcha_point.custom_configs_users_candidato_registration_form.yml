@@ -1,0 +1,7 @@
+uuid: 8e1d2c3b-4a5f-4e6d-9c8b-7a6f5e4d3c2b
+langcode: pt-br
+status: true
+dependencies: {  }
+formId: custom_configs_users_candidato_registration_form
+captchaType: default
+label: custom_configs_users_candidato_registration_form

@@ -3,7 +3,8 @@
  * @file
  * CTA v1 — Para Empresas (placement default_ctav1paraempresas).
  *
- * Feature 052: botão 1 desabilitado + botão 2 só se role empresa.
+ * Botão 1: cadastro (desabilitado se a role empresa já está logada).
+ * Botão 2: texto do field_link_2 + WhatsApp do field_phone_wpp (wa.me).
  * Não polui o template genérico block--block-cta-v1 (Quem Somos).
  */
 #}
@@ -20,12 +21,9 @@
 {% set title = content.field_text_simple|render|striptags|trim %}
 {% set subtitle = content.field_text_simple_long|render|striptags|trim %}
 {% set primary_item = content.field_link['#items'][0]|default(null) %}
-{% set secondary_item = content.field_link_2['#items'][0]|default(null) %}
 {% set primary_uri = primary_item ? primary_item.uri|default('') : '' %}
-{% set secondary_uri = secondary_item ? secondary_item.uri|default('') : '' %}
 {% set has_primary = primary_uri is not empty %}
-{% set has_secondary = secondary_uri is not empty %}
-{% set show_secondary = is_empresa and has_secondary %}
+{% set show_secondary = whatsapp_url is not empty %}
 {% set has_actions = has_primary or show_secondary %}
 {% set has_content = title or subtitle or has_actions %}
 
@@ -58,7 +56,7 @@
                 {% endif %}
               {% endif %}
               {% if show_secondary %}
-                <a class="cta-v1__btn cta-v1__btn--secondary" href="{{ secondary_item.getUrl().toString() }}">{{ secondary_item.title }}</a>
+                <a class="cta-v1__btn cta-v1__btn--secondary" href="{{ whatsapp_url }}" target="_blank" rel="noopener noreferrer">{{ whatsapp_label }}</a>
               {% endif %}
             </div>
           {% endif %}

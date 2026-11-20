@@ -6,6 +6,7 @@ dependencies:
     - block_content.type.cta_v1
     - field.field.block_content.cta_v1.field_link
     - field.field.block_content.cta_v1.field_link_2
+    - field.field.block_content.cta_v1.field_phone_wpp
     - field.field.block_content.cta_v1.field_text_simple
     - field.field.block_content.cta_v1.field_text_simple_long
   module:
@@ -55,4 +56,5 @@ content:
     weight: 1
     region: content
 hidden:
+  field_phone_wpp: true
   langcode: true

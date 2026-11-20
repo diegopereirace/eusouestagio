@@ -872,3 +872,8 @@ $databases['default']['default'] = array (
 );
 $settings['config_sync_directory'] = 'config/sync';
 $config['system.logging']['error_level'] = 'verbose';
+
+// Segredos reCAPTCHA: preencher no settings.php ativo antes do drush cim.
+// Não versionar o valor. Par v2 e par v3 são chaves diferentes.
+// $config['recaptcha.settings']['secret_key'] = 'SEGREDO_V2';
+// $config['recaptcha_v3.settings']['secret_key'] = 'SEGREDO_V3';

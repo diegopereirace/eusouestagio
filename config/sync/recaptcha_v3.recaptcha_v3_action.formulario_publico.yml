@@ -1,0 +1,8 @@
+uuid: 4f8c1a2e-9b7d-4c6e-8f01-2a3b4c5d6e7f
+langcode: pt-br
+status: true
+dependencies: {  }
+id: formulario_publico
+label: 'Formulário público'
+threshold: 0.5
+challenge: default

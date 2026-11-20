@@ -336,11 +336,11 @@ class CandidatoEditForm extends FormBase
       '#attributes' => ['class' => ['col-12', 'col-md-4']],
     ];
     $form['section_pessoal']['row']['col_estado_natal']['field_estado_natal'] = [
-      '#type' => 'textfield',
+      '#type' => 'select',
       '#title' => $this->t('Estado natal'),
-      '#maxlength' => 100,
+      '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_estado'),
       '#default_value' => $this->getFieldValue($user, 'field_estado_natal'),
-      '#attributes' => ['class' => ['form-control']],
+      '#attributes' => ['class' => ['form-select']],
     ];
 
     // ── Seção 3 — Filiação ─────────────────────────────────────

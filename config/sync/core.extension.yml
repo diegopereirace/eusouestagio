@@ -33,7 +33,6 @@ module:
   file: 0
   filter: 0
   image: 0
-  image_captcha: 0
   language: 0
   link: 0
   locale: 0

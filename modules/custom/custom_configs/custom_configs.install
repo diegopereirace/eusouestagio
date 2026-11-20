@@ -16777,6 +16777,175 @@ function custom_configs_update_11091(): string {
 }
 
 /**
+ * Renomeia aliases das landings do menu e amplia a visibilidade dos blocos.
+ *
+ * /quem-somos → /sobre-nos
+ * /para-empresas → /para-sua-empresa
+ * /para-estudantes → /estudantes
+ *
+ * Idempotente. Mantém o path de sistema (o node) e aceita as duas URLs na
+ * visibilidade até o cim, para os blocos não sumirem no meio do deploy.
+ * URLs de vagas (/para-estudantes/[titulo]) não entram neste mapa.
+ *
+ * Destino: git pull → drush cim -y → drush updb -y → drush cim -y → drush cr.
+ */
+function custom_configs_update_11092(): string {
+  $map = \Drupal\custom_configs\EventSubscriber\LegacyLandingPathRedirectSubscriber::MAP;
+  $messages = [];
+  $messages[] = _custom_configs_rename_landing_aliases($map);
+  $messages[] = _custom_configs_retarget_menu_links($map);
+  $messages[] = _custom_configs_extend_block_paths($map);
+
+  \Drupal::service('path_alias.manager')->cacheClear();
+
+  return implode(' ', array_filter($messages));
+}
+
+/**
+ * Troca o alias público, preservando o path interno do mesmo node.
+ *
+ * @param array<string, string> $map
+ */
+function _custom_configs_rename_landing_aliases(array $map): string {
+  $storage = \Drupal::entityTypeManager()->getStorage('path_alias');
+  $messages = [];
+
+  foreach ($map as $old => $new) {
+    $old_aliases = $storage->loadByProperties(['alias' => $old]);
+    $new_aliases = $storage->loadByProperties(['alias' => $new]);
+
+    if (!$old_aliases && $new_aliases) {
+      $messages[] = (string) t('Alias @new já ativo.', ['@new' => $new]);
+      continue;
+    }
+    if (!$old_aliases) {
+      $messages[] = (string) t('Alias @old ausente; nada a renomear.', ['@old' => $old]);
+      continue;
+    }
+
+    foreach ($old_aliases as $old_alias) {
+      $path = (string) $old_alias->getPath();
+      $langcode = $old_alias->language()->getId();
+      $same = NULL;
+      foreach ($new_aliases as $new_alias) {
+        if ($new_alias->language()->getId() === $langcode) {
+          $same = $new_alias;
+          break;
+        }
+      }
+
+      if ($same && $same->getPath() === $path) {
+        $old_alias->delete();
+        $messages[] = (string) t('Alias @old removido; @new já aponta para @path.', [
+          '@old' => $old,
+          '@new' => $new,
+          '@path' => $path,
+        ]);
+        continue;
+      }
+      if ($same && $same->getPath() !== $path) {
+        $messages[] = (string) t('Conflito: @new aponta para @other; @old mantido.', [
+          '@new' => $new,
+          '@other' => $same->getPath(),
+          '@old' => $old,
+        ]);
+        continue;
+      }
+
+      $old_alias->setAlias($new);
+      $old_alias->save();
+      $messages[] = (string) t('Alias @old renomeado para @new (@path).', [
+        '@old' => $old,
+        '@new' => $new,
+        '@path' => $path,
+      ]);
+    }
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
+ * Atualiza links de menu internal: que ainda apontam para o alias antigo.
+ *
+ * Links entity:node/N seguem o alias sozinhos e não são reescritos.
+ *
+ * @param array<string, string> $map
+ */
+function _custom_configs_retarget_menu_links(array $map): string {
+  $storage = \Drupal::entityTypeManager()->getStorage('menu_link_content');
+  $ids = $storage->getQuery()->accessCheck(FALSE)->execute();
+  if (!$ids) {
+    return (string) t('Nenhum link de menu para revisar.');
+  }
+
+  $updated = 0;
+  foreach ($storage->loadMultiple($ids) as $link) {
+    if (!$link->get('link')->first()) {
+      continue;
+    }
+    $uri = (string) $link->get('link')->uri;
+    foreach ($map as $old => $new) {
+      $prefix = 'internal:' . $old;
+      if ($uri !== $prefix && !str_starts_with($uri, $prefix . '?') && !str_starts_with($uri, $prefix . '#')) {
+        continue;
+      }
+      $link->get('link')->uri = 'internal:' . $new . substr($uri, strlen($prefix));
+      $link->save();
+      $updated++;
+      break;
+    }
+  }
+
+  return (string) t('Links de menu atualizados: @count.', ['@count' => $updated]);
+}
+
+/**
+ * Inclui o alias novo na visibilidade request_path sem tirar o antigo.
+ *
+ * @param array<string, string> $map
+ */
+function _custom_configs_extend_block_paths(array $map): string {
+  $storage = \Drupal::entityTypeManager()->getStorage('block');
+  $updated = 0;
+
+  foreach ($storage->loadMultiple() as $block) {
+    $visibility = $block->getVisibility();
+    if (empty($visibility['request_path']['pages'])) {
+      continue;
+    }
+    $pages = (string) $visibility['request_path']['pages'];
+    $lines = preg_split('/\R/', $pages) ?: [];
+    $normalized = [];
+    foreach ($lines as $line) {
+      $trim = trim($line);
+      if ($trim !== '') {
+        $normalized[] = $trim;
+      }
+    }
+    $set = array_fill_keys($normalized, TRUE);
+    $changed = FALSE;
+    foreach ($map as $old => $new) {
+      if (isset($set[$old]) && !isset($set[$new])) {
+        $normalized[] = $new;
+        $set[$new] = TRUE;
+        $changed = TRUE;
+      }
+    }
+    if (!$changed) {
+      continue;
+    }
+    $request_path = $visibility['request_path'];
+    $request_path['pages'] = implode("\n", $normalized);
+    $block->setVisibilityConfig('request_path', $request_path);
+    $block->save();
+    $updated++;
+  }
+
+  return (string) t('Blocos com visibilidade ampliada: @count.', ['@count' => $updated]);
+}
+
+/**
  * HTML placeholder mínimo para páginas legais (só gravado se body vazio).
  */
 function _custom_configs_legal_page_placeholder_body(string $page_label): string {

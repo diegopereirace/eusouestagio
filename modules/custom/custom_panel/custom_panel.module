@@ -565,7 +565,10 @@ function custom_panel_preprocess_block__block_cto(array &$variables): void
 
     $current_path = \Drupal::service('path.current')->getPath();
     $path_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
-    $is_para_empresas = ($current_path === '/para-empresas' || $path_alias === '/para-empresas');
+    $path_alias = rtrim((string) $path_alias, '/') ?: '/';
+    $current_path = rtrim((string) $current_path, '/') ?: '/';
+    $is_para_empresas = in_array($path_alias, ['/para-empresas', '/para-sua-empresa'], TRUE)
+      || in_array($current_path, ['/para-empresas', '/para-sua-empresa'], TRUE);
 
     if (!$is_para_empresas) {
         return;

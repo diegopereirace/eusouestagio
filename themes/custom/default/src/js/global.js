@@ -173,7 +173,7 @@
     attach(context) {
       once('defaultBannerSearchRedirect', '.banner-search-card form[data-banner-search-redirect="true"]', context).forEach((form) => {
         form.addEventListener('submit', (event) => {
-          const action = form.getAttribute('action') || '/para-estudantes';
+          const action = form.getAttribute('action') || '/estudantes';
 
           event.preventDefault();
           event.stopPropagation();

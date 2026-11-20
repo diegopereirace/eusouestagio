@@ -63,8 +63,8 @@ function default_preprocess(&$variables, $hook)
  * Implements hook_preprocess_html().
  *
  * Classe legada do carrossel da home (CSS de layout da região highlighted).
- * Mantém body.path-para-estudantes / path-para-empresas quando a landing
- * vira Node + alias (pós-11028 / feature 052).
+ * Mantém body.path-para-estudantes / path-para-empresas (CSS) nas URLs
+ * novas /estudantes e /para-sua-empresa e nas antigas, até o redirect.
  */
 function default_preprocess_html(array &$variables): void
 {
@@ -72,11 +72,10 @@ function default_preprocess_html(array &$variables): void
 
   $current_path = \Drupal::service('path.current')->getPath();
   $path_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
-  $path_alias = rtrim((string) $path_alias, '/') ?: '/';
-  if ($path_alias === '/para-estudantes' || $current_path === '/para-estudantes') {
+  if (_default_path_is_estudantes_landing($path_alias, $current_path)) {
     $variables['attributes']['class'][] = 'path-para-estudantes';
   }
-  if ($path_alias === '/para-empresas' || $current_path === '/para-empresas') {
+  if (_default_path_is_empresas_landing($path_alias, $current_path)) {
     $variables['attributes']['class'][] = 'path-para-empresas';
   }
 
@@ -610,16 +609,47 @@ function default_preprocess_block__default_top(&$variables)
 /**
  * Implements hook_preprocess_page().
  *
- * Em /para-estudantes a landing é Node shell; content_full (benefícios,
- * jornada, perfil, vagas destaque) sobe para logo após o banner.
- * Marca a rota para o Twig renderizar content_full após o hero.
+ * Em /estudantes (e no alias antigo /para-estudantes) a landing é Node shell;
+ * content_full (benefícios, jornada, perfil, vagas destaque) sobe para logo
+ * após o banner. Marca a rota para o Twig renderizar content_full após o hero.
  */
 function default_preprocess_page(array &$variables): void {
   $current_path = \Drupal::service('path.current')->getPath();
   $path_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
-  $path_alias = rtrim((string) $path_alias, '/') ?: '/';
-  $variables['content_full_after_banner'] = ($path_alias === '/para-estudantes' || $current_path === '/para-estudantes');
+  $variables['content_full_after_banner'] = _default_path_is_estudantes_landing($path_alias, $current_path);
   $variables['#cache']['contexts'][] = 'url.path';
+}
+
+/**
+ * Landing Estudantes: URL nova e alias antigo.
+ */
+function _default_path_is_estudantes_landing(string $path_alias, string $current_path): bool {
+  return _default_path_matches_any($path_alias, $current_path, ['/estudantes', '/para-estudantes']);
+}
+
+/**
+ * Landing Para Sua Empresa: URL nova e alias antigo.
+ */
+function _default_path_is_empresas_landing(string $path_alias, string $current_path): bool {
+  return _default_path_matches_any($path_alias, $current_path, ['/para-sua-empresa', '/para-empresas']);
+}
+
+/**
+ * Compara alias e path interno, ignorando barra final.
+ */
+function _default_path_matches_any(string $path_alias, string $current_path, array $candidates): bool {
+  $normalize = static function (string $path): string {
+    $path = rtrim($path, '/');
+    return $path === '' ? '/' : $path;
+  };
+  $path_alias = $normalize($path_alias);
+  $current_path = $normalize($current_path);
+  foreach ($candidates as $candidate) {
+    if ($path_alias === $candidate || $current_path === $candidate) {
+      return TRUE;
+    }
+  }
+  return FALSE;
 }
 
 /**

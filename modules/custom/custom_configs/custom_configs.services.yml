@@ -3,3 +3,8 @@ services:
     class: Drupal\custom_configs\EventSubscriber\RemoveCmsIdentityHeadersSubscriber
     tags:
       - { name: event_subscriber }
+  custom_configs.legacy_landing_path_redirect_subscriber:
+    class: Drupal\custom_configs\EventSubscriber\LegacyLandingPathRedirectSubscriber
+    arguments: ['@path_alias.manager']
+    tags:
+      - { name: event_subscriber }

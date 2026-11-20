@@ -8,6 +8,7 @@ use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Url;
+use Drupal\custom_banners\CourseSearchPills;
 use Drupal\custom_banners\SearchTextNormalizer;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -21,18 +22,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * )
  */
 class HeroSearchBlock extends BlockBase implements ContainerFactoryPluginInterface {
-
-  /**
-   * Pills: label => [vid, query param].
-   *
-   * @var array<string, array{vid: string, param: string}>
-   */
-  private const PILLS = [
-    'TI' => ['vid' => 'curso', 'param' => 'cursos'],
-    'Administração' => ['vid' => 'curso', 'param' => 'cursos'],
-    'Design' => ['vid' => 'curso', 'param' => 'cursos'],
-    'Marketing' => ['vid' => 'curso', 'param' => 'cursos'],
-  ];
 
   public function __construct(
     array $configuration,
@@ -78,43 +67,24 @@ class HeroSearchBlock extends BlockBase implements ContainerFactoryPluginInterfa
    * @return list<array{label: string, url: string}>
    */
   private function resolvePills(): array {
-    $pills = [];
     try {
       $storage = $this->entityTypeManager->getStorage('taxonomy_term');
+      $candidates = $storage->loadByProperties([
+        'vid' => 'curso',
+        'status' => 1,
+      ]);
     }
     catch (\Throwable) {
       return [];
     }
 
-    foreach (self::PILLS as $label => $meta) {
-      $terms = $storage->loadByProperties([
-        'vid' => $meta['vid'],
-        'name' => $label,
-        'status' => 1,
-      ]);
-      $term = reset($terms) ?: NULL;
-      if (!$term) {
-        $candidates = $storage->loadByProperties([
-          'vid' => $meta['vid'],
-          'status' => 1,
-        ]);
-        foreach ($candidates as $candidate) {
-          $name = (string) $candidate->label();
-          if (strcasecmp($name, $label) === 0 || stripos($name, $label) === 0) {
-            $term = $candidate;
-            break;
-          }
-        }
-      }
-      if (!$term) {
-        continue;
-      }
-
+    $pills = [];
+    foreach (CourseSearchPills::resolve($candidates) as $pill) {
       $pills[] = [
-        'label' => $label,
+        'label' => $pill['label'],
         'url' => Url::fromRoute('view.vagas.page_1', [], [
           'query' => [
-            $meta['param'] => SearchTextNormalizer::normalize((string) $term->label()),
+            'cursos' => SearchTextNormalizer::normalize($pill['term_label']),
           ],
         ])->toString(),
       ];

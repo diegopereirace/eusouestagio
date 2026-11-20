@@ -1,11 +1,13 @@
 ---
-description: Acesso SSH à VPS de produção; use ao consultar servidor, deploy, logs ou ambiente remoto
+description: Infraestrutura VPS de produção (sem acesso SSH pelo agente); use ao documentar deploy, caminhos ou ambiente remoto
 alwaysApply: false
 ---
 # Infraestrutura e VPS de Produção
 
+- **Proibido para o agente:** NÃO conectar via SSH, NÃO executar comandos remotos e NÃO usar `EUSOU_SSH_*` nem chaves locais. Acesso direto à VPS é exclusivo do operador humano.
 - **Ambiente:** Servidor de produção em VPS rodando Apache.
-- **SSH (produção):** Host, usuário e caminho da chave ficam só no ambiente local do operador (`EUSOU_SSH_HOST` e `EUSOU_SSH_KEY`). Não gravar IP, usuário, caminho de chave nem o comando SSH completo em regras, skills, specs ou no Git.
+- **SSH (só operador):** Host, usuário e caminho da chave ficam só no ambiente local do operador (`EUSOU_SSH_HOST` e `EUSOU_SSH_KEY`). Não gravar IP, usuário, caminho de chave nem o comando SSH completo em regras, skills, specs ou no Git.
 - **Caminho Web:** O diretório raiz público da aplicação está localizado em `/var/www/html`.
 - **Segurança:** O arquivo `.env` contém credenciais críticas e NUNCA deve ser commitado no Git. Modificações na estrutura do `.env` devem ser refletidas em um `.env.example`.
 - **SSL/TLS:** A aplicação roda sob HTTPS (Let's Encrypt). Certifique-se de não criar redirecionamentos de rota que quebrem a estrutura do certificado.
+- **Deploy / diagnóstico remoto:** O agente só documenta passos, prepara commits/config e pede ao operador para executar na VPS; nunca roda SSH em nome do usuário.

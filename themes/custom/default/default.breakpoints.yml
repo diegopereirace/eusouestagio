@@ -1,3 +1,8 @@
+# Fonte de verdade numérica do tema default (CSS/JS/Twig devem espelhar estes px).
+# Art direction / DOM swap: mobile + desktop.
+# Grid Bootstrap 5 (mobile-first): xs–xxl.
+# O YAML do Breakpoints API não injeta @media no CSS.
+
 default.mobile:
   label: mobile
   mediaQuery: '(max-width: 767.98px)'
@@ -11,3 +16,51 @@ default.desktop:
   weight: 1
   multipliers:
     - 1x
+
+default.xs:
+  label: Extra small
+  mediaQuery: ''
+  weight: 2
+  multipliers:
+    - 1x
+    - 2x
+
+default.sm:
+  label: Small
+  mediaQuery: 'all and (min-width: 576px)'
+  weight: 3
+  multipliers:
+    - 1x
+    - 2x
+
+default.md:
+  label: Medium
+  mediaQuery: 'all and (min-width: 768px)'
+  weight: 4
+  multipliers:
+    - 1x
+    - 2x
+
+default.lg:
+  label: Large
+  mediaQuery: 'all and (min-width: 992px)'
+  weight: 5
+  multipliers:
+    - 1x
+    - 2x
+
+default.xl:
+  label: Extra large
+  mediaQuery: 'all and (min-width: 1200px)'
+  weight: 6
+  multipliers:
+    - 1x
+    - 2x
+
+default.xxl:
+  label: Extra extra large
+  mediaQuery: 'all and (min-width: 1400px)'
+  weight: 7
+  multipliers:
+    - 1x
+    - 2x

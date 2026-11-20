@@ -20,6 +20,12 @@ settings:
     -
       value: quem_somos
       label: 'Quem Somos'
+    -
+      value: para_empresas
+      label: 'Para Empresas'
+    -
+      value: para_estudantes
+      label: 'Para Estudantes'
   allowed_values_function: ''
 module: options
 locked: false

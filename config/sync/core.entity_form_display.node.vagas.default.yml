@@ -17,6 +17,16 @@ dependencies:
     - field.field.node.vagas.field_text_simple
     - field.field.node.vagas.field_text_simple_multiple
     - field.field.node.vagas.field_text_simple_multiple_2
+    - field.field.node.vagas.field_vaga_beneficios
+    - field.field.node.vagas.field_vaga_beneficios_t
+    - field.field.node.vagas.field_vaga_carga_horaria
+    - field.field.node.vagas.field_vaga_destaque
+    - field.field.node.vagas.field_vaga_empresa
+    - field.field.node.vagas.field_vaga_etapas_processo
+    - field.field.node.vagas.field_vaga_faq
+    - field.field.node.vagas.field_vaga_periodo
+    - field.field.node.vagas.field_vaga_quantidade
+    - field.field.node.vagas.field_vaga_requisitos
     - node.type.vagas
   module:
     - path
@@ -59,16 +69,6 @@ content:
   field_cursos_t:
     type: entity_reference_autocomplete
     weight: 9
-    region: content
-    settings:
-      match_operator: CONTAINS
-      match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
-  field_empresa_u:
-    type: entity_reference_autocomplete
-    weight: 1
     region: content
     settings:
       match_operator: CONTAINS
@@ -124,12 +124,66 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
-  field_text_simple_multiple_2:
-    type: string_textfield
+  field_vaga_beneficios_t:
+    type: options_buttons
     weight: 6
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_vaga_carga_horaria:
+    type: string_textfield
+    weight: 4
     region: content
     settings:
       size: 60
+      placeholder: '30h semanais'
+    third_party_settings: {  }
+  field_vaga_destaque:
+    type: boolean_checkbox
+    weight: 3
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  field_vaga_empresa:
+    type: entity_reference_autocomplete
+    weight: 2
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_vaga_etapas_processo:
+    type: string_textfield
+    weight: 22
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_vaga_periodo:
+    type: string_textfield
+    weight: 18
+    region: content
+    settings:
+      size: 60
+      placeholder: '6 meses +'
+    third_party_settings: {  }
+  field_vaga_quantidade:
+    type: number
+    weight: 19
+    region: content
+    settings:
+      placeholder: '2'
+    third_party_settings: {  }
+  field_vaga_requisitos:
+    type: text_textarea
+    weight: 20
+    region: content
+    settings:
+      rows: 8
       placeholder: ''
     third_party_settings: {  }
   path:
@@ -165,6 +219,10 @@ content:
     third_party_settings: {  }
 hidden:
   field_candidatos_u: true
+  field_empresa_u: true
+  field_text_simple_multiple_2: true
+  field_vaga_beneficios: true
+  field_vaga_faq: true
   langcode: true
   promote: true
   sticky: true

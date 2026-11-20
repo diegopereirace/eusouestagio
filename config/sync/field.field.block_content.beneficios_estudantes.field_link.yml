@@ -1,0 +1,23 @@
+uuid: 74d110ae-eec4-4775-a55d-99316750c6ea
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.beneficios_estudantes
+    - field.storage.block_content.field_link
+  module:
+    - link
+id: block_content.beneficios_estudantes.field_link
+field_name: field_link
+entity_type: block_content
+bundle: beneficios_estudantes
+label: CTA
+description: 'Botão de chamada para ação (ex.: Cadastre-se gratuitamente).'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  title: 2
+  link_type: 17
+field_type: link

@@ -1,0 +1,33 @@
+{#
+/**
+ * @file
+ * Card simples de vaga na página da empresa (034).
+ */
+#}
+{% set vaga = row._entity %}
+{% set cidade = vaga.field_cidade.value ?? '' %}
+{% set estado = vaga.field_estados.value ?? '' %}
+{% set bolsa = vaga.field_text_simple.value ?? '' %}
+{% set regime = '' %}
+{% if vaga.field_regime_t is not empty and vaga.field_regime_t.entity %}
+  {% set regime = vaga.field_regime_t.entity.label %}
+{% endif %}
+{% set local_bits = [] %}
+{% if cidade %}
+  {% set local_bits = local_bits|merge([cidade]) %}
+{% endif %}
+{% if estado %}
+  {% set local_bits = local_bits|merge([estado]) %}
+{% endif %}
+{% set local_label = local_bits|join(', ') %}
+
+<a class="empresa-pagina__vaga-card" href="{{ path('entity.node.canonical', {'node': vaga.id()}) }}">
+  <h3 class="empresa-pagina__vaga-title">{{ vaga.label }}</h3>
+  <p class="empresa-pagina__vaga-meta">
+    {% if local_label %}{{ local_label }}{% endif %}
+    {% if local_label and bolsa %} · {% endif %}
+    {% if bolsa %}{{ bolsa }}{% endif %}
+    {% if (local_label or bolsa) and regime %} · {% endif %}
+    {% if regime %}{{ regime }}{% endif %}
+  </p>
+</a>

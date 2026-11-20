@@ -1,0 +1,8 @@
+uuid: ca1166f9-4c21-4a94-b307-897343f4f1d2
+langcode: pt-br
+status: true
+dependencies: {  }
+id: oportunidades_estudantes
+label: 'Oportunidades Estudantes'
+revision: false
+description: 'Grade “Encontre oportunidades…” (4 cards) em /para-estudantes — distinta de Benefícios.'

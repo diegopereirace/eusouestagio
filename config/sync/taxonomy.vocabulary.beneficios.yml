@@ -1,0 +1,9 @@
+uuid: f6cf31cb-88d4-4ed2-8515-3b1ec76aaa39
+langcode: pt-br
+status: true
+dependencies: {  }
+name: Benefícios
+vid: beneficios
+description: 'Catálogo de benefícios selecionáveis nas vagas.'
+weight: 0
+new_revision: false

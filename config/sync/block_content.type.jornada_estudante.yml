@@ -1,0 +1,8 @@
+uuid: d2e3f4a5-b6c7-4890-d123-ef1234567890
+langcode: pt-br
+status: true
+dependencies: {  }
+id: jornada_estudante
+label: 'Jornada do Estudante'
+revision: false
+description: 'Seção de jornada (título + passos numerados) na página Para Estudantes.'

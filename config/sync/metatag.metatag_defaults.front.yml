@@ -8,5 +8,6 @@ id: front
 label: 'Página inicial'
 tags:
   canonical_url: '[site:url]'
+  description: 'Encontre vagas de estágio e conecte-se a empresas. Eu Sou Estágio intermedia oportunidades entre estudantes e empregadores.'
   shortlink: '[site:url]'
   title: 'Eu Sou Estágio'

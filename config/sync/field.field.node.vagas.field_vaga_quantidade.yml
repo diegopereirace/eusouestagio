@@ -1,0 +1,23 @@
+uuid: b252c5d4-0314-4292-a95c-6aaa33d14e75
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_vaga_quantidade
+    - node.type.vagas
+id: node.vagas.field_vaga_quantidade
+field_name: field_vaga_quantidade
+entity_type: node
+bundle: vagas
+label: Vagas
+description: 'Quantidade de vagas exibida no resumo (ex.: 2).'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

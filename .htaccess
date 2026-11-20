@@ -25,12 +25,15 @@ AddEncoding gzip svgz
 # Add correct encoding for webp.
 AddType image/webp .webp
 
-# Most of the following PHP settings cannot be changed at runtime. See
+# PHP settings that cannot be changed at runtime can be set here. See
 # sites/default/default.settings.php and
 # Drupal\Core\DrupalKernel::bootEnvironment() for settings that can be
 # changed at runtime.
 <IfModule mod_php.c>
-  php_value assert.active                   0
+  # It is strongly recommended that you set zend.assertions to 1 on development
+  # machines and to 0 or -1 in production.
+  # See https://www.php.net/manual/en/ini.core.php#ini.zend.assertions
+  php_value zend.assertions 0
 </IfModule>
 
 # Requires mod_expires to be enabled.
@@ -203,3 +206,33 @@ AddType image/webp .webp
   # Disable Proxy header, since it's an attack vector.
   RequestHeader unset Proxy
 </IfModule>
+
+# BEGIN eusouestagio-security
+# Bloqueia documentação e scripts expostos no docroot (README.md, LICENSE.txt, *.sh, etc.).
+# Mantido via composer scaffold append — não remover os marcadores BEGIN/END.
+<FilesMatch "(?i)^(.*\.(md|markdown|sh)|((README|CHANGELOG|COPYRIGHT|INSTALL|LICENSE|MAINTAINERS|PATCHES|UPDATE|UPGRADE)(\..*)?))$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+  </IfModule>
+</FilesMatch>
+
+# Nega Composer vendor/ (ex.: vendor/bin/drush); permite core/assets/vendor (JS público do Drupal).
+# Reforça bloqueio de *.sh.
+<IfModule mod_rewrite.c>
+  RewriteEngine on
+  RewriteRule (?i)^(?!core/assets/)(?:.+/)?vendor(?:/|$) - [F]
+  RewriteRule (?i)\.sh$ - [F]
+</IfModule>
+
+# Feature 061: não expor identidade do CMS / PHP nos headers HTTP.
+# unset (onsuccess) + always unset: PHP/mod_php costuma colocar X-Powered-By na tabela onsuccess.
+<IfModule mod_headers.c>
+  Header unset X-Generator
+  Header always unset X-Generator
+  Header unset X-Powered-By
+  Header always unset X-Powered-By
+</IfModule>
+# END eusouestagio-security

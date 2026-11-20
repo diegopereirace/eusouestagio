@@ -9,8 +9,8 @@ id: block_content.diferenciais_quem_somos.field_text_simple_long
 field_name: field_text_simple_long
 entity_type: block_content
 bundle: diferenciais_quem_somos
-label: Descrição
-description: ''
+label: Subtítulo
+description: 'Texto opcional exibido abaixo do título da seção.'
 required: false
 translatable: false
 default_value: {  }

@@ -1,0 +1,566 @@
+/**
+ * Detalhe da vaga (view mode full) — 031 refino + 032 header + 033 sidebar.
+ * Escopo: .vaga-detalhe / .node--type-vagas.node--view-mode-full
+ * Não alterar listagem .item-vaga--lista nem cards .item-vaga--destaque.
+ */
+
+.vaga-detalhe {
+  --vd-navy: #023c62;
+  --vd-orange: #fd7b1a;
+  --vd-resumo-bg: #f4f6f9;
+  --vd-border: #e5e7eb;
+  --vd-text: #1a2b3c;
+  --vd-muted: #6b7c8f;
+  --vd-pill-bg: #eef4f8;
+  color: var(--vd-text);
+}
+
+.vaga-detalhe__header {
+  margin-bottom: 2rem;
+  padding: 1.75rem 2rem;
+  background: #fff;
+  border: 1px solid var(--vd-border);
+  border-radius: 16px;
+}
+
+.vaga-detalhe__header-top {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+.vaga-detalhe__logo img {
+  display: block;
+  width: 112px;
+  height: 112px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--vd-border);
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.vaga-detalhe__empresa-logo {
+  flex-shrink: 0;
+}
+
+.vaga-detalhe__empresa-logo img {
+  display: block;
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid #d5e3f7;
+  background: #fff;
+}
+
+.vaga-detalhe__header-text {
+  min-width: 0;
+  flex: 1;
+}
+
+.vaga-detalhe__title {
+  font-size: clamp(1.75rem, 2.8vw, 2.25rem);
+  font-weight: 700;
+  color: var(--vd-navy);
+  margin: 0 0 0.35rem;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.vaga-detalhe__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.6rem;
+  margin: 0;
+  font-size: 1rem;
+  color: var(--vd-text);
+}
+
+.vaga-detalhe__empresa-nome {
+  margin: 0;
+  font-weight: 600;
+  color: var(--vd-text);
+}
+
+/* Ícone "Empresa verificada" (asset do design — não Font Awesome). */
+.vaga-detalhe__verified {
+  display: inline-block;
+  width: 1.0625rem;
+  height: 1rem;
+  background: url('/themes/custom/default/assets/images/icon-verificado.png') no-repeat center / contain;
+  flex-shrink: 0;
+}
+
+.vaga-detalhe__meta-sep {
+  color: var(--vd-muted);
+}
+
+.vaga-detalhe__local {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  color: var(--vd-muted);
+  font-size: 1rem;
+}
+
+/* Ícone de localização (asset do design — não Font Awesome). */
+.vaga-detalhe__local-icon {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.9375rem;
+  background: url('/themes/custom/default/assets/images/icon-localizacao.png') no-repeat center / contain;
+  flex-shrink: 0;
+}
+
+.vaga-detalhe__badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.vaga-detalhe__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  background: var(--vd-pill-bg);
+  color: var(--vd-navy);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+/* Badge de regime (Presencial/Remoto/Híbrido) — destaque em azul, 1º badge do header. */
+.vaga-detalhe__badge--regime {
+  background: #e3f0ff;
+  color: #0b5ed7;
+}
+
+/* Legado — seção Sobre / usos fora do header unificado. */
+.vaga-detalhe__badge--bolsa {
+  background: rgba(253, 123, 26, 0.12);
+  color: var(--vd-orange);
+}
+
+.vaga-detalhe__badge--muted {
+  background: #f4f5f7;
+  color: #9aa1ab;
+  font-weight: 500;
+}
+
+.vaga-detalhe__section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--vd-navy);
+  margin: 0 0 1rem;
+}
+
+.vaga-detalhe__sobre,
+.vaga-detalhe__requisitos,
+.vaga-detalhe__beneficios,
+.vaga-detalhe__empresa,
+.vaga-detalhe__faq {
+  margin-bottom: 2rem;
+}
+
+.vaga-detalhe__section-body,
+.vaga-detalhe__requisitos-body {
+  line-height: 1.65;
+  background: #fff;
+  border: 1px solid var(--vd-border);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+}
+
+.vaga-detalhe__section-body p:last-child {
+  margin-bottom: 0;
+}
+
+/* Requisitos — Text long HTML com icon-check.png (sem bullets padrão / FA) */
+.vaga-detalhe__requisitos-body ul,
+.vaga-detalhe__requisitos-body ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.vaga-detalhe__requisitos-body li,
+.vaga-detalhe__requisitos-body p {
+  position: relative;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin: 0;
+  padding-left: 0;
+  line-height: 1.5;
+}
+
+.vaga-detalhe__requisitos-body li::before,
+.vaga-detalhe__requisitos-body p::before {
+  content: "";
+  flex: 0 0 1.25rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.15rem;
+  background: url('/themes/custom/default/assets/images/icon-check.png') no-repeat center / contain;
+}
+
+/* Grade Benefícios: row com justify-content-center no Twig —
+ * desktop 4/linha (sobra centralizada; 4/8 alinhados); mobile 2/linha. */
+.vaga-detalhe__beneficio-card {
+  background: #fff;
+  border: 1px solid var(--vd-border);
+  border-radius: 12px;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  height: 100%;
+  min-height: 7rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.vaga-detalhe__beneficio-icon {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--vd-navy);
+  font-size: 1.5rem;
+}
+
+.vaga-detalhe__beneficio-icon img {
+  max-width: 48px;
+  max-height: 48px;
+  object-fit: contain;
+}
+
+.vaga-detalhe__beneficio-title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--vd-navy);
+}
+
+/* Cartão Sobre a Empresa (037) — Figma; sem line-clamp */
+.vaga-detalhe__empresa-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem 1.25rem;
+  border: 1px solid #d5e3f7;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  background: #eff4ff;
+}
+
+.vaga-detalhe__empresa-texts {
+  flex: 1;
+  min-width: 0;
+}
+
+.vaga-detalhe__empresa-card-nome {
+  margin: 0 0 0.35rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--vd-navy);
+  overflow-wrap: break-word;
+}
+
+.vaga-detalhe__empresa-sobre {
+  margin: 0;
+  color: #45464d;
+  line-height: 1.55;
+  overflow-wrap: break-word;
+}
+
+.vaga-detalhe__empresa-cta {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1.25rem;
+  border: 1.5px solid var(--vd-navy);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--vd-navy);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.vaga-detalhe__empresa-cta:hover,
+.vaga-detalhe__empresa-cta:focus {
+  background: var(--vd-navy);
+  color: #fff;
+  text-decoration: none;
+}
+
+@media (max-width: 991.98px) {
+  .vaga-detalhe__empresa-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .vaga-detalhe__empresa-texts {
+    width: 100%;
+  }
+
+  .vaga-detalhe__empresa-cta {
+    width: 100%;
+    max-width: 16rem;
+  }
+}
+
+/* FAQ accordion — cards isolados (038) */
+.vaga-detalhe__faq .accordion {
+  --bs-accordion-btn-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%231a2b3c'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  --bs-accordion-btn-active-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%231a2b3c'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  --bs-accordion-border-width: 0;
+  --bs-accordion-border-color: transparent;
+  --bs-accordion-btn-focus-border-color: transparent;
+  --bs-accordion-active-color: var(--vd-navy);
+  --bs-accordion-active-bg: #fff;
+  --bs-accordion-btn-bg: #fff;
+  --bs-accordion-bg: #fff;
+}
+
+.vaga-detalhe__faq .accordion-item {
+  margin-bottom: 1rem;
+  background: #fff;
+  border: 1px solid var(--vd-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.vaga-detalhe__faq .accordion-item:last-child {
+  margin-bottom: 0;
+}
+
+.vaga-detalhe__faq .accordion-button {
+  font-weight: 600;
+  color: var(--vd-navy);
+  background: #fff;
+  box-shadow: none;
+  white-space: normal;
+  text-align: left;
+}
+
+.vaga-detalhe__faq .accordion-button:not(.collapsed) {
+  color: var(--vd-navy);
+  background: #fff;
+  box-shadow: none;
+}
+
+.vaga-detalhe__faq .accordion-button:focus {
+  box-shadow: 0 0 0 0.2rem rgba(2, 60, 98, 0.15);
+}
+
+.vaga-detalhe__faq .accordion-button::after {
+  flex-shrink: 0;
+  margin-left: 0.75rem;
+}
+
+/* Sidebar — ações + resumo (sem perfil / sem match) */
+.vaga-detalhe__btn-candidatar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 80px;
+  padding: 1rem 1.5rem;
+  border: 0;
+  border-radius: 12px;
+  background: var(--vd-orange);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.125rem;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.vaga-detalhe__btn-candidatar:hover,
+.vaga-detalhe__btn-candidatar:focus {
+  background: #e56e12;
+  color: #fff;
+  text-decoration: none;
+}
+
+.vaga-detalhe__btn-candidatar:disabled,
+.vaga-detalhe__btn-candidatar[aria-disabled="true"] {
+  background: #8ea0ae;
+  color: #fff;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.vaga-detalhe__acoes,
+.vaga-detalhe__resumo {
+  border: 1px solid var(--vd-border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  background: #fff;
+  margin-bottom: 1rem;
+}
+
+.vaga-detalhe__resumo {
+  background: var(--vd-resumo-bg);
+}
+
+.vaga-detalhe__resumo-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--vd-navy);
+  margin: 0 0 0.75rem;
+}
+
+.vaga-detalhe__acoes-secundarias {
+  display: flex;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.vaga-detalhe__acoes-secundarias > .ui-btn,
+.vaga-detalhe__acoes-secundarias > .vaga-detalhe__share {
+  /* 50/50 com gap-3 (1rem). flex-basis 0 não iguala o <button> ao wrapper. */
+  flex: none;
+  width: calc(50% - 0.5rem);
+  max-width: calc(50% - 0.5rem);
+  min-width: 0;
+}
+
+.vaga-detalhe__acoes-secundarias > .ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.vaga-detalhe__acoes-secundarias--share-only > .vaga-detalhe__share {
+  flex: none;
+  width: 100%;
+  max-width: 100%;
+}
+
+.vaga-detalhe__share {
+  position: relative;
+}
+
+.vaga-detalhe__share-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  margin: 0;
+}
+
+.vaga-detalhe__share-panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: #fff;
+  border: 1px solid var(--vd-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(2, 60, 98, 0.12);
+}
+
+.vaga-detalhe__share-panel[hidden] {
+  display: none !important;
+}
+
+.vaga-detalhe__share-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 1px solid var(--vd-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--vd-navy);
+  text-decoration: none;
+}
+
+.vaga-detalhe__share-btn:hover {
+  background: #eef4f8;
+  color: var(--vd-navy);
+}
+
+.vaga-detalhe__resumo-list {
+  margin: 0;
+}
+
+.vaga-detalhe__resumo-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid rgba(2, 60, 98, 0.08);
+}
+
+.vaga-detalhe__resumo-row:last-child {
+  border-bottom: 0;
+}
+
+.vaga-detalhe__resumo-row dt {
+  margin: 0;
+  color: var(--vd-muted);
+  font-weight: 500;
+}
+
+.vaga-detalhe__resumo-row dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+}
+
+@media (max-width: 991.98px) {
+  .vaga-detalhe .container {
+    overflow-x: clip;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .vaga-detalhe__header {
+    padding: 1.25rem 1rem;
+  }
+
+  .vaga-detalhe__header-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+  }
+
+  .vaga-detalhe__logo img {
+    width: 84px;
+    height: 84px;
+  }
+
+  .vaga-detalhe__meta {
+    row-gap: 0.3rem;
+  }
+}

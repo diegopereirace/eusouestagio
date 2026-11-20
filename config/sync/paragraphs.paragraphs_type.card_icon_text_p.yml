@@ -1,0 +1,10 @@
+uuid: b9c0d1e2-f3a4-4567-b890-cdef01234567
+langcode: pt-br
+status: true
+dependencies: {  }
+id: card_icon_text_p
+label: 'Card Ícone e Texto'
+icon_uuid: null
+icon_default: null
+description: 'Card com ícone, título e texto para a seção Benefícios Estudantes.'
+behavior_plugins: {  }

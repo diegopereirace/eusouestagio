@@ -45,8 +45,8 @@ content:
     weight: 2
     region: content
     settings:
-      rows: 4
-      placeholder: ''
+      rows: 2
+      placeholder: 'Ex.: Muito além da contratação.'
     third_party_settings: {  }
   info:
     type: string_textfield

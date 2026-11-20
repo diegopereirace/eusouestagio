@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace Drupal\custom_banners\Controller;
 
+use Drupal\Core\Cache\CacheableJsonResponse;
+use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Controller\ControllerBase;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Drupal\Core\Database\Connection;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -13,55 +17,194 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class CursosAutocompleteController extends ControllerBase {
 
+  use AutocompleteNormalizeTrait;
+
   private const VID = 'curso';
 
   private const LIMIT = 10;
 
-  public function autocomplete(Request $request): JsonResponse {
+  private const CACHE_MAX_AGE = 300;
+
+  /** Cache só de cursos com ≥1 vaga publicada (não todos os termos). */
+  private const CACHE_CID = 'custom_banners:cursos_autocomplete_with_vagas';
+
+  public function __construct(
+    protected Connection $database,
+    protected CacheBackendInterface $dataCache,
+  ) {}
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container): static {
+    return new static(
+      $container->get('database'),
+      $container->get('cache.data'),
+    );
+  }
+
+  public function autocomplete(Request $request): CacheableJsonResponse {
     $q = trim((string) $request->query->get('q', ''));
-    if (mb_strlen($q) < 2) {
-      return new JsonResponse([]);
+    $cidade = trim((string) $request->query->get('cidade', ''));
+    $estado = trim((string) $request->query->get('estado', ''));
+    $hasLocationConstraint = $cidade !== '';
+    $payload = [];
+
+    $allowEmptyQ = $hasLocationConstraint;
+    if (mb_strlen($q) >= 2 || ($allowEmptyQ && $q === '')) {
+      try {
+        $normalizedQuery = $q !== '' ? $this->normalize($q) : '';
+        $matches = $hasLocationConstraint
+          ? $this->matchCoursesForLocation($normalizedQuery, $cidade, $estado)
+          : $this->matchAllCourses($normalizedQuery);
+
+        foreach (array_slice($matches, 0, self::LIMIT) as $match) {
+          $payload[] = [
+            'value' => $match['name'],
+            'label' => $match['name'],
+          ];
+        }
+      }
+      catch (\Throwable) {
+        $payload = [];
+      }
     }
 
-    try {
-      $vocab = $this->entityTypeManager()->getStorage('taxonomy_vocabulary')->load(self::VID);
-      if (!$vocab) {
-        return new JsonResponse([]);
-      }
+    return $this->buildResponse($payload, $hasLocationConstraint);
+  }
 
-      $ids = $this->entityTypeManager()->getStorage('taxonomy_term')->getQuery()
-        ->accessCheck(TRUE)
-        ->condition('vid', self::VID)
-        ->condition('status', 1)
-        ->condition('name', $q, 'CONTAINS')
-        ->sort('name')
-        ->range(0, self::LIMIT)
-        ->execute();
-
-      if (!$ids) {
-        return new JsonResponse([]);
-      }
-
-      /** @var \Drupal\taxonomy\TermInterface[] $terms */
-      $terms = $this->entityTypeManager()->getStorage('taxonomy_term')->loadMultiple($ids);
-      $matches = [];
-      foreach ($terms as $term) {
-        $name = (string) $term->label();
-        // Filtro exposto cursos é textfield — envia o nome do termo.
-        $matches[] = [
-          'value' => $name,
-          'label' => $name,
-        ];
-      }
-
-      $response = new JsonResponse($matches);
-      $response->setPublic();
-      $response->setMaxAge(300);
-      return $response;
+  /**
+   * @return list<array{name: string, pos: int}>
+   */
+  private function matchAllCourses(string $normalizedQuery): array {
+    if ($normalizedQuery === '') {
+      return [];
     }
-    catch (\Throwable) {
-      return new JsonResponse([]);
+    $matches = [];
+    foreach ($this->loadCourses() as $course) {
+      $pos = mb_strpos($course['norm'], $normalizedQuery);
+      if ($pos !== FALSE) {
+        $matches[] = $course + ['pos' => $pos];
+      }
     }
+    usort($matches, static function (array $a, array $b): int {
+      $aPrefix = $a['pos'] === 0 ? 0 : 1;
+      $bPrefix = $b['pos'] === 0 ? 0 : 1;
+      return $aPrefix <=> $bPrefix ?: strnatcasecmp($a['name'], $b['name']);
+    });
+    return $matches;
+  }
+
+  /**
+   * @return list<array{name: string, pos: int}>
+   */
+  private function matchCoursesForLocation(string $normalizedQuery, string $cidade, string $estado): array {
+    $cidadeNorm = $this->normalize($cidade);
+    $estadoNorm = $estado !== '' ? $this->normalize($estado) : '';
+    if ($cidadeNorm === '') {
+      return [];
+    }
+
+    $byName = [];
+    $index = new VagaLocationCourseIndex($this->database, $this->dataCache);
+    foreach ($index->getTriples() as $triple) {
+      if (!$this->matchesNormalizedPrefix($triple['cidade_norm'], $cidadeNorm)) {
+        continue;
+      }
+      if ($estadoNorm !== '' && $this->normalize($triple['estado']) !== $estadoNorm) {
+        continue;
+      }
+      // q de autocomplete de curso: substring ok; constraint de cidade já é prefixo.
+      if ($normalizedQuery !== '' && mb_strpos($triple['curso_norm'], $normalizedQuery) === FALSE) {
+        continue;
+      }
+      $name = $triple['curso'];
+      if (!isset($byName[$name])) {
+        $pos = $normalizedQuery === '' ? 0 : (int) mb_strpos($triple['curso_norm'], $normalizedQuery);
+        $byName[$name] = ['name' => $name, 'pos' => $pos === FALSE ? 1 : $pos];
+      }
+    }
+
+    $matches = array_values($byName);
+    usort($matches, static function (array $a, array $b): int {
+      $aPrefix = $a['pos'] === 0 ? 0 : 1;
+      $bPrefix = $b['pos'] === 0 ? 0 : 1;
+      return $aPrefix <=> $bPrefix ?: strnatcasecmp($a['name'], $b['name']);
+    });
+    return $matches;
+  }
+
+  /**
+   * Lista (cacheada) de cursos publicados que têm ≥1 vaga publicada.
+   *
+   * @return list<array{name: string, norm: string}>
+   */
+  private function loadCourses(): array {
+    if ($cached = $this->dataCache->get(self::CACHE_CID)) {
+      return $cached->data;
+    }
+
+    $query = $this->database->select('taxonomy_term_field_data', 't');
+    $query->fields('t', ['name']);
+    $query->distinct();
+    $query->join('node__field_cursos_t', 'ct', 'ct.field_cursos_t_target_id = t.tid AND ct.deleted = 0');
+    $query->join('node_field_data', 'n', 'n.nid = ct.entity_id');
+    $query->condition('t.vid', self::VID);
+    $query->condition('t.status', 1);
+    $query->condition('t.default_langcode', 1);
+    $query->condition('n.type', 'vagas');
+    $query->condition('n.status', 1);
+    $query->condition('t.name', '', '<>');
+    $query->orderBy('t.name');
+
+    $courses = [];
+    $seen = [];
+    foreach ($query->execute() as $row) {
+      $name = trim((string) $row->name);
+      if ($name === '' || isset($seen[$name])) {
+        continue;
+      }
+      $seen[$name] = TRUE;
+      $courses[] = ['name' => $name, 'norm' => $this->normalize($name)];
+    }
+
+    $this->dataCache->set(
+      self::CACHE_CID,
+      $courses,
+      time() + self::CACHE_MAX_AGE,
+      [
+        'taxonomy_term_list:' . self::VID,
+        'taxonomy_term_list',
+        'node_list:vagas',
+        'node_list',
+      ],
+    );
+
+    return $courses;
+  }
+
+  private function buildResponse(array $payload, bool $withLocationConstraint): CacheableJsonResponse {
+    // Sempre depende de vagas: autocomplete sem constraint também só lista cursos com vaga.
+    $tags = [
+      'taxonomy_term_list:' . self::VID,
+      'node_list:vagas',
+    ];
+    $contexts = ['url.query_args:q'];
+    if ($withLocationConstraint) {
+      $contexts[] = 'url.query_args:cidade';
+      $contexts[] = 'url.query_args:estado';
+    }
+
+    $response = new CacheableJsonResponse($payload);
+    $response->addCacheableDependency(
+      (new CacheableMetadata())
+        ->setCacheContexts($contexts)
+        ->setCacheTags($tags)
+        ->setCacheMaxAge(self::CACHE_MAX_AGE)
+    );
+    $response->setPublic();
+    $response->setMaxAge(self::CACHE_MAX_AGE);
+    return $response;
   }
 
 }

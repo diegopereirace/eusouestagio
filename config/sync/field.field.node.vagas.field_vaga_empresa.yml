@@ -1,0 +1,29 @@
+uuid: 99c5cf28-9f19-4f79-adbf-4614a3242ebc
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_vaga_empresa
+    - node.type.empresa
+    - node.type.vagas
+id: node.vagas.field_vaga_empresa
+field_name: field_vaga_empresa
+entity_type: node
+bundle: vagas
+label: 'Empresa da vaga'
+description: 'Perfil público (CT Empresa) exibido no header do detalhe.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      empresa: empresa
+    sort:
+      field: title
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

@@ -12,8 +12,8 @@
     "require": {
         "composer/installers": "^2.3",
         "drupal/admin_toolbar": "3.6.3",
-        "drupal/bootstrap_barrio": "5.5.20",
-        "drupal/captcha": "2.0.10",
+        "drupal/bootstrap_barrio": "5.5.22",
+        "drupal/captcha": "2.0.12",
         "drupal/coffee": "2.0.1",
         "drupal/core-composer-scaffold": "^11.4",
         "drupal/core-project-message": "^11.4",
@@ -22,13 +22,14 @@
         "drupal/devel": "5.5",
         "drupal/devel_php": "2.0.1",
         "drupal/field_group": "4.0",
-        "drupal/metatag": "2.2",
+        "drupal/metatag": "2.2.7",
         "drupal/mimemail": "^2.0",
         "drupal/paragraphs": "^1.21",
-        "drupal/pathauto": "1.15",
+        "drupal/pathauto": "1.16",
         "drupal/recaptcha": "^3.4",
         "drupal/recaptcha_v3": "2.0.5",
         "drupal/smtp": "1.4",
+        "drupal/token": "1.18",
         "drupal/twig_tweak": "^3.4",
         "drupal/webform": "^6.3.1",
         "drush/drush": "^13.7",
@@ -78,7 +79,11 @@
         },
         "file-mapping": {
             "[web-root]/autoload.php": false,
-            "[web-root]/robots.txt": false
+            "[web-root]/robots.txt": false,
+            "[web-root]/.htaccess": {
+                "append": "scaffold/htaccess-security-append.txt",
+                "force-append": true
+            }
         }
         }
     }

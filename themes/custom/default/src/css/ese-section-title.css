@@ -1,0 +1,19 @@
+/**
+ * Token tipográfico — título da página Contato (feature 058).
+ * Fonte: anexo Figma Contato — Inter 600 / 30px / 38px / ls −0.3px / #000.
+ * Contrato: specs/058-refino-figma-contato/contracts/section-title-token.md
+ *
+ * Escopo: somente /contato (.layout-contato-node__title / .ese-section-title).
+ * Não aplica a headers de outros blocos, heroes, cards, CTAs, nav ou footer.
+ */
+
+.ese-section-title,
+.layout-contato-node__title,
+.block-layout-contato .layout-contato__title {
+  font-family: Inter, "Segoe UI", sans-serif;
+  font-weight: 600;
+  font-size: 30px;
+  line-height: 38px;
+  letter-spacing: -0.3px;
+  color: #000000;
+}

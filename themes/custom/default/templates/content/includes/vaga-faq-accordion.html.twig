@@ -1,0 +1,35 @@
+{#
+/**
+ * @file
+ * Accordion "Dúvidas Frequentes" no detalhe da vaga (feature 038).
+ *
+ * Variáveis (include only):
+ * - node: node Vaga.
+ * - faq_paras: lista de paragraphs faq_item_p já filtrados (pergunta e resposta).
+ *
+ * Sem data-bs-parent: painéis independentes. Sem accordion-flush.
+ * Usar id() — acessar .id sozinho devolve FieldItemList e quebra concatenação.
+ */
+#}
+<section class="vaga-detalhe__faq">
+  <h2 class="vaga-detalhe__section-title">{{ 'Dúvidas Frequentes'|t }}</h2>
+  <div class="accordion" id="vaga-faq-{{ node.id() }}">
+    {% for para in faq_paras %}
+      {% set collapse_id = 'vaga-faq-' ~ node.id() ~ '-' ~ (para.id() ?: loop.index0) %}
+      {% set pergunta = para.field_pergunta.value ?? '' %}
+      {% set resposta = para.field_resposta.value ?? '' %}
+      <div class="accordion-item">
+        <h3 class="accordion-header" id="heading-{{ collapse_id }}">
+          <button class="accordion-button{{ not loop.first ? ' collapsed' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#{{ collapse_id }}" aria-expanded="{{ loop.first ? 'true' : 'false' }}" aria-controls="{{ collapse_id }}">
+            {{ pergunta }}
+          </button>
+        </h3>
+        <div id="{{ collapse_id }}" class="accordion-collapse collapse{{ loop.first ? ' show' : '' }}" aria-labelledby="heading-{{ collapse_id }}">
+          <div class="accordion-body">
+            {{ resposta|raw }}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>

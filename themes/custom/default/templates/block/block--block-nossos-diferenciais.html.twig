@@ -4,8 +4,11 @@
  * Bloco Nossos Diferenciais (bundle nossos_diferenciais).
  *
  * Suggestion Barrio: block__block_nossos_diferenciais.
+ * Library dedicada (042): tipografia Figma + colagem CMS + decos.
+ * Colunas desktop: col-lg-7 (mídia) + col-lg-5 (lista).
  */
 #}
+{{ attach_library('default/nossos_diferenciais') }}
 {%
   set classes = [
     'block',
@@ -17,14 +20,13 @@
 {% set title = content.field_text_simple|render|striptags|trim %}
 {% set subtitle = content.field_text_simple_long|render|striptags|trim %}
 {% set has_image = content.field_image['#items'] is defined and content.field_image['#items'][0] is defined and content.field_image['#items'][0].entity.uri.value is defined %}
-
 <section{{ attributes.addClass(classes).setAttribute('id', 'nossos-diferenciais') }}>
   {{ title_prefix }}{{ title_suffix }}
   {% block content %}
     <div{{ content_attributes.addClass('content') }}>
       <div class="container">
         {% if title or subtitle %}
-          <header class="nd-header text-center">
+          <header class="nd-header text-start">
             {% if title %}
               <h2 class="nd-header__title">{{ title }}</h2>
             {% endif %}
@@ -35,18 +37,30 @@
         {% endif %}
 
         <div class="row align-items-center nd-grid">
-          <div class="col-lg-6">
+          <div class="col-lg-7">
             <div class="nd-media">
+              <span class="nd-media__deco-ring" aria-hidden="true"></span>
+              <span class="nd-media__deco-circle" aria-hidden="true"></span>
+              <span class="nd-media__deco-dot" aria-hidden="true"></span>
               {% if has_image %}
                 {% set img_uri = content.field_image['#items'][0].entity.uri.value %}
                 {% set img_alt = content.field_image['#items'][0].alt|default('') %}
-                <img class="img-fluid nd-media__img" src="{{ file_url(img_uri) }}" alt="{{ img_alt }}" loading="lazy">
+                {# Style wide (1090w): limita payload; proporção design 1324×718 → 1090×591. #}
+                <img
+                  class="img-fluid nd-media__img"
+                  src="{{ img_uri|image_style('wide')|e('html_attr') }}"
+                  alt="{{ img_alt }}"
+                  width="1090"
+                  height="591"
+                  loading="lazy"
+                  decoding="async"
+                >
               {% else %}
                 <div class="nd-media__placeholder" aria-hidden="true"></div>
               {% endif %}
             </div>
           </div>
-          <div class="col-lg-6">
+          <div class="col-lg-5">
             <div class="nd-list">
               {{ content.field_diferenciais_lista }}
             </div>

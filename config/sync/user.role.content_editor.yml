@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - node.type.contato
+    - node.type.empresa
     - node.type.page
     - taxonomy.vocabulary.tags
   module:
@@ -28,15 +29,20 @@ permissions:
   - 'access toolbar'
   - 'administer url aliases'
   - 'create contato content'
+  - 'create empresa content'
   - 'create page content'
   - 'create terms in tags'
   - 'create url aliases'
+  - 'delete any empresa content'
   - 'delete own contato content'
+  - 'delete own empresa content'
   - 'delete own files'
   - 'delete own page content'
   - 'delete page revisions'
   - 'edit any contato content'
+  - 'edit any empresa content'
   - 'edit own contato content'
+  - 'edit own empresa content'
   - 'edit own page content'
   - 'edit terms in tags'
   - 'revert all revisions'

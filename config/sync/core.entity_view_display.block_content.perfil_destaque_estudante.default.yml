@@ -1,0 +1,48 @@
+uuid: d4e5f6a7-b8c9-4012-d345-c3d456789012
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.perfil_destaque_estudante
+    - field.field.block_content.perfil_destaque_estudante.field_itens_lista
+    - field.field.block_content.perfil_destaque_estudante.field_link
+    - field.field.block_content.perfil_destaque_estudante.field_text_simple
+  module:
+    - entity_reference_revisions
+    - link
+id: block_content.perfil_destaque_estudante.default
+targetEntityType: block_content
+bundle: perfil_destaque_estudante
+mode: default
+content:
+  field_itens_lista:
+    type: entity_reference_revisions_entity_view
+    label: hidden
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_link:
+    type: link
+    label: hidden
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_text_simple:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden:
+  langcode: true

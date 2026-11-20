@@ -1,4 +1,7 @@
-FROM drupal:11-php8.3-apache
+FROM drupal:11-php8.4-apache
+
+# Aceita só PHP 8.4.27+ da linha 8.4. Rejeita 8.3, 8.4 anterior a 8.4.27 e 8.5+.
+RUN php -r "exit(PHP_VERSION_ID >= 80427 && PHP_VERSION_ID < 80500 ? 0 : 1);"
 
 RUN set -eux; \
     apt-get update; \

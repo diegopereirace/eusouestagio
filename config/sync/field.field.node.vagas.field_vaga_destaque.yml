@@ -1,0 +1,23 @@
+uuid: 50de869a-bf30-435d-8e14-e99d4cbd3fba
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_vaga_destaque
+    - node.type.vagas
+id: node.vagas.field_vaga_destaque
+field_name: field_vaga_destaque
+entity_type: node
+bundle: vagas
+label: Destaque
+description: 'Marca a vaga como destaque na listagem /vagas (badge, borda e prioridade na ordenação).'
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: Sim
+  off_label: Não
+field_type: boolean

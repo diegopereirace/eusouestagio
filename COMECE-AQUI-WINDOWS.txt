@@ -12,10 +12,8 @@ SUBIR O SITE (primeira vez e dias seguintes)
   2. De duplo clique em:  dev-up.bat
   3. Espere a mensagem "Pronto."
   4. Abra no Chrome/Edge:
-     https://localhost:8082
-  5. Se o navegador avisar de certificado inseguro:
-     Avancado -> Continuar / Prosseguir para localhost
-     (e normal no ambiente local)
+     http://localhost:8082
+     (ou use "Open with browser" no container Drupal do Docker Desktop)
 
 PARAR O SITE
   Duplo clique em:  dev-down.bat
@@ -23,8 +21,10 @@ PARAR O SITE
 OBSERVACOES
   - CAPTCHA fica DESLIGADO neste ambiente local.
   - Na primeira vez o script importa o banco automaticamente
-    (pode demorar alguns minutos).
+    (pode demorar alguns minutos) a partir de _db/dump_vps.sql.
   - Nao precisa instalar PHP, Composer nem Postgres na maquina.
+  - Para trabalhar CSS do tema, veja: GUIA-COLABORADOR-CSS.md
+    (precisa Node.js >= 20 para npm run watch / build).
 
 PROBLEMAS COMUNS
   - "Docker nao esta rodando"

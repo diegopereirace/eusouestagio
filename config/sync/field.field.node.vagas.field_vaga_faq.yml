@@ -1,0 +1,29 @@
+uuid: 69a22e6b-9695-40a8-8217-dfb5ff1cef18
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_vaga_faq
+    - node.type.faq
+    - node.type.vagas
+id: node.vagas.field_vaga_faq
+field_name: field_vaga_faq
+entity_type: node
+bundle: vagas
+label: 'FAQ da vaga'
+description: 'Perguntas frequentes associadas a esta vaga.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      faq: faq
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

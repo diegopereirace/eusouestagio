@@ -1,0 +1,81 @@
+{#
+/**
+ * @file
+ * Página pública temporária do CT empresa (feature 034).
+ * Dados CMS + lista de vagas abertas (View empresa_vagas).
+ */
+#}
+{{ attach_library('bootstrap_barrio/node') }}
+{{ attach_library('default/empresa_pagina') }}
+
+{%
+  set classes = [
+    'node',
+    'node--type-' ~ node.bundle|clean_class,
+    not node.isPublished() ? 'node--unpublished',
+    view_mode ? 'node--view-mode-' ~ view_mode|clean_class,
+    'clearfix',
+    'empresa-pagina',
+  ]
+%}
+
+{% set logo_uri = '' %}
+{% if node.hasField('field_imagem') and not node.field_imagem.isEmpty and node.field_imagem.entity %}
+  {% set logo_uri = node.field_imagem.entity.uri.value %}
+{% endif %}
+
+{% set cidade = node.hasField('field_cidade') ? node.field_cidade.value : '' %}
+{% set estado = node.hasField('field_estados') ? node.field_estados.value : '' %}
+{% set local_label = '' %}
+{% if cidade and estado %}
+  {% set local_label = cidade ~ ', ' ~ estado %}
+{% elseif cidade %}
+  {% set local_label = cidade %}
+{% elseif estado %}
+  {% set local_label = estado %}
+{% endif %}
+
+{% set sobre = '' %}
+{% if node.hasField('field_text_long_formatted') and node.field_text_long_formatted.value %}
+  {% set sobre = node.field_text_long_formatted.value %}
+{% endif %}
+
+<article{{ attributes.addClass(classes) }}>
+  <div class="container py-5">
+    <header class="empresa-pagina__header">
+      {% if logo_uri %}
+        <div class="empresa-pagina__logo">
+          <img src="{{ file_url(logo_uri) }}" alt="{{ label }}" width="96" height="96" loading="lazy">
+        </div>
+      {% endif %}
+      <div class="empresa-pagina__header-text">
+        <h1{{ title_attributes.addClass('empresa-pagina__title') }}>{{ label }}</h1>
+        <p class="empresa-pagina__meta">
+          <i class="fa-solid fa-circle-check empresa-pagina__verified" aria-hidden="true" title="{{ 'Empresa verificada'|t }}"></i>
+          {% if local_label %}
+            <span class="empresa-pagina__local">
+              <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+              {{ local_label }}
+            </span>
+          {% endif %}
+        </p>
+      </div>
+    </header>
+
+    {% if sobre %}
+      <section class="empresa-pagina__sobre">
+        <h2 class="empresa-pagina__section-title">{{ 'Sobre a Empresa'|t }}</h2>
+        <div class="empresa-pagina__section-body">
+          {{ sobre|raw }}
+        </div>
+      </section>
+    {% endif %}
+
+    <section class="empresa-pagina__vagas">
+      <h2 class="empresa-pagina__section-title">{{ 'Vagas abertas'|t }}</h2>
+      <div class="empresa-pagina__vagas-list">
+        {{ drupal_view('empresa_vagas', 'block_empresa', node.id) }}
+      </div>
+    </section>
+  </div>
+</article>

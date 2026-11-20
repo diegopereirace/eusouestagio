@@ -1,0 +1,77 @@
+{#
+/**
+ * @file
+ * CTA v1 — Detalhe de vagas (placement default_ctav1vagas).
+ *
+ * Variante escura isolada: NÃO anexar default/cta_v1 (card claro QS/PE).
+ * Card alinhado à coluna principal (container > row > col-lg-8).
+ * Feature 050: botão primário = candidatura (js-candidatar-vaga), não cadastro.
+ */
+#}
+{{ attach_library('default/cta_v1_vagas') }}
+{{ attach_library('default/script-painel') }}
+{%
+  set classes = [
+    'block',
+    'block-' ~ configuration.provider|clean_class,
+    'block-' ~ plugin_id|clean_class,
+    'block-cta-v1--vagas',
+  ]
+%}
+{% set title = content.field_text_simple|render|striptags|trim %}
+{% set subtitle = content.field_text_simple_long|render|striptags|trim %}
+{% set secondary_item = content.field_link_2['#items'][0]|default(null) %}
+{% set secondary_uri = secondary_item ? secondary_item.uri|default('') : '' %}
+{% set has_secondary = secondary_uri is not empty %}
+{% set has_primary = vaga_nid is defined and vaga_nid %}
+{% set has_actions = has_primary or has_secondary %}
+{% set has_content = title or subtitle or has_actions %}
+
+<div{{ attributes.addClass(classes) }}>
+  {{ title_prefix }}{{ title_suffix }}
+  {% block content %}
+    <div{{ content_attributes.addClass('content') }}>
+      {% if has_content %}
+        <div class="container">
+          <div class="row">
+            <div class="col-12 col-lg-8">
+              <section class="cta-v1 cta-v1--dark">
+                {% if title or subtitle %}
+                  <div class="cta-v1__copy">
+                    {% if title %}
+                      <h2 class="cta-v1__title">{{ title }}</h2>
+                    {% endif %}
+                    {% if subtitle %}
+                      <p class="cta-v1__subtitle">{{ subtitle }}</p>
+                    {% endif %}
+                  </div>
+                {% endif %}
+
+                {% if has_actions %}
+                  <div class="cta-v1__actions">
+                    {% if has_primary %}
+                      {% if vaga_candidatada %}
+                        <button type="button" class="cta-v1__btn cta-v1__btn--primary" disabled aria-disabled="true">
+                          {{ 'Candidatura Enviada'|t }}
+                        </button>
+                      {% else %}
+                        <a href="{{ vaga_apply_url }}"
+                           class="cta-v1__btn cta-v1__btn--primary js-candidatar-vaga"
+                           data-node-id="{{ vaga_nid }}"
+                           data-apply-url="{{ vaga_apply_url }}"
+                           data-method="POST">{{ 'Candidatar-se Agora'|t }}</a>
+                      {% endif %}
+                    {% endif %}
+                    {% if has_secondary %}
+                      <a class="cta-v1__btn cta-v1__btn--secondary" href="{{ secondary_item.getUrl().toString() }}">{{ secondary_item.title }}</a>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </section>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  {% endblock %}
+</div>

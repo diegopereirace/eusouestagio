@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.field.paragraph.diferencial_simples_p.field_image
     - field.field.paragraph.diferencial_simples_p.field_text_simple
+    - field.field.paragraph.diferencial_simples_p.field_text_simple_long
     - image.style.thumbnail
     - paragraphs.paragraphs_type.diferencial_simples_p
   module:
@@ -28,6 +29,14 @@ content:
     region: content
     settings:
       size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_text_simple_long:
+    type: string_textarea
+    weight: 2
+    region: content
+    settings:
+      rows: 2
       placeholder: ''
     third_party_settings: {  }
 hidden:

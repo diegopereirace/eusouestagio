@@ -5,8 +5,13 @@
  * Functions to support theming in the SASS Starterkit subtheme.
  */
 
+use Drupal\block\Entity\Block;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Access\AccessResultInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Markup;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
 use Drupal\user\UserInterface;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
@@ -58,10 +63,28 @@ function default_preprocess(&$variables, $hook)
  * Implements hook_preprocess_html().
  *
  * Classe legada do carrossel da home (CSS de layout da região highlighted).
+ * Mantém body.path-para-estudantes / path-para-empresas (CSS) nas URLs
+ * novas /estudantes e /para-sua-empresa e nas antigas, até o redirect.
  */
 function default_preprocess_html(array &$variables): void
 {
   $variables['attributes']['class'][] = 'banner-carousel-enabled';
+
+  $current_path = \Drupal::service('path.current')->getPath();
+  $path_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
+  if (_default_path_is_estudantes_landing($path_alias, $current_path)) {
+    $variables['attributes']['class'][] = 'path-para-estudantes';
+  }
+  if (_default_path_is_empresas_landing($path_alias, $current_path)) {
+    $variables['attributes']['class'][] = 'path-para-empresas';
+  }
+
+  // Escopo de cadastro-candidato.css (library default/cadastro_candidato).
+  $route_name = \Drupal::routeMatch()->getRouteName();
+  if ($route_name === 'custom_configs_users.candidato_registration') {
+    $variables['attributes']['class'][] = 'page-cadastro-candidato';
+  }
+  $variables['#cache']['contexts'][] = 'route';
 }
 
 /**
@@ -108,9 +131,74 @@ function default_preprocess_views_view__banners__block_home(array &$variables): 
     $desktop_url = $style_desktop->buildUrl($desktop_uri);
     $mobile_url = $style_mobile ? $style_mobile->buildUrl($mobile_uri) : $desktop_url;
 
+    // Dimensões intrínsecas do original (CLS); aspect-ratio no CSS reserva o box.
+    $width = NULL;
+    $height = NULL;
+    $realpath = \Drupal::service('file_system')->realpath($desktop_uri);
+    if ($realpath && is_file($realpath)) {
+      $size = @getimagesize($realpath);
+      if (is_array($size) && !empty($size[0]) && !empty($size[1])) {
+        $width = (int) $size[0];
+        $height = (int) $size[1];
+      }
+    }
+
     $slides[] = [
       'desktop' => $file_url_generator->transformRelative($desktop_url),
       'mobile' => $file_url_generator->transformRelative($mobile_url ?: $desktop_url),
+      'alt' => (string) ($desktop_item->alt ?? $node->label()),
+      'width' => $width,
+      'height' => $height,
+    ];
+  }
+
+  $variables['banner_slides'] = $slides;
+}
+
+/**
+ * Implements hook_preprocess_HOOK() for View banners block_para_empresas.
+ *
+ * Monta banner_slides (URI crua — preserva alpha PNG) a partir dos nodes.
+ */
+function default_preprocess_views_view__banners__block_para_empresas(array &$variables): void
+{
+  $variables['banner_slides'] = [];
+
+  /** @var \Drupal\views\ViewExecutable|null $view */
+  $view = $variables['view'] ?? NULL;
+  if (!$view) {
+    return;
+  }
+
+  $file_url_generator = \Drupal::service('file_url_generator');
+  $slides = [];
+
+  foreach ($view->result as $row) {
+    /** @var \Drupal\node\NodeInterface|null $node */
+    $node = $row->_entity ?? NULL;
+    if (!$node || !$node->hasField('field_imagem_desktop') || $node->get('field_imagem_desktop')->isEmpty()) {
+      continue;
+    }
+    $desktop_item = $node->get('field_imagem_desktop')->first();
+    if (empty($desktop_item->entity)) {
+      continue;
+    }
+    $desktop_uri = $desktop_item->entity->getFileUri();
+    if (!$desktop_uri) {
+      continue;
+    }
+
+    $mobile_uri = $desktop_uri;
+    if ($node->hasField('field_imagem_mobile') && !$node->get('field_imagem_mobile')->isEmpty()) {
+      $mobile_item = $node->get('field_imagem_mobile')->first();
+      if (!empty($mobile_item->entity)) {
+        $mobile_uri = $mobile_item->entity->getFileUri() ?: $desktop_uri;
+      }
+    }
+
+    $slides[] = [
+      'desktop' => $file_url_generator->generateString($desktop_uri),
+      'mobile' => $file_url_generator->generateString($mobile_uri),
       'alt' => (string) ($desktop_item->alt ?? $node->label()),
     ];
   }
@@ -122,6 +210,7 @@ function default_preprocess_views_view__banners__block_home(array &$variables): 
  * Implements hook_preprocess_HOOK() for View banners block_quem_somos.
  *
  * Monta banner_media (URI crua — preserva alpha PNG) a partir do 1º row.
+ * Só desktop: no mobile a coluna é oculta e o <picture> não pede arte (047).
  */
 function default_preprocess_views_view_unformatted__banners__block_quem_somos(array &$variables): void
 {
@@ -149,22 +238,281 @@ function default_preprocess_views_view_unformatted__banners__block_quem_somos(ar
     return;
   }
 
-  $mobile_uri = $desktop_uri;
-  if ($node->hasField('field_imagem_mobile') && !$node->get('field_imagem_mobile')->isEmpty()) {
-    $mobile_item = $node->get('field_imagem_mobile')->first();
-    if (!empty($mobile_item->entity)) {
-      $mobile_uri = $mobile_item->entity->getFileUri() ?: $desktop_uri;
-    }
-  }
-
   $file_url_generator = \Drupal::service('file_url_generator');
   $variables['banner_media'] = [
     'desktop' => $file_url_generator->generateString($desktop_uri),
-    'mobile' => $file_url_generator->generateString($mobile_uri),
     'alt' => (string) ($desktop_item->alt ?? $node->label()),
   ];
 }
 
+/**
+ * Implements hook_preprocess_HOOK() for View banners block_para_estudantes.
+ *
+ * Monta banner_slides (URI crua — preserva alpha PNG) a partir dos nodes.
+ * Mesmo contrato de block_para_empresas (carrossel full-bleed).
+ */
+function default_preprocess_views_view__banners__block_para_estudantes(array &$variables): void
+{
+  $variables['banner_slides'] = [];
+
+  /** @var \Drupal\views\ViewExecutable|null $view */
+  $view = $variables['view'] ?? NULL;
+  if (!$view) {
+    return;
+  }
+
+  $file_url_generator = \Drupal::service('file_url_generator');
+  $slides = [];
+
+  foreach ($view->result as $row) {
+    /** @var \Drupal\node\NodeInterface|null $node */
+    $node = $row->_entity ?? NULL;
+    if (!$node || !$node->hasField('field_imagem_desktop') || $node->get('field_imagem_desktop')->isEmpty()) {
+      continue;
+    }
+    $desktop_item = $node->get('field_imagem_desktop')->first();
+    if (empty($desktop_item->entity)) {
+      continue;
+    }
+    $desktop_uri = $desktop_item->entity->getFileUri();
+    if (!$desktop_uri) {
+      continue;
+    }
+
+    $mobile_uri = $desktop_uri;
+    if ($node->hasField('field_imagem_mobile') && !$node->get('field_imagem_mobile')->isEmpty()) {
+      $mobile_item = $node->get('field_imagem_mobile')->first();
+      if (!empty($mobile_item->entity)) {
+        $mobile_uri = $mobile_item->entity->getFileUri() ?: $desktop_uri;
+      }
+    }
+
+    // ?v=mtime: files públicos saem com cache de 1 ano. Sem isto o navegador
+    // continua no placeholder 1200×433 mesmo com o hero.png já restaurado.
+    $slides[] = [
+      'desktop' => _default_banner_file_url($file_url_generator, $desktop_uri),
+      'mobile' => _default_banner_file_url($file_url_generator, $mobile_uri),
+      'alt' => (string) ($desktop_item->alt ?? $node->label()),
+    ];
+  }
+
+  $variables['banner_slides'] = $slides;
+}
+
+/**
+ * URL pública do arquivo de banner com versão pela data de modificação.
+ */
+function _default_banner_file_url($file_url_generator, string $uri): string {
+  $url = $file_url_generator->generateString($uri);
+  $real = \Drupal::service('file_system')->realpath($uri);
+  if ($real && is_file($real)) {
+    $url .= (str_contains($url, '?') ? '&' : '?') . 'v=' . filemtime($real);
+  }
+  return $url;
+}
+
+/**
+ * Tempo relativo pt-BR para a pill “Postado há…” do header da vaga (feature 032).
+ *
+ * <1h → “menos de 1 hora”; <24h → hora(s); ≥1d → dia(s); nunca negativo.
+ */
+function _default_format_vaga_postado_ha(int $created): string {
+  $now = (int) \Drupal::time()->getRequestTime();
+  $diff = max(0, $now - $created);
+
+  if ($diff < 3600) {
+    return (string) t('menos de 1 hora');
+  }
+
+  if ($diff < 86400) {
+    $hours = (int) floor($diff / 3600);
+    return $hours === 1
+      ? (string) t('1 hora')
+      : (string) t('@count horas', ['@count' => $hours]);
+  }
+
+  $days = (int) floor($diff / 86400);
+  return $days === 1
+    ? (string) t('1 dia')
+    : (string) t('@count dias', ['@count' => $days]);
+}
+
+/**
+ * Implements hook_preprocess_HOOK() for node__vagas__full.
+ *
+ * O theme registry de node__vagas__full não lista default_preprocess_node__vagas;
+ * redispatch explícito para pills/candidatura no detalhe.
+ * Feature 037: flag do cartão Sobre a Empresa (Twig sandbox bloqueia access()).
+ */
+function default_preprocess_node__vagas__full(array &$variables): void {
+  default_preprocess_node__vagas($variables);
+
+  $variables['show_empresa_card'] = FALSE;
+  $variables['faq_paras'] = [];
+  $variables['faq_padrao'] = NULL;
+  $theme_path = \Drupal::service('extension.list.theme')->getPath('default');
+  $icon_base = rtrim(\Drupal::request()->getBasePath(), '/') . '/' . $theme_path . '/assets/images/beneficios/';
+  $variables['vaga_beneficio_icon_fallbacks'] = [
+    $icon_base . 'beneficios-01.png',
+    $icon_base . 'beneficios-02.png',
+    $icon_base . 'beneficios-03.png',
+    $icon_base . 'beneficios-04.png',
+  ];
+  /** @var \Drupal\node\NodeInterface $node */
+  $node = $variables['node'];
+  if ($node->hasField('field_vaga_empresa') && !$node->get('field_vaga_empresa')->isEmpty()) {
+    $empresa = $node->get('field_vaga_empresa')->entity;
+    if ($empresa instanceof \Drupal\node\NodeInterface
+      && $empresa->isPublished()
+      && $empresa->access('view')) {
+      $variables['show_empresa_card'] = TRUE;
+    }
+  }
+
+  // Feature 051: FAQ padrão único (UUID canônico); ignora field_vaga_faq.
+  if (function_exists('custom_configs_load_faq_padrao')) {
+    $faq = custom_configs_load_faq_padrao();
+    if ($faq instanceof \Drupal\node\NodeInterface
+      && $faq->isPublished()
+      && $faq->access('view')) {
+      $variables['faq_padrao'] = $faq;
+      $faq_paras = [];
+      if ($faq->hasField('field_faq_itens') && !$faq->get('field_faq_itens')->isEmpty()) {
+        foreach ($faq->get('field_faq_itens') as $item) {
+          $para = $item->entity;
+          if (!$para) {
+            continue;
+          }
+          $pergunta = '';
+          $resposta = '';
+          if ($para->hasField('field_pergunta') && !$para->get('field_pergunta')->isEmpty()) {
+            $pergunta = trim((string) $para->get('field_pergunta')->value);
+          }
+          if ($para->hasField('field_resposta') && !$para->get('field_resposta')->isEmpty()) {
+            $resposta = trim((string) $para->get('field_resposta')->value);
+          }
+          if ($pergunta !== '' && $resposta !== '') {
+            $faq_paras[] = $para;
+          }
+        }
+      }
+      $variables['faq_paras'] = $faq_paras;
+      $tags = $variables['elements']['#cache']['tags'] ?? [];
+      $variables['elements']['#cache']['tags'] = array_values(array_unique(array_merge(
+        $tags,
+        $faq->getCacheTags()
+      )));
+    }
+  }
+}
+
+/**
+ * Indica se o usuário já possui node candidatura para a vaga.
+ */
+function _default_user_has_candidatura_vaga(int $uid, int $nid): bool
+{
+  if ($uid <= 0 || $nid <= 0) {
+    return FALSE;
+  }
+  $ids = \Drupal::entityTypeManager()->getStorage('node')->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('type', 'candidatura')
+    ->condition('field_candidatura_candidato', $uid)
+    ->condition('field_candidatura_vaga', $nid)
+    ->range(0, 1)
+    ->execute();
+  return !empty($ids);
+}
+
+/**
+ * Implements hook_block_access().
+ *
+ * CTA vagas (default_ctav1vagas): visibility por role fica na config do bloco.
+ * Estado já candidatada é tratado no Twig (botão disabled) — feature 050.
+ */
+function default_block_access(Block $block, $operation, AccountInterface $account): AccessResultInterface
+{
+  if ($operation !== 'view' || $block->id() !== 'default_ctav1vagas') {
+    return AccessResult::neutral();
+  }
+
+  return AccessResult::neutral()
+    ->addCacheContexts(['user', 'route'])
+    ->addCacheTags(['node_list:candidatura']);
+}
+
+/**
+ * Implements hook_block_build_alter().
+ *
+ * Garante contexts/tags no render array (chave de cache), não só no preprocess.
+ * - default_ctav1vagas: user/route + candidatura (feature 050).
+ * - default_ctav1paraempresas: user.roles — markup varia por role empresa (052).
+ */
+function default_block_build_alter(array &$build, Block $block): void
+{
+  $id = $block->id();
+  if ($id === 'default_ctav1vagas') {
+    $build['#cache']['contexts'][] = 'user';
+    $build['#cache']['contexts'][] = 'route';
+    $build['#cache']['tags'][] = 'node_list:candidatura';
+    return;
+  }
+  if ($id === 'default_ctav1paraempresas') {
+    $build['#cache']['contexts'][] = 'user.roles';
+  }
+}
+
+/**
+ * Implements hook_preprocess_block() for default_ctav1vagas.
+ *
+ * Injeta nid / URL de candidatura / estado já candidatada (feature 050).
+ */
+function default_preprocess_block__default_ctav1vagas(array &$variables): void
+{
+  $variables['vaga_nid'] = NULL;
+  $variables['vaga_candidatada'] = FALSE;
+  $variables['vaga_apply_url'] = '';
+
+  $node = \Drupal::routeMatch()->getParameter('node');
+  if (!$node instanceof NodeInterface || $node->bundle() !== 'vagas') {
+    return;
+  }
+
+  $nid = (int) $node->id();
+  $variables['vaga_nid'] = $nid;
+  $variables['vaga_apply_url'] = Url::fromRoute('custom_panel.vagas_candidatar', [
+    'node' => $nid,
+  ])->toString();
+
+  if (isset($variables['elements']) && is_array($variables['elements'])) {
+    $variables['elements']['#cache']['contexts'][] = 'user';
+    $variables['elements']['#cache']['contexts'][] = 'route';
+    $variables['elements']['#cache']['tags'][] = 'node_list:candidatura';
+    $variables['elements']['#cache']['tags'][] = 'node:' . $nid;
+  }
+
+  $account = \Drupal::currentUser();
+  if ($account->isAuthenticated() && in_array('candidato', $account->getRoles(), TRUE)) {
+    $variables['vaga_candidatada'] = _default_user_has_candidatura_vaga((int) $account->id(), $nid);
+  }
+}
+
+/**
+ * Implements hook_preprocess_block() for default_ctav1paraempresas.
+ *
+ * Expõe is_empresa (mesmo critério do topo) para CTAs condicionais (feature 052).
+ * Cache context também em hook_block_build_alter (chave de render cache).
+ */
+function default_preprocess_block__default_ctav1paraempresas(array &$variables): void
+{
+  $user = \Drupal::currentUser();
+  $variables['is_empresa'] = $user->isAuthenticated() && in_array('empresa', $user->getRoles(), TRUE);
+
+  $variables['#cache']['contexts'][] = 'user.roles';
+  if (isset($variables['elements']) && is_array($variables['elements'])) {
+    $variables['elements']['#cache']['contexts'][] = 'user.roles';
+  }
+}
 /**
  * Implements hook_preprocess_node() for vagas nodes.
  *
@@ -175,9 +523,13 @@ function default_preprocess_node__vagas(&$variables)
   $user = \Drupal::currentUser();
   $variables['vaga_salva'] = FALSE;
   $variables['vaga_candidatada'] = FALSE;
+  // Feature 031: card “Seu Perfil” removido do Twig full — sem vaga_perfil_completo.
+
+  /** @var \Drupal\node\NodeInterface $node */
+  $node = $variables['node'];
+  $variables['vaga_postado_ha'] = _default_format_vaga_postado_ha((int) $node->getCreatedTime());
 
   if ($user->isAuthenticated() && in_array('candidato', $user->getRoles())) {
-    $node = $variables['node'];
     $nid = (int) $node->id();
     $uid = (int) $user->id();
 
@@ -193,16 +545,7 @@ function default_preprocess_node__vagas(&$variables)
       $variables['vaga_salva'] = !empty($exists_salva);
     }
 
-    // Verifica se o usuário já se candidatou a esta vaga.
-    $storage = \Drupal::entityTypeManager()->getStorage('node');
-    $candidacy_query = $storage->getQuery()
-      ->accessCheck(FALSE)
-      ->condition('type', 'candidatura')
-      ->condition('field_candidatura_candidato', $uid)
-      ->condition('field_candidatura_vaga', $nid)
-      ->range(0, 1);
-    $candidacy_nids = $candidacy_query->execute();
-    $variables['vaga_candidatada'] = !empty($candidacy_nids);
+    $variables['vaga_candidatada'] = _default_user_has_candidatura_vaga($uid, $nid);
   }
 }
 
@@ -264,6 +607,52 @@ function default_preprocess_block__default_top(&$variables)
 }
 
 /**
+ * Implements hook_preprocess_page().
+ *
+ * Em /estudantes (e no alias antigo /para-estudantes) a landing é Node shell;
+ * content_full (benefícios, jornada, perfil, vagas destaque) sobe para logo
+ * após o banner. Marca a rota para o Twig renderizar content_full após o hero.
+ */
+function default_preprocess_page(array &$variables): void {
+  $current_path = \Drupal::service('path.current')->getPath();
+  $path_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
+  $variables['content_full_after_banner'] = _default_path_is_estudantes_landing($path_alias, $current_path);
+  $variables['#cache']['contexts'][] = 'url.path';
+}
+
+/**
+ * Landing Estudantes: URL nova e alias antigo.
+ */
+function _default_path_is_estudantes_landing(string $path_alias, string $current_path): bool {
+  return _default_path_matches_any($path_alias, $current_path, ['/estudantes', '/para-estudantes']);
+}
+
+/**
+ * Landing Para Sua Empresa: URL nova e alias antigo.
+ */
+function _default_path_is_empresas_landing(string $path_alias, string $current_path): bool {
+  return _default_path_matches_any($path_alias, $current_path, ['/para-sua-empresa', '/para-empresas']);
+}
+
+/**
+ * Compara alias e path interno, ignorando barra final.
+ */
+function _default_path_matches_any(string $path_alias, string $current_path, array $candidates): bool {
+  $normalize = static function (string $path): string {
+    $path = rtrim($path, '/');
+    return $path === '' ? '/' : $path;
+  };
+  $path_alias = $normalize($path_alias);
+  $current_path = $normalize($current_path);
+  foreach ($candidates as $candidate) {
+    if ($path_alias === $candidate || $current_path === $candidate) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+/**
  * Implements hook_preprocess_block() for the vagasvoltar block.
  */
 function default_preprocess_block__default_vagasvoltar(&$variables)
@@ -293,6 +682,127 @@ function default_preprocess_block__default_painelpageheader(&$variables)
 }
 
 /**
+ * Returns media queries keyed by breakpoint plugin ID for the active theme.
+ *
+ * Source of truth: themes/custom/default/default.breakpoints.yml via
+ * breakpoint.manager. Same map for every request — safe with page cache /
+ * Dynamic Page Cache (no User-Agent cache context).
+ *
+ * @return array<string, string>
+ *   e.g. ['default.mobile' => '(max-width: 767.98px)', ...].
+ */
+function _default_theme_breakpoint_media_queries(): array {
+  static $map = NULL;
+  if ($map !== NULL) {
+    return $map;
+  }
+
+  $map = [];
+  if (!\Drupal::hasService('breakpoint.manager')) {
+    return $map;
+  }
+
+  $active_theme = \Drupal::theme()->getActiveTheme()->getName();
+  /** @var \Drupal\breakpoint\BreakpointManagerInterface $manager */
+  $manager = \Drupal::service('breakpoint.manager');
+  foreach ($manager->getBreakpointsByGroup($active_theme) as $id => $breakpoint) {
+    $map[$id] = $breakpoint->getMediaQuery();
+  }
+  return $map;
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter() for paragraphs.
+ *
+ * Separa o markup de card_icon_text_p por bloco pai: oportunidades (grade 4)
+ * vs benefícios (split Figma), sem conflitar no mesmo Twig.
+ */
+function default_theme_suggestions_paragraph_alter(array &$suggestions, array $variables): void {
+  $paragraph = $variables['elements']['#paragraph'] ?? NULL;
+  if (!$paragraph instanceof \Drupal\paragraphs\ParagraphInterface) {
+    return;
+  }
+  if ($paragraph->bundle() !== 'card_icon_text_p') {
+    return;
+  }
+  $parent = $paragraph->getParentEntity();
+  if ($parent instanceof \Drupal\block_content\BlockContentInterface) {
+    $suggestions[] = 'paragraph__card_icon_text_p__' . $parent->bundle();
+  }
+}
+
+/**
+ * Implements hook_preprocess_block().
+ *
+ * Para o bundle como_funciona_bt, expõe media queries do Breakpoints API ao
+ * <picture> (art direction). A escolha da fonte é do browser — HTML idêntico
+ * no cache (Page Cache / Dynamic Page Cache sem contexto de User-Agent).
+ */
+function default_preprocess_block(array &$variables): void {
+  $content = $variables['content']['#block_content'] ?? $variables['elements']['content']['#block_content'] ?? NULL;
+  if (!$content instanceof \Drupal\block_content\BlockContentInterface) {
+    return;
+  }
+
+  if ($content->bundle() === 'beneficios_estudantes') {
+    _default_theme_preprocess_beneficios_estudantes_orbit($variables);
+    return;
+  }
+
+  if ($content->bundle() !== 'como_funciona_bt') {
+    return;
+  }
+
+  $map = _default_theme_breakpoint_media_queries();
+  // Fallbacks alinhados a default.breakpoints.yml se o grupo não estiver disponível.
+  $variables['cf_media_mobile'] = $map['default.mobile'] ?? '(max-width: 767.98px)';
+  $variables['cf_media_desktop'] = $map['default.desktop'] ?? '(min-width: 768px)';
+}
+
+/**
+ * Expõe URLs públicas da órbita Benefícios Estudantes (feature 055).
+ *
+ * Preferência: arte composta versionada `collage.png` (Figma — anel, rostos,
+ * thumbs-up) via `be_collage_composite` (fallback se field_image vazio).
+ * Órbita CSS (centro + satélites) só se a composta estiver ausente.
+ */
+function _default_theme_preprocess_beneficios_estudantes_orbit(array &$variables): void {
+  $variables['be_orbit_ready'] = FALSE;
+  $variables['be_orbit_center'] = '';
+  $variables['be_orbit_sats'] = [];
+  $variables['be_collage_composite'] = '';
+
+  $url_generator = \Drupal::service('file_url_generator');
+
+  // Arte composta canônica (anexo Figma) — entrega visual fiel; não montar órbita.
+  $composite_uri = 'public://beneficios-estudantes/collage.png';
+  $composite_path = \Drupal::service('file_system')->realpath($composite_uri);
+  if ($composite_path && is_readable($composite_path) && filesize($composite_path) > 1024) {
+    $variables['be_collage_composite'] = $url_generator->generateString($composite_uri);
+    return;
+  }
+
+  $sats = [];
+  for ($i = 1; $i <= 5; $i++) {
+    $uri = 'public://beneficios-estudantes/collage-sat-' . $i . '.png';
+    $path = \Drupal::service('file_system')->realpath($uri);
+    if (!$path || !is_readable($path)) {
+      return;
+    }
+    $sats[$i] = $url_generator->generateString($uri);
+  }
+
+  $center_uri = 'public://beneficios-estudantes/collage-center.png';
+  $center_path = \Drupal::service('file_system')->realpath($center_uri);
+  if ($center_path && is_readable($center_path)) {
+    $variables['be_orbit_center'] = $url_generator->generateString($center_uri);
+  }
+
+  $variables['be_orbit_sats'] = $sats;
+  $variables['be_orbit_ready'] = TRUE;
+}
+
+/**
  * Implements hook_page_attachments_alter().
  *
  * Injects breakpoint media queries from the active theme into drupalSettings
@@ -314,20 +824,84 @@ function default_page_attachments_alter(array &$attachments)
     'robots_noindex',
   ];
 
-  $active_theme = \Drupal::theme()->getActiveTheme()->getName();
-
-  /** @var \Drupal\breakpoint\BreakpointManagerInterface $manager */
-  $manager = \Drupal::service('breakpoint.manager');
-  $breakpoints = $manager->getBreakpointsByGroup($active_theme);
-
-  $map = [];
-  foreach ($breakpoints as $id => $breakpoint) {
-    $map[$id] = $breakpoint->getMediaQuery();
-  }
-
+  $map = _default_theme_breakpoint_media_queries();
   if (!empty($map)) {
     $attachments['#attached']['drupalSettings']['blockBreakpoint']['breakpoints'] = $map;
   }
+
+  _default_attach_home_hero_lcp_preload($attachments);
+}
+
+/**
+ * Preload do 1º slide do carrossel da home (LCP) — só na <front>.
+ */
+function _default_attach_home_hero_lcp_preload(array &$attachments): void {
+  if (!\Drupal::service('path.matcher')->isFrontPage()) {
+    return;
+  }
+
+  // Mesma ordenação da View banners/block_home: field_peso ASC, created DESC.
+  $nids = \Drupal::entityQuery('node')
+    ->accessCheck(TRUE)
+    ->condition('type', 'banners')
+    ->condition('status', 1)
+    ->condition('field_local_exibicao', 'home')
+    ->sort('field_peso', 'ASC')
+    ->sort('created', 'DESC')
+    ->range(0, 1)
+    ->execute();
+  if (!$nids) {
+    return;
+  }
+
+  /** @var \Drupal\node\NodeInterface|null $node */
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load(reset($nids));
+  if (!$node || !$node->hasField('field_imagem_desktop') || $node->get('field_imagem_desktop')->isEmpty()) {
+    return;
+  }
+  $desktop_item = $node->get('field_imagem_desktop')->first();
+  if (empty($desktop_item->entity)) {
+    return;
+  }
+  $desktop_uri = $desktop_item->entity->getFileUri();
+  if (!$desktop_uri) {
+    return;
+  }
+
+  $style_desktop = \Drupal\image\Entity\ImageStyle::load('banner_carousel');
+  $style_mobile = \Drupal\image\Entity\ImageStyle::load('banner_carousel_mobile');
+  if (!$style_desktop) {
+    return;
+  }
+
+  $file_url_generator = \Drupal::service('file_url_generator');
+  $desktop_url = $file_url_generator->transformRelative($style_desktop->buildUrl($desktop_uri));
+
+  $mobile_uri = $desktop_uri;
+  if ($node->hasField('field_imagem_mobile') && !$node->get('field_imagem_mobile')->isEmpty()) {
+    $mobile_item = $node->get('field_imagem_mobile')->first();
+    if (!empty($mobile_item->entity)) {
+      $mobile_uri = $mobile_item->entity->getFileUri() ?: $desktop_uri;
+    }
+  }
+  $mobile_url = $style_mobile
+    ? $file_url_generator->transformRelative($style_mobile->buildUrl($mobile_uri))
+    : $desktop_url;
+
+  // Desktop (default) + mobile via imagesrcset/imagesizes.
+  $attachments['#attached']['html_head_link'][] = [
+    [
+      'rel' => 'preload',
+      'as' => 'image',
+      'href' => $desktop_url,
+      'imagesrcset' => $mobile_url . ' 828w, ' . $desktop_url . ' 1920w',
+      'imagesizes' => '(max-width: 767.98px) 100vw, 100vw',
+      'fetchpriority' => 'high',
+    ],
+    'home_hero_lcp_preload',
+  ];
+  $attachments['#cache']['contexts'][] = 'url.path';
+  $attachments['#cache']['tags'][] = 'node_list:banners';
 }
 
 /**
@@ -582,8 +1156,8 @@ function default_preprocess_views_exposed_form(array &$variables): void
 /**
  * Implements hook_preprocess_views_view().
  *
- * Ajusta o cabeçalho da listagem de vagas quando houver filtros ativos,
- * indicando ao usuário que está vendo um resultado de pesquisa.
+ * Feature 028/029: library da listagem; toolbar (total + ordenar);
+ * aside do usuário autenticado. Header H3 legado substituído pelo toolbar.
  */
 function default_preprocess_views_view(array &$variables): void
 {
@@ -593,25 +1167,168 @@ function default_preprocess_views_view(array &$variables): void
     return;
   }
 
-  $query = \Drupal::request()->query;
-  $filter_keys = ['nid', 'cursos', 'estado', 'cidade', 'escolaridade'];
-  $has_active_filters = FALSE;
+  $variables['#attached']['library'][] = 'default/vagas_lista_vertical';
+  $variables['#cache']['contexts'][] = 'user';
+  $variables['#cache']['contexts'][] = 'url.query_args:sort_order';
 
-  foreach ($filter_keys as $key) {
-    $value = $query->get($key);
+  // Substitui o H3 “Vagas” / “Resultado - Vagas” pelo toolbar Figma (029).
+  $variables['header'] = '';
 
-    if (is_array($value)) {
-      $value = array_filter($value, static fn($item) => $item !== '' && $item !== 'All');
+  $total = (int) ($view->total_rows ?? 0);
+  if ($total === 0 && !empty($view->result)) {
+    $total = count($view->result);
+  }
+  $total_formatted = number_format($total, 0, ',', '.');
+  $variables['vagas_total'] = $total;
+  $variables['vagas_total_label'] = $total === 1
+    ? t('1 vaga encontrada')
+    : t('@count vagas encontradas', ['@count' => $total_formatted]);
+
+  $sort_order = strtoupper((string) \Drupal::request()->query->get('sort_order', 'DESC'));
+  if ($sort_order !== 'ASC' && $sort_order !== 'DESC') {
+    $sort_order = 'DESC';
+  }
+  $variables['vagas_sort_order'] = $sort_order;
+
+  // Preserva filtros atuais no form GET de ordenação.
+  $preserve = [];
+  foreach (\Drupal::request()->query->all() as $key => $value) {
+    if ($key === 'sort_order' || $key === 'page') {
+      continue;
     }
+    if (is_array($value)) {
+      $filtered = array_filter($value, static fn($item) => $item !== '' && $item !== 'All');
+      if ($filtered !== []) {
+        $preserve[$key] = $filtered;
+      }
+      continue;
+    }
+    if ($value !== NULL && $value !== '' && $value !== 'All') {
+      $preserve[$key] = $value;
+    }
+  }
+  $variables['vagas_sort_preserve'] = $preserve;
 
-    if ((is_array($value) && !empty($value)) || (!is_array($value) && $value !== NULL && $value !== '' && $value !== 'All')) {
-      $has_active_filters = TRUE;
-      break;
+  $variables['vagas_show_user_aside'] = FALSE;
+  $variables['vagas_user_name'] = '';
+  $variables['vagas_user_subtitle'] = '';
+  $variables['vagas_user_avatar_url'] = '';
+  $variables['vagas_user_panel_url'] = '';
+
+  $current = \Drupal::currentUser();
+  if (!$current->isAuthenticated()) {
+    return;
+  }
+
+  // Aside só para autenticados — avatar + nome + subtítulo básico (sem % de cadastro).
+  $variables['vagas_show_user_aside'] = TRUE;
+  $variables['vagas_user_avatar_url'] = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='32' fill='%23e8edf3'/%3E%3Ccircle cx='32' cy='24' r='13' fill='%23839ab1'/%3E%3Cpath d='M12 56c2-12 11-19 20-19s18 7 20 19' fill='%23839ab1'/%3E%3C/svg%3E";
+
+  $roles = $current->getRoles();
+  $is_candidato = in_array('candidato', $roles, TRUE);
+  $is_empresa = in_array('empresa', $roles, TRUE);
+  $is_moderador = in_array('moderador', $roles, TRUE);
+
+  if ($is_candidato) {
+    $variables['vagas_user_panel_url'] = '/painel/estudante/perfil';
+    $variables['vagas_user_subtitle'] = (string) t('Estudante');
+  }
+  elseif ($is_empresa) {
+    $variables['vagas_user_panel_url'] = '/painel/empresa/perfil';
+    $variables['vagas_user_subtitle'] = (string) t('Empresa');
+  }
+  elseif ($is_moderador) {
+    $variables['vagas_user_panel_url'] = '/painel/moderador/candidaturas';
+    $variables['vagas_user_subtitle'] = (string) t('Moderador');
+  }
+  else {
+    $variables['vagas_user_panel_url'] = '/user';
+    $variables['vagas_user_subtitle'] = (string) t('Usuário');
+  }
+
+  $account = \Drupal::entityTypeManager()->getStorage('user')->load($current->id());
+  if (!$account instanceof UserInterface) {
+    $variables['vagas_user_name'] = (string) $current->getDisplayName();
+    return;
+  }
+
+  $name = trim((string) $account->getDisplayName());
+  if ($account->hasField('field_nome_completo') && !$account->get('field_nome_completo')->isEmpty()) {
+    $name = trim((string) $account->get('field_nome_completo')->value);
+  }
+  elseif ($account->hasField('field_nome_fantasia') && !$account->get('field_nome_fantasia')->isEmpty()) {
+    $name = trim((string) $account->get('field_nome_fantasia')->value);
+  }
+  $variables['vagas_user_name'] = $name !== '' ? $name : (string) t('Usuário');
+
+  // Estudante: só infos básicas (instituição e/ou tipo de curso). Sem % de cadastro.
+  if ($is_candidato) {
+    $subtitle_bits = [];
+    if ($account->hasField('field_instituicao_ensino') && !$account->get('field_instituicao_ensino')->isEmpty()) {
+      foreach ($account->get('field_instituicao_ensino') as $item) {
+        $paragraph = $item->entity ?? NULL;
+        if ($paragraph && $paragraph->hasField('field_nome_instituicao') && !$paragraph->get('field_nome_instituicao')->isEmpty()) {
+          $inst = trim((string) $paragraph->get('field_nome_instituicao')->value);
+          if ($inst !== '') {
+            $subtitle_bits[] = $inst;
+            break;
+          }
+        }
+      }
+    }
+    if ($account->hasField('field_tipo_curso') && !$account->get('field_tipo_curso')->isEmpty()) {
+      $tipo_key = (string) $account->get('field_tipo_curso')->value;
+      $allowed = $account->get('field_tipo_curso')->getFieldDefinition()->getSetting('allowed_values') ?? [];
+      $tipo_label = trim((string) ($allowed[$tipo_key] ?? $tipo_key));
+      if ($tipo_label !== '') {
+        $subtitle_bits[] = $tipo_label;
+      }
+    }
+    if ($subtitle_bits !== []) {
+      $variables['vagas_user_subtitle'] = implode(' · ', $subtitle_bits);
     }
   }
 
-  $title = $has_active_filters ? 'Resultado - Vagas Disponíveis' : 'Vagas Disponíveis';
-  $variables['header'] = Markup::create('<div class="mt-3 mb-3"><h3 class="text-title-md">' . $title . '</h3></div>');
+  if ($account->hasField('user_picture') && !$account->get('user_picture')->isEmpty() && $account->get('user_picture')->entity) {
+    $avatar_uri = $account->get('user_picture')->entity->getFileUri();
+    if (!empty($avatar_uri)) {
+      $file_url_generator = \Drupal::service('file_url_generator');
+      $avatar_url = $file_url_generator->generateAbsoluteString($avatar_uri);
+      $variables['vagas_user_avatar_url'] = $file_url_generator->transformRelative($avatar_url);
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_views_view_field().
+ *
+ * Calcula “Vaga aberta há …” para o card vertical da listagem /vagas (028).
+ */
+function default_preprocess_views_view_field(array &$variables): void
+{
+  $view = $variables['view'] ?? NULL;
+  $field = $variables['field'] ?? NULL;
+  if (!$view instanceof ViewExecutable || $view->id() !== 'vagas' || ($view->current_display ?? '') !== 'page_1') {
+    return;
+  }
+  if (!$field || ($field->field ?? '') !== 'nothing') {
+    return;
+  }
+
+  $row = $variables['row'] ?? NULL;
+  if (!$row instanceof ResultRow || !isset($row->_entity) || !$row->_entity instanceof NodeInterface) {
+    $variables['vaga_published_ago'] = '';
+    return;
+  }
+
+  $created = (int) $row->_entity->getCreatedTime();
+  if ($created <= 0) {
+    $variables['vaga_published_ago'] = '';
+    return;
+  }
+
+  $variables['vaga_published_ago'] = \Drupal::service('date.formatter')
+    ->formatTimeDiffSince($created, ['granularity' => 1]);
 }
 
 /**

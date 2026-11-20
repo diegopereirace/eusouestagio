@@ -1,0 +1,19 @@
+uuid: 42c1adb9-6234-46d6-9733-74007d4d4f3f
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - paragraphs
+    - text
+id: paragraph.field_resposta
+field_name: field_resposta
+entity_type: paragraph
+type: text_long
+settings: {  }
+module: text
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

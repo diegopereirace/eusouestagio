@@ -4,21 +4,25 @@ status: true
 dependencies:
   config:
     - block_content.type.basic
+    - block_content.type.beneficios_estudantes
     - block_content.type.como_funciona_bt
-    - block_content.type.cto
     - block_content.type.cta_v1
+    - block_content.type.cto
     - block_content.type.destaque
     - block_content.type.diferenciais_quem_somos
     - block_content.type.footer
+    - block_content.type.jornada_estudante
     - block_content.type.layout_contato
     - block_content.type.missao_visao
-    - block_content.type.nossos_diferenciais
     - block_content.type.nossa_metodologia
+    - block_content.type.nossos_diferenciais
     - block_content.type.o_que_fazemos_bt
+    - block_content.type.perfil_destaque_estudante
     - block_content.type.whatsapp
     - filter.format.full_html
     - filter.format.restricted_html
     - node.type.contato
+    - node.type.empresa
     - node.type.page
     - node.type.vagas
     - taxonomy.vocabulary.regime
@@ -51,33 +55,42 @@ permissions:
   - 'administer users'
   - 'bypass node access'
   - 'change own username'
+  - 'create beneficios_estudantes block content'
   - 'create como_funciona_bt block content'
   - 'create contato content'
   - 'create cta_v1 block content'
   - 'create diferenciais_quem_somos block content'
+  - 'create empresa content'
+  - 'create jornada_estudante block content'
   - 'create layout_contato block content'
   - 'create missao_visao block content'
   - 'create nossa_metodologia block content'
   - 'create nossos_diferenciais block content'
   - 'create o_que_fazemos_bt block content'
   - 'create page content'
+  - 'create perfil_destaque_estudante block content'
   - 'create terms in regime'
   - 'create terms in tags'
   - 'create terms in tecnologias'
   - 'create vagas content'
+  - 'delete any beneficios_estudantes block content'
   - 'delete any como_funciona_bt block content'
   - 'delete any contato content'
   - 'delete any cta_v1 block content'
   - 'delete any diferenciais_quem_somos block content'
+  - 'delete any empresa content'
+  - 'delete any jornada_estudante block content'
   - 'delete any layout_contato block content'
   - 'delete any missao_visao block content'
   - 'delete any nossa_metodologia block content'
   - 'delete any nossos_diferenciais block content'
   - 'delete any o_que_fazemos_bt block content'
   - 'delete any page content'
+  - 'delete any perfil_destaque_estudante block content'
   - 'delete any vagas content'
   - 'delete contato revisions'
   - 'delete own contato content'
+  - 'delete own empresa content'
   - 'delete own page content'
   - 'delete own vagas content'
   - 'delete page revisions'
@@ -86,22 +99,27 @@ permissions:
   - 'delete terms in tecnologias'
   - 'delete vagas revisions'
   - 'edit any basic block content'
+  - 'edit any beneficios_estudantes block content'
   - 'edit any como_funciona_bt block content'
   - 'edit any contato content'
   - 'edit any cta_v1 block content'
   - 'edit any cto block content'
   - 'edit any destaque block content'
   - 'edit any diferenciais_quem_somos block content'
+  - 'edit any empresa content'
   - 'edit any footer block content'
+  - 'edit any jornada_estudante block content'
   - 'edit any layout_contato block content'
   - 'edit any missao_visao block content'
   - 'edit any nossa_metodologia block content'
   - 'edit any nossos_diferenciais block content'
   - 'edit any o_que_fazemos_bt block content'
   - 'edit any page content'
+  - 'edit any perfil_destaque_estudante block content'
   - 'edit any vagas content'
   - 'edit any whatsapp block content'
   - 'edit own contato content'
+  - 'edit own empresa content'
   - 'edit own page content'
   - 'edit own vagas content'
   - 'edit terms in regime'

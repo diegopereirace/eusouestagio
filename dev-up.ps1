@@ -127,18 +127,26 @@ if ($LASTEXITCODE -ne 0) {
 $port = '8082'
 $envFile = Join-Path $Root '.env'
 if (Test-Path $envFile) {
-  $line = Get-Content $envFile | Where-Object { $_ -match '^\s*DRUPAL_HTTPS_PORT\s*=' } | Select-Object -First 1
+  $line = Get-Content $envFile | Where-Object { $_ -match '^\s*DRUPAL_HTTP_PORT\s*=' } | Select-Object -First 1
   if ($line -match '=\s*(.+)$') {
     $port = $Matches[1].Trim()
   }
 }
 
+$siteUrl = 'http://localhost:' + $port + '/'
+
 Write-Host ''
 Write-Host 'Pronto.' -ForegroundColor Green
-Write-Host ('Site: https://localhost:' + $port)
-Write-Host 'Certificado: Avancado -> Continuar para localhost'
+Write-Host ('Site: ' + $siteUrl)
 Write-Host 'CAPTCHA: desligado neste ambiente local'
 Write-Host ''
 Write-Host 'Parar: duplo clique em dev-down.bat'
 Write-Host 'Guia:  COMECE-AQUI-WINDOWS.txt'
 Write-Host ''
+
+try {
+  Start-Process $siteUrl
+}
+catch {
+  Write-Host ('Abra manualmente: ' + $siteUrl) -ForegroundColor Yellow
+}

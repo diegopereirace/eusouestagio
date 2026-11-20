@@ -1,0 +1,601 @@
+/**
+ * Hero search (/vagas) — Figma 196-1160 / 196-1186 / 196-1189 + dropdown AC.
+ * Escopo exclusivo: .vagas-hero-search* (não alterar .hero-search da home).
+ */
+
+.vagas-hero-search {
+  width: 100%;
+  margin: 0 auto;
+  padding: 48px 40px 32px;
+  background: #fff;
+  scroll-margin-top: calc(var(--header-h, 87px) + 0.75rem);
+  overflow-x: clip;
+}
+
+.vagas-hero-search__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.vagas-hero-search__title {
+  margin: 0 0 0.75rem;
+  max-width: 1062px;
+  font-family: Poppins, "Segoe UI", sans-serif;
+  font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+  font-weight: 700;
+  color: #111;
+  line-height: 1.2;
+}
+
+.vagas-hero-search__subtitle {
+  margin: 0 0 1.75rem;
+  max-width: 715px;
+  font-size: 1.0625rem;
+  color: #45464d;
+  line-height: 1.5;
+}
+
+.vagas-hero-search__form {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 4px;
+  min-height: 56px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  /* Sem overflow:hidden — cortaria o dropdown absoluto. */
+}
+
+.vagas-hero-search__fields {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+
+/* Sem texto no Input 1: filhos participam do flex do form (layout original). */
+.vagas-hero-search__rest {
+  display: contents;
+}
+
+.vagas-hero-search__field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 0.625rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+}
+
+.vagas-hero-search__field:focus-within {
+  /* Inset: outline externo invadia o campo vizinho no flex contiguidade. */
+  outline: none;
+  box-shadow: inset 0 0 0 2px #1e3a5f;
+  z-index: 1;
+}
+
+.vagas-hero-search__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: #94a3b8;
+}
+
+.vagas-hero-search__divider {
+  flex: 0 0 auto;
+  width: 100%;
+  height: 1px;
+  margin: 0.25rem 0;
+  background: #e2e8f0;
+}
+
+.vagas-hero-search__input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 0.65rem 0;
+  font-size: 0.9375rem;
+  color: #111;
+  background: transparent;
+  outline: none;
+  box-shadow: none;
+}
+
+.vagas-hero-search__input::placeholder {
+  color: #94a3b8;
+}
+
+.vagas-hero-search__input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.vagas-hero-search__submit-wrap {
+  flex: 0 0 auto;
+  padding: 0.5rem 0 0;
+  display: flex;
+}
+
+.vagas-hero-search__submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0.85rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #fff;
+  background: #58a83c;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.vagas-hero-search__submit:hover,
+.vagas-hero-search__submit:focus {
+  background: #4d9434;
+  color: #fff;
+}
+
+.vagas-hero-search__submit:focus-visible {
+  outline: 2px solid #1e3a5f;
+  outline-offset: 2px;
+}
+
+.vagas-hero-search__pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 0.625rem;
+  list-style: none;
+  margin: 1.25rem 0 0;
+  padding: 0;
+}
+
+.vagas-hero-search__pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 2px 16px;
+  border-radius: 9999px;
+  border: 1px solid #bfdbfe;
+  background: #eff4ff;
+  color: #1e3a5f;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.vagas-hero-search__pill:hover,
+.vagas-hero-search__pill:focus {
+  border-color: #93c5fd;
+  background: #e0ebff;
+  color: #0f172a;
+}
+
+.vagas-hero-search__view-all {
+  margin: 0.75rem 0 0;
+  padding: 0;
+}
+
+.vagas-hero-search__view-all-link {
+  color: var(--brand-orange, #ff8a22);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.vagas-hero-search__view-all-link:hover,
+.vagas-hero-search__view-all-link:focus {
+  text-decoration: underline;
+  color: var(--brand-orange, #ff8a22);
+}
+
+/* Dropdown autocomplete */
+.vagas-hero-search__suggestions {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 1040;
+  min-width: 100%;
+  max-width: min(420px, calc(100vw - 32px));
+  max-height: 280px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.35rem 0;
+  list-style: none;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+
+.vagas-hero-search__suggestion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 44px;
+  padding: 0.5rem 0.85rem;
+  cursor: pointer;
+  color: #111;
+  font-size: 0.9375rem;
+}
+
+.vagas-hero-search__suggestion.is-active,
+.vagas-hero-search__suggestion:hover {
+  background: #eff4ff;
+}
+
+.vagas-hero-search__suggestion-text {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.vagas-hero-search__suggestion-text mark {
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font-weight: 700;
+}
+
+.vagas-hero-search__suggestion-badge {
+  flex: 0 0 auto;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.vagas-hero-search__suggestion--empty,
+.vagas-hero-search__suggestion--empty:hover,
+.vagas-hero-search__suggestion--empty.is-active {
+  cursor: default;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 400;
+  justify-content: flex-start;
+}
+
+@media (min-width: 992px) {
+  .vagas-hero-search__fields {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
+  .vagas-hero-search__field {
+    flex: 1 1 0;
+  }
+
+  .vagas-hero-search__divider {
+    flex: 0 0 1px;
+    align-self: stretch;
+    width: 1px;
+    height: auto;
+    margin: 0.5rem 0;
+  }
+
+  .vagas-hero-search__submit-wrap {
+    padding: 0 0 0 0.5rem;
+    align-self: stretch;
+  }
+
+  .vagas-hero-search__submit {
+    width: auto;
+    align-self: stretch;
+    min-height: 100%;
+  }
+}
+
+/*
+ * Cluster cidade+curso quando o Input 1 tem texto.
+ * Classe .is-keyword-filled (Twig/JS) + :has() como fallback sem JS.
+ */
+.vagas-hero-search__form.is-keyword-filled .vagas-hero-search__rest,
+.vagas-hero-search__form:has(#vagas-hero-title:not(:placeholder-shown)) .vagas-hero-search__rest {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex: 1 1 auto;
+  min-width: 0;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.vagas-hero-search__form.is-keyword-filled .vagas-hero-search__divider--lead,
+.vagas-hero-search__form:has(#vagas-hero-title:not(:placeholder-shown)) .vagas-hero-search__divider--lead {
+  display: none;
+}
+
+.vagas-hero-search__form.is-keyword-filled .vagas-hero-search__rest .vagas-hero-search__field:focus-within,
+.vagas-hero-search__form:has(#vagas-hero-title:not(:placeholder-shown)) .vagas-hero-search__rest .vagas-hero-search__field:focus-within {
+  outline: none;
+}
+
+.vagas-hero-search__form.is-keyword-filled .vagas-hero-search__rest:focus-within,
+.vagas-hero-search__form:has(#vagas-hero-title:not(:placeholder-shown)) .vagas-hero-search__rest:focus-within {
+  outline: none;
+  box-shadow: inset 0 0 0 2px #1e3a5f;
+}
+
+@media (min-width: 992px) {
+  .vagas-hero-search__form.is-keyword-filled .vagas-hero-search__field--title,
+  .vagas-hero-search__form:has(#vagas-hero-title:not(:placeholder-shown)) .vagas-hero-search__field--title {
+    flex: 1 1 auto;
+  }
+
+  .vagas-hero-search__form.is-keyword-filled .vagas-hero-search__rest,
+  .vagas-hero-search__form:has(#vagas-hero-title:not(:placeholder-shown)) .vagas-hero-search__rest {
+    position: relative;
+    flex-direction: row;
+    flex: 0 1 28rem;
+    max-width: min(28rem, 48%);
+    align-items: center;
+    align-self: stretch;
+  }
+
+  .vagas-hero-search__form.is-keyword-filled .vagas-hero-search__rest .vagas-hero-search__field,
+  .vagas-hero-search__form:has(#vagas-hero-title:not(:placeholder-shown)) .vagas-hero-search__rest .vagas-hero-search__field {
+    position: static;
+    flex: 1 1 0;
+  }
+
+  .vagas-hero-search__form.is-keyword-filled .vagas-hero-search__rest .vagas-hero-search__suggestions,
+  .vagas-hero-search__form:has(#vagas-hero-title:not(:placeholder-shown)) .vagas-hero-search__rest .vagas-hero-search__suggestions {
+    min-width: 100%;
+    max-width: 100%;
+    left: 0;
+    right: 0;
+  }
+
+  .vagas-hero-search__form.is-keyword-filled .vagas-hero-search__rest .vagas-hero-search__divider,
+  .vagas-hero-search__form:has(#vagas-hero-title:not(:placeholder-shown)) .vagas-hero-search__rest .vagas-hero-search__divider {
+    margin: 0.35rem 0;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .vagas-hero-search {
+    padding: 32px 16px 24px;
+  }
+
+  .vagas-hero-search__field {
+    padding: 0.35rem 0.5rem;
+  }
+
+  .vagas-hero-search__suggestions {
+    max-width: 100%;
+  }
+}
+
+/*
+ * /para-estudantes — Figma 320-726 (quadro 1440px).
+ * Escopo exclusivo: body.path-para-estudantes. /vagas permanece inalterado.
+ * Tipografia Inter (importada em style.css); demais blocos seguem Poppins.
+ */
+
+/* Fundo full-bleed (#F8F9FF + brilho rosado suave) e container sem limite Bootstrap. */
+body.path-para-estudantes .highlighted {
+  background-color: #f8f9ff;
+  background-image: radial-gradient(
+    ellipse 42% 85% at 42% 55%,
+    rgba(250, 238, 240, 0.55) 0%,
+    rgba(250, 238, 240, 0) 100%
+  );
+}
+
+body.path-para-estudantes .highlighted > aside.container {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+}
+
+body.path-para-estudantes .vagas-hero-search {
+  padding: 64px 40px 64px;
+  background: transparent;
+  font-family: Inter, "Segoe UI", sans-serif;
+}
+
+body.path-para-estudantes .vagas-hero-search__inner {
+  max-width: 1184px;
+}
+
+body.path-para-estudantes .vagas-hero-search__title {
+  max-width: none;
+  margin: 0 0 28px;
+  font-family: Inter, "Segoe UI", sans-serif;
+  font-size: clamp(1.75rem, 1.1rem + 2.2vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  color: #000;
+}
+
+body.path-para-estudantes .vagas-hero-search__subtitle {
+  max-width: 800px;
+  margin: 0 0 24px;
+  font-family: Inter, "Segoe UI", sans-serif;
+  font-size: clamp(1rem, 0.85rem + 0.5vw, 1.25rem);
+  font-weight: 400;
+  line-height: 1.6;
+  color: #45464d;
+}
+
+/* Barra de busca: branca, sem borda, sombra suave, 80px de altura. */
+body.path-para-estudantes .vagas-hero-search__form {
+  max-width: 1152px;
+  min-height: 80px;
+  padding: 8px;
+  background: #fff;
+  border: 0;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+}
+
+body.path-para-estudantes .vagas-hero-search__field {
+  min-height: 64px;
+  gap: 20px;
+  padding: 0 12px;
+}
+
+body.path-para-estudantes .vagas-hero-search__icon {
+  width: 20px;
+  height: 20px;
+  color: #666669;
+}
+
+body.path-para-estudantes .vagas-hero-search__input {
+  font-family: Inter, "Segoe UI", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: #111;
+}
+
+body.path-para-estudantes .vagas-hero-search__input::placeholder {
+  color: #bdbdc2;
+  opacity: 1;
+}
+
+body.path-para-estudantes .vagas-hero-search__divider {
+  background: #f4f4f4;
+}
+
+body.path-para-estudantes .vagas-hero-search__submit {
+  min-height: 56px;
+  border-radius: 8px;
+  padding: 0 32px;
+  font-family: Inter, "Segoe UI", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: #58a83c;
+}
+
+body.path-para-estudantes .vagas-hero-search__submit:hover,
+body.path-para-estudantes .vagas-hero-search__submit:focus {
+  background: #4d9434;
+}
+
+/* Pills: sem borda, fundo #F0F4FF, espaçamento de 20px. */
+body.path-para-estudantes .vagas-hero-search__pills {
+  gap: 12px 20px;
+  margin: 40px 0 0;
+}
+
+body.path-para-estudantes .vagas-hero-search__pill {
+  min-height: 36px;
+  padding: 0 20px;
+  border: 0;
+  background: #f0f4ff;
+  color: #3d414c;
+  font-family: Inter, "Segoe UI", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+body.path-para-estudantes .vagas-hero-search__pill:hover,
+body.path-para-estudantes .vagas-hero-search__pill:focus {
+  background: #e3ebff;
+  color: #1f2330;
+}
+
+/* "Ver todas": Figma — sob as pills, à esquerda; Inter 400/16/24, #9D4300. */
+body.path-para-estudantes .vagas-hero-search__view-all {
+  margin: 16px 0 0;
+  text-align: left;
+}
+
+body.path-para-estudantes .vagas-hero-search__view-all-link {
+  font-family: Inter, "Segoe UI", sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #9D4300;
+  text-decoration: none;
+}
+
+body.path-para-estudantes .vagas-hero-search__view-all-link:hover,
+body.path-para-estudantes .vagas-hero-search__view-all-link:focus {
+  color: #9D4300;
+  text-decoration: underline;
+}
+
+@media (min-width: 992px) {
+  /* Larguras proporcionais ao Figma (≈ 288 / 248 / 374 px). */
+  body.path-para-estudantes .vagas-hero-search__field--title {
+    flex: 1.2 1 0;
+  }
+
+  body.path-para-estudantes .vagas-hero-search__field--cidade {
+    flex: 1 1 0;
+  }
+
+  body.path-para-estudantes .vagas-hero-search__field--curso {
+    flex: 1.5 1 0;
+  }
+
+  /* Divisor com altura total da barra e respiro de 12px de cada lado. */
+  body.path-para-estudantes .vagas-hero-search__divider {
+    margin: 0 12px;
+  }
+
+  body.path-para-estudantes .vagas-hero-search__submit {
+    min-width: 224px;
+  }
+}
+
+/* Desktop estreito: compacta gap/botão para não truncar o placeholder. */
+@media (min-width: 992px) and (max-width: 1279.98px) {
+  body.path-para-estudantes .vagas-hero-search__field {
+    gap: 12px;
+    padding: 0 8px;
+  }
+
+  body.path-para-estudantes .vagas-hero-search__divider {
+    margin: 0 4px;
+  }
+
+  body.path-para-estudantes .vagas-hero-search__input,
+  body.path-para-estudantes .vagas-hero-search__submit {
+    font-size: 1rem;
+  }
+
+  body.path-para-estudantes .vagas-hero-search__submit {
+    min-width: 160px;
+    padding: 0 20px;
+  }
+}
+
+@media (max-width: 991.98px) {
+  body.path-para-estudantes .vagas-hero-search__field {
+    min-height: 56px;
+    gap: 12px;
+  }
+
+  body.path-para-estudantes .vagas-hero-search__pills {
+    margin-top: 24px;
+  }
+
+  body.path-para-estudantes .vagas-hero-search__view-all {
+    margin-top: 12px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  body.path-para-estudantes .vagas-hero-search {
+    padding: 40px 16px 32px;
+  }
+
+  body.path-para-estudantes .vagas-hero-search__pill {
+    padding: 0 16px;
+  }
+}

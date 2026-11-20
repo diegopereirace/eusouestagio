@@ -29,6 +29,7 @@ Regras de arquitetura aplicadas sempre que editar código customizado (`modules/
 - Hooks de deploy nunca sobrescrevem conteúdo editorial divergente do seed; preenchem apenas o que está vazio/ausente.
 - UUIDs fixos para blocos seedados; placement exportado em `block.block.*` com o mesmo UUID.
 - Assets de seed ficam versionados em `modules/custom/custom_configs/assets/` e copiados para `public://` pelo hook.
+- **Arquivos gerenciáveis / assets seed (057):** materializam **uma vez** (campo ou arquivo ausente). Deploy seguinte **não** altera bytes nem `target_id`. Ambientes **podem** divergir (local ≠ produção). Ordem explícita de troca = novo `hook_update_N` com `_custom_configs_seed_file_from_module_asset(..., $replace = TRUE)` — nunca sync silencioso por MD5, ratio ou filename “seed-like”.
 
 ## Links e rotas
 

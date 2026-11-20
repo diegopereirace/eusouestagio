@@ -1,11 +1,19 @@
 ---
-description: Deploy de configs estruturais e seeds via drush cex + hook_update_N idempotente (Entity API)
-globs: modules/custom/**/*.install, config/sync/**/*.yml
-alwaysApply: false
+description: Deploy de configs estruturais e seeds via drush cex + hook_update_N idempotente (Entity API) — obrigatório sem esperar o usuário pedir
+globs: modules/custom/**/*.install, config/sync/**/*.yml, modules/custom/**/*.{module,php}, themes/custom/**/*
+alwaysApply: true
 ---
 # Deploy de Configurações e Banco — Drupal 11
 
 Ao alterar estrutura (fields, block types, paragraphs, views, displays, placements) ou seeds de conteúdo em `modules/custom/**/*.install` / `config/sync/**/*.yml`, siga este fluxo.
+
+## Diretriz permanente (não negociável)
+
+- **Todas** as alterações que impactem o banco de dados — novos blocos, tipos de conteúdo, campos, views, displays, ou instâncias/placements de blocos em regiões — **DEVEM OBRIGATORIAMENTE** ser feitas de forma automatizada para produção.
+- **Nunca espere o usuário pedir.** Sempre entregue, na mesma feature:
+  1. `hook_update_N` idempotente (Entity API / config API) em `custom_configs.install` para popular/garantir dados e estrutura no destino;
+  2. instrução (e execução no ambiente de origem) de `drush cex` para exportar as configurações estruturais a `config/sync`.
+- Zero passos manuais no admin de produção para ativar a feature.
 
 ## Pré-requisito permanente (produção)
 
@@ -17,6 +25,7 @@ Ao alterar estrutura (fields, block types, paragraphs, views, displays, placemen
 
 - Toda alteração estrutural (novos fields, block types, paragraph types, views, form/view displays, block placements) DEVE ser acompanhada de exportação com `drush cex` para `config/sync` e versionada no Git.
 - Em ambiente de destino (receita normativa validada): `git pull` → `drush cim -y` → `drush updb -y` → `drush cim -y` → `drush cr` (`cim` **antes** de `updb`; **2ª passada de `cim`** após `updb` para placements/displays que dependem de UUIDs seedados pelos hooks).
+- **Exceção — remoção de content type com nós legados** (ex.: `custom_configs_update_11028` / tipo `para_empresas`): `updb` **antes** do `cim` que apaga o tipo do sync; senão o import falha com conteúdo ainda no bundle. Detalhe: `specs/016-deploy-producao-layout/contracts/deploy-runbook.md` e quickstart da feature.
 - Não edite YAMLs de `config/sync` “na mão” para inventar config nova: altere via admin/API e exporte.
 
 ## Seeds e instâncias de conteúdo (obrigatório)
@@ -25,6 +34,7 @@ Ao alterar estrutura (fields, block types, paragraphs, views, displays, placemen
 - Gere (ou atualize) um `hook_update_N` **idempotente** em `custom_configs.install` usando a Entity API do Drupal (`\Drupal::entityTypeManager()`, `BlockContent::create()`, etc.).
 - Antes de criar/alterar: verificar existência (UUID fixo, machine name, path/placement). Reexecução = no-op seguro.
 - Nunca sobrescrever conteúdo editorial já divergente do seed; preencher apenas ausente/vazio.
+- **Arquivos gerenciáveis e assets em `public://` (feature 057):** após a 1ª materialização, deploys **não** reescrevem bytes nem reapontam fields de imagem. Imagens **podem** diferir entre ambientes. Helper `_custom_configs_seed_file_from_module_asset(..., $replace = FALSE)` reutiliza URI/disco existente; `$replace = TRUE` só em `hook_update_N` escrito sob **ordem explícita** do produto. Proibido sync por MD5 / ratio / filename “seed-like” sem essa ordem.
 - Ao final do desenvolvimento no ambiente de origem: instruir e executar `drush cex` para sincronizar block types, paragraph types, fields, displays e placements gerados/alterados.
 
 ## Checklist mínimo por feature estrutural
@@ -37,9 +47,13 @@ Ao alterar estrutura (fields, block types, paragraphs, views, displays, placemen
 
 ## Layout v2 `/quem-somos` (blocos 009–013)
 
-Receita destino: `cim` → `updb` (`11012`/`11013`/`11015`/`11016`/`11017`/`11018`/`11019`) → `cim` → `cr`.
+Receita destino: `cim` → `updb` (`11012`/`11013`/`11015`/`11016`/`11017`/`11018`/`11019`/`11024`) → `cim` → `cr`.
+
+## `/para-empresas` → Página básica (`11028`)
+
+Receita destino **desta** migração: `updb` (`11028`) → `cim` → `cr` (updb antes do cim que remove `node.type.para_empresas`).
 
 Na **origem**, além do `drush cex`:
 
-- Espelhar imagens editoriais do seed em `modules/custom/custom_configs/assets/` (ex.: ícones do bloco `diferenciais_quem_somos` / id local 14 → `assets/diferenciais-quem-somos/icon-*.png` a partir de `public://paragraph/diferencial-simples/`).
+- Espelhar imagens editoriais do seed em `modules/custom/custom_configs/assets/` (ex.: ícones do bloco `diferenciais_quem_somos` / id local 14 → `assets/diferenciais-quem-somos/icon-*.png` a partir de `public://paragraph/diferencial-simples/`; slides PE → `assets/banner-para-empresas/slide-*.png`).
 - Nunca commit de `sites/default/files`; o hook copia asset → `public://` no destino.

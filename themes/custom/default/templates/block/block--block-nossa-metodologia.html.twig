@@ -24,10 +24,11 @@
 <section{{ attributes.addClass(classes).setAttribute('id', 'nossa-metodologia') }}>
   {{ title_prefix }}{{ title_suffix }}
   {% block content %}
+    {{ attach_library('default/nossa_metodologia') }}
     <div{{ content_attributes.addClass('content') }}>
       <div class="container">
         {% if title or subtitle %}
-          <header class="nm-header text-center text-md-end">
+          <header class="nm-header text-end text-md-end">
             {% if title %}
               <h2 class="nm-header__title">{{ title }}</h2>
             {% endif %}
@@ -38,7 +39,7 @@
         {% endif %}
 
         {% if has_etapas %}
-          <div class="nm-etapas" role="list">
+          <div class="nm-etapas mx-auto" role="list">
             {% for item in etapa_items %}
               {% if item.entity.uri.value is defined %}
                 {% set etapa_uri = item.entity.uri.value %}
@@ -52,10 +53,8 @@
         {% endif %}
 
         {% if has_passos %}
-          <div class="nm-passos row justify-content-center">
-            <div class="col-11 col-lg-10 col-xl-9">
-              {{ content.field_metodologia_passos }}
-            </div>
+          <div class="nm-passos mx-auto">
+            {{ content.field_metodologia_passos }}
           </div>
         {% endif %}
       </div>

@@ -1,0 +1,17 @@
+uuid: 3e598c58-07d1-4257-bc61-c1d4b89054db
+langcode: pt-br
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus: {  }
+    parent: ''
+name: Empresa
+type: empresa
+description: 'Perfil público da organização anunciante (logo + nome). Distinto da role user empresa.'
+help: null
+new_revision: false
+preview_mode: 1
+display_submitted: false

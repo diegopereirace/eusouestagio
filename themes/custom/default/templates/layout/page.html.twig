@@ -97,7 +97,21 @@
         {{ page.banner }}
       </div>
     {% endif %}
-    {% if page.highlighted %}
+    {# /para-estudantes: Hero (highlighted) entre banner e content_full; demais rotas mantêm highlighted abaixo. #}
+    {% if content_full_after_banner|default(false) %}
+      {% if page.highlighted %}
+        <div class="highlighted">
+          <aside class="{{ container }} section clearfix" role="complementary">
+            {{ page.highlighted }}
+          </aside>
+        </div>
+      {% endif %}
+      {% if page.content_full %}
+        <div class="content-full content-full--after-banner">
+          {{ page.content_full }}
+        </div>
+      {% endif %}
+    {% elseif page.highlighted %}
       <div class="highlighted">
         <aside class="{{ container }} section clearfix" role="complementary">
           {{ page.highlighted }}
@@ -149,7 +163,7 @@
       {% endblock %}
     </div>
 
-    {% if page.content_full %}
+    {% if page.content_full and not content_full_after_banner|default(false) %}
       <div class="content-full">
         {{ page.content_full }}
       </div>
@@ -164,7 +178,7 @@
         </aside>
       </div>
     {% endif %}
-    <footer class="site-footer-custom pt-5">
+    <footer class="site-footer-custom">
       {% block footer %}
         <div class="container">
           <div class="row">

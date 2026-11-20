@@ -1,0 +1,31 @@
+uuid: 5a74de74-c538-43ba-b6d7-c859f08a829a
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.oportunidades_estudantes
+    - field.storage.block_content.field_itens_lista
+    - paragraphs.paragraphs_type.card_icon_text_p
+  module:
+    - entity_reference_revisions
+id: block_content.oportunidades_estudantes.field_itens_lista
+field_name: field_itens_lista
+entity_type: block_content
+bundle: oportunidades_estudantes
+label: Cards
+description: 'Cards da grade (ícone + título + texto).'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      card_icon_text_p: card_icon_text_p
+    negate: 0
+    target_bundles_drag_drop:
+      card_icon_text_p:
+        weight: 0
+        enabled: true
+field_type: entity_reference_revisions

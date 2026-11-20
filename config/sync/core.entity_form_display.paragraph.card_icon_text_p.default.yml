@@ -1,0 +1,44 @@
+uuid: d7e8f9a0-b1c2-4345-d678-456789abcdef
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.card_icon_text_p.field_image
+    - field.field.paragraph.card_icon_text_p.field_text_simple
+    - field.field.paragraph.card_icon_text_p.field_text_simple_long
+    - image.style.thumbnail
+    - paragraphs.paragraphs_type.card_icon_text_p
+  module:
+    - image
+id: paragraph.card_icon_text_p.default
+targetEntityType: paragraph
+bundle: card_icon_text_p
+mode: default
+content:
+  field_image:
+    type: image_image
+    weight: 0
+    region: content
+    settings:
+      progress_indicator: throbber
+      preview_image_style: thumbnail
+    third_party_settings: {  }
+  field_text_simple:
+    type: string_textfield
+    weight: 1
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_text_simple_long:
+    type: string_textarea
+    weight: 2
+    region: content
+    settings:
+      rows: 4
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true

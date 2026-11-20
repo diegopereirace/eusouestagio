@@ -52,7 +52,7 @@ settings:
       label: 'Minas Gerais'
     -
       value: PA
-      label: Paraná
+      label: Pará
     -
       value: PB
       label: Paraíba
@@ -62,6 +62,9 @@ settings:
     -
       value: PI
       label: Piauí
+    -
+      value: PR
+      label: Paraná
     -
       value: RJ
       label: 'Rio de Janeiro'

@@ -1,0 +1,204 @@
+{#
+/**
+ * @file
+ * Detalhe full da vaga — layout Figma duas colunas (031) + header empresa (032/034).
+ * Sidebar 033: ações (candidatar / salvar / compartilhar) + resumo.
+ * Header: field_vaga_empresa (node) — nome sem link (texto + verificado).
+ * Cartão “Sobre a Empresa” (037) entre Benefícios e FAQ — só com empresa publicada/acessível.
+ * Sem Match / Processo / Seu Perfil / CTA inline.
+ * FAQ via coleção field_faq_itens. CTA final = bloco default_ctav1vagas.
+ * Ícones verificado/localização/check: assets/images/icon-verificado.png,
+ * icon-localizacao.png e icon-check.png (design oficial), não Font Awesome.
+ */
+#}
+{{ attach_library('bootstrap_barrio/node') }}
+{{ attach_library('default/script-painel') }}
+{{ attach_library('default/vagas_detalhe') }}
+
+{%
+  set classes = [
+    'node',
+    'node--type-' ~ node.bundle|clean_class,
+    node.isPromoted() ? 'node--promoted',
+    node.isSticky() ? 'node--sticky',
+    not node.isPublished() ? 'node--unpublished',
+    view_mode ? 'node--view-mode-' ~ view_mode|clean_class,
+    'clearfix',
+    'vaga-detalhe',
+  ]
+%}
+
+{# Header 032/034 — node Empresa publicado/acessível via field_vaga_empresa. #}
+{% set empresa_node = null %}
+{% set header_logo_uri = '' %}
+{% if node.hasField('field_vaga_empresa') and node.field_vaga_empresa is not empty and node.field_vaga_empresa.entity %}
+  {% set _empresa_candidate = node.field_vaga_empresa.entity %}
+  {% if _empresa_candidate.isPublished() %}
+    {% set empresa_node = _empresa_candidate %}
+    {% if empresa_node.hasField('field_imagem') and not empresa_node.field_imagem.isEmpty and empresa_node.field_imagem.entity %}
+      {% set header_logo_uri = empresa_node.field_imagem.entity.uri.value %}
+    {% endif %}
+  {% endif %}
+{% endif %}
+
+{% set cidade = node.field_cidade.value %}
+{% set estado = node.field_estados.value %}
+{% set local_label = '' %}
+{% if cidade and estado %}
+  {% set local_label = cidade ~ ', ' ~ estado %}
+{% elseif cidade %}
+  {% set local_label = cidade %}
+{% elseif estado %}
+  {% set local_label = estado %}
+{% endif %}
+{% set carga_horaria = '' %}
+{% if node.hasField('field_vaga_carga_horaria') and node.field_vaga_carga_horaria.value %}
+  {% set carga_horaria = node.field_vaga_carga_horaria.value %}
+{% endif %}
+{% set share_url = url('entity.node.canonical', {'node': node.id}, {'absolute': true})|render|striptags|trim %}
+{% set share_url_encoded = share_url|url_encode %}
+
+<article{{ attributes.addClass(classes) }}>
+  <div class="container py-5">
+    <div class="row g-4">
+
+      {# —— Coluna principal —— #}
+      <div class="col-12 col-lg-8">
+
+        <header class="vaga-detalhe__header">
+          <div class="vaga-detalhe__header-top">
+            {% if header_logo_uri %}
+              <div class="vaga-detalhe__logo">
+                <img src="{{ file_url(header_logo_uri) }}" alt="{{ empresa_node.label }}" width="112" height="112" loading="lazy">
+              </div>
+            {% endif %}
+            <div class="vaga-detalhe__header-text">
+              <h1{{ title_attributes.addClass('vaga-detalhe__title') }}>{{ label }}</h1>
+              {% if empresa_node or local_label %}
+                <p class="vaga-detalhe__meta">
+                  {% if empresa_node %}
+                    <span class="vaga-detalhe__empresa-nome">{{ empresa_node.label }}</span>
+                    <span class="vaga-detalhe__verified" role="img" aria-label="{{ 'Empresa verificada'|t }}" title="{{ 'Empresa verificada'|t }}"></span>
+                  {% endif %}
+                  {% if empresa_node and local_label %}
+                    <span class="vaga-detalhe__meta-sep" aria-hidden="true">•</span>
+                  {% endif %}
+                  {% if local_label %}
+                    <span class="vaga-detalhe__local">
+                      <span class="vaga-detalhe__local-icon" aria-hidden="true"></span>
+                      {{ local_label }}
+                    </span>
+                  {% endif %}
+                </p>
+              {% endif %}
+            </div>
+          </div>
+          <div class="vaga-detalhe__badges">
+            {% if node.field_regime_t is not empty %}
+              {% for item in node.field_regime_t %}
+                {% if item.entity %}
+                  <span class="vaga-detalhe__badge vaga-detalhe__badge--regime">{{ item.entity.label }}</span>
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+            {% if carga_horaria %}
+              <span class="vaga-detalhe__badge">{{ carga_horaria }}</span>
+            {% endif %}
+            {% if node.field_text_simple.value %}
+              <span class="vaga-detalhe__badge">{{ node.field_text_simple.value }}</span>
+            {% endif %}
+            {% if vaga_postado_ha %}
+              <span class="vaga-detalhe__badge vaga-detalhe__badge--muted">{{ 'Postado há @time'|t({'@time': vaga_postado_ha}) }}</span>
+            {% endif %}
+          </div>
+        </header>
+
+        {% if node.field_text_long_formatted.value %}
+          <section class="vaga-detalhe__sobre">
+            <h2 class="vaga-detalhe__section-title">{{ 'Sobre a Vaga'|t }}</h2>
+            <div class="vaga-detalhe__section-body">
+              {{ node.field_text_long_formatted.value|raw }}
+            </div>
+          </section>
+        {% endif %}
+
+        {% set has_requisitos = node.hasField('field_vaga_requisitos') and node.field_vaga_requisitos.value %}
+        {% if has_requisitos %}
+          <section class="vaga-detalhe__requisitos">
+            <h2 class="vaga-detalhe__section-title">{{ 'Requisitos'|t }}</h2>
+            <div class="vaga-detalhe__requisitos-body">
+              {{ node.field_vaga_requisitos.value|raw }}
+            </div>
+          </section>
+        {% endif %}
+
+        {% set has_beneficios = node.hasField('field_vaga_beneficios_t') and node.field_vaga_beneficios_t is not empty %}
+        {% if has_beneficios %}
+          <section class="vaga-detalhe__beneficios">
+            <h2 class="vaga-detalhe__section-title">{{ 'Benefícios'|t }}</h2>
+            {# justify-content-center: overflow da última linha centralizado (>4 desktop / ímpar mobile); 4 ou 8 itens preenchem a linha e ficam alinhados. #}
+            <div class="vaga-detalhe__beneficios-grid row g-3 justify-content-center">
+              {% for item in node.field_vaga_beneficios_t %}
+                {% if item.entity %}
+                  {% set term = item.entity %}
+                  {% set ben_title = term.label %}
+                  {% set ben_icon = '' %}
+                  {% set ben_alt = ben_title %}
+                  {% if term.hasField('field_image') and not term.field_image.isEmpty and term.field_image.entity %}
+                    {% set ben_icon = term.field_image.entity.uri.value %}
+                    {% set ben_alt = term.field_image.alt|default(ben_title) %}
+                  {% endif %}
+                  {% if ben_title or ben_icon %}
+                    <div class="col-6 col-lg-3">
+                      <div class="vaga-detalhe__beneficio-card">
+                        <div class="vaga-detalhe__beneficio-icon">
+                          {% if ben_icon %}
+                            <img src="{{ file_url(ben_icon) }}" alt="{{ ben_alt }}" width="48" height="48" loading="lazy">
+                          {% elseif vaga_beneficio_icon_fallbacks is defined %}
+                            <img src="{{ vaga_beneficio_icon_fallbacks[loop.index0 % 4] }}" alt="{{ ben_alt }}" width="48" height="48" loading="lazy">
+                          {% endif %}
+                        </div>
+                        {% if ben_title %}
+                          <div class="vaga-detalhe__beneficio-title">{{ ben_title }}</div>
+                        {% endif %}
+                      </div>
+                    </div>
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+            </div>
+          </section>
+        {% endif %}
+
+        {# show_empresa_card: preprocess — Twig sandbox não permite Node::access(). #}
+        {% if show_empresa_card and empresa_node %}
+          {% include '@default/content/includes/vaga-sobre-empresa.html.twig' %}
+        {% endif %}
+
+        {# faq_paras: preprocess 051 — FAQ padrão único; não lê field_vaga_faq. #}
+        {% if faq_paras %}
+          {% include '@default/content/includes/vaga-faq-accordion.html.twig' with {
+            node: node,
+            faq_paras: faq_paras
+          } only %}
+        {% endif %}
+
+      </div>
+
+      {# —— Sidebar 033: ações + resumo. Sem Match / Seu Perfil. —— #}
+      <aside class="col-12 col-lg-4">
+        {% include '@default/content/includes/vaga-sidebar-acoes.html.twig' with {
+          node: node,
+          logged_in: logged_in,
+          user: user,
+          vaga_candidatada: vaga_candidatada|default(false),
+          vaga_salva: vaga_salva|default(false),
+          share_url_encoded: share_url_encoded,
+        } only %}
+        {% include '@default/content/includes/vaga-sidebar-resumo.html.twig' with {
+          node: node,
+        } only %}
+      </aside>
+    </div>
+  </div>
+</article>

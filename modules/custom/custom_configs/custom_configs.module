@@ -6,7 +6,225 @@
  */
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element;
 use Drupal\node\NodeInterface;
+use Drupal\views\Plugin\views\query\QueryPluginBase;
+use Drupal\views\Plugin\views\query\Sql;
+use Drupal\views\ViewExecutable;
+
+/**
+ * Implements hook_page_attachments_alter().
+ *
+ * Feature 061: remove metatag Generator (identificação pública do CMS).
+ */
+function custom_configs_page_attachments_alter(array &$attachments): void {
+  if (empty($attachments['#attached']['html_head']) || !is_array($attachments['#attached']['html_head'])) {
+    return;
+  }
+
+  foreach ($attachments['#attached']['html_head'] as $delta => $item) {
+    if (!is_array($item)) {
+      continue;
+    }
+
+    // Formato Drupal: [$element, $key].
+    $key = $item[1] ?? NULL;
+    if ($key === 'system_meta_generator') {
+      unset($attachments['#attached']['html_head'][$delta]);
+      continue;
+    }
+
+    $element = $item[0] ?? $item;
+    if (!is_array($element)) {
+      continue;
+    }
+    $name = $element['#attributes']['name'] ?? '';
+    if (is_string($name) && strcasecmp($name, 'Generator') === 0) {
+      unset($attachments['#attached']['html_head'][$delta]);
+    }
+  }
+}
+
+/**
+ * Implements hook_views_query_alter().
+ *
+ * Feature 029: em /vagas (page_1), ajusta só a ordem de created (ASC/DESC)
+ * conforme ?sort_order=, mantendo field_vaga_destaque como sort primário.
+ */
+function custom_configs_views_query_alter(ViewExecutable $view, QueryPluginBase $query): void {
+  if ($view->id() !== 'vagas' || ($view->current_display ?? '') !== 'page_1') {
+    return;
+  }
+  if (!$query instanceof Sql) {
+    return;
+  }
+
+  $order = strtoupper((string) \Drupal::request()->query->get('sort_order', 'DESC'));
+  if ($order !== 'ASC' && $order !== 'DESC') {
+    $order = 'DESC';
+  }
+
+  foreach ($query->orderby as &$clause) {
+    $field = (string) ($clause['field'] ?? '');
+    if ($field === '' || !str_contains($field, 'created')) {
+      continue;
+    }
+    // Não alterar sorts de destaque / outros campos.
+    if (str_contains($field, 'field_vaga_destaque')) {
+      continue;
+    }
+    $clause['direction'] = $order;
+  }
+  unset($clause);
+}
+
+/**
+ * UUID canônico da coleção FAQ padrão das vagas (seed 030/038; feature 051).
+ */
+const CUSTOM_CONFIGS_FAQ_PADRAO_UUID = 'c3d4e5f6-a7b8-4901-b234-56789abcdef0';
+
+/**
+ * Max passos allowlisted no form do bundle jornada_estudante (storage permanece -1).
+ */
+const CUSTOM_CONFIGS_JORNADA_ESTUDANTE_MAX_PASSOS = 4;
+
+/**
+ * Carrega o node FAQ padrão das vagas pelo UUID canônico.
+ *
+ * Feature 051: fonte única do Accordion no detalhe da vaga (não lê field_vaga_faq).
+ *
+ * @return \Drupal\node\NodeInterface|null
+ *   Node faq ou NULL se ausente.
+ */
+function custom_configs_load_faq_padrao(): ?NodeInterface {
+  $entities = \Drupal::entityTypeManager()
+    ->getStorage('node')
+    ->loadByProperties(['uuid' => CUSTOM_CONFIGS_FAQ_PADRAO_UUID]);
+  if (!$entities) {
+    return NULL;
+  }
+  $node = reset($entities);
+  return $node instanceof NodeInterface ? $node : NULL;
+}
+
+/**
+ * Max itens allowlisted no form do bundle perfil_destaque_estudante (storage permanece -1).
+ */
+const CUSTOM_CONFIGS_PERFIL_DESTAQUE_ESTUDANTE_MAX_ITENS = 3;
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter() for block_content_form.
+ *
+ * Limita field_itens_lista por bundle (jornada max 4; perfil destaque max 3)
+ * sem mutar a cardinality do storage compartilhado.
+ */
+function custom_configs_form_block_content_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
+  $form_object = $form_state->getFormObject();
+  if (!is_object($form_object) || !method_exists($form_object, 'getEntity')) {
+    return;
+  }
+  $entity = $form_object->getEntity();
+  if (!$entity || !isset($form['field_itens_lista']['widget'])) {
+    return;
+  }
+
+  $bundle = $entity->bundle();
+  if ($bundle === 'jornada_estudante') {
+    $form['field_itens_lista']['widget']['#after_build'][] = '_custom_configs_jornada_estudante_limit_add_more';
+    $form['#validate'][] = '_custom_configs_jornada_estudante_max_passos_validate';
+    return;
+  }
+
+  if ($bundle === 'perfil_destaque_estudante') {
+    $form['field_itens_lista']['widget']['#after_build'][] = '_custom_configs_perfil_destaque_estudante_limit_add_more';
+    $form['#validate'][] = '_custom_configs_perfil_destaque_estudante_max_itens_validate';
+  }
+}
+
+/**
+ * Oculta "Add more" / duplicate quando já há 4 passos.
+ */
+function _custom_configs_jornada_estudante_limit_add_more(array $element, FormStateInterface $form_state): array {
+  return _custom_configs_limit_itens_lista_add_more($element, CUSTOM_CONFIGS_JORNADA_ESTUDANTE_MAX_PASSOS);
+}
+
+/**
+ * Oculta "Add more" / duplicate quando já há 3 itens do perfil em destaque.
+ */
+function _custom_configs_perfil_destaque_estudante_limit_add_more(array $element, FormStateInterface $form_state): array {
+  return _custom_configs_limit_itens_lista_add_more($element, CUSTOM_CONFIGS_PERFIL_DESTAQUE_ESTUDANTE_MAX_ITENS);
+}
+
+/**
+ * Oculta "Add more" / duplicate quando o widget already atingiu o máximo.
+ */
+function _custom_configs_limit_itens_lista_add_more(array $element, int $max): array {
+  $count = 0;
+  foreach (Element::children($element) as $key) {
+    if (is_numeric($key)) {
+      $count++;
+    }
+  }
+  if ($count >= $max) {
+    unset($element['add_more']);
+    foreach (Element::children($element) as $key) {
+      if (!is_numeric($key)) {
+        continue;
+      }
+      unset($element[$key]['top']['links']['duplicate_button']);
+      unset($element[$key]['top']['links']['duplicate']);
+    }
+  }
+  return $element;
+}
+
+/**
+ * Rejeita submit com mais de 4 passos (bypass de UI).
+ */
+function _custom_configs_jornada_estudante_max_passos_validate(array &$form, FormStateInterface $form_state): void {
+  _custom_configs_validate_itens_lista_max(
+    $form_state,
+    CUSTOM_CONFIGS_JORNADA_ESTUDANTE_MAX_PASSOS,
+    t('A Jornada do Estudante permite no máximo @max passos.', [
+      '@max' => CUSTOM_CONFIGS_JORNADA_ESTUDANTE_MAX_PASSOS,
+    ])
+  );
+}
+
+/**
+ * Rejeita submit com mais de 3 itens do perfil em destaque (bypass de UI).
+ */
+function _custom_configs_perfil_destaque_estudante_max_itens_validate(array &$form, FormStateInterface $form_state): void {
+  _custom_configs_validate_itens_lista_max(
+    $form_state,
+    CUSTOM_CONFIGS_PERFIL_DESTAQUE_ESTUDANTE_MAX_ITENS,
+    t('O Perfil em Destaque permite no máximo @max itens.', [
+      '@max' => CUSTOM_CONFIGS_PERFIL_DESTAQUE_ESTUDANTE_MAX_ITENS,
+    ])
+  );
+}
+
+/**
+ * Conta deltas de field_itens_lista e rejeita acima do máximo.
+ */
+function _custom_configs_validate_itens_lista_max(FormStateInterface $form_state, int $max, \Drupal\Core\StringTranslation\TranslatableMarkup $message): void {
+  $values = $form_state->getValue('field_itens_lista');
+  if (!is_array($values)) {
+    return;
+  }
+  $count = 0;
+  foreach ($values as $key => $item) {
+    if (!is_numeric($key)) {
+      continue;
+    }
+    if (!empty($item['entity']) || !empty($item['target_id']) || !empty($item['subform'])) {
+      $count++;
+    }
+  }
+  if ($count > $max) {
+    $form_state->setErrorByName('field_itens_lista', $message);
+  }
+}
 
 /**
  * Implements hook_webform_submission_form_alter().

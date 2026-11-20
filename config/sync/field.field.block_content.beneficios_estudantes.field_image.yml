@@ -1,0 +1,38 @@
+uuid: 046cd52b-e581-4996-ac52-8ce7e6dea8de
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - block_content.type.beneficios_estudantes
+    - field.storage.block_content.field_image
+  module:
+    - image
+id: block_content.beneficios_estudantes.field_image
+field_name: field_image
+entity_type: block_content
+bundle: beneficios_estudantes
+label: Colagem
+description: 'Arte composta circular da seção (única; não itemizada).'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: 'block/beneficios-estudantes/[date:custom:Y]-[date:custom:m]'
+  file_extensions: 'png gif jpg jpeg webp svg'
+  max_filesize: ''
+  max_resolution: ''
+  min_resolution: ''
+  alt_field: true
+  alt_field_required: false
+  title_field: true
+  title_field_required: false
+  default_image:
+    uuid: ''
+    alt: ''
+    title: ''
+    width: null
+    height: null
+field_type: image

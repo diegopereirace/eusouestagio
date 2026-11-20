@@ -2,6 +2,9 @@
 /**
  * @file
  * Paragraph Item Diferencial Simples (diferencial_simples_p).
+ *
+ * Subtexto (field_text_simple_long) é opcional — omitido se vazio
+ * (ex.: Quem Somos; Benefícios PE usa a linha curta do Figma).
  */
 #}
 {%
@@ -16,20 +19,24 @@
   ]
 %}
 {% set label = content.field_text_simple|render|striptags|trim %}
+{% set subtext = content.field_text_simple_long|render|striptags|trim %}
 {% set has_icon = content.field_image['#items'] is defined and content.field_image['#items'][0] is defined and content.field_image['#items'][0].entity.uri.value is defined %}
 
-{% if has_icon or label %}
+{% if has_icon or label or subtext %}
   <div{{ attributes.addClass(classes) }}>
     <div class="dqs-item text-center d-flex flex-column align-items-center">
       {% if has_icon %}
         {% set icon_uri = content.field_image['#items'][0].entity.uri.value %}
         {% set icon_alt = content.field_image['#items'][0].alt|default(label) %}
         <div class="dqs-item__icon">
-          <img class="img-fluid" src="{{ file_url(icon_uri) }}" alt="{{ icon_alt }}" loading="lazy">
+          <img class="img-fluid" src="{{ icon_uri|image_style('diferencial_simples_icon')|e('html_attr') }}" alt="{{ icon_alt }}" loading="lazy">
         </div>
       {% endif %}
       {% if label %}
         <p class="dqs-item__label mt-3">{{ label }}</p>
+      {% endif %}
+      {% if subtext %}
+        <p class="dqs-item__subtext">{{ subtext }}</p>
       {% endif %}
     </div>
   </div>

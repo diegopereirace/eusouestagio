@@ -14,7 +14,7 @@ Definir a saída pública estável da seção, seus breakpoints, fallbacks e res
 ```html
 <section class="block-nossa-metodologia">
   <div class="container">
-    <header class="nm-header text-center text-md-end">
+    <header class="nm-header text-end">
       <h2 class="nm-header__title">…</h2>
       <p class="nm-header__subtitle">…</p>
     </header>

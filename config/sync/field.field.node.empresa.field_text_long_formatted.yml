@@ -1,0 +1,26 @@
+uuid: e1f2a3b4-c5d6-4789-a012-bcdef0340004
+langcode: pt-br
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_text_long_formatted
+    - filter.format.basic_html
+    - filter.format.full_html
+    - node.type.empresa
+  module:
+    - text
+id: node.empresa.field_text_long_formatted
+field_name: field_text_long_formatted
+entity_type: node
+bundle: empresa
+label: 'Sobre a Empresa'
+description: 'Texto público sobre a organização.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - basic_html
+    - full_html
+field_type: text_long

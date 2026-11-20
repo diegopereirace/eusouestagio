@@ -1,0 +1,15 @@
+uuid: 058fde33-da67-4a03-8746-c8208ce7c45b
+langcode: pt-br
+status: true
+dependencies: {  }
+name: quem_somos_missao_visao
+label: 'Quem Somos — Missão/Visão'
+effects:
+  8eb227e0-a212-4a28-9e90-f872d8f1ec4a:
+    uuid: 8eb227e0-a212-4a28-9e90-f872d8f1ec4a
+    id: image_scale
+    weight: 1
+    data:
+      width: 1920
+      height: null
+      upscale: false

@@ -16802,6 +16802,90 @@ function custom_configs_update_11092(): string {
 }
 
 /**
+ * Alinha o título do node (aba do navegador) aos nomes do menu.
+ *
+ * O metatag padrão usa [node:title]. O H1 das landings não vem desse título.
+ */
+function custom_configs_update_11093(): string {
+  $map = [
+    '/sobre-nos' => [
+      'from' => 'Quem Somos',
+      'to' => 'Sobre Nós',
+      'fallback' => '/quem-somos',
+    ],
+    '/para-sua-empresa' => [
+      'from' => 'Para Empresas',
+      'to' => 'Para Sua Empresa',
+      'fallback' => '/para-empresas',
+    ],
+    '/estudantes' => [
+      'from' => 'Para Estudantes',
+      'to' => 'Estudantes',
+      'fallback' => '/para-estudantes',
+    ],
+  ];
+
+  $alias_storage = \Drupal::entityTypeManager()->getStorage('path_alias');
+  $messages = [];
+
+  foreach ($map as $alias => $rename) {
+    $found = $alias_storage->loadByProperties(['alias' => $alias]);
+    if (!$found) {
+      $found = $alias_storage->loadByProperties(['alias' => $rename['fallback']]);
+    }
+    if (!$found) {
+      $messages[] = (string) t('Alias @alias ausente; título não alterado.', ['@alias' => $alias]);
+      continue;
+    }
+
+    /** @var \Drupal\path_alias\PathAliasInterface $path_alias */
+    $path_alias = reset($found);
+    $path = $path_alias->getPath();
+    if (!preg_match('#^/node/(\d+)$#', $path, $matches)) {
+      $messages[] = (string) t('@alias não aponta para um node.', ['@alias' => $alias]);
+      continue;
+    }
+
+    $node = \Drupal::entityTypeManager()->getStorage('node')->load($matches[1]);
+    if (!$node) {
+      $messages[] = (string) t('Node @nid de @alias ausente.', [
+        '@nid' => $matches[1],
+        '@alias' => $alias,
+      ]);
+      continue;
+    }
+
+    $current = $node->getTitle();
+    if ($current === $rename['to']) {
+      $messages[] = (string) t('Título de @alias já é @title.', [
+        '@alias' => $alias,
+        '@title' => $rename['to'],
+      ]);
+      continue;
+    }
+    if ($current !== $rename['from']) {
+      $messages[] = (string) t('Título de @alias é "@current"; mantido.', [
+        '@alias' => $alias,
+        '@current' => $current,
+      ]);
+      continue;
+    }
+
+    $node->setTitle($rename['to']);
+    if ($node->hasField('path') && isset($node->path)) {
+      $node->path->pathauto = 0;
+    }
+    $node->save();
+    $messages[] = (string) t('Título de @alias atualizado para @title.', [
+      '@alias' => $alias,
+      '@title' => $rename['to'],
+    ]);
+  }
+
+  return implode(' ', $messages);
+}
+
+/**
  * Troca o alias público, preservando o path interno do mesmo node.
  *
  * @param array<string, string> $map

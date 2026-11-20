@@ -45,21 +45,6 @@ content:
     third_party_settings: {  }
     weight: 3
     region: content
-  field_text_simple:
-    type: string
-    label: hidden
-    settings:
-      link_to_entity: false
-    third_party_settings: {  }
-    weight: 4
-    region: content
-  field_text_simple_long:
-    type: basic_string
-    label: hidden
-    settings: {  }
-    third_party_settings: {  }
-    weight: 5
-    region: content
   webform:
     type: webform_entity_reference_entity_view
     label: hidden
@@ -68,6 +53,8 @@ content:
     weight: 0
     region: content
 hidden:
+  field_text_simple: true
+  field_text_simple_long: true
   langcode: true
   links: true
   search_api_excerpt: true

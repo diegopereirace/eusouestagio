@@ -20,10 +20,8 @@
   ]
 %}
 {% set has_webform = content.webform['#items'] is defined and content.webform['#items'] is not empty %}
-{% set panel_title = node.field_text_simple.value|default('')|trim %}
-{% set panel_text = node.field_text_simple_long.value|default('')|trim %}
 {% set img_uri = '' %}
-{% set img_alt = panel_title ? panel_title : ('Time de especialistas'|t) %}
+{% set img_alt = 'Time de especialistas'|t %}
 {# Image Style contato_painel: scale max-width 640 — width/height HTML proporcionais ao asset. #}
 {% set img_w = 640 %}
 {% set img_h = 0 %}
@@ -59,12 +57,6 @@
       <div class="layout-contato-node__panel">
         {% if img_uri %}
           <img class="img-fluid layout-contato-node__image" src="{{ img_uri|image_style('contato_painel')|e('html_attr') }}" alt="{{ img_alt|e('html_attr') }}" loading="lazy" decoding="async"{% if img_w %} width="{{ img_w }}"{% endif %}{% if img_h %} height="{{ img_h }}"{% endif %}>
-        {% endif %}
-        {% if panel_title %}
-          <p class="layout-contato-node__panel-title">{{ panel_title }}</p>
-        {% endif %}
-        {% if panel_text %}
-          <p class="layout-contato-node__panel-text">{{ panel_text }}</p>
         {% endif %}
       </div>
     </div>

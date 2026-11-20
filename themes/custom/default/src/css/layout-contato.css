@@ -314,23 +314,26 @@ body.path-contato .layout-main-wrapper > #main > .row > main.main-content {
   border-radius: 12px;
 }
 
-.node--contato .layout-contato-node__panel-title {
-  font-family: 'Poppins', sans-serif;
-  font-weight: 700;
-  color: #0f172a;
+/* Imagem do node preenche a coluna, sem inset. */
+.node--contato .layout-contato-node__media-col,
+.node--contato .layout-contato-node__panel,
+.node--contato .layout-contato-node__image {
   margin: 0;
-  font-size: 1.125rem;
-  text-align: center;
 }
 
-.node--contato .layout-contato-node__panel-text {
-  font-family: 'Poppins', sans-serif;
-  font-weight: 400;
-  color: #334155;
-  margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.45;
-  text-align: center;
+.node--contato .layout-contato-node__panel {
+  padding: 0;
+  gap: 0;
+  border-radius: 0;
+  align-items: stretch;
+  justify-content: stretch;
+  background-color: transparent;
+}
+
+.node--contato .layout-contato-node__image {
+  width: 100%;
+  max-width: none;
+  border-radius: 0;
 }
 
 /* ============================================================
@@ -358,15 +361,34 @@ body.path-contato .layout-main-wrapper > #main > .row > main.main-content {
     flex: 1 1 auto;
     min-width: 0;
     display: flex;
+    position: relative;
+    align-self: stretch;
+    padding: 0;
+    margin: 0;
     background-color: #e5eeff;
   }
 
   .node--contato .layout-contato-node__panel {
+    position: absolute;
+    inset: 0;
     border-radius: 0;
     background-color: transparent;
     width: 100%;
-    min-height: 100%;
-    padding: 3rem 2rem;
+    height: 100%;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    gap: 0;
+  }
+
+  .node--contato .layout-contato-node__image {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    margin: 0;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 0;
   }
 
   /* Preferir fileira única; wrap se a coluna estreitar (≥992px intermediário). */
@@ -415,14 +437,31 @@ body.path-contato .layout-main-wrapper > #main > .row > main.main-content {
   }
 
   .node--contato .layout-contato-node__media-col {
-    width: 100%;
+    position: static;
+    width: calc(100% + 2rem);
+    max-width: none;
     order: 2;
-    margin-top: 2rem;
+    margin: 2rem -1rem 0;
+    padding: 0;
   }
 
   .node--contato .layout-contato-node__panel {
-    border-radius: 16px;
+    position: static;
+    inset: auto;
+    border-radius: 0;
     width: 100%;
+    height: auto;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .node--contato .layout-contato-node__image {
+    width: 100%;
+    height: auto;
+    max-width: none;
+    margin: 0;
+    border-radius: 0;
   }
 
   .node--contato .layout-contato-node__webform .form-actions.webform-actions {

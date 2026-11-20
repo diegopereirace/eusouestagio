@@ -150,6 +150,10 @@ class CurlFactory implements CurlFactoryInterface
             throw new \InvalidArgumentException('on_trailers must be callable');
         }
 
+        if (\strpbrk($request->getMethod(), "\r\n") !== false) {
+            throw new RequestException('HTTP method must not contain a carriage return or line feed.', $request);
+        }
+
         $protocolVersion = $request->getProtocolVersion();
 
         if ('' === $protocolVersion) {
@@ -1206,10 +1210,14 @@ class CurlFactory implements CurlFactoryInterface
 
         try {
             $proxyUri = new Uri($proxyForParsing);
-            $redactedUserInfo = Psr7\Utils::redactUserInfo($proxyUri)->getUserInfo();
 
-            if ($redactedUserInfo === $proxyUri->getUserInfo()) {
-                return $error;
+            // psr7 finds no userinfo behind a scheme with a plus sign.
+            if ($proxyUri->getUserInfo() !== '') {
+                $redactedUserInfo = Psr7\Utils::redactUserInfo($proxyUri)->getUserInfo();
+
+                if ($redactedUserInfo === $proxyUri->getUserInfo()) {
+                    return $error;
+                }
             }
         } catch (\InvalidArgumentException $e) {
             // Unparseable as a URI: fall back to redacting the whole userinfo.
@@ -2100,6 +2108,10 @@ class CurlFactory implements CurlFactoryInterface
 
             foreach ($values as $value) {
                 $value = (string) $value;
+                if (\strpos("$name$value", "\0") !== false) {
+                    throw new RequestException('Request header fields must not contain a NUL byte.', $easy->request);
+                }
+
                 if ($value === '') {
                     // cURL requires a special format for empty headers.
                     // See https://github.com/guzzle/guzzle/issues/1882 for more details.

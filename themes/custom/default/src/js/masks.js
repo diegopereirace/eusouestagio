@@ -38,11 +38,31 @@
 
             once('cep-autofill', '.mask-cep', context).forEach(function (element) {
                 var $cep = $(element);
-                var $endereco = $('input[name="field_endereco"], input[name^="field_endereco["]', context).first();
-                var $bairro = $('input[name="field_bairro"], input[name^="field_bairro["]', context).first();
-                var $cidade = $('input[name="field_cidade"], input[name^="field_cidade["]', context).first();
-                var $estado = $('select[name="field_estado"], select[name^="field_estado["]', context).first();
-                var $complemento = $('input[name="field_complemento"], input[name^="field_complemento["]', context).first();
+                var cepName = String($cep.attr('name') || '');
+                var instMatch = cepName.match(/^inst_cep_(\d+)$/);
+                var $endereco;
+                var $bairro;
+                var $cidade;
+                var $estado;
+                var $complemento;
+
+                // CEP da instituição de ensino (cadastro/edição com vários blocos).
+                if (instMatch) {
+                    var idx = instMatch[1];
+                    $endereco = $('input[name="inst_endereco_' + idx + '"]', context);
+                    $bairro = $('input[name="inst_bairro_' + idx + '"]', context);
+                    $cidade = $('input[name="inst_cidade_' + idx + '"]', context);
+                    $estado = $('select[name="inst_estado_' + idx + '"]', context);
+                    $complemento = $();
+                }
+                else {
+                    // Endereço residencial / empresa (field_*).
+                    $endereco = $('input[name="field_endereco"], input[name^="field_endereco["]', context).first();
+                    $bairro = $('input[name="field_bairro"], input[name^="field_bairro["]', context).first();
+                    $cidade = $('input[name="field_cidade"], input[name^="field_cidade["]', context).first();
+                    $estado = $('select[name="field_estado"], select[name^="field_estado["]', context).first();
+                    $complemento = $('input[name="field_complemento"], input[name^="field_complemento["]', context).first();
+                }
 
                 var $feedback = $cep.siblings('.cep-loading-feedback').first();
                 if (!$feedback.length) {

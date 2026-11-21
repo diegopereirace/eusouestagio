@@ -308,34 +308,169 @@
   box-shadow: 0 0 0 0.2rem rgba(0, 48, 96, 0.15);
 }
 
-/* Add / remove buttons with icon glyphs (CSS, no FA SVG dependency) */
-.page-cadastro-candidato .cadastro-btn--add,
-.page-cadastro-candidato .cadastro-btn--remove {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  border-radius: 0.55rem;
-  font-weight: 600;
+/*
+ * Paragraphs (instituição / curso / experiência): subcards à esquerda e
+ * coluna lateral de ações (ícones + e −) à direita. O wrapper é o alvo do
+ * AJAX, então a estrutura é recriada idêntica a cada resposta.
+ */
+.page-cadastro-candidato .cadastro-paragraph-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 0.75rem;
+  align-items: end;
 }
 
-.page-cadastro-candidato .cadastro-btn--add::before,
-.page-cadastro-candidato .cadastro-btn--remove::before {
-  content: "";
-  display: inline-block;
-  width: 0.85rem;
-  height: 0.85rem;
-  flex-shrink: 0;
+/* Barrio adiciona mb-3 em todo form-wrapper: zera para o "+" alinhar ao último card. */
+.page-cadastro-candidato .cadastro-paragraph-items,
+.page-cadastro-candidato .cadastro-paragraph-rail {
+  margin-bottom: 0 !important;
+}
+
+.page-cadastro-candidato .cadastro-paragraph-items {
+  min-width: 0;
+}
+
+.page-cadastro-candidato .cadastro-paragraph-items > .cadastro-subcard:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* "+" ancorado no fim da coluna (alinhado ao último subcard); "−" fica acima. */
+.page-cadastro-candidato .cadastro-paragraph-rail {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  width: 2rem;
+}
+
+.page-cadastro-candidato .cadastro-icon-action {
+  position: relative;
+  display: block;
+  width: 2rem;
+  height: 2rem;
+}
+
+/* Legenda no hover / foco de teclado */
+.page-cadastro-candidato .cadastro-icon-action::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 0.5rem);
+  z-index: 20;
+  transform: translateY(-50%);
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.4rem;
+  background: #1f2d3d;
+  color: #fff;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease;
+}
+
+.page-cadastro-candidato .cadastro-icon-action:hover::after,
+.page-cadastro-candidato .cadastro-icon-action:focus-within::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Botão discreto: neutraliza btn-primary/form-control injetados pelo Barrio. */
+.page-cadastro-candidato .cadastro-section .cadastro-paragraph-rail .cadastro-icon-btn {
+  display: block;
+  box-sizing: border-box;
+  width: 2rem;
+  min-width: 2rem;
+  max-width: 2rem;
+  height: 2rem;
+  min-height: 2rem;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #d5dde8;
+  border-radius: 0.5rem;
+  background-color: #fff;
   background-repeat: no-repeat;
   background-position: center;
-  background-size: contain;
+  background-size: 1rem 1rem;
+  box-shadow: none;
+  /* Texto do value fica no HTML (acessibilidade), oculto visualmente. */
+  color: transparent;
+  font-size: 0;
+  line-height: 0;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
-.page-cadastro-candidato .cadastro-btn--add::before {
+.page-cadastro-candidato .cadastro-section .cadastro-paragraph-rail .cadastro-icon-btn--add {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%234a5d73'%3E%3Cpath d='M8 1a.75.75 0 0 1 .75.75v5.5h5.5a.75.75 0 0 1 0 1.5h-5.5v5.5a.75.75 0 0 1-1.5 0v-5.5h-5.5a.75.75 0 0 1 0-1.5h5.5v-5.5A.75.75 0 0 1 8 1z'/%3E%3C/svg%3E");
 }
 
-.page-cadastro-candidato .cadastro-btn--remove::before {
+.page-cadastro-candidato .cadastro-section .cadastro-paragraph-rail .cadastro-icon-btn--remove {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%234a5d73'%3E%3Cpath d='M2 7.25a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 7.25z'/%3E%3C/svg%3E");
+}
+
+.page-cadastro-candidato .cadastro-section .cadastro-paragraph-rail .cadastro-icon-btn--add:hover,
+.page-cadastro-candidato .cadastro-section .cadastro-paragraph-rail .cadastro-icon-btn--add:focus-visible {
+  border-color: #fd7b1a;
+  background-color: #fff4eb;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23e66e15'%3E%3Cpath d='M8 1a.75.75 0 0 1 .75.75v5.5h5.5a.75.75 0 0 1 0 1.5h-5.5v5.5a.75.75 0 0 1-1.5 0v-5.5h-5.5a.75.75 0 0 1 0-1.5h5.5v-5.5A.75.75 0 0 1 8 1z'/%3E%3C/svg%3E");
+}
+
+.page-cadastro-candidato .cadastro-section .cadastro-paragraph-rail .cadastro-icon-btn--remove:hover,
+.page-cadastro-candidato .cadastro-section .cadastro-paragraph-rail .cadastro-icon-btn--remove:focus-visible {
+  border-color: #b02a37;
+  background-color: #fdf0f1;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23b02a37'%3E%3Cpath d='M2 7.25a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 7.25z'/%3E%3C/svg%3E");
+}
+
+.page-cadastro-candidato .cadastro-section .cadastro-paragraph-rail .cadastro-icon-btn:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 48, 96, 0.15);
+}
+
+/*
+ * Requisição AJAX em andamento (Drupal desabilita o botão clicado).
+ * O ícone +/− dá lugar a um spinner, que sinaliza "carregando" sem alterar o
+ * tamanho do botão (o throbber padrão do Drupal quebraria o alinhamento).
+ */
+.page-cadastro-candidato .cadastro-section .cadastro-paragraph-rail .cadastro-icon-btn:disabled,
+.page-cadastro-candidato .cadastro-section .cadastro-paragraph-rail .cadastro-icon-btn.is-disabled {
+  border-color: #fd7b1a;
+  background-color: #fff4eb;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%23f3d3b8' stroke-width='3'/%3E%3Cpath d='M12 3a9 9 0 0 1 9 9' fill='none' stroke='%23fd7b1a' stroke-width='3' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' from='0 12 12' to='360 12 12' dur='0.7s' repeatCount='indefinite'/%3E%3C/path%3E%3C/svg%3E") !important;
+  background-size: 1.1rem 1.1rem;
+  cursor: progress;
+  pointer-events: none;
+}
+
+.page-cadastro-candidato .cadastro-icon-action:has(.cadastro-icon-btn:disabled)::after {
+  display: none;
+}
+
+/* Mobile: ações em linha abaixo da lista, "+" sempre na ponta direita. */
+@media (max-width: 575.98px) {
+  .page-cadastro-candidato .cadastro-paragraph-list {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 0.75rem;
+  }
+
+  .page-cadastro-candidato .cadastro-paragraph-rail {
+    flex-direction: row;
+    justify-self: end;
+    width: auto;
+  }
+
+  /* Tooltip abre para cima para não sair da tela. */
+  .page-cadastro-candidato .cadastro-icon-action::after {
+    top: auto;
+    right: 0;
+    bottom: calc(100% + 0.4rem);
+    transform: none;
+  }
 }
 
 /* Submit marca (#FD7B1A local — não muta --brand-orange) */
@@ -363,17 +498,28 @@
   border-color: #d46312;
 }
 
-/* Aceite */
+/* Aceite — anula float/margin negativo do Bootstrap .form-check */
 .page-cadastro-candidato .cadastro-section .form-check {
   display: flex;
   align-items: flex-start;
-  gap: 0.5rem;
+  gap: 0.625rem;
   padding-left: 0;
+  margin-left: 0;
 }
 
 .page-cadastro-candidato .cadastro-section .form-check-input {
-  margin-top: 0.35rem;
+  float: none;
+  position: static;
+  margin-top: 0.2em;
+  margin-left: 0;
+  margin-right: 0;
   flex-shrink: 0;
+}
+
+.page-cadastro-candidato .cadastro-section .form-check-label {
+  margin-bottom: 0;
+  padding-top: 0;
+  line-height: 1.45;
 }
 
 .page-cadastro-candidato .cadastro-section .form-check-label a {

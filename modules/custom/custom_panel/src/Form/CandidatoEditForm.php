@@ -2,8 +2,10 @@
 
 namespace Drupal\custom_panel\Form;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\user\Entity\User;
@@ -15,6 +17,67 @@ class CandidatoEditForm extends FormBase
   public function getFormId()
   {
     return 'custom_panel_candidato_edit_form';
+  }
+
+  /**
+   * Organiza um wrapper de Paragraphs em "itens + coluna lateral de ações".
+   *
+   * Mesmo componente do cadastro (feature 064): ícones + e − pequenos à direita,
+   * "+" ancorado no fim da coluna para não se mover quando o "−" aparece/some.
+   *
+   * @param array $wrapper
+   *   Container alvo do AJAX (já com `#attributes.id`).
+   * @param array $c
+   *   Chaves: item_prefix, ajax_wrapper, ajax_callback, add_key, add_submit,
+   *   add_label, remove_key, remove_submit, remove_label, show_remove.
+   */
+  private function buildParagraphList(array &$wrapper, array $c): void
+  {
+    $items = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['cadastro-paragraph-items']],
+    ];
+    $prefix_len = strlen($c['item_prefix']);
+    foreach (Element::children($wrapper) as $key) {
+      if (strncmp($key, $c['item_prefix'], $prefix_len) === 0 && ctype_digit(substr($key, $prefix_len))) {
+        $items[$key] = $wrapper[$key];
+        unset($wrapper[$key]);
+      }
+    }
+
+    $button = function (string $submit, $label, string $variant) use ($c): array {
+      return [
+        '#type' => 'submit',
+        '#value' => $label,
+        '#submit' => [$submit],
+        '#ajax' => [
+          'callback' => $c['ajax_callback'],
+          'wrapper' => $c['ajax_wrapper'],
+          // Sem throbber inline: ele quebraria o alinhamento da coluna.
+          'progress' => ['type' => 'none'],
+        ],
+        '#attributes' => [
+          'class' => ['cadastro-icon-btn', 'cadastro-icon-btn--' . $variant],
+          'aria-label' => (string) $label,
+        ],
+        '#limit_validation_errors' => [],
+        '#prefix' => '<span class="cadastro-icon-action" data-tooltip="' . Html::escape((string) $label) . '">',
+        '#suffix' => '</span>',
+      ];
+    };
+
+    $rail = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['cadastro-paragraph-rail']],
+    ];
+    if (!empty($c['show_remove'])) {
+      $rail[$c['remove_key']] = $button($c['remove_submit'], $c['remove_label'], 'remove');
+    }
+    $rail[$c['add_key']] = $button($c['add_submit'], $c['add_label'], 'add');
+
+    $wrapper['#attributes']['class'][] = 'cadastro-paragraph-list';
+    $wrapper['items'] = $items;
+    $wrapper['rail'] = $rail;
   }
 
   private function getListOptions(string $field_name, string $entity_type = 'user'): array
@@ -623,35 +686,18 @@ class CandidatoEditForm extends FormBase
       ];
     }
 
-    $form['section_instituicao']['instituicoes_wrapper']['paragraph_actions'] = [
-      '#type' => 'container',
-      '#attributes' => ['class' => ['painel-paragraph-actions']],
-    ];
-    $form['section_instituicao']['instituicoes_wrapper']['paragraph_actions']['add_instituicao'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Incluir Instituição'),
-      '#submit' => ['::addInstituicaoCallback'],
-      '#ajax' => [
-        'callback' => '::ajaxRefreshInstituicoes',
-        'wrapper' => 'instituicoes-wrapper',
-      ],
-      '#attributes' => ['class' => ['btn', 'btn-outline-laranja', 'btn-sm']],
-      '#limit_validation_errors' => [],
-    ];
-
-    if ($num_instituicoes > 1) {
-      $form['section_instituicao']['instituicoes_wrapper']['paragraph_actions']['remove_instituicao'] = [
-        '#type' => 'submit',
-        '#value' => $this->t('Remover última instituição'),
-        '#submit' => ['::removeInstituicaoCallback'],
-        '#ajax' => [
-          'callback' => '::ajaxRefreshInstituicoes',
-          'wrapper' => 'instituicoes-wrapper',
-        ],
-        '#attributes' => ['class' => ['btn', 'btn-outline-azul-escuro', 'btn-sm']],
-        '#limit_validation_errors' => [],
-      ];
-    }
+    $this->buildParagraphList($form['section_instituicao']['instituicoes_wrapper'], [
+      'item_prefix' => 'inst_',
+      'ajax_wrapper' => 'instituicoes-wrapper',
+      'ajax_callback' => '::ajaxRefreshInstituicoes',
+      'add_key' => 'add_instituicao',
+      'add_submit' => '::addInstituicaoCallback',
+      'add_label' => $this->t('Adicionar instituição'),
+      'remove_key' => 'remove_instituicao',
+      'remove_submit' => '::removeInstituicaoCallback',
+      'remove_label' => $this->t('Remover instituição'),
+      'show_remove' => $num_instituicoes > 1,
+    ]);
 
     // ── Seção 7 — Informações Acadêmicas ───────────────────────
     $form['section_academico'] = [
@@ -823,7 +869,8 @@ class CandidatoEditForm extends FormBase
 
     $existing_cursos = $this->loadParagraphs($user, 'field_cursos_extracurriculares');
     if ($form_state->get('num_cursos') === NULL) {
-      $form_state->set('num_cursos', count($existing_cursos));
+      // Sempre exibe ao menos um conjunto de campos (opcionais) para preenchimento.
+      $form_state->set('num_cursos', max(count($existing_cursos), 1));
       $ids = array_map(fn(Paragraph $p) => $p->id(), $existing_cursos);
       $form_state->set('existing_cursos_ids', $ids);
     }
@@ -906,35 +953,18 @@ class CandidatoEditForm extends FormBase
       ];
     }
 
-    $form['section_extracurricular']['cursos_wrapper']['paragraph_actions'] = [
-      '#type' => 'container',
-      '#attributes' => ['class' => ['painel-paragraph-actions']],
-    ];
-    $form['section_extracurricular']['cursos_wrapper']['paragraph_actions']['add_curso'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Incluir Curso Extracurricular'),
-      '#submit' => ['::addCursoCallback'],
-      '#ajax' => [
-        'callback' => '::ajaxRefreshCursos',
-        'wrapper' => 'cursos-extracurriculares-wrapper',
-      ],
-      '#attributes' => ['class' => ['btn', 'btn-outline-laranja', 'btn-sm']],
-      '#limit_validation_errors' => [],
-    ];
-
-    if ($num_cursos > 0) {
-      $form['section_extracurricular']['cursos_wrapper']['paragraph_actions']['remove_curso'] = [
-        '#type' => 'submit',
-        '#value' => $this->t('Remover último curso'),
-        '#submit' => ['::removeCursoCallback'],
-        '#ajax' => [
-          'callback' => '::ajaxRefreshCursos',
-          'wrapper' => 'cursos-extracurriculares-wrapper',
-        ],
-        '#attributes' => ['class' => ['btn', 'btn-outline-azul-escuro', 'btn-sm']],
-        '#limit_validation_errors' => [],
-      ];
-    }
+    $this->buildParagraphList($form['section_extracurricular']['cursos_wrapper'], [
+      'item_prefix' => 'curso_',
+      'ajax_wrapper' => 'cursos-extracurriculares-wrapper',
+      'ajax_callback' => '::ajaxRefreshCursos',
+      'add_key' => 'add_curso',
+      'add_submit' => '::addCursoCallback',
+      'add_label' => $this->t('Adicionar curso'),
+      'remove_key' => 'remove_curso',
+      'remove_submit' => '::removeCursoCallback',
+      'remove_label' => $this->t('Remover curso'),
+      'show_remove' => $num_cursos > 1,
+    ]);
 
     // ── Seção 9 — Experiência Profissional (Paragraphs) ────────
     $form['section_experiencia'] = [
@@ -951,7 +981,8 @@ class CandidatoEditForm extends FormBase
 
     $existing_exp = $this->loadParagraphs($user, 'field_experiencias_profissionais');
     if ($form_state->get('num_experiencias') === NULL) {
-      $form_state->set('num_experiencias', count($existing_exp));
+      // Sempre exibe ao menos um conjunto de campos (opcionais) para preenchimento.
+      $form_state->set('num_experiencias', max(count($existing_exp), 1));
       $ids = array_map(fn(Paragraph $p) => $p->id(), $existing_exp);
       $form_state->set('existing_exp_ids', $ids);
     }
@@ -1060,35 +1091,18 @@ class CandidatoEditForm extends FormBase
       ];
     }
 
-    $form['section_experiencia']['experiencias_wrapper']['paragraph_actions'] = [
-      '#type' => 'container',
-      '#attributes' => ['class' => ['painel-paragraph-actions']],
-    ];
-    $form['section_experiencia']['experiencias_wrapper']['paragraph_actions']['add_experiencia'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Incluir Experiência'),
-      '#submit' => ['::addExperienciaCallback'],
-      '#ajax' => [
-        'callback' => '::ajaxRefreshExperiencias',
-        'wrapper' => 'experiencias-wrapper',
-      ],
-      '#attributes' => ['class' => ['btn', 'btn-outline-laranja', 'btn-sm']],
-      '#limit_validation_errors' => [],
-    ];
-
-    if ($num_experiencias > 0) {
-      $form['section_experiencia']['experiencias_wrapper']['paragraph_actions']['remove_experiencia'] = [
-        '#type' => 'submit',
-        '#value' => $this->t('Remover última experiência'),
-        '#submit' => ['::removeExperienciaCallback'],
-        '#ajax' => [
-          'callback' => '::ajaxRefreshExperiencias',
-          'wrapper' => 'experiencias-wrapper',
-        ],
-        '#attributes' => ['class' => ['btn', 'btn-outline-azul-escuro', 'btn-sm']],
-        '#limit_validation_errors' => [],
-      ];
-    }
+    $this->buildParagraphList($form['section_experiencia']['experiencias_wrapper'], [
+      'item_prefix' => 'exp_',
+      'ajax_wrapper' => 'experiencias-wrapper',
+      'ajax_callback' => '::ajaxRefreshExperiencias',
+      'add_key' => 'add_experiencia',
+      'add_submit' => '::addExperienciaCallback',
+      'add_label' => $this->t('Adicionar experiência'),
+      'remove_key' => 'remove_experiencia',
+      'remove_submit' => '::removeExperienciaCallback',
+      'remove_label' => $this->t('Remover experiência'),
+      'show_remove' => $num_experiencias > 1,
+    ]);
 
     // ── Seção 10 — Informações Complementares ──────────────────
     $form['section_complementar'] = [
@@ -1192,8 +1206,8 @@ class CandidatoEditForm extends FormBase
 
   public function removeCursoCallback(array &$form, FormStateInterface $form_state)
   {
-    $num = $form_state->get('num_cursos') ?? 0;
-    if ($num > 0) {
+    $num = $form_state->get('num_cursos') ?? 1;
+    if ($num > 1) {
       $form_state->set('num_cursos', $num - 1);
     }
     $form_state->setRebuild();
@@ -1212,8 +1226,8 @@ class CandidatoEditForm extends FormBase
 
   public function removeExperienciaCallback(array &$form, FormStateInterface $form_state)
   {
-    $num = $form_state->get('num_experiencias') ?? 0;
-    if ($num > 0) {
+    $num = $form_state->get('num_experiencias') ?? 1;
+    if ($num > 1) {
       $form_state->set('num_experiencias', $num - 1);
     }
     $form_state->setRebuild();

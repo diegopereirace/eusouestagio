@@ -11,7 +11,7 @@ $config['recaptcha_v3.settings']['secret_key'] = 'SEGREDO_V3';
 
 Em produção, antes do `cim`: `drush cget recaptcha.settings secret_key` e `drush cget recaptcha_v3.settings secret_key`. Se o banco tiver valor, copiar para o `settings.php` antes do import.
 
-Docker local permanece com `$settings['disable_captcha'] = TRUE` até existirem segredos de teste.
+Docker local permanece com `$settings['disable_captcha'] = TRUE` até existirem segredos de teste. O `captcha.module` só limpa `$form['captcha']` na raiz; `custom_configs_form_alter()` remove o desafio aninhado (cadastros) para o reCAPTCHA de produção não carregar em `localhost`.
 
 ## Deploy
 

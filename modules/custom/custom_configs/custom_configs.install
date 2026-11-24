@@ -18859,6 +18859,36 @@ function custom_configs_update_11094(): string {
 }
 
 /**
+ * Desativa Twig debug e demais development settings (HTML limpo em produção).
+ *
+ * Remove comentários THEME DEBUG / nomes de templates no HTML e reativa
+ * bins de cache de render. Idempotente. Destino: updb → cr (rebuild container).
+ */
+function custom_configs_update_11095(): string {
+  $store = \Drupal::keyValue('development_settings');
+  $keys = [
+    'twig_debug',
+    'twig_cache_disable',
+    'disable_rendered_output_cache_bins',
+  ];
+  $removed = [];
+  foreach ($keys as $key) {
+    if ($store->has($key)) {
+      $store->delete($key);
+      $removed[] = $key;
+    }
+  }
+  if ($removed === []) {
+    return (string) t('Development settings já desativados — Twig debug off.');
+  }
+  // twig.config é aplicado na compilação do container (DevelopmentSettingsPass).
+  \Drupal::service('kernel')->invalidateContainer();
+  return (string) t('Desativou development settings (@keys) e invalidou o container.', [
+    '@keys' => implode(', ', $removed),
+  ]);
+}
+
+/**
  * Garante o telefone de WhatsApp no CTA PE (UUID a7b8…0123).
  */
 function _custom_configs_seed_cta_pe_whatsapp(): string {

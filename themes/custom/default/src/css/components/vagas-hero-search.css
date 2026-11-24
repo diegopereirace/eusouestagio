@@ -180,23 +180,6 @@
   color: #0f172a;
 }
 
-.vagas-hero-search__view-all {
-  margin: 0.75rem 0 0;
-  padding: 0;
-}
-
-.vagas-hero-search__view-all-link {
-  color: var(--brand-orange, #ff8a22);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.vagas-hero-search__view-all-link:hover,
-.vagas-hero-search__view-all-link:focus {
-  text-decoration: underline;
-  color: var(--brand-orange, #ff8a22);
-}
-
 /* Dropdown autocomplete */
 .vagas-hero-search__suggestions {
   position: absolute;
@@ -508,27 +491,6 @@ body.path-para-estudantes .vagas-hero-search__pill:focus {
   color: #1f2330;
 }
 
-/* "Ver todas": Figma — sob as pills, à esquerda; Inter 400/16/24, #9D4300. */
-body.path-para-estudantes .vagas-hero-search__view-all {
-  margin: 16px 0 0;
-  text-align: left;
-}
-
-body.path-para-estudantes .vagas-hero-search__view-all-link {
-  font-family: Inter, "Segoe UI", sans-serif;
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.5;
-  color: #9D4300;
-  text-decoration: none;
-}
-
-body.path-para-estudantes .vagas-hero-search__view-all-link:hover,
-body.path-para-estudantes .vagas-hero-search__view-all-link:focus {
-  color: #9D4300;
-  text-decoration: underline;
-}
-
 @media (min-width: 992px) {
   /* Larguras proporcionais ao Figma (≈ 288 / 248 / 374 px). */
   body.path-para-estudantes .vagas-hero-search__field--title {
@@ -583,10 +545,6 @@ body.path-para-estudantes .vagas-hero-search__view-all-link:focus {
 
   body.path-para-estudantes .vagas-hero-search__pills {
     margin-top: 24px;
-  }
-
-  body.path-para-estudantes .vagas-hero-search__view-all {
-    margin-top: 12px;
   }
 }
 

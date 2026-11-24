@@ -62,7 +62,6 @@ class VagasHeroSearchBlock extends BlockBase implements ContainerFactoryPluginIn
     return [
       '#theme' => 'custom_banners_vagas_hero_search',
       '#action' => $action,
-      '#view_all_url' => $action,
       '#endpoints' => [
         'vagas' => Url::fromRoute('custom_banners.vagas_autocomplete')->toString(),
         'cidades' => Url::fromRoute('custom_banners.cidades_autocomplete')->toString(),

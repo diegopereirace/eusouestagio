@@ -1,6 +1,6 @@
 uuid: 966c67ed-a614-42b4-bfa0-657d4a30fd87
 langcode: pt-br
-status: true
+status: false
 dependencies:
   config:
     - views.view.banners

@@ -20,6 +20,35 @@ class EmpresaRegistrationForm extends FormBase
     }
 
     /**
+     * Cabeçalho de seção do cadastro (ícone em chip + título + subtítulo).
+     *
+     * @param string $icon
+     *   Classe Font Awesome solid sem o prefixo (ex.: fa-key).
+     * @param \Drupal\Core\StringTranslation\TranslatableMarkup|string $title
+     *   Título da seção.
+     * @param \Drupal\Core\StringTranslation\TranslatableMarkup|string $subtitle
+     *   Subtítulo curto opcional.
+     *
+     * @return array
+     *   Render array do cabeçalho.
+     */
+    private function sectionHeading(string $icon, $title, $subtitle = ''): array
+    {
+        $subtitle_html = ((string) $subtitle) !== ''
+            ? '<p class="cadastro-section__subtitle">' . $subtitle . '</p>'
+            : '';
+
+        return [
+            '#markup' => '<div class="cadastro-section__header">'
+                . '<span class="cadastro-section__icon" aria-hidden="true"><i class="fa-solid ' . $icon . '"></i></span>'
+                . '<div class="cadastro-section__titles">'
+                . '<h2 class="cadastro-section__title">' . $title . '</h2>'
+                . $subtitle_html
+                . '</div></div>',
+        ];
+    }
+
+    /**
      * Carrega as opções de um campo list_string.
      */
     private function getListOptions(string $field_name, string $entity_type = 'user'): array
@@ -84,18 +113,23 @@ class EmpresaRegistrationForm extends FormBase
             '#type' => 'status_messages',
             '#weight' => -1000,
         ];
+
         $form['page_title'] = [
-            '#markup' => '<div class="mb-4 mt-5">'
-                . '<p class="text-muted mb-0">' . $this->t('Preencha os campos abaixo para contratação de estagiários.') . '</p>'
+            '#markup' => '<div class="cadastro-intro">'
+                . '<p class="cadastro-intro__text">' . $this->t('Preencha os campos abaixo para contratação de estagiários.') . '</p>'
                 . '</div>',
         ];
+
+        // ── Seção 1 — Dados de Acesso ──────────────────────────────
         $form['section_acesso'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['mb-4']],
+            '#attributes' => ['class' => ['cadastro-section']],
         ];
-        $form['section_acesso']['heading'] = [
-            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-lock me-2"></i>' . $this->t('Dados de Acesso') . '</h4>',
-        ];
+        $form['section_acesso']['heading'] = $this->sectionHeading(
+            'fa-key',
+            $this->t('Dados de Acesso'),
+            $this->t('Credenciais para entrar na plataforma.')
+        );
         $form['section_acesso']['row'] = [
             '#type' => 'container',
             '#attributes' => ['class' => ['row', 'g-3']],
@@ -109,7 +143,7 @@ class EmpresaRegistrationForm extends FormBase
             '#title' => $this->t('Nome de usuário'),
             '#required' => TRUE,
             '#maxlength' => 60,
-            '#attributes' => ['class' => ['form-control']],
+            '#attributes' => ['class' => ['form-control', 'form-control-lg']],
         ];
         $form['section_acesso']['row']['col_mail'] = [
             '#type' => 'container',
@@ -119,7 +153,7 @@ class EmpresaRegistrationForm extends FormBase
             '#type' => 'email',
             '#title' => $this->t('E-mail'),
             '#required' => TRUE,
-            '#attributes' => ['class' => ['form-control']],
+            '#attributes' => ['class' => ['form-control', 'form-control-lg']],
         ];
 
         if (!$verify_mail) {
@@ -132,7 +166,7 @@ class EmpresaRegistrationForm extends FormBase
                 '#title' => $this->t('Senha'),
                 '#required' => TRUE,
                 '#description' => $this->t('Mínimo de 8 caracteres.'),
-                '#attributes' => ['class' => ['form-control']],
+                '#attributes' => ['class' => ['form-control', 'form-control-lg']],
             ];
             $form['section_acesso']['row']['col_pass_confirm'] = [
                 '#type' => 'container',
@@ -142,9 +176,10 @@ class EmpresaRegistrationForm extends FormBase
                 '#type' => 'password',
                 '#title' => $this->t('Confirmar senha'),
                 '#required' => TRUE,
-                '#attributes' => ['class' => ['form-control']],
+                '#attributes' => ['class' => ['form-control', 'form-control-lg']],
             ];
-        } else {
+        }
+        else {
             $form['section_acesso']['verify_mail_message'] = [
                 '#type' => 'markup',
                 '#markup' => '<div class="alert alert-info mt-3 mb-0">'
@@ -156,11 +191,13 @@ class EmpresaRegistrationForm extends FormBase
         // ── Seção 2 — Dados da Empresa ─────────────────────────────
         $form['section_empresa'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['mb-4']],
+            '#attributes' => ['class' => ['cadastro-section']],
         ];
-        $form['section_empresa']['heading'] = [
-            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-building me-2"></i>' . $this->t('Dados da Empresa') . '</h4>',
-        ];
+        $form['section_empresa']['heading'] = $this->sectionHeading(
+            'fa-building',
+            $this->t('Dados da Empresa'),
+            $this->t('Informações cadastrais e identidade da organização.')
+        );
         $form['section_empresa']['row'] = [
             '#type' => 'container',
             '#attributes' => ['class' => ['row', 'g-3']],
@@ -174,7 +211,7 @@ class EmpresaRegistrationForm extends FormBase
             '#type' => 'textfield',
             '#title' => $this->t('Inscrição Municipal'),
             '#maxlength' => 255,
-            '#attributes' => ['class' => ['form-control', 'mask-numbers']],
+            '#attributes' => ['class' => ['form-control', 'form-control-lg', 'mask-numbers']],
         ];
 
         $form['section_empresa']['row']['col_cnpj'] = [
@@ -187,7 +224,7 @@ class EmpresaRegistrationForm extends FormBase
             '#required' => TRUE,
             '#maxlength' => 18,
             '#attributes' => [
-                'class' => ['form-control', 'mask-cnpj'],
+                'class' => ['form-control', 'form-control-lg', 'mask-cnpj'],
                 'placeholder' => '00.000.000/0000-00',
             ],
         ];
@@ -201,7 +238,7 @@ class EmpresaRegistrationForm extends FormBase
             '#title' => $this->t('Razão Social'),
             '#required' => TRUE,
             '#maxlength' => 255,
-            '#attributes' => ['class' => ['form-control']],
+            '#attributes' => ['class' => ['form-control', 'form-control-lg']],
         ];
 
         $form['section_empresa']['row']['col_nome_fantasia'] = [
@@ -212,7 +249,7 @@ class EmpresaRegistrationForm extends FormBase
             '#type' => 'textfield',
             '#title' => $this->t('Nome Fantasia'),
             '#maxlength' => 255,
-            '#attributes' => ['class' => ['form-control']],
+            '#attributes' => ['class' => ['form-control', 'form-control-lg']],
         ];
 
         $form['section_empresa']['row']['col_sobre_empresa'] = [
@@ -223,7 +260,7 @@ class EmpresaRegistrationForm extends FormBase
             '#type' => 'textarea',
             '#title' => $this->t('Sobre a Empresa'),
             '#rows' => 5,
-            '#attributes' => ['class' => ['form-control']],
+            '#attributes' => ['class' => ['form-control', 'form-control-lg']],
         ];
 
         $form['section_empresa']['row']['col_logo'] = [
@@ -245,11 +282,13 @@ class EmpresaRegistrationForm extends FormBase
         // ── Seção 3 — Endereço ─────────────────────────────────────
         $form['section_endereco'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['mb-4']],
+            '#attributes' => ['class' => ['cadastro-section']],
         ];
-        $form['section_endereco']['heading'] = [
-            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-map-marker-alt me-2"></i>' . $this->t('Endereço') . '</h4>',
-        ];
+        $form['section_endereco']['heading'] = $this->sectionHeading(
+            'fa-location-dot',
+            $this->t('Endereço'),
+            $this->t('Localização da empresa.')
+        );
         $form['section_endereco']['row'] = [
             '#type' => 'container',
             '#attributes' => ['class' => ['row', 'g-3']],
@@ -264,7 +303,7 @@ class EmpresaRegistrationForm extends FormBase
             '#title' => $this->t('CEP'),
             '#maxlength' => 9,
             '#attributes' => [
-                'class' => ['form-control', 'mask-cep'],
+                'class' => ['form-control', 'form-control-lg', 'mask-cep'],
                 'placeholder' => '00000-000',
             ],
         ];
@@ -277,7 +316,7 @@ class EmpresaRegistrationForm extends FormBase
             '#type' => 'textfield',
             '#title' => $this->t('Endereço'),
             '#maxlength' => 255,
-            '#attributes' => ['class' => ['form-control']],
+            '#attributes' => ['class' => ['form-control', 'form-control-lg']],
         ];
 
         $form['section_endereco']['row']['col_numero'] = [
@@ -288,14 +327,14 @@ class EmpresaRegistrationForm extends FormBase
             '#type' => 'textfield',
             '#title' => $this->t('Número'),
             '#maxlength' => 20,
-            '#attributes' => ['class' => ['form-control']],
+            '#attributes' => ['class' => ['form-control', 'form-control-lg']],
         ];
 
         $form['section_endereco']['row']['col_endereco']['field_complemento'] = [
             '#type' => 'textfield',
             '#title' => $this->t('Complemento'),
             '#maxlength' => 255,
-            '#attributes' => ['class' => ['form-control']],
+            '#attributes' => ['class' => ['form-control', 'form-control-lg']],
         ];
 
         $form['section_endereco']['row']['col_bairro'] = [
@@ -306,7 +345,7 @@ class EmpresaRegistrationForm extends FormBase
             '#type' => 'textfield',
             '#title' => $this->t('Bairro'),
             '#maxlength' => 100,
-            '#attributes' => ['class' => ['form-control']],
+            '#attributes' => ['class' => ['form-control', 'form-control-lg']],
         ];
 
         $form['section_endereco']['row']['col_cidade'] = [
@@ -317,7 +356,7 @@ class EmpresaRegistrationForm extends FormBase
             '#type' => 'textfield',
             '#title' => $this->t('Cidade'),
             '#maxlength' => 100,
-            '#attributes' => ['class' => ['form-control']],
+            '#attributes' => ['class' => ['form-control', 'form-control-lg']],
         ];
 
         $form['section_endereco']['row']['col_estado'] = [
@@ -328,17 +367,19 @@ class EmpresaRegistrationForm extends FormBase
             '#type' => 'select',
             '#title' => $this->t('Estado'),
             '#options' => ['' => $this->t('- Selecione -')] + $this->getListOptions('field_estado'),
-            '#attributes' => ['class' => ['form-select']],
+            '#attributes' => ['class' => ['form-select', 'form-select-lg']],
         ];
 
         // ── Seção 4 — Responsável pelo Cadastro ───────────────────
         $form['section_responsavel'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['mb-4']],
+            '#attributes' => ['class' => ['cadastro-section']],
         ];
-        $form['section_responsavel']['heading'] = [
-            '#markup' => '<h4 class="mb-3 pb-2 border-bottom"><i class="fas fa-user-tie me-2"></i>' . $this->t('Responsável pelo Cadastro') . '</h4>',
-        ];
+        $form['section_responsavel']['heading'] = $this->sectionHeading(
+            'fa-user-tie',
+            $this->t('Responsável pelo Cadastro'),
+            $this->t('Contato principal da conta empresa.')
+        );
         $form['section_responsavel']['row'] = [
             '#type' => 'container',
             '#attributes' => ['class' => ['row', 'g-3']],
@@ -353,7 +394,7 @@ class EmpresaRegistrationForm extends FormBase
             '#title' => $this->t('Nome'),
             '#required' => TRUE,
             '#maxlength' => 255,
-            '#attributes' => ['class' => ['form-control']],
+            '#attributes' => ['class' => ['form-control', 'form-control-lg']],
         ];
 
         $form['section_responsavel']['row']['col_responsavel_telefone'] = [
@@ -366,7 +407,7 @@ class EmpresaRegistrationForm extends FormBase
             '#required' => TRUE,
             '#maxlength' => 15,
             '#attributes' => [
-                'class' => ['form-control', 'mask-phone'],
+                'class' => ['form-control', 'form-control-lg', 'mask-phone'],
                 'placeholder' => '(00) 00000-0000',
             ],
         ];
@@ -380,31 +421,50 @@ class EmpresaRegistrationForm extends FormBase
             '#title' => $this->t('E-mail'),
             '#required' => TRUE,
             '#maxlength' => 254,
-            '#attributes' => ['class' => ['form-control']],
+            '#attributes' => ['class' => ['form-control', 'form-control-lg']],
         ];
 
+        // ── Seção 5 — Finalizar ────────────────────────────────────
         $form['section_termo'] = [
             '#type' => 'container',
-            '#attributes' => ['class' => ['mb-4']],
+            '#attributes' => ['class' => ['cadastro-section', 'cadastro-section--actions']],
         ];
+        $form['section_termo']['heading'] = $this->sectionHeading(
+            'fa-file-signature',
+            $this->t('Finalizar cadastro'),
+            $this->t('Aceite a política e envie os dados da empresa.')
+        );
         $form['section_termo']['field_termo'] = [
             '#type' => 'checkbox',
             '#title' => $this->t('Li e concordo com a <a href="/politica-de-privacidade" target="_blank">Política de Privacidade</a>'),
             '#required' => FALSE,
+            '#wrapper_attributes' => [
+                'class' => ['form-check', 'mb-3'],
+            ],
+            '#label_attributes' => [
+                'class' => ['form-check-label'],
+            ],
             '#attributes' => ['class' => ['form-check-input']],
         ];
 
-        $form['submit'] = [
+        $form['section_termo']['actions'] = [
+            '#type' => 'actions',
+            '#attributes' => ['class' => ['cadastro-section__actions', 'd-grid', 'gap-2']],
+        ];
+        $form['section_termo']['actions']['submit'] = [
             '#type' => 'submit',
             '#value' => $this->t('Cadastrar'),
-            '#attributes' => ['class' => ['btn', 'btn-primary']],
+            '#attributes' => [
+                'class' => ['btn', 'btn-primary', 'btn-lg', 'js-empresa-submit'],
+            ],
         ];
 
-        // Bibliotecas de máscaras (CEP, CPF, CNPJ, telefone).
+        // Bibliotecas de máscaras (CEP, CPF, CNPJ, telefone) + UI.
         $form['#attached']['library'][] = 'core/jquery.ui.widget';
         $form['#attached']['library'][] = 'default/jquery_mask';
         $form['#attached']['library'][] = 'default/masks';
         $form['#attached']['library'][] = 'custom_configs_users/registration_forms_validation';
+        $form['#attached']['library'][] = 'default/cadastro_empresa';
         $form['#attached']['drupalSettings']['defaultMasks']['cepApi'] = [
             'lookupUrl' => '/api/cep',
         ];

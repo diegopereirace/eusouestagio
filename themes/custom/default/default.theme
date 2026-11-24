@@ -79,10 +79,13 @@ function default_preprocess_html(array &$variables): void
     $variables['attributes']['class'][] = 'path-para-empresas';
   }
 
-  // Escopo de cadastro-candidato.css (library default/cadastro_candidato).
+  // Escopo de cadastro-candidato.css / cadastro-empresa.css.
   $route_name = \Drupal::routeMatch()->getRouteName();
   if ($route_name === 'custom_configs_users.candidato_registration') {
     $variables['attributes']['class'][] = 'page-cadastro-candidato';
+  }
+  if ($route_name === 'custom_configs_users.empresa_registration') {
+    $variables['attributes']['class'][] = 'page-cadastro-empresa';
   }
   $variables['#cache']['contexts'][] = 'route';
 }

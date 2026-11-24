@@ -18889,6 +18889,88 @@ function custom_configs_update_11095(): string {
 }
 
 /**
+ * Banner gerenciável de /cadastro/empresa (node "Banner - Cadastro Empresa").
+ *
+ * Feature 066. ORDEM EXPLÍCITA do produto: substituir o placeholder 1800x600
+ * por arte real em field_imagem_desktop (1800x500) e criar field_imagem_mobile
+ * (828x460) adaptada a tela pequena. Reexecução = no-op (já aponta p/ o asset).
+ *
+ * Destino: git pull → drush cim -y → drush updb -y → drush cr.
+ */
+function custom_configs_update_11096(): string {
+  return _custom_configs_seed_banner_cadastro_empresa();
+}
+
+/**
+ * Aplica as artes desktop/mobile no banner do cadastro de empresa.
+ */
+function _custom_configs_seed_banner_cadastro_empresa(): string {
+  $uuid = '4fbac674-0666-4def-9f1c-baa44d9abc22';
+  $title = 'Banner - Cadastro Empresa';
+  $alt = 'Cadastro de empresa: cadastre sua empresa e contrate estagiários';
+  $desktop_uri = 'public://banners/cadastro-empresa/desktop.jpg';
+  $mobile_uri = 'public://banners/cadastro-empresa/mobile.jpg';
+
+  $bundle_info = \Drupal::service('entity_type.bundle.info')->getBundleInfo('node');
+  if (!isset($bundle_info['banners'])) {
+    return (string) t('Bundle banners ausente — rode drush cim -y antes do updb.');
+  }
+
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $found = $storage->loadByProperties(['uuid' => $uuid]);
+  if (!$found) {
+    $found = $storage->loadByProperties(['type' => 'banners', 'title' => $title]);
+  }
+
+  if ($found) {
+    /** @var \Drupal\node\NodeInterface $node */
+    $node = reset($found);
+  }
+  else {
+    /** @var \Drupal\node\NodeInterface $node */
+    $node = $storage->create([
+      'type' => 'banners',
+      'uuid' => $uuid,
+      'title' => $title,
+      'status' => 1,
+      'uid' => 1,
+      'field_local_exibicao' => 'internas',
+      'field_peso' => 0,
+    ]);
+    $node->save();
+  }
+
+  $current_desktop = $node->get('field_imagem_desktop')->entity;
+  $current_mobile = $node->get('field_imagem_mobile')->entity;
+  if (
+    $current_desktop && $current_desktop->getFileUri() === $desktop_uri
+    && $current_mobile && $current_mobile->getFileUri() === $mobile_uri
+  ) {
+    return (string) t('Banner Cadastro Empresa (nid @nid) já usa as artes desktop/mobile.', ['@nid' => $node->id()]);
+  }
+
+  // $replace = TRUE: ordem explícita do produto (política 057).
+  $desktop = _custom_configs_seed_file_from_module_asset('banner-cadastro-empresa/desktop.jpg', $desktop_uri, 'node', (int) $node->id(), TRUE);
+  $mobile = _custom_configs_seed_file_from_module_asset('banner-cadastro-empresa/mobile.jpg', $mobile_uri, 'node', (int) $node->id(), TRUE);
+  if (!$desktop || !$mobile) {
+    return (string) t('Assets banner-cadastro-empresa ausentes no módulo — nada alterado.');
+  }
+
+  $node->set('field_imagem_desktop', ['target_id' => $desktop->id(), 'alt' => $alt]);
+  $node->set('field_imagem_mobile', ['target_id' => $mobile->id(), 'alt' => $alt]);
+  $node->save();
+
+  // Derivados dos image styles podem estar em cache com o placeholder antigo.
+  foreach (['banner_internas', 'banner_internas_mobile'] as $style_id) {
+    if ($style = \Drupal\image\Entity\ImageStyle::load($style_id)) {
+      $style->flush();
+    }
+  }
+
+  return (string) t('Banner Cadastro Empresa (nid @nid): artes desktop e mobile aplicadas.', ['@nid' => $node->id()]);
+}
+
+/**
  * Garante o telefone de WhatsApp no CTA PE (UUID a7b8…0123).
  */
 function _custom_configs_seed_cta_pe_whatsapp(): string {

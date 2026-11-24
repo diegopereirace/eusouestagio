@@ -21,92 +21,43 @@
   display: none;
 }
 
-/* Banner */
-.page-cadastro-empresa .cadastro-empresa-banner {
+/* Banner CMS — View banners/block_3 (conteúdo tipo Banners, ex. node/39) */
+.page-cadastro-empresa .cadastro-empresa-banner-region,
+.page-cadastro-empresa .cadastro-empresa-banner-region .region-banner,
+.page-cadastro-empresa .cadastro-empresa-banner-region .block {
+  margin: 0;
+  padding: 0;
+  max-width: 100%;
+}
+
+/* Arte completa (texto embutido): altura natural da imagem, sem recorte. */
+.page-cadastro-empresa .banner-image--interna {
   position: relative;
-  min-height: 220px;
-  height: clamp(220px, 28vw, 356px);
+  min-height: 0;
+  height: auto;
+  padding: 0;
+  align-items: stretch;
   background-color: #07132e;
   overflow: hidden;
   isolation: isolate;
 }
 
-.page-cadastro-empresa .cadastro-empresa-banner__picture {
-  position: absolute;
-  inset: 0;
+/* Arte completa no CMS (FR-5b): sem gradiente de overlay do tema. */
+.page-cadastro-empresa .banner-image--interna::before {
+  display: none;
+}
+
+.page-cadastro-empresa .banner-image--interna picture {
   display: block;
   width: 100%;
-  height: 100%;
-  max-width: 100%;
-  z-index: 0;
+  line-height: 0;
 }
 
-.page-cadastro-empresa .cadastro-empresa-banner__img {
+.page-cadastro-empresa .banner-interna-img {
   display: block;
   width: 100%;
-  height: 100%;
+  height: auto;
   max-width: 100%;
-  object-fit: cover;
-  object-position: 70% center;
-}
-
-@media (max-width: 575.98px) {
-  .page-cadastro-empresa .cadastro-empresa-banner {
-    height: 240px;
-    min-height: 240px;
-  }
-
-  .page-cadastro-empresa .cadastro-empresa-banner__img {
-    object-position: center center;
-  }
-}
-
-.page-cadastro-empresa .cadastro-empresa-banner__overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    105deg,
-    rgba(7, 19, 46, 0.92) 0%,
-    rgba(7, 19, 46, 0.78) 42%,
-    rgba(7, 19, 46, 0.35) 72%,
-    rgba(7, 19, 46, 0.2) 100%
-  );
-  pointer-events: none;
-  z-index: 1;
-}
-
-.page-cadastro-empresa .cadastro-empresa-banner__content {
-  position: relative;
-  z-index: 2;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  text-align: left;
-  padding-block: 1.5rem;
-  max-width: 100%;
-}
-
-.page-cadastro-empresa .cadastro-empresa-banner__eyebrow {
-  margin: 0 0 0.5rem;
-  color: rgba(255, 255, 255, 0.85);
-  font-family: "Poppins", sans-serif;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.page-cadastro-empresa .cadastro-empresa-banner__title {
-  color: #fff;
-  font-family: "Poppins", sans-serif;
-  font-size: clamp(1.5rem, 3vw, 2.25rem);
-  font-weight: 600;
-  line-height: 1.25;
-  margin: 0;
-  max-width: 32rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
 /* Form stack */

@@ -1,12 +1,12 @@
 {#
 /**
  * @file
- * Página /cadastro/empresa: banner picture + formulário em seções-cartão.
+ * Página /cadastro/empresa: banner CMS (View banners/block_3) + formulário em seções-cartão.
  *
  * Suggestion nativa page__cadastro__empresa. Sem lógica de estado do form.
+ * Banner gerenciável em Conteúdo → Banners (ex.: /node/39/edit).
  */
 #}
-{% set theme_path = active_theme_path() %}
 <div id="page-wrapper">
   <div id="page">
     <header id="header" class="header container" aria-label="{{ 'Site header'|t }}">
@@ -22,29 +22,11 @@
     <main class="cadastro-empresa-page">
       <a href="#main-content" id="main-content" tabindex="-1"></a>
 
-      <section class="cadastro-empresa-banner" aria-label="{{ 'Cadastro de empresa'|t }}">
-        <picture class="cadastro-empresa-banner__picture">
-          <source
-            srcset="/{{ theme_path }}/assets/images/cadastro-empresa/hero-desktop.webp"
-            type="image/webp"
-            width="1280"
-            height="356">
-          <img
-            class="cadastro-empresa-banner__img"
-            src="/{{ theme_path }}/assets/images/cadastro-empresa/hero-desktop.jpg"
-            alt=""
-            width="1280"
-            height="356"
-            loading="eager"
-            fetchpriority="high"
-            decoding="async">
-        </picture>
-        <div class="cadastro-empresa-banner__overlay" aria-hidden="true"></div>
-        <div class="container cadastro-empresa-banner__content">
-          <p class="cadastro-empresa-banner__eyebrow">{{ 'Cadastro de empresa'|t }}</p>
-          <h1 class="cadastro-empresa-banner__title">{{ 'Cadastre sua empresa e contrate estagiários'|t }}</h1>
+      {% if page.banner %}
+        <div class="banner cadastro-empresa-banner-region" role="banner">
+          {{ page.banner }}
         </div>
-      </section>
+      {% endif %}
 
       <div class="container cadastro-empresa-page__form-wrap">
         <div class="row justify-content-center">

@@ -40,8 +40,13 @@
 ] %}
 {% set empresas_links = [
   {'label': 'Cadastre sua Empresa', 'href': '/cadastro/empresa'},
-  {'label': 'Abrir Vaga', 'href': '/painel/empresa/vagas/nova'},
 ] %}
+{# Abrir Vaga: só autenticados com create vagas content (feature 065). #}
+{% if can_create_vaga %}
+  {% set empresas_links = empresas_links|merge([
+    {'label': 'Abrir Vaga', 'href': '/painel/empresa/vagas/nova'},
+  ]) %}
+{% endif %}
 <div{{ attributes.addClass(classes) }}>
   {{ title_prefix }}
   {% if label %}

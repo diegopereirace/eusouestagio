@@ -447,6 +447,7 @@ function default_block_access(Block $block, $operation, AccountInterface $accoun
  * Garante contexts/tags no render array (chave de cache), não só no preprocess.
  * - default_ctav1vagas: user/route + candidatura (feature 050).
  * - default_ctav1paraempresas: user.roles — markup varia por role empresa (052).
+ * - default_footer: user.permissions — link Abrir Vaga (feature 065).
  */
 function default_block_build_alter(array &$build, Block $block): void
 {
@@ -459,6 +460,9 @@ function default_block_build_alter(array &$build, Block $block): void
   }
   if ($id === 'default_ctav1paraempresas') {
     $build['#cache']['contexts'][] = 'user.roles';
+  }
+  if ($id === 'default_footer') {
+    $build['#cache']['contexts'][] = 'user.permissions';
   }
 }
 
@@ -494,6 +498,24 @@ function default_preprocess_block__default_ctav1vagas(array &$variables): void
   $account = \Drupal::currentUser();
   if ($account->isAuthenticated() && in_array('candidato', $account->getRoles(), TRUE)) {
     $variables['vaga_candidatada'] = _default_user_has_candidatura_vaga((int) $account->id(), $nid);
+  }
+}
+
+/**
+ * Implements hook_preprocess_block() for default_footer.
+ *
+ * Expõe can_create_vaga para o link Abrir Vaga (feature 065).
+ * Cache context também em hook_block_build_alter (chave de render cache).
+ */
+function default_preprocess_block__default_footer(array &$variables): void
+{
+  $user = \Drupal::currentUser();
+  $variables['can_create_vaga'] = $user->isAuthenticated()
+    && $user->hasPermission('create vagas content');
+
+  $variables['#cache']['contexts'][] = 'user.permissions';
+  if (isset($variables['elements']) && is_array($variables['elements'])) {
+    $variables['elements']['#cache']['contexts'][] = 'user.permissions';
   }
 }
 
